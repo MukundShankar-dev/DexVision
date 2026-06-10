@@ -15,7 +15,7 @@ from dexvision.sim.hand_model import (
 from dexvision.sim.mujoco_env import MujocoError
 
 
-DEFAULT_MODEL = Path("assets/mujoco/debug_hand_scene.xml")
+DEFAULT_MODEL = Path("assets/mujoco/hand_scene.xml")
 
 
 def build_parser() -> argparse.ArgumentParser:

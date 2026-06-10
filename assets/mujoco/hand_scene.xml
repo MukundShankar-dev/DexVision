@@ -1,106 +1,34 @@
 <!--
-  Reserved path for the final DexVision hand model.
-  Current contents are a legacy/debug placeholder. Do not use this model for
-  serious Level 2 demonstration recording or Level 3 learning until
-  docs/robot_hand_model.md marks the final hand decision complete.
-  Smoke-test apps should use assets/mujoco/debug_hand_scene.xml.
+  DexVision final hand scene.
+
+  Final model: Shadow Hand E3M5, right hand, from Google DeepMind MuJoCo
+  Menagerie. The vendored upstream files live in
+  assets/mujoco/menagerie/shadow_hand/.
+
+  The simple DexVision smoke-test hand remains at
+  assets/mujoco/debug_hand_scene.xml and should not be used for Level 2/3 data.
 -->
-<mujoco model="dexvision_hand_scene">
-  <compiler angle="radian"/>
+<mujoco model="dexvision_shadow_hand_scene">
+  <include file="menagerie/shadow_hand/right_hand_dexvision.xml"/>
 
-  <option timestep="0.002" gravity="0 0 -9.81"/>
+  <statistic extent="0.3" center="0.3 0 0"/>
 
-  <default>
-    <joint limited="true" damping="0.25" armature="0.002"/>
-    <geom type="capsule" size="0.014" density="350" rgba="0.68 0.74 0.82 1"/>
-    <position ctrllimited="true" kp="8"/>
-  </default>
+  <visual>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <quality shadowsize="4096"/>
+    <global azimuth="220" elevation="-30"/>
+  </visual>
 
   <asset>
-    <texture name="skybox" type="skybox" builtin="gradient" rgb1="0.48 0.58 0.68" rgb2="0.06 0.07 0.08" width="512" height="512"/>
-    <texture name="ground_grid" type="2d" builtin="checker" rgb1="0.18 0.22 0.24" rgb2="0.12 0.15 0.17" width="512" height="512"/>
-    <material name="ground_grid" texture="ground_grid" texrepeat="6 6" reflectance="0.15"/>
-    <material name="palm_mat" rgba="0.22 0.30 0.38 1"/>
-    <material name="finger_mat" rgba="0.68 0.74 0.82 1"/>
-    <material name="joint_mat" rgba="0.95 0.57 0.22 1"/>
+    <texture name="dexvision_skybox" type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture name="dexvision_groundplane" type="2d" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="dexvision_groundplane" texture="dexvision_groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
   </asset>
 
   <worldbody>
-    <light name="key_light" pos="0 -2 2.4" dir="0 1 -1" diffuse="0.9 0.9 0.85"/>
-    <geom name="ground" type="plane" size="2 2 0.05" material="ground_grid"/>
-
-    <body name="palm" pos="0 0 0.45">
-      <geom name="palm_geom" type="box" size="0.11 0.075 0.025" mass="0.35" material="palm_mat"/>
-
-      <body name="thumb_proximal" pos="-0.125 -0.01 0.0" euler="0 0 0.75">
-        <joint name="thumb_abduction" type="hinge" axis="0 0 1" range="-0.6 0.6"/>
-        <geom name="thumb_abduction_marker" type="sphere" size="0.018" mass="0.005" material="joint_mat"/>
-        <geom name="thumb_proximal_geom" fromto="0 0 0 0 0.085 0" material="finger_mat"/>
-        <body name="thumb_distal" pos="0 0.085 0">
-          <joint name="thumb_flexion" type="hinge" axis="1 0 0" range="0 1.2"/>
-          <geom name="thumb_flexion_marker" type="sphere" size="0.016" mass="0.004" material="joint_mat"/>
-          <geom name="thumb_distal_geom" fromto="0 0 0 0 0.07 0" size="0.012" material="finger_mat"/>
-        </body>
-      </body>
-
-      <body name="index_proximal" pos="-0.06 0.075 0.0">
-        <joint name="index_mcp" type="hinge" axis="1 0 0" range="-0.15 1.45"/>
-        <geom name="index_mcp_marker" type="sphere" size="0.016" mass="0.004" material="joint_mat"/>
-        <geom name="index_proximal_geom" fromto="0 0 0 0 0.13 0" material="finger_mat"/>
-        <body name="index_distal" pos="0 0.13 0">
-          <joint name="index_pip" type="hinge" axis="1 0 0" range="0 1.6"/>
-          <geom name="index_pip_marker" type="sphere" size="0.014" mass="0.003" material="joint_mat"/>
-          <geom name="index_distal_geom" fromto="0 0 0 0 0.09 0" size="0.012" material="finger_mat"/>
-        </body>
-      </body>
-
-      <body name="middle_proximal" pos="-0.02 0.08 0.0">
-        <joint name="middle_mcp" type="hinge" axis="1 0 0" range="-0.15 1.45"/>
-        <geom name="middle_mcp_marker" type="sphere" size="0.016" mass="0.004" material="joint_mat"/>
-        <geom name="middle_proximal_geom" fromto="0 0 0 0 0.145 0" material="finger_mat"/>
-        <body name="middle_distal" pos="0 0.145 0">
-          <joint name="middle_pip" type="hinge" axis="1 0 0" range="0 1.6"/>
-          <geom name="middle_pip_marker" type="sphere" size="0.014" mass="0.003" material="joint_mat"/>
-          <geom name="middle_distal_geom" fromto="0 0 0 0 0.095 0" size="0.012" material="finger_mat"/>
-        </body>
-      </body>
-
-      <body name="ring_proximal" pos="0.02 0.078 0.0">
-        <joint name="ring_mcp" type="hinge" axis="1 0 0" range="-0.15 1.45"/>
-        <geom name="ring_mcp_marker" type="sphere" size="0.016" mass="0.004" material="joint_mat"/>
-        <geom name="ring_proximal_geom" fromto="0 0 0 0 0.13 0" material="finger_mat"/>
-        <body name="ring_distal" pos="0 0.13 0">
-          <joint name="ring_pip" type="hinge" axis="1 0 0" range="0 1.6"/>
-          <geom name="ring_pip_marker" type="sphere" size="0.014" mass="0.003" material="joint_mat"/>
-          <geom name="ring_distal_geom" fromto="0 0 0 0 0.09 0" size="0.012" material="finger_mat"/>
-        </body>
-      </body>
-
-      <body name="pinky_proximal" pos="0.06 0.072 0.0">
-        <joint name="pinky_mcp" type="hinge" axis="1 0 0" range="-0.15 1.35"/>
-        <geom name="pinky_mcp_marker" type="sphere" size="0.016" mass="0.004" material="joint_mat"/>
-        <geom name="pinky_proximal_geom" fromto="0 0 0 0 0.11 0" material="finger_mat"/>
-        <body name="pinky_distal" pos="0 0.11 0">
-          <joint name="pinky_pip" type="hinge" axis="1 0 0" range="0 1.5"/>
-          <geom name="pinky_pip_marker" type="sphere" size="0.014" mass="0.003" material="joint_mat"/>
-          <geom name="pinky_distal_geom" fromto="0 0 0 0 0.08 0" size="0.011" material="finger_mat"/>
-        </body>
-      </body>
-    </body>
-
-    <camera name="overview" pos="0.55 -0.75 0.75" euler="1.05 0 0.62"/>
+    <light name="fill_light" pos="0 0 1"/>
+    <light name="key_light" pos="0.3 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" pos="0 0 -0.1" size="0 0 0.05" type="plane" material="dexvision_groundplane"/>
+    <camera name="overview" pos="0.55 -0.8 0.5" euler="1.15 0 0.58"/>
   </worldbody>
-
-  <actuator>
-    <position name="thumb_abduction_position" joint="thumb_abduction" ctrlrange="-0.6 0.6"/>
-    <position name="thumb_flexion_position" joint="thumb_flexion" ctrlrange="0 1.2"/>
-    <position name="index_mcp_position" joint="index_mcp" ctrlrange="-0.15 1.45"/>
-    <position name="index_pip_position" joint="index_pip" ctrlrange="0 1.6"/>
-    <position name="middle_mcp_position" joint="middle_mcp" ctrlrange="-0.15 1.45"/>
-    <position name="middle_pip_position" joint="middle_pip" ctrlrange="0 1.6"/>
-    <position name="ring_mcp_position" joint="ring_mcp" ctrlrange="-0.15 1.45"/>
-    <position name="ring_pip_position" joint="ring_pip" ctrlrange="0 1.6"/>
-    <position name="pinky_mcp_position" joint="pinky_mcp" ctrlrange="-0.15 1.35"/>
-    <position name="pinky_pip_position" joint="pinky_pip" ctrlrange="0 1.5"/>
-  </actuator>
 </mujoco>

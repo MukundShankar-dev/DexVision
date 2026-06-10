@@ -31,8 +31,15 @@ class HandActuatorInfo:
     """Named actuator and the joint/control range it drives."""
 
     name: str
-    joint_name: str
+    target_type: str
+    target_name: str
     control_range: JointLimit
+
+    @property
+    def joint_name(self) -> str:
+        """Backward-compatible alias for joint-backed actuator targets."""
+
+        return self.target_name
 
 
 @dataclass(frozen=True)
@@ -42,8 +49,10 @@ class HandModelInfo:
     model_path: Path
     joint_count: int
     actuator_count: int
+    body_count: int
     joints: tuple[HandJointInfo, ...]
     actuators: tuple[HandActuatorInfo, ...]
+    body_names: tuple[str, ...]
 
     @property
     def joint_names(self) -> tuple[str, ...]:
@@ -90,18 +99,25 @@ def inspect_hand_model(model_path: str | Path) -> HandModelInfo:
                     mujoco_module.mjtObj.mjOBJ_ACTUATOR,
                     actuator_id,
                 ),
-                joint_name=_actuator_joint_name(mujoco_module, model, actuator_id),
+                target_type=_actuator_target_type(mujoco_module, model, actuator_id),
+                target_name=_actuator_target_name(mujoco_module, model, actuator_id),
                 control_range=_control_range(model, actuator_id),
             )
             for actuator_id in range(model.nu)
+        )
+        body_names = tuple(
+            _name_for_id(mujoco_module, model, mujoco_module.mjtObj.mjOBJ_BODY, body_id)
+            for body_id in range(1, model.nbody)
         )
 
         return HandModelInfo(
             model_path=env.model_path,
             joint_count=int(model.njnt),
             actuator_count=int(model.nu),
+            body_count=len(body_names),
             joints=joints,
             actuators=actuators,
+            body_names=body_names,
         )
 
 
@@ -161,10 +177,12 @@ def format_hand_model_report(info: HandModelInfo, stability: RestStabilityResult
     lines.append(f"Actuators ({info.actuator_count}):")
     lines.extend(
         "  - "
-        f"{actuator.name}: joint={actuator.joint_name}, "
+        f"{actuator.name}: {actuator.target_type}={actuator.target_name}, "
         f"ctrlrange=[{actuator.control_range.minimum:.3f}, {actuator.control_range.maximum:.3f}]"
         for actuator in info.actuators
     )
+    lines.append(f"Bodies ({info.body_count}):")
+    lines.extend(f"  - {body_name}" for body_name in info.body_names)
     if stability is not None:
         status = "PASS" if stability.stable else "FAIL"
         lines.extend(
@@ -199,9 +217,14 @@ def require_controllable_hand(info: HandModelInfo, *, min_joints: int = 10) -> N
     for actuator in info.actuators:
         if not actuator.name:
             raise MujocoError("Hand model contains an unnamed actuator.")
-        if actuator.joint_name not in joint_names:
+        if actuator.target_type == "joint" and actuator.target_name not in joint_names:
             raise MujocoError(
-                f"Actuator '{actuator.name}' references unknown joint '{actuator.joint_name}'."
+                f"Actuator '{actuator.name}' references unknown joint '{actuator.target_name}'."
+            )
+        if actuator.target_type not in {"joint", "tendon"}:
+            raise MujocoError(
+                f"Actuator '{actuator.name}' uses unsupported target type "
+                f"'{actuator.target_type}'."
             )
         if actuator.control_range.minimum >= actuator.control_range.maximum:
             raise MujocoError(f"Actuator '{actuator.name}' has invalid control range.")
@@ -225,11 +248,28 @@ def _control_range(model: object, actuator_id: int) -> JointLimit:
     )
 
 
-def _actuator_joint_name(mujoco_module: object, model: object, actuator_id: int) -> str:
-    joint_id = int(model.actuator_trnid[actuator_id, 0])
-    if joint_id < 0:
-        raise MujocoError(f"Actuator at id {actuator_id} is not attached to a joint.")
-    return _name_for_id(mujoco_module, model, mujoco_module.mjtObj.mjOBJ_JOINT, joint_id)
+def _actuator_target_type(mujoco_module: object, model: object, actuator_id: int) -> str:
+    target_type = int(model.actuator_trntype[actuator_id])
+    if target_type == int(mujoco_module.mjtTrn.mjTRN_JOINT):
+        return "joint"
+    if target_type == int(mujoco_module.mjtTrn.mjTRN_TENDON):
+        return "tendon"
+    raise MujocoError(
+        f"Actuator at id {actuator_id} uses unsupported MuJoCo transmission type {target_type}."
+    )
+
+
+def _actuator_target_name(mujoco_module: object, model: object, actuator_id: int) -> str:
+    target_id = int(model.actuator_trnid[actuator_id, 0])
+    if target_id < 0:
+        raise MujocoError(f"Actuator at id {actuator_id} is not attached to a joint or tendon.")
+
+    target_type = _actuator_target_type(mujoco_module, model, actuator_id)
+    if target_type == "joint":
+        object_type = mujoco_module.mjtObj.mjOBJ_JOINT
+    else:
+        object_type = mujoco_module.mjtObj.mjOBJ_TENDON
+    return _name_for_id(mujoco_module, model, object_type, target_id)
 
 
 def _name_for_id(mujoco_module: object, model: object, object_type: object, object_id: int) -> str:

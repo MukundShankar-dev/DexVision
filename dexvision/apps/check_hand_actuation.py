@@ -18,7 +18,7 @@ import numpy as np
 from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
 
 
-DEFAULT_MODEL = Path("assets/mujoco/debug_hand_scene.xml")
+DEFAULT_MODEL = Path("assets/mujoco/hand_scene.xml")
 DEFAULT_GESTURES = Path("configs/hand_gestures.yaml")
 DEFAULT_PRINT_INTERVAL = 30
 DEFAULT_VIEWER_SLEEP = 1.0 / 60.0
@@ -48,12 +48,14 @@ class ActuatorBinding:
     """Resolved metadata for one scalar position actuator and its joint."""
 
     actuator_name: str
-    joint_name: str
+    target_type: str
+    target_name: str
+    joint_name: str | None
     actuator_id: int
-    joint_id: int
-    qpos_index: int
-    joint_minimum: float
-    joint_maximum: float
+    joint_id: int | None
+    qpos_index: int | None
+    joint_minimum: float | None
+    joint_maximum: float | None
     control_minimum: float
     control_maximum: float
 
@@ -61,12 +63,16 @@ class ActuatorBinding:
     def target_minimum(self) -> float:
         """Lowest target that satisfies both joint and actuator limits."""
 
+        if self.joint_minimum is None:
+            return self.control_minimum
         return max(self.joint_minimum, self.control_minimum)
 
     @property
     def target_maximum(self) -> float:
         """Highest target that satisfies both joint and actuator limits."""
 
+        if self.joint_maximum is None:
+            return self.control_maximum
         return min(self.joint_maximum, self.control_maximum)
 
 
@@ -148,24 +154,48 @@ def load_gesture_config(config_path: str | Path) -> GestureLibrary:
 
 
 def resolve_actuator_bindings(env: MujocoEnv) -> dict[str, ActuatorBinding]:
-    """Resolve all MuJoCo actuators to their attached limited scalar joints."""
+    """Resolve all MuJoCo actuators to their joint or tendon targets."""
 
     bindings: dict[str, ActuatorBinding] = {}
     for actuator_id in range(env.model.nu):
-        joint_id = int(env.model.actuator_trnid[actuator_id, 0])
-        if joint_id < 0:
-            raise MujocoError(f"Actuator at id {actuator_id} is not attached to a joint.")
-        if not bool(env.model.jnt_limited[joint_id]):
-            joint_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_JOINT, joint_id)
-            raise MujocoError(f"Joint '{joint_name}' is missing required limits.")
         if not bool(env.model.actuator_ctrllimited[actuator_id]):
             actuator_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_ACTUATOR, actuator_id)
             raise MujocoError(f"Actuator '{actuator_name}' is missing required control limits.")
 
         actuator_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_ACTUATOR, actuator_id)
+        binding = _resolve_one_actuator_binding(env, actuator_id, actuator_name)
+        if binding.target_minimum >= binding.target_maximum:
+            raise MujocoError(
+                f"Actuator '{actuator_name}' has non-overlapping limits for "
+                f"{binding.target_type} '{binding.target_name}'."
+            )
+        bindings[actuator_name] = binding
+
+    if not bindings:
+        raise MujocoError("Hand model has no actuators to drive.")
+    return bindings
+
+
+def _resolve_one_actuator_binding(
+    env: MujocoEnv,
+    actuator_id: int,
+    actuator_name: str,
+) -> ActuatorBinding:
+    target_id = int(env.model.actuator_trnid[actuator_id, 0])
+    if target_id < 0:
+        raise MujocoError(f"Actuator '{actuator_name}' is not attached to a joint or tendon.")
+
+    target_type = int(env.model.actuator_trntype[actuator_id])
+    if target_type == int(env._mujoco.mjtTrn.mjTRN_JOINT):
+        joint_id = target_id
+        if not bool(env.model.jnt_limited[joint_id]):
+            joint_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_JOINT, joint_id)
+            raise MujocoError(f"Joint '{joint_name}' is missing required limits.")
         joint_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_JOINT, joint_id)
         binding = ActuatorBinding(
             actuator_name=actuator_name,
+            target_type="joint",
+            target_name=joint_name,
             joint_name=joint_name,
             actuator_id=int(actuator_id),
             joint_id=joint_id,
@@ -175,15 +205,27 @@ def resolve_actuator_bindings(env: MujocoEnv) -> dict[str, ActuatorBinding]:
             control_minimum=float(env.model.actuator_ctrlrange[actuator_id, 0]),
             control_maximum=float(env.model.actuator_ctrlrange[actuator_id, 1]),
         )
-        if binding.target_minimum >= binding.target_maximum:
-            raise MujocoError(
-                f"Joint '{joint_name}' and actuator '{actuator_name}' do not have overlapping limits."
-            )
-        bindings[actuator_name] = binding
+        return binding
 
-    if not bindings:
-        raise MujocoError("Hand model has no actuators to drive.")
-    return bindings
+    if target_type == int(env._mujoco.mjtTrn.mjTRN_TENDON):
+        tendon_name = _name_for_id(env, env._mujoco.mjtObj.mjOBJ_TENDON, target_id)
+        return ActuatorBinding(
+            actuator_name=actuator_name,
+            target_type="tendon",
+            target_name=tendon_name,
+            joint_name=None,
+            actuator_id=int(actuator_id),
+            joint_id=None,
+            qpos_index=None,
+            joint_minimum=None,
+            joint_maximum=None,
+            control_minimum=float(env.model.actuator_ctrlrange[actuator_id, 0]),
+            control_maximum=float(env.model.actuator_ctrlrange[actuator_id, 1]),
+        )
+
+    raise MujocoError(
+        f"Actuator '{actuator_name}' uses unsupported MuJoCo transmission type {target_type}."
+    )
 
 
 def validate_gesture_library(
