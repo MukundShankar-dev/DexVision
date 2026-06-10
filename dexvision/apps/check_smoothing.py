@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Minimum MediaPipe tracking confidence.",
     )
     parser.add_argument(
+        "--assume-mirrored-input",
+        action="store_true",
+        help="Keep MediaPipe handedness labels for selfie-mirrored camera images.",
+    )
+    parser.add_argument(
         "--smoothing-alpha",
         type=float,
         default=0.35,
@@ -229,6 +234,7 @@ def run_smoothing(
     model_path: Path | None,
     min_detection_confidence: float,
     min_tracking_confidence: float,
+    assume_mirrored_input: bool,
     smoothing_alpha: float,
     min_smoothing_confidence: float,
     low_confidence_behavior: LowConfidenceBehavior,
@@ -251,7 +257,8 @@ def run_smoothing(
         f"camera_id={camera_id}, width={width}, height={height}, "
         f"model_path={model_path or DEFAULT_HAND_LANDMARKER_MODEL}, "
         f"min_detection_confidence={min_detection_confidence}, "
-        f"min_tracking_confidence={min_tracking_confidence}"
+        f"min_tracking_confidence={min_tracking_confidence}, "
+        f"assume_mirrored_input={assume_mirrored_input}"
     )
     print(
         "Smoothing "
@@ -267,6 +274,7 @@ def run_smoothing(
                 min_detection_confidence=min_detection_confidence,
                 min_tracking_confidence=min_tracking_confidence,
                 model_path=model_path,
+                assume_mirrored_input=assume_mirrored_input,
             ) as tracker,
         ):
             while True:
@@ -326,6 +334,7 @@ def main(argv: list[str] | None = None) -> int:
             args.model_path,
             args.min_detection_confidence,
             args.min_tracking_confidence,
+            args.assume_mirrored_input,
             args.smoothing_alpha,
             args.min_smoothing_confidence,
             args.low_confidence_behavior,

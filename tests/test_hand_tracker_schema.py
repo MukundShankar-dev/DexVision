@@ -51,7 +51,7 @@ def test_hand_tracking_result_no_hand_schema_is_stable() -> None:
     )
 
 
-def test_hand_tracker_returns_landmark_arrays_from_synthetic_result() -> None:
+def test_hand_tracker_returns_landmark_arrays_and_corrected_handedness() -> None:
     fake_hands = FakeHands(
         SimpleNamespace(
             multi_hand_landmarks=[_landmark_list()],
@@ -70,7 +70,7 @@ def test_hand_tracker_returns_landmark_arrays_from_synthetic_result() -> None:
     tracker.close()
 
     assert result.detected
-    assert result.handedness == "Right"
+    assert result.handedness == "Left"
     assert result.confidence == pytest.approx(0.91)
     assert result.image_landmarks is not None
     assert result.image_landmarks.shape == (21, 3)
@@ -82,7 +82,7 @@ def test_hand_tracker_returns_landmark_arrays_from_synthetic_result() -> None:
     assert fake_hands.closed
 
 
-def test_hand_tracker_parses_tasks_style_result() -> None:
+def test_hand_tracker_parses_tasks_style_result_and_corrects_handedness() -> None:
     fake_hands = FakeHands(
         SimpleNamespace(
             hand_landmarks=[_landmark_list()],
@@ -97,12 +97,36 @@ def test_hand_tracker_parses_tasks_style_result() -> None:
     tracker.close()
 
     assert result.detected
-    assert result.handedness == "Left"
+    assert result.handedness == "Right"
     assert result.confidence == pytest.approx(0.83)
     assert result.image_landmarks is not None
     assert result.image_landmarks.shape == (21, 3)
     assert result.world_landmarks is not None
     assert result.world_landmarks.shape == (21, 3)
+
+
+def test_hand_tracker_can_preserve_handedness_for_mirrored_input() -> None:
+    fake_hands = FakeHands(
+        SimpleNamespace(
+            multi_hand_landmarks=[_landmark_list()],
+            multi_handedness=[
+                SimpleNamespace(
+                    classification=[SimpleNamespace(label="Right", score=0.91)],
+                )
+            ],
+        )
+    )
+    tracker = HandTracker(
+        hands_factory=lambda **_kwargs: fake_hands,
+        assume_mirrored_input=True,
+    )
+    frame = np.zeros((64, 96, 3), dtype=np.uint8)
+
+    result = tracker.process(frame, timestamp=42.0)
+    tracker.close()
+
+    assert result.handedness == "Right"
+    assert result.confidence == pytest.approx(0.91)
 
 
 def test_hand_tracker_handles_no_hand_frames() -> None:
@@ -196,6 +220,7 @@ def test_check_hand_tracking_help_runs_without_real_webcam() -> None:
     assert "--model-path" in result.stdout
     assert "--min-detection-confidence" in result.stdout
     assert "--min-tracking-confidence" in result.stdout
+    assert "--assume-mirrored-input" in result.stdout
 
 
 def test_check_hand_tracking_main_reports_tracker_errors(
@@ -209,8 +234,10 @@ def test_check_hand_tracking_main_reports_tracker_errors(
         model_path: object,
         min_detection_confidence: float,
         min_tracking_confidence: float,
+        assume_mirrored_input: bool,
     ) -> int:
-        del model_path
+        del camera_id, width, height, model_path
+        del min_detection_confidence, min_tracking_confidence, assume_mirrored_input
         raise HandTrackerError("MediaPipe is required for hand tracking.")
 
     monkeypatch.setattr(check_hand_tracking, "run_hand_tracking", fail_to_start)

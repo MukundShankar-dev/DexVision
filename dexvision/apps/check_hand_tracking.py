@@ -18,7 +18,9 @@ from dexvision.perception.visualization import draw_hand_tracking
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Display MediaPipe hand landmarks on a camera feed.")
+    parser = argparse.ArgumentParser(
+        description="Display MediaPipe hand landmarks on a camera feed."
+    )
     parser.add_argument("--camera-id", type=int, default=0, help="OpenCV camera index.")
     parser.add_argument("--width", type=int, default=640, help="Requested capture width.")
     parser.add_argument("--height", type=int, default=480, help="Requested capture height.")
@@ -42,6 +44,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=0.5,
         help="Minimum MediaPipe tracking confidence.",
+    )
+    parser.add_argument(
+        "--assume-mirrored-input",
+        action="store_true",
+        help="Keep MediaPipe handedness labels for selfie-mirrored camera images.",
     )
     return parser
 
@@ -77,6 +84,7 @@ def run_hand_tracking(
     model_path: Path | None,
     min_detection_confidence: float,
     min_tracking_confidence: float,
+    assume_mirrored_input: bool = False,
 ) -> int:
     cv2_module = _load_cv2_for_display()
     window_name = "DexVision Hand Landmark Tracking"
@@ -89,7 +97,8 @@ def run_hand_tracking(
         f"camera_id={camera_id}, width={width}, height={height}, "
         f"model_path={model_path or DEFAULT_HAND_LANDMARKER_MODEL}, "
         f"min_detection_confidence={min_detection_confidence}, "
-        f"min_tracking_confidence={min_tracking_confidence}"
+        f"min_tracking_confidence={min_tracking_confidence}, "
+        f"assume_mirrored_input={assume_mirrored_input}"
     )
     print("Press q to quit.")
 
@@ -100,6 +109,7 @@ def run_hand_tracking(
                 min_detection_confidence=min_detection_confidence,
                 min_tracking_confidence=min_tracking_confidence,
                 model_path=model_path,
+                assume_mirrored_input=assume_mirrored_input,
             ) as tracker,
         ):
             while True:
@@ -151,6 +161,7 @@ def main(argv: list[str] | None = None) -> int:
             args.model_path,
             args.min_detection_confidence,
             args.min_tracking_confidence,
+            args.assume_mirrored_input,
         )
     except (CameraOpenError, HandTrackerError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

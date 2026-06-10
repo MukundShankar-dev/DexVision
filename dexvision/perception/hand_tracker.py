@@ -72,9 +72,11 @@ class HandTracker:
         min_tracking_confidence: float = 0.5,
         model_path: str | Path | None = None,
         hands_factory: HandsFactory | None = None,
+        assume_mirrored_input: bool = False,
     ) -> None:
         if max_num_hands <= 0:
             raise ValueError("max_num_hands must be a positive integer.")
+        self._assume_mirrored_input = assume_mirrored_input
         self._last_timestamp_ms: int | None = None
         self._backend = self._make_backend(
             static_image_mode=static_image_mode,
@@ -115,6 +117,10 @@ class HandTracker:
         image_landmarks = _landmark_list_to_array(image_landmark_sets[0])
         world_landmarks = _first_world_landmark_array(raw_result)
         handedness, confidence = _first_handedness(raw_result)
+        handedness = _correct_handedness(
+            handedness,
+            assume_mirrored_input=self._assume_mirrored_input,
+        )
 
         return HandTrackingResult(
             detected=True,
@@ -285,7 +291,9 @@ def _make_tasks_backend(
 
 
 def _resolve_model_path(model_path: str | Path | None) -> Path:
-    resolved_model_path = Path(model_path) if model_path is not None else DEFAULT_HAND_LANDMARKER_MODEL
+    resolved_model_path = (
+        Path(model_path) if model_path is not None else DEFAULT_HAND_LANDMARKER_MODEL
+    )
     if not resolved_model_path.exists():
         raise HandTrackerError(
             "MediaPipe Tasks HandLandmarker requires a local model bundle. "
@@ -341,6 +349,16 @@ def _first_handedness(raw_result: Any) -> tuple[str | None, float]:
     )
     score = float(getattr(classification, "score", 0.0))
     return label, score
+
+
+def _correct_handedness(label: str | None, *, assume_mirrored_input: bool) -> str | None:
+    if assume_mirrored_input:
+        return label
+    if label == "Left":
+        return "Right"
+    if label == "Right":
+        return "Left"
+    return label
 
 
 def _first_available_attr(raw_result: Any, names: tuple[str, ...]) -> Any:

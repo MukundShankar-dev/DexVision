@@ -204,6 +204,7 @@ def test_check_hand_features_help_runs_without_real_webcam() -> None:
     assert "--model-path" in result.stdout
     assert "--min-detection-confidence" in result.stdout
     assert "--min-tracking-confidence" in result.stdout
+    assert "--assume-mirrored-input" in result.stdout
 
 
 def test_check_hand_features_main_reports_tracker_errors(
@@ -217,9 +218,10 @@ def test_check_hand_features_main_reports_tracker_errors(
         model_path: object,
         min_detection_confidence: float,
         min_tracking_confidence: float,
+        assume_mirrored_input: bool,
     ) -> int:
         del camera_id, width, height, model_path
-        del min_detection_confidence, min_tracking_confidence
+        del min_detection_confidence, min_tracking_confidence, assume_mirrored_input
         raise HandTrackerError("MediaPipe is required for hand tracking.")
 
     monkeypatch.setattr(check_hand_features, "run_hand_features", fail_to_start)

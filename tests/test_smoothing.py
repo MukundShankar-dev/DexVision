@@ -160,6 +160,7 @@ def test_check_smoothing_help_runs_without_real_webcam() -> None:
     assert "--smoothing-alpha" in result.stdout
     assert "--min-smoothing-confidence" in result.stdout
     assert "--low-confidence-behavior" in result.stdout
+    assert "--assume-mirrored-input" in result.stdout
 
 
 def test_check_smoothing_main_reports_tracker_errors(
@@ -173,6 +174,7 @@ def test_check_smoothing_main_reports_tracker_errors(
         model_path: object,
         min_detection_confidence: float,
         min_tracking_confidence: float,
+        assume_mirrored_input: bool,
         smoothing_alpha: float,
         min_smoothing_confidence: float,
         low_confidence_behavior: object,
@@ -180,7 +182,8 @@ def test_check_smoothing_main_reports_tracker_errors(
     ) -> int:
         del camera_id, width, height, model_path
         del min_detection_confidence, min_tracking_confidence
-        del smoothing_alpha, min_smoothing_confidence, low_confidence_behavior, decay_alpha
+        del assume_mirrored_input, smoothing_alpha, min_smoothing_confidence
+        del low_confidence_behavior, decay_alpha
         raise HandTrackerError("MediaPipe is required for hand tracking.")
 
     monkeypatch.setattr(check_smoothing, "run_smoothing", fail_to_start)
