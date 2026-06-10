@@ -1,51 +1,218 @@
-# Level 1 teleoperation configuration seed.
-#
-# Level 1.9 will add the actual curl retargeter. This file exists now so future
-# retargeting work points at the selected final hand, not the debug hand.
-
-model_path: assets/mujoco/hand_scene.xml
-gesture_config_path: configs/hand_gestures.yaml
-
-final_hand:
-  model: Shadow Hand E3M5 right hand
-  source: https://github.com/google-deepmind/mujoco_menagerie/tree/main/shadow_hand
-  license: Apache-2.0
-  palm_body: rh_palm
-  fingertip_bodies:
-    thumb: rh_thdistal
-    index: rh_ffdistal
-    middle: rh_mfdistal
-    ring: rh_rfdistal
-    pinky: rh_lfdistal
-  actuator_groups:
-    wrist:
-      - rh_A_WRJ2
-      - rh_A_WRJ1
-    thumb:
-      - rh_A_THJ5
-      - rh_A_THJ4
-      - rh_A_THJ3
-      - rh_A_THJ2
-      - rh_A_THJ1
-    index:
-      - rh_A_FFJ4
-      - rh_A_FFJ3
-      - rh_A_FFJ0
-    middle:
-      - rh_A_MFJ4
-      - rh_A_MFJ3
-      - rh_A_MFJ0
-    ring:
-      - rh_A_RFJ4
-      - rh_A_RFJ3
-      - rh_A_RFJ0
-    pinky:
-      - rh_A_LFJ5
-      - rh_A_LFJ4
-      - rh_A_LFJ3
-      - rh_A_LFJ0
-
-notes:
-  - This is not a retargeter implementation.
-  - Finger distal and middle joints are coupled through tendon actuators ending in J0.
-  - Pinch and peace gestures in configs/hand_gestures.yaml are approximate until visual tuning.
+{
+  "model_path": "assets/mujoco/hand_scene.xml",
+  "gesture_config_path": "configs/hand_gestures.yaml",
+  "retargeting": {
+    "type": "curl",
+    "min_confidence": 0.0,
+    "static_targets": {
+      "rh_A_WRJ2": {
+        "value": 0.0,
+        "min": -0.524,
+        "max": 0.175
+      },
+      "rh_A_WRJ1": {
+        "value": 0.0,
+        "min": -0.698,
+        "max": 0.489
+      }
+    },
+    "fingers": {
+      "thumb": {
+        "feature": "thumb_curl",
+        "scale": 1.0,
+        "offset": 0.0,
+        "targets": {
+          "rh_A_THJ5": {
+            "open": 0.2,
+            "closed": 0.65,
+            "min": -1.047,
+            "max": 1.047
+          },
+          "rh_A_THJ4": {
+            "open": 0.1,
+            "closed": 0.9,
+            "min": 0.0,
+            "max": 1.222
+          },
+          "rh_A_THJ3": {
+            "open": 0.0,
+            "closed": 0.0,
+            "min": -0.209,
+            "max": 0.209
+          },
+          "rh_A_THJ2": {
+            "open": 0.0,
+            "closed": 0.3,
+            "min": -0.698,
+            "max": 0.698
+          },
+          "rh_A_THJ1": {
+            "open": 0.0,
+            "closed": 1.05,
+            "min": -0.262,
+            "max": 1.571
+          }
+        }
+      },
+      "index": {
+        "feature": "index_curl",
+        "scale": 1.0,
+        "offset": 0.0,
+        "targets": {
+          "rh_A_FFJ4": {
+            "open": 0.0,
+            "closed": 0.0,
+            "min": -0.349,
+            "max": 0.349
+          },
+          "rh_A_FFJ3": {
+            "open": -0.15,
+            "closed": 1.2,
+            "min": -0.262,
+            "max": 1.571
+          },
+          "rh_A_FFJ0": {
+            "open": 0.05,
+            "closed": 2.25,
+            "min": 0.0,
+            "max": 3.142
+          }
+        }
+      },
+      "middle": {
+        "feature": "middle_curl",
+        "scale": 1.0,
+        "offset": 0.0,
+        "targets": {
+          "rh_A_MFJ4": {
+            "open": 0.0,
+            "closed": 0.0,
+            "min": -0.349,
+            "max": 0.349
+          },
+          "rh_A_MFJ3": {
+            "open": -0.15,
+            "closed": 1.2,
+            "min": -0.262,
+            "max": 1.571
+          },
+          "rh_A_MFJ0": {
+            "open": 0.05,
+            "closed": 2.25,
+            "min": 0.0,
+            "max": 3.142
+          }
+        }
+      },
+      "ring": {
+        "feature": "ring_curl",
+        "scale": 1.0,
+        "offset": 0.0,
+        "targets": {
+          "rh_A_RFJ4": {
+            "open": 0.0,
+            "closed": 0.0,
+            "min": -0.349,
+            "max": 0.349
+          },
+          "rh_A_RFJ3": {
+            "open": -0.15,
+            "closed": 1.2,
+            "min": -0.262,
+            "max": 1.571
+          },
+          "rh_A_RFJ0": {
+            "open": 0.05,
+            "closed": 2.25,
+            "min": 0.0,
+            "max": 3.142
+          }
+        }
+      },
+      "pinky": {
+        "feature": "pinky_curl",
+        "scale": 1.0,
+        "offset": 0.0,
+        "targets": {
+          "rh_A_LFJ5": {
+            "open": 0.1,
+            "closed": 0.35,
+            "min": 0.0,
+            "max": 0.785
+          },
+          "rh_A_LFJ4": {
+            "open": 0.0,
+            "closed": 0.0,
+            "min": -0.349,
+            "max": 0.349
+          },
+          "rh_A_LFJ3": {
+            "open": -0.15,
+            "closed": 1.2,
+            "min": -0.262,
+            "max": 1.571
+          },
+          "rh_A_LFJ0": {
+            "open": 0.05,
+            "closed": 2.25,
+            "min": 0.0,
+            "max": 3.142
+          }
+        }
+      }
+    }
+  },
+  "final_hand": {
+    "model": "Shadow Hand E3M5 right hand",
+    "source": "https://github.com/google-deepmind/mujoco_menagerie/tree/main/shadow_hand",
+    "license": "Apache-2.0",
+    "palm_body": "rh_palm",
+    "fingertip_bodies": {
+      "thumb": "rh_thdistal",
+      "index": "rh_ffdistal",
+      "middle": "rh_mfdistal",
+      "ring": "rh_rfdistal",
+      "pinky": "rh_lfdistal"
+    },
+    "actuator_groups": {
+      "wrist": [
+        "rh_A_WRJ2",
+        "rh_A_WRJ1"
+      ],
+      "thumb": [
+        "rh_A_THJ5",
+        "rh_A_THJ4",
+        "rh_A_THJ3",
+        "rh_A_THJ2",
+        "rh_A_THJ1"
+      ],
+      "index": [
+        "rh_A_FFJ4",
+        "rh_A_FFJ3",
+        "rh_A_FFJ0"
+      ],
+      "middle": [
+        "rh_A_MFJ4",
+        "rh_A_MFJ3",
+        "rh_A_MFJ0"
+      ],
+      "ring": [
+        "rh_A_RFJ4",
+        "rh_A_RFJ3",
+        "rh_A_RFJ0"
+      ],
+      "pinky": [
+        "rh_A_LFJ5",
+        "rh_A_LFJ4",
+        "rh_A_LFJ3",
+        "rh_A_LFJ0"
+      ]
+    }
+  },
+  "notes": [
+    "Retargeting target names are MuJoCo actuator names for the selected final Shadow Hand model.",
+    "Curl retargeting output is intended for MujocoEnv.set_joint_targets.",
+    "Finger distal and middle joints are coupled through tendon actuators ending in J0.",
+    "Pinch and peace gestures in configs/hand_gestures.yaml are approximate until visual tuning."
+  ]
+}
