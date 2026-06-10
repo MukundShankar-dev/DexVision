@@ -1,11 +1,4 @@
-<!--
-  Reserved path for the final DexVision hand model.
-  Current contents are a legacy/debug placeholder. Do not use this model for
-  serious Level 2 demonstration recording or Level 3 learning until
-  docs/robot_hand_model.md marks the final hand decision complete.
-  Smoke-test apps should use assets/mujoco/debug_hand_scene.xml.
--->
-<mujoco model="dexvision_hand_scene">
+<mujoco model="dexvision_debug_hand_scene">
   <compiler angle="radian"/>
 
   <option timestep="0.002" gravity="0 0 -9.81"/>

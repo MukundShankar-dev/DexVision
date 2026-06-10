@@ -10,7 +10,7 @@ from dexvision.apps import check_one_joint
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = ROOT / "assets" / "mujoco" / "hand_scene.xml"
+MODEL_PATH = ROOT / "assets" / "mujoco" / "debug_hand_scene.xml"
 
 
 def test_check_one_joint_help_runs_without_loading_model() -> None:
@@ -139,7 +139,7 @@ def test_macos_viewer_preflight_reports_mjpython_command(
 
     with pytest.raises(check_one_joint.MujocoError) as exc_info:
         check_one_joint._ensure_viewer_can_launch(
-            model_path=Path("assets/mujoco/hand_scene.xml"),
+            model_path=Path("assets/mujoco/debug_hand_scene.xml"),
             selected_joint="index_mcp",
             steps=600,
             frequency_hz=check_one_joint.DEFAULT_FREQUENCY_HZ,

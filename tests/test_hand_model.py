@@ -16,7 +16,7 @@ from dexvision.sim.hand_model import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = ROOT / "assets" / "mujoco" / "hand_scene.xml"
+MODEL_PATH = ROOT / "assets" / "mujoco" / "debug_hand_scene.xml"
 
 EXPECTED_JOINTS = {
     "thumb_abduction",

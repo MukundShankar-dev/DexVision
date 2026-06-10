@@ -16,7 +16,7 @@ import numpy as np
 from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
 
 
-DEFAULT_MODEL = Path("assets/mujoco/hand_scene.xml")
+DEFAULT_MODEL = Path("assets/mujoco/debug_hand_scene.xml")
 DEFAULT_JOINT = "index_mcp"
 DEFAULT_STEPS = 600
 DEFAULT_FREQUENCY_HZ = 1.0
