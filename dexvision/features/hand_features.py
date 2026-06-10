@@ -26,10 +26,19 @@ _FINGER_JOINTS: Final[dict[str, tuple[tuple[int, int, int], ...]]] = {
     "ring": ((13, 14, 15), (14, 15, 16)),
     "pinky": ((17, 18, 19), (18, 19, 20)),
 }
+_NON_THUMB_FINGER_LANDMARKS: Final[dict[str, tuple[int, int, int, int]]] = {
+    "index": (5, 6, 7, 8),
+    "middle": (9, 10, 11, 12),
+    "ring": (13, 14, 15, 16),
+    "pinky": (17, 18, 19, 20),
+}
+_NON_THUMB_FINGERS: Final[tuple[str, ...]] = tuple(_NON_THUMB_FINGER_LANDMARKS)
 _PALM_WIDTH_EPSILON: Final[float] = 1e-6
 _OPEN_ANGLE_RAD: Final[float] = 170.0 * pi / 180.0
 _CLOSED_ANGLE_RAD: Final[float] = 90.0 * pi / 180.0
 _THUMB_CLOSED_ANGLE_RAD: Final[float] = 130.0 * pi / 180.0
+_NON_THUMB_OPEN_EXTENSION_RATIO: Final[float] = 0.96
+_NON_THUMB_CLOSED_EXTENSION_RATIO: Final[float] = 0.72
 
 
 @dataclass(frozen=True)
@@ -107,7 +116,24 @@ def extract_hand_features(
     if landmarks is None:
         return no_hand_features()
 
-    return compute_hand_features(landmarks, confidence=result.confidence)
+    features = compute_hand_features(landmarks, confidence=result.confidence)
+    if result.image_landmarks is None or landmarks is result.image_landmarks:
+        return features
+
+    image_points = _as_landmark_array(result.image_landmarks)
+    curls = _image_vetoed_non_thumb_curls(features, image_points)
+
+    return HandFeatures(
+        thumb_curl=features.thumb_curl,
+        index_curl=curls["index"],
+        middle_curl=curls["middle"],
+        ring_curl=curls["ring"],
+        pinky_curl=curls["pinky"],
+        pinch_thumb_index=features.pinch_thumb_index,
+        palm_roll_proxy=features.palm_roll_proxy,
+        palm_pitch_proxy=features.palm_pitch_proxy,
+        confidence=features.confidence,
+    )
 
 
 def compute_hand_features(landmarks: np.ndarray, *, confidence: float = 1.0) -> HandFeatures:
@@ -171,12 +197,69 @@ def _as_landmark_array(landmarks: np.ndarray) -> np.ndarray:
 
 
 def _finger_curl(points: np.ndarray, finger: str) -> float:
-    closed_angle = _THUMB_CLOSED_ANGLE_RAD if finger == "thumb" else _CLOSED_ANGLE_RAD
+    if finger == "thumb":
+        return _finger_angle_curl(points, finger, closed_angle=_THUMB_CLOSED_ANGLE_RAD)
+    return _non_thumb_finger_curl(points, finger)
+
+
+def _finger_angle_curl(points: np.ndarray, finger: str, *, closed_angle: float) -> float:
     curls = [
         _angle_to_curl(_joint_angle(points[a], points[b], points[c]), closed_angle=closed_angle)
         for a, b, c in _FINGER_JOINTS[finger]
     ]
     return _clip01(float(np.mean(curls)))
+
+
+def _non_thumb_finger_curl(points: np.ndarray, finger: str) -> float:
+    angle_curl = _finger_angle_curl(points, finger, closed_angle=_CLOSED_ANGLE_RAD)
+    extension_curl = _non_thumb_local_extension_curl(points, finger)
+    return min(angle_curl, extension_curl)
+
+
+def _image_vetoed_non_thumb_curls(
+    features: HandFeatures,
+    image_points: np.ndarray,
+) -> dict[str, float]:
+    curls = {
+        "index": features.index_curl,
+        "middle": features.middle_curl,
+        "ring": features.ring_curl,
+        "pinky": features.pinky_curl,
+    }
+    for finger in _NON_THUMB_FINGERS:
+        if _non_thumb_finger_is_confidently_extended(image_points, finger):
+            curls[finger] = min(curls[finger], _non_thumb_finger_curl(image_points, finger))
+    return curls
+
+
+def _non_thumb_finger_is_confidently_extended(points: np.ndarray, finger: str) -> bool:
+    return (
+        _non_thumb_full_extension_ratio(points, finger) >= 0.80
+        and _non_thumb_finger_curl(points, finger) <= 0.25
+    )
+
+
+def _non_thumb_full_extension_ratio(points: np.ndarray, finger: str) -> float:
+    base, pip, dip, tip = _NON_THUMB_FINGER_LANDMARKS[finger]
+    chain_length = _distance(points[base], points[pip])
+    chain_length += _distance(points[pip], points[dip])
+    chain_length += _distance(points[dip], points[tip])
+    if chain_length <= _PALM_WIDTH_EPSILON:
+        return 0.0
+    return _distance(points[base], points[tip]) / chain_length
+
+
+def _non_thumb_local_extension_curl(points: np.ndarray, finger: str) -> float:
+    _base, pip, dip, tip = _NON_THUMB_FINGER_LANDMARKS[finger]
+    chain_length = _distance(points[pip], points[dip]) + _distance(points[dip], points[tip])
+    if chain_length <= _PALM_WIDTH_EPSILON:
+        return 0.0
+
+    extension_ratio = _distance(points[pip], points[tip]) / chain_length
+    normalized = (_NON_THUMB_OPEN_EXTENSION_RATIO - extension_ratio) / (
+        _NON_THUMB_OPEN_EXTENSION_RATIO - _NON_THUMB_CLOSED_EXTENSION_RATIO
+    )
+    return _clip01(normalized)
 
 
 def _joint_angle(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> float:

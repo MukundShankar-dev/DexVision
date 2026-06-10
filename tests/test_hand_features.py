@@ -19,6 +19,25 @@ from dexvision.perception.hand_tracker import (
     HandTrackingResult,
 )
 
+_NON_THUMB_FINGER_INDICES = {
+    "index": (5, 6, 7, 8),
+    "middle": (9, 10, 11, 12),
+    "ring": (13, 14, 15, 16),
+    "pinky": (17, 18, 19, 20),
+}
+_NON_THUMB_CURL_FIELDS = {
+    "index": "index_curl",
+    "middle": "middle_curl",
+    "ring": "ring_curl",
+    "pinky": "pinky_curl",
+}
+_CURL_DIRECTIONS = {
+    "index": 1.0,
+    "middle": 1.0,
+    "ring": -1.0,
+    "pinky": -1.0,
+}
+
 
 def _open_hand() -> np.ndarray:
     landmarks = np.zeros((21, 3), dtype=np.float32)
@@ -90,6 +109,48 @@ def _pointing_hand() -> np.ndarray:
     return landmarks
 
 
+def _index_curled_other_fingers_open() -> np.ndarray:
+    landmarks = _open_hand()
+    _curl_finger(landmarks, (5, 6, 7, 8), horizontal_sign=1.0)
+    return landmarks
+
+
+def _finger_curled_other_fingers_open(finger: str) -> np.ndarray:
+    landmarks = _open_hand()
+    _curl_finger(
+        landmarks,
+        _NON_THUMB_FINGER_INDICES[finger],
+        horizontal_sign=_CURL_DIRECTIONS[finger],
+    )
+    return landmarks
+
+
+def _finger_extended_other_fingers_curled(finger: str) -> np.ndarray:
+    landmarks = _fist()
+    open_landmarks = _open_hand()
+    for landmark_index in _NON_THUMB_FINGER_INDICES[finger]:
+        landmarks[landmark_index] = open_landmarks[landmark_index]
+    return landmarks
+
+
+def _extended_index_with_local_angle_noise_and_curled_neighbors() -> np.ndarray:
+    landmarks = _pointing_hand()
+    landmarks[5] = [-0.18, 0.36, 0.0]
+    landmarks[6] = [0.02, 0.56, 0.0]
+    landmarks[7] = [0.02, 0.78, 0.0]
+    landmarks[8] = [0.02, 1.00, 0.0]
+    return landmarks
+
+
+def _ambiguous_compact_index_image() -> np.ndarray:
+    landmarks = _fist()
+    landmarks[5] = [0.38, 0.40, 0.0]
+    landmarks[6] = [0.20, 0.40, 0.0]
+    landmarks[7] = [0.30, 0.40, 0.0]
+    landmarks[8] = [0.40, 0.40, 0.0]
+    return landmarks
+
+
 def _realistic_thumb_fist() -> np.ndarray:
     landmarks = _open_hand()
     segment = 0.12
@@ -131,10 +192,32 @@ def test_realistic_thumb_fist_maps_above_half_curl() -> None:
 def test_pointing_hand_keeps_index_low_and_other_fingers_curled() -> None:
     features = compute_hand_features(_pointing_hand())
 
-    assert features.index_curl < 0.1
+    assert features.index_curl <= 0.25
     assert features.middle_curl > 0.9
     assert features.ring_curl > 0.9
     assert features.pinky_curl > 0.9
+
+
+def test_index_curl_pass_criteria_are_decoupled_from_other_fingers() -> None:
+    assert compute_hand_features(_open_hand()).index_curl <= 0.25
+    assert compute_hand_features(_pointing_hand()).index_curl <= 0.25
+    assert compute_hand_features(_index_curled_other_fingers_open()).index_curl >= 0.65
+    assert compute_hand_features(_fist()).index_curl >= 0.65
+
+
+def test_non_thumb_finger_curls_are_decoupled_from_other_fingers() -> None:
+    for finger, field_name in _NON_THUMB_CURL_FIELDS.items():
+        extended_features = compute_hand_features(_finger_extended_other_fingers_curled(finger))
+        curled_features = compute_hand_features(_finger_curled_other_fingers_open(finger))
+
+        assert getattr(extended_features, field_name) <= 0.25
+        assert getattr(curled_features, field_name) >= 0.65
+
+
+def test_index_curl_stays_low_when_extended_index_chain_is_stable() -> None:
+    features = compute_hand_features(_extended_index_with_local_angle_noise_and_curled_neighbors())
+
+    assert features.index_curl <= 0.25
 
 
 def test_thumb_index_pinch_distance_changes_visibly() -> None:
@@ -174,6 +257,68 @@ def test_extract_hand_features_uses_tracking_confidence_and_landmarks() -> None:
     assert features.index_curl < 0.1
     assert features.palm_roll == features.palm_roll_proxy
     assert features.palm_pitch == features.palm_pitch_proxy
+
+
+def test_extract_hand_features_keeps_index_low_when_only_world_index_is_curled() -> None:
+    result = HandTrackingResult(
+        detected=True,
+        handedness="Right",
+        confidence=0.91,
+        image_landmarks=_pointing_hand(),
+        world_landmarks=_fist(),
+        timestamp=5.0,
+    )
+
+    features = extract_hand_features(result)
+
+    assert features.index_curl <= 0.25
+    assert features.middle_curl > 0.9
+
+
+def test_extract_hand_features_vetoes_world_curl_for_visible_extended_non_thumb_fingers() -> None:
+    for finger, field_name in _NON_THUMB_CURL_FIELDS.items():
+        result = HandTrackingResult(
+            detected=True,
+            handedness="Right",
+            confidence=0.91,
+            image_landmarks=_finger_extended_other_fingers_curled(finger),
+            world_landmarks=_fist(),
+            timestamp=5.0,
+        )
+
+        features = extract_hand_features(result)
+
+        assert getattr(features, field_name) <= 0.25
+
+
+def test_extract_hand_features_does_not_veto_curled_world_index_from_ambiguous_image() -> None:
+    result = HandTrackingResult(
+        detected=True,
+        handedness="Right",
+        confidence=0.91,
+        image_landmarks=_ambiguous_compact_index_image(),
+        world_landmarks=_fist(),
+        timestamp=5.0,
+    )
+
+    features = extract_hand_features(result)
+
+    assert features.index_curl >= 0.65
+
+
+def test_extract_hand_features_keeps_index_high_when_image_and_world_are_curled() -> None:
+    result = HandTrackingResult(
+        detected=True,
+        handedness="Right",
+        confidence=0.91,
+        image_landmarks=_fist(),
+        world_landmarks=_fist(),
+        timestamp=5.0,
+    )
+
+    features = extract_hand_features(result)
+
+    assert features.index_curl >= 0.65
 
 
 def test_hand_features_validate_landmark_shape() -> None:
