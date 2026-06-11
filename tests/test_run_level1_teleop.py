@@ -95,6 +95,18 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
             "--enable-base-orientation",
             "--orientation-dofs",
             "roll",
+            "--max-roll-deg",
+            "135",
+            "--max-pitch-deg",
+            "100",
+            "--max-yaw-deg",
+            "140",
+            "--orientation-smoothing-alpha",
+            "0.6",
+            "--orientation-deadband-deg",
+            "0.25",
+            "--max-rotation-step-deg",
+            "12",
             "--enable-depth-control",
             "--camera-window-name",
             "Demo Window",
@@ -111,6 +123,12 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
     assert args.base_control_mode == "image_2d"
     assert args.enable_base_orientation is True
     assert args.orientation_dofs == "roll"
+    assert args.max_roll_deg == pytest.approx(135.0)
+    assert args.max_pitch_deg == pytest.approx(100.0)
+    assert args.max_yaw_deg == pytest.approx(140.0)
+    assert args.orientation_smoothing_alpha == pytest.approx(0.6)
+    assert args.orientation_deadband_deg == pytest.approx(0.25)
+    assert args.max_rotation_step_deg == pytest.approx(12.0)
     assert args.enable_depth_control is True
     assert args.camera_window_name == "Demo Window"
 
@@ -440,6 +458,49 @@ def test_poll_overlay_commands_returns_camera_key_commands() -> None:
     assert run_level1_teleop._poll_overlay_commands(None) == ()
 
 
+def test_mjpython_command_preserves_orientation_tuning_overrides() -> None:
+    command = run_level1_teleop._format_mjpython_command(
+        camera_id=2,
+        width=run_level1_teleop.DEFAULT_CAMERA_WIDTH,
+        height=run_level1_teleop.DEFAULT_CAMERA_HEIGHT,
+        config_path=run_level1_teleop.DEFAULT_CONFIG,
+        model_path=None,
+        hand_landmarker_model_path=None,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5,
+        assume_mirrored_input=False,
+        smoothing_alpha=run_level1_teleop.DEFAULT_SMOOTHING_ALPHA,
+        min_smoothing_confidence=run_level1_teleop.DEFAULT_MIN_SMOOTHING_CONFIDENCE,
+        low_confidence_behavior=run_level1_teleop.DEFAULT_LOW_CONFIDENCE_BEHAVIOR,
+        decay_alpha=run_level1_teleop.DEFAULT_DECAY_ALPHA,
+        sim_steps_per_frame=run_level1_teleop.DEFAULT_SIM_STEPS_PER_FRAME,
+        viewer_sleep=run_level1_teleop.DEFAULT_VIEWER_SLEEP,
+        print_interval=run_level1_teleop.DEFAULT_PRINT_INTERVAL,
+        show_camera_window=True,
+        enable_base_control=True,
+        base_control_mode="image_2d",
+        enable_base_orientation=True,
+        orientation_dofs="roll,pitch,yaw",
+        max_roll_deg=135.0,
+        max_pitch_deg=100.0,
+        max_yaw_deg=140.0,
+        orientation_smoothing_alpha=0.6,
+        orientation_deadband_deg=0.25,
+        max_rotation_step_degrees=12.0,
+        enable_depth_control=True,
+        camera_window_name=run_level1_teleop.DEFAULT_CAMERA_WINDOW_NAME,
+    )
+
+    assert "--enable-base-orientation" in command
+    assert "--orientation-dofs" not in command
+    assert "--max-roll-deg 135.0" in command
+    assert "--max-pitch-deg 100.0" in command
+    assert "--max-yaw-deg 140.0" in command
+    assert "--orientation-smoothing-alpha 0.6" in command
+    assert "--orientation-deadband-deg 0.25" in command
+    assert "--max-rotation-step-deg 12.0" in command
+
+
 def test_status_formatters_keep_console_output_compact() -> None:
     features = _full_hand_features(
         thumb=0.2,
@@ -497,6 +558,12 @@ def test_run_level1_teleop_help_runs_without_real_webcam() -> None:
     assert "--base-control-mode" in result.stdout
     assert "--enable-base-orientation" in result.stdout
     assert "--orientation-dofs" in result.stdout
+    assert "--max-roll-deg" in result.stdout
+    assert "--max-pitch-deg" in result.stdout
+    assert "--max-yaw-deg" in result.stdout
+    assert "--orientation-smoothing-alpha" in result.stdout
+    assert "--orientation-deadband-deg" in result.stdout
+    assert "--max-rotation-step-deg" in result.stdout
     assert "--enable-depth-control" in result.stdout
     assert "--disable-depth-control" in result.stdout
     assert "--camera-window-name" in result.stdout

@@ -61,6 +61,12 @@ def main(argv: list[str] | None = None) -> int:
             base_control_mode=args.base_control_mode,
             enable_base_orientation=args.enable_base_orientation,
             orientation_dofs=args.orientation_dofs,
+            max_roll_deg=args.max_roll_deg,
+            max_pitch_deg=args.max_pitch_deg,
+            max_yaw_deg=args.max_yaw_deg,
+            orientation_smoothing_alpha=args.orientation_smoothing_alpha,
+            orientation_deadband_deg=args.orientation_deadband_deg,
+            max_rotation_step_degrees=args.max_rotation_step_deg,
             enable_depth_control=args.enable_depth_control,
             camera_window_name=args.camera_window_name,
         )

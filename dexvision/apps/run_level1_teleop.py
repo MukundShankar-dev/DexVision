@@ -317,6 +317,42 @@ def build_parser() -> argparse.ArgumentParser:
             "Use roll for the first Level 1.13C test, or roll,pitch,yaw for all axes."
         ),
     )
+    parser.add_argument(
+        "--max-roll-deg",
+        type=float,
+        default=None,
+        help="Override the relative base-orientation roll clamp in degrees.",
+    )
+    parser.add_argument(
+        "--max-pitch-deg",
+        type=float,
+        default=None,
+        help="Override the relative base-orientation pitch clamp in degrees.",
+    )
+    parser.add_argument(
+        "--max-yaw-deg",
+        type=float,
+        default=None,
+        help="Override the relative base-orientation yaw clamp in degrees.",
+    )
+    parser.add_argument(
+        "--orientation-smoothing-alpha",
+        type=float,
+        default=None,
+        help="Override base-orientation smoothing alpha in (0.0, 1.0].",
+    )
+    parser.add_argument(
+        "--orientation-deadband-deg",
+        type=float,
+        default=None,
+        help="Override base-orientation deadband in degrees.",
+    )
+    parser.add_argument(
+        "--max-rotation-step-deg",
+        type=float,
+        default=None,
+        help="Override the per-frame base-orientation rate limit in degrees.",
+    )
     depth_group = parser.add_mutually_exclusive_group()
     depth_group.add_argument(
         "--enable-depth-control",
@@ -409,6 +445,12 @@ def run_level1_teleop(
     base_control_mode: str | None,
     enable_base_orientation: bool,
     orientation_dofs: str | None,
+    max_roll_deg: float | None,
+    max_pitch_deg: float | None,
+    max_yaw_deg: float | None,
+    orientation_smoothing_alpha: float | None,
+    orientation_deadband_deg: float | None,
+    max_rotation_step_degrees: float | None,
     enable_depth_control: bool | None,
     camera_window_name: str,
 ) -> int:
@@ -436,6 +478,24 @@ def run_level1_teleop(
         base_config = replace(base_config, enable_base_orientation=True)
     if orientation_dofs is not None:
         base_config = replace(base_config, orientation_dofs=orientation_dofs)
+    if max_roll_deg is not None:
+        base_config = replace(base_config, max_roll_deg=max_roll_deg)
+    if max_pitch_deg is not None:
+        base_config = replace(base_config, max_pitch_deg=max_pitch_deg)
+    if max_yaw_deg is not None:
+        base_config = replace(base_config, max_yaw_deg=max_yaw_deg)
+    if orientation_smoothing_alpha is not None:
+        base_config = replace(
+            base_config,
+            orientation_smoothing_alpha=orientation_smoothing_alpha,
+        )
+    if orientation_deadband_deg is not None:
+        base_config = replace(base_config, orientation_deadband_deg=orientation_deadband_deg)
+    if max_rotation_step_degrees is not None:
+        base_config = replace(
+            base_config,
+            max_rotation_step_degrees=max_rotation_step_degrees,
+        )
     if enable_depth_control is not None:
         base_config = replace(base_config, enable_depth_control=enable_depth_control)
     target_names = robot_target_names(retargeter)
@@ -504,7 +564,8 @@ def run_level1_teleop(
                 f"dofs={','.join(base_config.orientation_dofs)}, "
                 f"max_rpy={base_config.max_orientation_rpy_degrees.tolist()}, "
                 f"smoothing={base_config.orientation_smoothing_alpha:.2f}, "
-                f"deadband={base_config.orientation_deadband_deg:.1f} deg"
+                f"deadband={base_config.orientation_deadband_deg:.1f} deg, "
+                f"rate={base_config.max_rotation_step_degrees:.1f} deg/frame"
             )
         print(
             "Base control tracking loss: hold current base pose, then reacquire from "
@@ -555,6 +616,12 @@ def run_level1_teleop(
         base_control_mode=base_config.base_control_mode,
         enable_base_orientation=base_config.enable_base_orientation,
         orientation_dofs=",".join(base_config.orientation_dofs),
+        max_roll_deg=max_roll_deg,
+        max_pitch_deg=max_pitch_deg,
+        max_yaw_deg=max_yaw_deg,
+        orientation_smoothing_alpha=orientation_smoothing_alpha,
+        orientation_deadband_deg=orientation_deadband_deg,
+        max_rotation_step_degrees=max_rotation_step_degrees,
         enable_depth_control=base_config.enable_depth_control,
         camera_window_name=camera_window_name,
     )
@@ -1232,6 +1299,12 @@ def _ensure_viewer_can_launch(
     base_control_mode: str,
     enable_base_orientation: bool,
     orientation_dofs: str | None,
+    max_roll_deg: float | None,
+    max_pitch_deg: float | None,
+    max_yaw_deg: float | None,
+    orientation_smoothing_alpha: float | None,
+    orientation_deadband_deg: float | None,
+    max_rotation_step_degrees: float | None,
     enable_depth_control: bool,
     camera_window_name: str,
 ) -> None:
@@ -1270,6 +1343,12 @@ def _ensure_viewer_can_launch(
         base_control_mode=base_control_mode,
         enable_base_orientation=enable_base_orientation,
         orientation_dofs=orientation_dofs,
+        max_roll_deg=max_roll_deg,
+        max_pitch_deg=max_pitch_deg,
+        max_yaw_deg=max_yaw_deg,
+        orientation_smoothing_alpha=orientation_smoothing_alpha,
+        orientation_deadband_deg=orientation_deadband_deg,
+        max_rotation_step_degrees=max_rotation_step_degrees,
         enable_depth_control=enable_depth_control,
         camera_window_name=camera_window_name,
     )
@@ -1303,6 +1382,12 @@ def _format_mjpython_command(
     base_control_mode: str,
     enable_base_orientation: bool,
     orientation_dofs: str | None,
+    max_roll_deg: float | None,
+    max_pitch_deg: float | None,
+    max_yaw_deg: float | None,
+    orientation_smoothing_alpha: float | None,
+    orientation_deadband_deg: float | None,
+    max_rotation_step_degrees: float | None,
     enable_depth_control: bool,
     camera_window_name: str,
 ) -> str:
@@ -1353,6 +1438,20 @@ def _format_mjpython_command(
             command.append("--enable-base-orientation")
             if orientation_dofs is not None and orientation_dofs != "roll,pitch,yaw":
                 command.extend(["--orientation-dofs", orientation_dofs])
+            if max_roll_deg is not None:
+                command.extend(["--max-roll-deg", str(max_roll_deg)])
+            if max_pitch_deg is not None:
+                command.extend(["--max-pitch-deg", str(max_pitch_deg)])
+            if max_yaw_deg is not None:
+                command.extend(["--max-yaw-deg", str(max_yaw_deg)])
+            if orientation_smoothing_alpha is not None:
+                command.extend(
+                    ["--orientation-smoothing-alpha", str(orientation_smoothing_alpha)]
+                )
+            if orientation_deadband_deg is not None:
+                command.extend(["--orientation-deadband-deg", str(orientation_deadband_deg)])
+            if max_rotation_step_degrees is not None:
+                command.extend(["--max-rotation-step-deg", str(max_rotation_step_degrees)])
         command.append(
             "--enable-depth-control" if enable_depth_control else "--disable-depth-control"
         )
@@ -1418,6 +1517,12 @@ def main(argv: list[str] | None = None) -> int:
             base_control_mode=args.base_control_mode,
             enable_base_orientation=args.enable_base_orientation,
             orientation_dofs=args.orientation_dofs,
+            max_roll_deg=args.max_roll_deg,
+            max_pitch_deg=args.max_pitch_deg,
+            max_yaw_deg=args.max_yaw_deg,
+            orientation_smoothing_alpha=args.orientation_smoothing_alpha,
+            orientation_deadband_deg=args.orientation_deadband_deg,
+            max_rotation_step_degrees=args.max_rotation_step_deg,
             enable_depth_control=args.enable_depth_control,
             camera_window_name=args.camera_window_name,
         )

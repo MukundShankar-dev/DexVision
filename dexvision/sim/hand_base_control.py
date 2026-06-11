@@ -40,6 +40,12 @@ DEFAULT_DEPTH_SOURCE: HandScaleSource = "robust_palm_scale"
 DEFAULT_DEPTH_MIN = -0.12
 DEFAULT_DEPTH_MAX = 0.16
 DEFAULT_ORIENTATION_DOFS: tuple[OrientationDof, ...] = ("roll", "pitch", "yaw")
+DEFAULT_MAX_ROTATION_STEP_DEGREES = 8.0
+DEFAULT_MAX_ROLL_DEG = 120.0
+DEFAULT_MAX_PITCH_DEG = 110.0
+DEFAULT_MAX_YAW_DEG = 120.0
+DEFAULT_ORIENTATION_SMOOTHING_ALPHA = 0.45
+DEFAULT_ORIENTATION_DEADBAND_DEG = 0.5
 DEFAULT_ROTATION_OFFSET_QUAT = np.asarray(
     [0.49939, 0.500609, 0.46235, -0.535007],
     dtype=np.float64,
@@ -108,15 +114,15 @@ class HandBaseControlConfig:
     base_smoothing_alpha: float = 0.25
     min_confidence: float = 0.2
     max_position_step: float = 0.025
-    max_rotation_step_degrees: float = 3.0
+    max_rotation_step_degrees: float = DEFAULT_MAX_ROTATION_STEP_DEGREES
     enable_base_orientation: bool = False
     orientation_mode: OrientationMode = "relative_palm"
     orientation_dofs: tuple[OrientationDof, ...] = DEFAULT_ORIENTATION_DOFS
-    max_roll_deg: float = 45.0
-    max_pitch_deg: float = 45.0
-    max_yaw_deg: float = 45.0
-    orientation_smoothing_alpha: float = 1.0
-    orientation_deadband_deg: float = 0.0
+    max_roll_deg: float = DEFAULT_MAX_ROLL_DEG
+    max_pitch_deg: float = DEFAULT_MAX_PITCH_DEG
+    max_yaw_deg: float = DEFAULT_MAX_YAW_DEG
+    orientation_smoothing_alpha: float = DEFAULT_ORIENTATION_SMOOTHING_ALPHA
+    orientation_deadband_deg: float = DEFAULT_ORIENTATION_DEADBAND_DEG
     base_orientation_axis_signs: np.ndarray = field(
         default_factory=lambda: np.ones(3, dtype=np.float64)
     )
@@ -949,7 +955,7 @@ def hand_base_config_from_mapping(raw_config: Mapping[str, Any] | None) -> HandB
             "max_position_step",
         ),
         max_rotation_step_degrees=_coerce_positive_float(
-            raw_config.get("max_rotation_step_degrees", 3.0),
+            raw_config.get("max_rotation_step_degrees", DEFAULT_MAX_ROTATION_STEP_DEGREES),
             "max_rotation_step_degrees",
         ),
         enable_base_orientation=bool(raw_config.get("enable_base_orientation", False)),
@@ -960,20 +966,23 @@ def hand_base_config_from_mapping(raw_config: Mapping[str, Any] | None) -> HandB
             raw_config.get("orientation_dofs", DEFAULT_ORIENTATION_DOFS)
         ),
         max_roll_deg=_coerce_nonnegative_float(
-            raw_config.get("max_roll_deg", 45.0),
+            raw_config.get("max_roll_deg", DEFAULT_MAX_ROLL_DEG),
             "max_roll_deg",
         ),
         max_pitch_deg=_coerce_nonnegative_float(
-            raw_config.get("max_pitch_deg", 45.0),
+            raw_config.get("max_pitch_deg", DEFAULT_MAX_PITCH_DEG),
             "max_pitch_deg",
         ),
-        max_yaw_deg=_coerce_nonnegative_float(raw_config.get("max_yaw_deg", 45.0), "max_yaw_deg"),
+        max_yaw_deg=_coerce_nonnegative_float(
+            raw_config.get("max_yaw_deg", DEFAULT_MAX_YAW_DEG),
+            "max_yaw_deg",
+        ),
         orientation_smoothing_alpha=_coerce_unit_interval_alpha(
-            raw_config.get("orientation_smoothing_alpha", 1.0),
+            raw_config.get("orientation_smoothing_alpha", DEFAULT_ORIENTATION_SMOOTHING_ALPHA),
             "orientation_smoothing_alpha",
         ),
         orientation_deadband_deg=_coerce_nonnegative_float(
-            raw_config.get("orientation_deadband_deg", 0.0),
+            raw_config.get("orientation_deadband_deg", DEFAULT_ORIENTATION_DEADBAND_DEG),
             "orientation_deadband_deg",
         ),
         base_orientation_axis_signs=_coerce_orientation_axis_signs(

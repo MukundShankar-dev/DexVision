@@ -278,7 +278,8 @@ def test_image_2d_mapping_clamps_workspace() -> None:
 
 def test_orientation_delta_mapping_applies_axis_signs() -> None:
     config = HandBaseControlConfig(
-        base_orientation_axis_signs=np.asarray([-1.0, 1.0, 1.0], dtype=np.float64)
+        base_orientation_axis_signs=np.asarray([-1.0, 1.0, 1.0], dtype=np.float64),
+        orientation_deadband_deg=0.0,
     )
     human_delta = rotation_vector_to_quaternion(
         np.asarray([np.deg2rad(30.0), 0.0, 0.0], dtype=np.float64)
@@ -389,11 +390,11 @@ def test_base_control_config_defaults_preserve_fixed_base_behavior() -> None:
     assert config.orientation_dofs == ("roll", "pitch", "yaw")
     assert config.orientation_axis_signs.tolist() == pytest.approx([1.0, 1.0, 1.0])
     assert np.allclose(config.orientation_remap_matrix, np.eye(3))
-    assert config.max_roll_deg == pytest.approx(45.0)
-    assert config.max_pitch_deg == pytest.approx(45.0)
-    assert config.max_yaw_deg == pytest.approx(45.0)
-    assert config.orientation_smoothing_alpha == pytest.approx(0.35)
-    assert config.orientation_deadband_deg == pytest.approx(1.0)
+    assert config.max_roll_deg == pytest.approx(120.0)
+    assert config.max_pitch_deg == pytest.approx(110.0)
+    assert config.max_yaw_deg == pytest.approx(120.0)
+    assert config.orientation_smoothing_alpha == pytest.approx(0.45)
+    assert config.orientation_deadband_deg == pytest.approx(0.5)
     assert config.base_orientation_axis_signs.tolist() == pytest.approx([1.0, 1.0, 1.0])
     assert np.allclose(config.base_orientation_remap_matrix, np.eye(3))
     assert config.position_source == "wrist"
@@ -401,7 +402,7 @@ def test_base_control_config_defaults_preserve_fixed_base_behavior() -> None:
     assert config.rotation_mode == "fixed"
     assert config.base_smoothing_alpha == pytest.approx(0.25)
     assert config.max_position_step == pytest.approx(0.025)
-    assert config.max_rotation_step_degrees == pytest.approx(3.0)
+    assert config.max_rotation_step_degrees == pytest.approx(8.0)
     assert parser.parse_args([]).enable_base_control is False
     assert parser.parse_args(["--enable-base-control"]).enable_base_control is True
     assert parser.parse_args([]).base_control_mode is None
@@ -410,6 +411,28 @@ def test_base_control_config_defaults_preserve_fixed_base_behavior() -> None:
     assert parser.parse_args(["--enable-base-orientation"]).enable_base_orientation is True
     assert parser.parse_args([]).orientation_dofs is None
     assert parser.parse_args(["--orientation-dofs", "roll"]).orientation_dofs == "roll"
+    orientation_args = parser.parse_args(
+        [
+            "--max-roll-deg",
+            "135",
+            "--max-pitch-deg",
+            "100",
+            "--max-yaw-deg",
+            "140",
+            "--orientation-smoothing-alpha",
+            "0.6",
+            "--orientation-deadband-deg",
+            "0.25",
+            "--max-rotation-step-deg",
+            "12",
+        ]
+    )
+    assert orientation_args.max_roll_deg == pytest.approx(135.0)
+    assert orientation_args.max_pitch_deg == pytest.approx(100.0)
+    assert orientation_args.max_yaw_deg == pytest.approx(140.0)
+    assert orientation_args.orientation_smoothing_alpha == pytest.approx(0.6)
+    assert orientation_args.orientation_deadband_deg == pytest.approx(0.25)
+    assert orientation_args.max_rotation_step_deg == pytest.approx(12.0)
     assert parser.parse_args([]).enable_depth_control is None
     assert parser.parse_args(["--enable-depth-control"]).enable_depth_control is True
     assert parser.parse_args(["--disable-depth-control"]).enable_depth_control is False
@@ -434,11 +457,14 @@ def test_empty_base_control_mapping_uses_safe_image_2d_defaults() -> None:
     assert config.enable_base_orientation is False
     assert config.orientation_mode == "relative_palm"
     assert config.orientation_dofs == ("roll", "pitch", "yaw")
-    assert config.orientation_smoothing_alpha == pytest.approx(1.0)
-    assert config.orientation_deadband_deg == pytest.approx(0.0)
+    assert config.max_roll_deg == pytest.approx(120.0)
+    assert config.max_pitch_deg == pytest.approx(110.0)
+    assert config.max_yaw_deg == pytest.approx(120.0)
+    assert config.orientation_smoothing_alpha == pytest.approx(0.45)
+    assert config.orientation_deadband_deg == pytest.approx(0.5)
     assert config.base_smoothing_alpha == pytest.approx(0.25)
     assert config.max_position_step == pytest.approx(0.025)
-    assert config.max_rotation_step_degrees == pytest.approx(3.0)
+    assert config.max_rotation_step_degrees == pytest.approx(8.0)
 
 
 def test_base_control_config_rejects_unknown_position_source() -> None:
@@ -737,6 +763,8 @@ def test_image_2d_orientation_calibration_maps_relative_palm_delta() -> None:
         base_control_mode="image_2d",
         enable_base_orientation=True,
         base_smoothing_alpha=1.0,
+        orientation_smoothing_alpha=1.0,
+        orientation_deadband_deg=0.0,
         max_position_step=1.0,
         max_rotation_step_degrees=180.0,
     )
@@ -853,6 +881,7 @@ def test_synthetic_palm_roll_produces_expected_roll_delta() -> None:
         orientation_dofs=("roll",),
         base_smoothing_alpha=1.0,
         orientation_smoothing_alpha=1.0,
+        orientation_deadband_deg=0.0,
         max_position_step=1.0,
         max_rotation_step_degrees=180.0,
     )
@@ -958,6 +987,8 @@ def test_image_2d_orientation_axis_signs_flip_relative_rotation() -> None:
         enable_base_orientation=True,
         base_orientation_axis_signs=np.asarray([-1.0, 1.0, 1.0], dtype=np.float64),
         base_smoothing_alpha=1.0,
+        orientation_smoothing_alpha=1.0,
+        orientation_deadband_deg=0.0,
         max_position_step=1.0,
         max_rotation_step_degrees=180.0,
     )
@@ -1405,6 +1436,12 @@ def test_check_hand_base_control_help_runs_without_real_webcam() -> None:
     assert "--base-control-mode" in result.stdout
     assert "--enable-base-orientation" in result.stdout
     assert "--orientation-dofs" in result.stdout
+    assert "--max-roll-deg" in result.stdout
+    assert "--max-pitch-deg" in result.stdout
+    assert "--max-yaw-deg" in result.stdout
+    assert "--orientation-smoothing-alpha" in result.stdout
+    assert "--orientation-deadband-deg" in result.stdout
+    assert "--max-rotation-step-deg" in result.stdout
     assert "--enable-depth-control" in result.stdout
     assert "--disable-depth-control" in result.stdout
     assert "--show-camera-window" in result.stdout
