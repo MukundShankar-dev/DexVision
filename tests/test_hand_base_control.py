@@ -26,12 +26,14 @@ from dexvision.sim.hand_base_control import (
     HandBaseControlConfig,
     HandBaseMocapController,
     WorkspaceLimits,
+    euler_degrees_to_quaternion,
     format_hand_base_status,
     hand_base_config_from_mapping,
     hand_base_config_from_teleop_config,
     map_hand_scale_to_depth_target,
     map_image_delta_to_base_position,
     map_orientation_delta_to_robot,
+    map_orientation_delta_to_robot_with_status,
     palm_center_delta,
     rotation_vector_to_quaternion,
 )
@@ -126,6 +128,9 @@ def test_palm_pose_estimator_returns_valid_normalized_quaternion_and_axes() -> N
     assert np.linalg.det(rotation) == pytest.approx(1.0)
     for axis_index in range(3):
         assert np.linalg.norm(rotation[:, axis_index]) == pytest.approx(1.0)
+    assert float(np.dot(rotation[:, 0], rotation[:, 1])) == pytest.approx(0.0, abs=1e-6)
+    assert float(np.dot(rotation[:, 0], rotation[:, 2])) == pytest.approx(0.0, abs=1e-6)
+    assert float(np.dot(rotation[:, 1], rotation[:, 2])) == pytest.approx(0.0, abs=1e-6)
 
 
 def test_palm_pose_estimator_invalid_landmarks_fail_safely() -> None:
@@ -380,6 +385,15 @@ def test_base_control_config_defaults_preserve_fixed_base_behavior() -> None:
     assert config.depth_deadband == pytest.approx(0.03)
     assert config.depth_hold_on_tracking_loss is True
     assert config.enable_base_orientation is False
+    assert config.orientation_mode == "relative_palm"
+    assert config.orientation_dofs == ("roll", "pitch", "yaw")
+    assert config.orientation_axis_signs.tolist() == pytest.approx([1.0, 1.0, 1.0])
+    assert np.allclose(config.orientation_remap_matrix, np.eye(3))
+    assert config.max_roll_deg == pytest.approx(45.0)
+    assert config.max_pitch_deg == pytest.approx(45.0)
+    assert config.max_yaw_deg == pytest.approx(45.0)
+    assert config.orientation_smoothing_alpha == pytest.approx(0.35)
+    assert config.orientation_deadband_deg == pytest.approx(1.0)
     assert config.base_orientation_axis_signs.tolist() == pytest.approx([1.0, 1.0, 1.0])
     assert np.allclose(config.base_orientation_remap_matrix, np.eye(3))
     assert config.position_source == "wrist"
@@ -394,6 +408,8 @@ def test_base_control_config_defaults_preserve_fixed_base_behavior() -> None:
     assert parser.parse_args(["--base-control-mode", "image_2d"]).base_control_mode == "image_2d"
     assert parser.parse_args([]).enable_base_orientation is False
     assert parser.parse_args(["--enable-base-orientation"]).enable_base_orientation is True
+    assert parser.parse_args([]).orientation_dofs is None
+    assert parser.parse_args(["--orientation-dofs", "roll"]).orientation_dofs == "roll"
     assert parser.parse_args([]).enable_depth_control is None
     assert parser.parse_args(["--enable-depth-control"]).enable_depth_control is True
     assert parser.parse_args(["--disable-depth-control"]).enable_depth_control is False
@@ -416,6 +432,10 @@ def test_empty_base_control_mapping_uses_safe_image_2d_defaults() -> None:
     assert config.position_mode == "absolute"
     assert config.rotation_mode == "fixed"
     assert config.enable_base_orientation is False
+    assert config.orientation_mode == "relative_palm"
+    assert config.orientation_dofs == ("roll", "pitch", "yaw")
+    assert config.orientation_smoothing_alpha == pytest.approx(1.0)
+    assert config.orientation_deadband_deg == pytest.approx(0.0)
     assert config.base_smoothing_alpha == pytest.approx(0.25)
     assert config.max_position_step == pytest.approx(0.025)
     assert config.max_rotation_step_degrees == pytest.approx(3.0)
@@ -454,6 +474,16 @@ def test_base_control_config_rejects_unknown_depth_axis() -> None:
 def test_base_control_config_rejects_invalid_orientation_axis_signs() -> None:
     with pytest.raises(ValueError, match="base_orientation_axis_signs"):
         hand_base_config_from_mapping({"base_orientation_axis_signs": [1.0, 0.0, 1.0]})
+
+
+def test_base_control_config_rejects_unknown_orientation_mode() -> None:
+    with pytest.raises(ValueError, match="orientation_mode"):
+        hand_base_config_from_mapping({"orientation_mode": "absolute"})
+
+
+def test_base_control_config_rejects_unknown_orientation_dof() -> None:
+    with pytest.raises(ValueError, match="orientation_dofs"):
+        hand_base_config_from_mapping({"orientation_dofs": "roll,twist"})
 
 
 def test_check_hand_base_control_parser_enables_base_and_overlay_by_default() -> None:
@@ -756,6 +786,154 @@ def test_image_2d_orientation_calibration_maps_relative_palm_delta() -> None:
     assert "ori r=" in format_hand_base_status(status)
 
 
+def test_image_2d_orientation_calibration_stores_neutral_rotations() -> None:
+    config = replace(
+        HandBaseControlConfig(enabled=True),
+        base_control_mode="image_2d",
+        enable_base_orientation=True,
+        max_position_step=1.0,
+        max_rotation_step_degrees=180.0,
+    )
+    env = FakeMocapEnv()
+    controller = HandBaseMocapController(env, config)  # type: ignore[arg-type]
+    palm_center = _image_target()
+    calibrated_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=rotation_vector_to_quaternion(
+            np.asarray([0.0, np.deg2rad(25.0), 0.0], dtype=np.float64)
+        ),
+        confidence=1.0,
+        valid=True,
+    )
+
+    assert controller.calibrate_image_2d(palm_center, orientation_target=calibrated_human)
+
+    assert controller.neutral_palm_orientation_quat is not None
+    assert np.allclose(
+        controller.neutral_palm_orientation_quat,
+        calibrated_human.orientation_quat,
+    )
+    assert np.allclose(controller.neutral_robot_orientation_quat, env.orientation_quat)
+
+
+def test_relative_orientation_is_identity_immediately_after_calibration() -> None:
+    config = replace(
+        HandBaseControlConfig(enabled=True),
+        base_control_mode="image_2d",
+        enable_base_orientation=True,
+        base_smoothing_alpha=1.0,
+        max_position_step=1.0,
+        max_rotation_step_degrees=180.0,
+    )
+    env = FakeMocapEnv()
+    controller = HandBaseMocapController(env, config)  # type: ignore[arg-type]
+    palm_center = _image_target()
+    calibrated_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=rotation_vector_to_quaternion(
+            np.asarray([np.deg2rad(10.0), np.deg2rad(15.0), 0.0], dtype=np.float64)
+        ),
+        confidence=1.0,
+        valid=True,
+    )
+
+    assert controller.calibrate_image_2d(palm_center, orientation_target=calibrated_human)
+    status = controller.apply_image_2d(palm_center, orientation_target=calibrated_human)
+
+    assert status.orientation_delta_rpy_degrees is not None
+    assert status.orientation_delta_rpy_degrees.tolist() == pytest.approx([0.0, 0.0, 0.0])
+    assert quaternion_angle(env.orientation_quat, controller.neutral_robot_orientation_quat) < 1e-6
+
+
+def test_synthetic_palm_roll_produces_expected_roll_delta() -> None:
+    config = replace(
+        HandBaseControlConfig(enabled=True),
+        base_control_mode="image_2d",
+        enable_base_orientation=True,
+        orientation_dofs=("roll",),
+        base_smoothing_alpha=1.0,
+        orientation_smoothing_alpha=1.0,
+        max_position_step=1.0,
+        max_rotation_step_degrees=180.0,
+    )
+    env = FakeMocapEnv()
+    controller = HandBaseMocapController(env, config)  # type: ignore[arg-type]
+    palm_center = _image_target()
+    neutral_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
+        confidence=1.0,
+        valid=True,
+    )
+    rolled_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=rotation_vector_to_quaternion(
+            np.asarray([np.deg2rad(30.0), 0.0, 0.0], dtype=np.float64)
+        ),
+        confidence=1.0,
+        valid=True,
+    )
+    expected_robot_quat = quaternion_multiply(
+        rotation_vector_to_quaternion(
+            np.asarray([np.deg2rad(30.0), 0.0, 0.0], dtype=np.float64)
+        ),
+        env.orientation_quat,
+    )
+
+    assert controller.calibrate_image_2d(palm_center, orientation_target=neutral_human)
+    status = controller.apply_image_2d(palm_center, orientation_target=rolled_human)
+
+    assert status.orientation_delta_rpy_degrees is not None
+    assert status.orientation_delta_rpy_degrees.tolist() == pytest.approx([30.0, 0.0, 0.0])
+    assert quaternion_angle(env.orientation_quat, expected_robot_quat) < 1e-6
+
+
+def test_orientation_dofs_can_stage_roll_only() -> None:
+    config = replace(
+        HandBaseControlConfig(),
+        orientation_dofs=("roll",),
+        orientation_deadband_deg=0.0,
+    )
+    human_delta = euler_degrees_to_quaternion(
+        np.asarray([20.0, 15.0, -10.0], dtype=np.float64)
+    )
+
+    mapped = map_orientation_delta_to_robot_with_status(human_delta, config)
+
+    assert mapped.rpy_degrees.tolist() == pytest.approx([20.0, 0.0, 0.0])
+
+
+def test_orientation_max_roll_pitch_yaw_clamp_works() -> None:
+    config = replace(
+        HandBaseControlConfig(),
+        max_roll_deg=20.0,
+        max_pitch_deg=10.0,
+        max_yaw_deg=5.0,
+    )
+    human_delta = euler_degrees_to_quaternion(
+        np.asarray([60.0, -40.0, 30.0], dtype=np.float64)
+    )
+
+    mapped = map_orientation_delta_to_robot_with_status(human_delta, config)
+
+    assert mapped.clamped
+    assert mapped.rpy_degrees.tolist() == pytest.approx([20.0, -10.0, 5.0])
+
+
+def test_orientation_deadband_suppresses_small_relative_angles() -> None:
+    config = replace(
+        HandBaseControlConfig(),
+        orientation_deadband_deg=2.0,
+    )
+    human_delta = euler_degrees_to_quaternion(
+        np.asarray([1.0, -1.5, 0.5], dtype=np.float64)
+    )
+
+    mapped = map_orientation_delta_to_robot_with_status(human_delta, config)
+
+    assert mapped.rpy_degrees.tolist() == pytest.approx([0.0, 0.0, 0.0])
+
+
 def test_image_2d_orientation_requires_orientation_target_when_enabled() -> None:
     config = replace(
         HandBaseControlConfig(enabled=True),
@@ -848,6 +1026,42 @@ def test_image_2d_controller_holds_last_target_when_tracking_is_lost() -> None:
     assert not status.tracking_valid
     assert status.neutral_captured
     assert env.position.tolist() == pytest.approx(last_position.tolist())
+
+
+def test_tracking_loss_does_not_update_orientation() -> None:
+    config = replace(
+        HandBaseControlConfig(enabled=True),
+        base_control_mode="image_2d",
+        enable_base_orientation=True,
+        orientation_smoothing_alpha=1.0,
+        max_position_step=1.0,
+        max_rotation_step_degrees=180.0,
+    )
+    env = FakeMocapEnv()
+    controller = HandBaseMocapController(env, config)  # type: ignore[arg-type]
+    palm_center = _image_target()
+    neutral_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
+        confidence=1.0,
+        valid=True,
+    )
+    rolled_human = HandBaseTarget(
+        position=np.zeros(3),
+        orientation_quat=rotation_vector_to_quaternion(
+            np.asarray([np.deg2rad(25.0), 0.0, 0.0], dtype=np.float64)
+        ),
+        confidence=1.0,
+        valid=True,
+    )
+
+    assert controller.calibrate_image_2d(palm_center, orientation_target=neutral_human)
+    controller.apply_image_2d(palm_center, orientation_target=rolled_human)
+    last_orientation = env.orientation_quat.copy()
+    status = controller.apply_image_2d(no_image_palm_center_target())
+
+    assert not status.tracking_valid
+    assert env.orientation_quat.tolist() == pytest.approx(last_orientation.tolist())
 
 
 def test_image_2d_controller_reset_returns_to_neutral_and_clears_calibration() -> None:
@@ -1190,6 +1404,7 @@ def test_check_hand_base_control_help_runs_without_real_webcam() -> None:
     assert "--enable-base-control" in result.stdout
     assert "--base-control-mode" in result.stdout
     assert "--enable-base-orientation" in result.stdout
+    assert "--orientation-dofs" in result.stdout
     assert "--enable-depth-control" in result.stdout
     assert "--disable-depth-control" in result.stdout
     assert "--show-camera-window" in result.stdout

@@ -33,8 +33,9 @@ def main(argv: list[str] | None = None) -> int:
     print("DexVision Level 1.13 hand base control smoke test")
     print("Base control and the camera overlay are enabled by default in this app.")
     print("Default mode is calibrated image_2d translation plus hand-scale depth.")
-    print("Orientation is still opt-in; Level 1.13B does not apply rotation by default.")
-    print("Calibration treats your current palm center and scale as neutral.")
+    print("Orientation is opt-in; use --enable-base-orientation for Level 1.13C.")
+    print("Use --orientation-dofs roll for the first roll-only rotation test.")
+    print("Calibration treats your current palm center, scale, and orientation as neutral.")
     print("Press c in the camera overlay to calibrate neutral; press r to reset neutral.")
     print("Move your hand before collecting Level 2 demos only after this manual check passes.")
     try:
@@ -59,6 +60,7 @@ def main(argv: list[str] | None = None) -> int:
             enable_base_control=True,
             base_control_mode=args.base_control_mode,
             enable_base_orientation=args.enable_base_orientation,
+            orientation_dofs=args.orientation_dofs,
             enable_depth_control=args.enable_depth_control,
             camera_window_name=args.camera_window_name,
         )

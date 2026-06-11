@@ -33,6 +33,39 @@
     ],
     "rotation_mode": "fixed",
     "enable_base_orientation": false,
+    "orientation_mode": "relative_palm",
+    "orientation_dofs": [
+      "roll",
+      "pitch",
+      "yaw"
+    ],
+    "orientation_axis_signs": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "orientation_remap_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "max_roll_deg": 45.0,
+    "max_pitch_deg": 45.0,
+    "max_yaw_deg": 45.0,
+    "orientation_smoothing_alpha": 0.35,
+    "orientation_deadband_deg": 1.0,
     "base_orientation_axis_signs": [
       1.0,
       1.0,

@@ -93,6 +93,8 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
             "--base-control-mode",
             "image_2d",
             "--enable-base-orientation",
+            "--orientation-dofs",
+            "roll",
             "--enable-depth-control",
             "--camera-window-name",
             "Demo Window",
@@ -108,6 +110,7 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
     assert args.enable_base_control is True
     assert args.base_control_mode == "image_2d"
     assert args.enable_base_orientation is True
+    assert args.orientation_dofs == "roll"
     assert args.enable_depth_control is True
     assert args.camera_window_name == "Demo Window"
 
@@ -493,6 +496,7 @@ def test_run_level1_teleop_help_runs_without_real_webcam() -> None:
     assert "--enable-base-control" in result.stdout
     assert "--base-control-mode" in result.stdout
     assert "--enable-base-orientation" in result.stdout
+    assert "--orientation-dofs" in result.stdout
     assert "--enable-depth-control" in result.stdout
     assert "--disable-depth-control" in result.stdout
     assert "--camera-window-name" in result.stdout

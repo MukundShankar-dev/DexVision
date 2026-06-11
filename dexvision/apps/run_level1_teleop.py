@@ -309,6 +309,14 @@ def build_parser() -> argparse.ArgumentParser:
             "Level 1.13 translation is being stabilized."
         ),
     )
+    parser.add_argument(
+        "--orientation-dofs",
+        default=None,
+        help=(
+            "Comma-separated base orientation DOFs to apply when orientation is enabled. "
+            "Use roll for the first Level 1.13C test, or roll,pitch,yaw for all axes."
+        ),
+    )
     depth_group = parser.add_mutually_exclusive_group()
     depth_group.add_argument(
         "--enable-depth-control",
@@ -400,6 +408,7 @@ def run_level1_teleop(
     enable_base_control: bool,
     base_control_mode: str | None,
     enable_base_orientation: bool,
+    orientation_dofs: str | None,
     enable_depth_control: bool | None,
     camera_window_name: str,
 ) -> int:
@@ -425,6 +434,8 @@ def run_level1_teleop(
         base_config = replace(base_config, base_control_mode=base_control_mode)
     if enable_base_orientation:
         base_config = replace(base_config, enable_base_orientation=True)
+    if orientation_dofs is not None:
+        base_config = replace(base_config, orientation_dofs=orientation_dofs)
     if enable_depth_control is not None:
         base_config = replace(base_config, enable_depth_control=enable_depth_control)
     target_names = robot_target_names(retargeter)
@@ -486,6 +497,15 @@ def run_level1_teleop(
                 f"{base_config.position_mode} {base_config.position_source}"
             )
         print(f"Base orientation: {'on' if base_config.enable_base_orientation else 'off'}")
+        if base_config.enable_base_orientation:
+            print(
+                "Base orientation mapping: "
+                f"mode={base_config.orientation_mode}, "
+                f"dofs={','.join(base_config.orientation_dofs)}, "
+                f"max_rpy={base_config.max_orientation_rpy_degrees.tolist()}, "
+                f"smoothing={base_config.orientation_smoothing_alpha:.2f}, "
+                f"deadband={base_config.orientation_deadband_deg:.1f} deg"
+            )
         print(
             "Base control tracking loss: hold current base pose, then reacquire from "
             "the current palm/base target."
@@ -508,7 +528,9 @@ def run_level1_teleop(
     if show_camera_window:
         print("Camera overlay shows landmarks, feature bars, FPS, and tracking status.")
         if base_config.enabled and base_config.base_control_mode == "image_2d":
-            print("Press c in the camera overlay to calibrate base/depth neutral.")
+            print(
+                "Press c in the camera overlay to calibrate base/depth/orientation neutral."
+            )
             print("Press r in the camera overlay to reset the base and clear calibration.")
         print("Press q in the camera overlay to quit.")
     _ensure_viewer_can_launch(
@@ -532,6 +554,7 @@ def run_level1_teleop(
         enable_base_control=base_config.enabled,
         base_control_mode=base_config.base_control_mode,
         enable_base_orientation=base_config.enable_base_orientation,
+        orientation_dofs=",".join(base_config.orientation_dofs),
         enable_depth_control=base_config.enable_depth_control,
         camera_window_name=camera_window_name,
     )
@@ -762,12 +785,10 @@ def _apply_hand_base_control(
             tracking_result,
             depth_source=base_controller.config.depth_source,
         )
-        raw_orientation_target = None
-        if base_controller.config.enable_base_orientation:
-            raw_orientation_target = extract_hand_base_target(
-                tracking_result,
-                position_source=base_controller.config.position_source,
-            )
+        raw_orientation_target = extract_hand_base_target(
+            tracking_result,
+            position_source=base_controller.config.position_source,
+        )
 
         for command in commands:
             if command == "reset_base":
@@ -784,17 +805,17 @@ def _apply_hand_base_control(
                 )
                 if calibrated:
                     print(
-                        "Base control calibrated: current palm center and scale map "
-                        "to the robot neutral/base pose."
+                        "Base control calibrated: current palm center, scale, and "
+                        "orientation map to the robot neutral/base pose."
                     )
                 else:
                     print(
                         "WARNING: Cannot calibrate base neutral until a confident "
-                        "palm pose and hand scale are tracked."
+                        "palm pose, orientation, and hand scale are tracked."
                     )
 
         orientation_target = None
-        if raw_orientation_target is not None:
+        if base_controller.config.enable_base_orientation:
             if base_smoother is not None:
                 orientation_target = base_smoother.update(raw_orientation_target)
             else:
@@ -1210,6 +1231,7 @@ def _ensure_viewer_can_launch(
     enable_base_control: bool,
     base_control_mode: str,
     enable_base_orientation: bool,
+    orientation_dofs: str | None,
     enable_depth_control: bool,
     camera_window_name: str,
 ) -> None:
@@ -1247,6 +1269,7 @@ def _ensure_viewer_can_launch(
         enable_base_control=enable_base_control,
         base_control_mode=base_control_mode,
         enable_base_orientation=enable_base_orientation,
+        orientation_dofs=orientation_dofs,
         enable_depth_control=enable_depth_control,
         camera_window_name=camera_window_name,
     )
@@ -1279,6 +1302,7 @@ def _format_mjpython_command(
     enable_base_control: bool,
     base_control_mode: str,
     enable_base_orientation: bool,
+    orientation_dofs: str | None,
     enable_depth_control: bool,
     camera_window_name: str,
 ) -> str:
@@ -1327,7 +1351,11 @@ def _format_mjpython_command(
             command.extend(["--base-control-mode", base_control_mode])
         if enable_base_orientation:
             command.append("--enable-base-orientation")
-        command.append("--enable-depth-control" if enable_depth_control else "--disable-depth-control")
+            if orientation_dofs is not None and orientation_dofs != "roll,pitch,yaw":
+                command.extend(["--orientation-dofs", orientation_dofs])
+        command.append(
+            "--enable-depth-control" if enable_depth_control else "--disable-depth-control"
+        )
     if camera_window_name != DEFAULT_CAMERA_WINDOW_NAME:
         command.extend(["--camera-window-name", camera_window_name])
     return " ".join(shlex.quote(part) for part in command)
@@ -1389,6 +1417,7 @@ def main(argv: list[str] | None = None) -> int:
             enable_base_control=args.enable_base_control,
             base_control_mode=args.base_control_mode,
             enable_base_orientation=args.enable_base_orientation,
+            orientation_dofs=args.orientation_dofs,
             enable_depth_control=args.enable_depth_control,
             camera_window_name=args.camera_window_name,
         )

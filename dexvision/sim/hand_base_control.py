@@ -30,6 +30,8 @@ ImageYAxisMode = Literal["height", "approach"]
 PositionMode = Literal["absolute", "relative"]
 RotationMode = Literal["palm_delta", "palm_absolute", "fixed"]
 DepthAxis = Literal["x", "y", "z"]
+OrientationMode = Literal["relative_palm"]
+OrientationDof = Literal["roll", "pitch", "yaw"]
 DEFAULT_MOCAP_BODY_NAME = "dexvision_hand_base_target"
 DEFAULT_BASE_CONTROL_MODE: BaseControlMode = "image_2d"
 DEFAULT_BASE_FIXED_Z = 0.14
@@ -37,6 +39,7 @@ DEFAULT_DEPTH_AXIS: DepthAxis = "x"
 DEFAULT_DEPTH_SOURCE: HandScaleSource = "robust_palm_scale"
 DEFAULT_DEPTH_MIN = -0.12
 DEFAULT_DEPTH_MAX = 0.16
+DEFAULT_ORIENTATION_DOFS: tuple[OrientationDof, ...] = ("roll", "pitch", "yaw")
 DEFAULT_ROTATION_OFFSET_QUAT = np.asarray(
     [0.49939, 0.500609, 0.46235, -0.535007],
     dtype=np.float64,
@@ -107,6 +110,13 @@ class HandBaseControlConfig:
     max_position_step: float = 0.025
     max_rotation_step_degrees: float = 3.0
     enable_base_orientation: bool = False
+    orientation_mode: OrientationMode = "relative_palm"
+    orientation_dofs: tuple[OrientationDof, ...] = DEFAULT_ORIENTATION_DOFS
+    max_roll_deg: float = 45.0
+    max_pitch_deg: float = 45.0
+    max_yaw_deg: float = 45.0
+    orientation_smoothing_alpha: float = 1.0
+    orientation_deadband_deg: float = 0.0
     base_orientation_axis_signs: np.ndarray = field(
         default_factory=lambda: np.ones(3, dtype=np.float64)
     )
@@ -217,6 +227,47 @@ class HandBaseControlConfig:
         object.__setattr__(self, "enable_base_orientation", bool(self.enable_base_orientation))
         object.__setattr__(
             self,
+            "orientation_mode",
+            _coerce_orientation_mode(str(self.orientation_mode)),
+        )
+        object.__setattr__(
+            self,
+            "orientation_dofs",
+            _coerce_orientation_dofs(self.orientation_dofs),
+        )
+        object.__setattr__(
+            self,
+            "max_roll_deg",
+            _coerce_nonnegative_float(self.max_roll_deg, "max_roll_deg"),
+        )
+        object.__setattr__(
+            self,
+            "max_pitch_deg",
+            _coerce_nonnegative_float(self.max_pitch_deg, "max_pitch_deg"),
+        )
+        object.__setattr__(
+            self,
+            "max_yaw_deg",
+            _coerce_nonnegative_float(self.max_yaw_deg, "max_yaw_deg"),
+        )
+        object.__setattr__(
+            self,
+            "orientation_smoothing_alpha",
+            _coerce_unit_interval_alpha(
+                self.orientation_smoothing_alpha,
+                "orientation_smoothing_alpha",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "orientation_deadband_deg",
+            _coerce_nonnegative_float(
+                self.orientation_deadband_deg,
+                "orientation_deadband_deg",
+            ),
+        )
+        object.__setattr__(
+            self,
             "base_orientation_axis_signs",
             _coerce_orientation_axis_signs(self.base_orientation_axis_signs),
         )
@@ -247,6 +298,27 @@ class HandBaseControlConfig:
 
         return {"x": 0, "y": 1, "z": 2}[self.depth_axis]
 
+    @property
+    def orientation_axis_signs(self) -> np.ndarray:
+        """Return the configured relative-orientation axis signs."""
+
+        return self.base_orientation_axis_signs
+
+    @property
+    def orientation_remap_matrix(self) -> np.ndarray:
+        """Return the configured relative-orientation axis remap matrix."""
+
+        return self.base_orientation_remap_matrix
+
+    @property
+    def max_orientation_rpy_degrees(self) -> np.ndarray:
+        """Return per-axis roll/pitch/yaw clamps in degrees."""
+
+        return np.asarray(
+            [self.max_roll_deg, self.max_pitch_deg, self.max_yaw_deg],
+            dtype=np.float64,
+        )
+
 
 @dataclass(frozen=True)
 class HandBaseControlStatus:
@@ -271,6 +343,29 @@ class HandBaseControlStatus:
     depth_clamped: bool = False
     orientation_calibrated: bool = False
     orientation_delta_rpy_degrees: np.ndarray | None = None
+    orientation_clamped: bool = False
+
+
+@dataclass(frozen=True, eq=False)
+class OrientationMappingResult:
+    """Mapped relative palm rotation and debug values."""
+
+    quaternion: np.ndarray
+    rpy_degrees: np.ndarray
+    clamped: bool
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "quaternion",
+            normalize_quaternion(np.asarray(self.quaternion, dtype=np.float64)),
+        )
+        object.__setattr__(
+            self,
+            "rpy_degrees",
+            _coerce_vector(self.rpy_degrees, "orientation_delta_rpy_degrees"),
+        )
+        object.__setattr__(self, "clamped", bool(self.clamped))
 
 
 class HandBaseMocapController:
@@ -312,6 +407,20 @@ class HandBaseMocapController:
         )[0]
         self._neutral_palm_orientation_quat = None
         self._neutral_robot_orientation_quat = self._neutral_mocap_quat.copy()
+
+    @property
+    def neutral_palm_orientation_quat(self) -> np.ndarray | None:
+        """Return the calibrated human palm orientation, if captured."""
+
+        if self._neutral_palm_orientation_quat is None:
+            return None
+        return self._neutral_palm_orientation_quat.copy()
+
+    @property
+    def neutral_robot_orientation_quat(self) -> np.ndarray:
+        """Return the robot base orientation captured at calibration."""
+
+        return self._neutral_robot_orientation_quat.copy()
 
     def calibrate_image_2d(
         self,
@@ -389,6 +498,7 @@ class HandBaseMocapController:
             depth_clamped=False,
             orientation_calibrated=self._orientation_is_calibrated(),
             orientation_delta_rpy_degrees=None,
+            orientation_clamped=False,
         )
 
     def apply(self, target: HandBaseTarget | None) -> HandBaseControlStatus:
@@ -405,6 +515,7 @@ class HandBaseMocapController:
                 control_mode="off",
                 orientation_enabled=False,
                 orientation_calibrated=False,
+                orientation_clamped=False,
             )
 
         current = target or no_hand_base_target()
@@ -425,6 +536,7 @@ class HandBaseMocapController:
                 control_mode=self.config.base_control_mode,
                 orientation_enabled=self.config.enable_base_orientation,
                 orientation_calibrated=self._orientation_is_calibrated(),
+                orientation_clamped=False,
             )
 
         if self._source_neutral is None:
@@ -448,6 +560,7 @@ class HandBaseMocapController:
             control_mode=self.config.base_control_mode,
             orientation_enabled=self.config.enable_base_orientation,
             orientation_calibrated=self._orientation_is_calibrated(),
+            orientation_clamped=False,
         )
 
     def apply_image_2d(
@@ -469,6 +582,7 @@ class HandBaseMocapController:
                 control_mode="off",
                 orientation_enabled=False,
                 orientation_calibrated=False,
+                orientation_clamped=False,
             )
 
         current = target or no_image_palm_center_target()
@@ -518,6 +632,7 @@ class HandBaseMocapController:
                 depth_clamped=False,
                 orientation_calibrated=self._orientation_is_calibrated(),
                 orientation_delta_rpy_degrees=None,
+                orientation_clamped=False,
             )
 
         if self._neutral_palm_center is None or (
@@ -556,6 +671,7 @@ class HandBaseMocapController:
                 depth_clamped=False,
                 orientation_calibrated=self._orientation_is_calibrated(),
                 orientation_delta_rpy_degrees=None,
+                orientation_clamped=False,
             )
 
         delta = palm_center_delta(current.palm_center, self._neutral_palm_center)
@@ -585,7 +701,11 @@ class HandBaseMocapController:
             current=mapped_position,
             config=self.config,
         )
-        orientation_quat, orientation_delta_rpy_degrees = self._image_2d_orientation(
+        (
+            orientation_quat,
+            orientation_delta_rpy_degrees,
+            orientation_clamped,
+        ) = self._image_2d_orientation(
             orientation_target,
         )
         mapped_target = HandBaseTarget(
@@ -621,6 +741,7 @@ class HandBaseMocapController:
             depth_clamped=depth_clamped,
             orientation_calibrated=self._orientation_is_calibrated(),
             orientation_delta_rpy_degrees=orientation_delta_rpy_degrees,
+            orientation_clamped=orientation_clamped,
         )
 
     def _map_to_mujoco_target(self, target: HandBaseTarget) -> tuple[HandBaseTarget, bool]:
@@ -659,25 +780,33 @@ class HandBaseMocapController:
     def _image_2d_orientation(
         self,
         orientation_target: HandBaseTarget | None,
-    ) -> tuple[np.ndarray, np.ndarray | None]:
+    ) -> tuple[np.ndarray, np.ndarray | None, bool]:
         if not self.config.enable_base_orientation:
-            return self._neutral_mocap_quat, None
+            return self._neutral_mocap_quat, None, False
         if self._neutral_palm_orientation_quat is None:
-            return self._last_applied.orientation_quat, None
+            return self._last_applied.orientation_quat, None, False
         if orientation_target is None:
-            return self._last_applied.orientation_quat, None
-        if not orientation_target.valid or orientation_target.confidence < self.config.min_confidence:
-            return self._last_applied.orientation_quat, None
+            return self._last_applied.orientation_quat, None, False
+        if (
+            not orientation_target.valid
+            or orientation_target.confidence < self.config.min_confidence
+        ):
+            return self._last_applied.orientation_quat, None, False
         source_delta_quat = quaternion_multiply(
             orientation_target.orientation_quat,
             quaternion_inverse(self._neutral_palm_orientation_quat),
         )
-        mapped_delta_quat = map_orientation_delta_to_robot(source_delta_quat, self.config)
-        orientation_quat = quaternion_multiply(
-            mapped_delta_quat,
+        mapped_delta = map_orientation_delta_to_robot_with_status(source_delta_quat, self.config)
+        target_orientation_quat = quaternion_multiply(
+            mapped_delta.quaternion,
             self._neutral_robot_orientation_quat,
         )
-        return orientation_quat, quaternion_to_euler_degrees(mapped_delta_quat)
+        orientation_quat = quaternion_nlerp(
+            self._last_applied.orientation_quat,
+            target_orientation_quat,
+            self.config.orientation_smoothing_alpha,
+        )
+        return orientation_quat, mapped_delta.rpy_degrees, mapped_delta.clamped
 
     def _limit_step(self, target: HandBaseTarget) -> tuple[HandBaseTarget, bool]:
         position, position_limited = _limit_position_step(
@@ -746,6 +875,14 @@ def hand_base_config_from_mapping(raw_config: Mapping[str, Any] | None) -> HandB
     workspace_limits = _read_workspace_limits(raw_config)
 
     rotation_mode = str(raw_config.get("rotation_mode", "fixed"))
+    orientation_axis_signs = raw_config.get(
+        "orientation_axis_signs",
+        raw_config.get("base_orientation_axis_signs", [1.0, 1.0, 1.0]),
+    )
+    orientation_remap_matrix = raw_config.get(
+        "orientation_remap_matrix",
+        raw_config.get("base_orientation_remap_matrix", _IDENTITY_MATRIX),
+    )
 
     return HandBaseControlConfig(
         enabled=bool(raw_config.get("enable_base_control", False)),
@@ -816,11 +953,34 @@ def hand_base_config_from_mapping(raw_config: Mapping[str, Any] | None) -> HandB
             "max_rotation_step_degrees",
         ),
         enable_base_orientation=bool(raw_config.get("enable_base_orientation", False)),
+        orientation_mode=_coerce_orientation_mode(
+            str(raw_config.get("orientation_mode", "relative_palm"))
+        ),
+        orientation_dofs=_coerce_orientation_dofs(
+            raw_config.get("orientation_dofs", DEFAULT_ORIENTATION_DOFS)
+        ),
+        max_roll_deg=_coerce_nonnegative_float(
+            raw_config.get("max_roll_deg", 45.0),
+            "max_roll_deg",
+        ),
+        max_pitch_deg=_coerce_nonnegative_float(
+            raw_config.get("max_pitch_deg", 45.0),
+            "max_pitch_deg",
+        ),
+        max_yaw_deg=_coerce_nonnegative_float(raw_config.get("max_yaw_deg", 45.0), "max_yaw_deg"),
+        orientation_smoothing_alpha=_coerce_unit_interval_alpha(
+            raw_config.get("orientation_smoothing_alpha", 1.0),
+            "orientation_smoothing_alpha",
+        ),
+        orientation_deadband_deg=_coerce_nonnegative_float(
+            raw_config.get("orientation_deadband_deg", 0.0),
+            "orientation_deadband_deg",
+        ),
         base_orientation_axis_signs=_coerce_orientation_axis_signs(
-            raw_config.get("base_orientation_axis_signs", [1.0, 1.0, 1.0])
+            orientation_axis_signs
         ),
         base_orientation_remap_matrix=_coerce_orientation_remap_matrix(
-            raw_config.get("base_orientation_remap_matrix", _IDENTITY_MATRIX)
+            orientation_remap_matrix
         ),
     )
 
@@ -852,9 +1012,13 @@ def format_hand_base_status(status: HandBaseControlStatus | None) -> str:
             orientation_detail = "ori=off"
         elif status.orientation_calibrated and status.orientation_delta_rpy_degrees is not None:
             rpy = status.orientation_delta_rpy_degrees
-            orientation_detail = f"ori r={rpy[0]:+.1f} p={rpy[1]:+.1f} y={rpy[2]:+.1f}"
+            orientation_clamp = "yes" if status.orientation_clamped else "no"
+            orientation_detail = (
+                f"ori r={rpy[0]:+.1f} p={rpy[1]:+.1f} y={rpy[2]:+.1f} "
+                f"clamp={orientation_clamp}"
+            )
         elif status.orientation_calibrated:
-            orientation_detail = "ori=on r=+0.0 p=+0.0 y=+0.0"
+            orientation_detail = "ori=on r=+0.0 p=+0.0 y=+0.0 clamp=no"
         else:
             orientation_detail = "ori=on cal=no"
         return (
@@ -942,10 +1106,59 @@ def map_orientation_delta_to_robot(
 ) -> np.ndarray:
     """Map a calibrated human palm rotation delta into the robot frame."""
 
+    return map_orientation_delta_to_robot_with_status(human_delta_quat, config).quaternion
+
+
+def map_orientation_delta_to_robot_with_status(
+    human_delta_quat: np.ndarray,
+    config: HandBaseControlConfig,
+) -> OrientationMappingResult:
+    """Map a human palm delta into the robot frame with RPY debug metadata."""
+
     rotation_vector = quaternion_to_rotation_vector(human_delta_quat)
     signed_vector = config.base_orientation_axis_signs * rotation_vector
-    mapped_vector = np.asarray(config.base_orientation_remap_matrix @ signed_vector, dtype=np.float64)
-    return rotation_vector_to_quaternion(mapped_vector)
+    mapped_vector = np.asarray(
+        config.base_orientation_remap_matrix @ signed_vector,
+        dtype=np.float64,
+    )
+    mapped_quat = rotation_vector_to_quaternion(mapped_vector)
+    mapped_rpy_degrees = quaternion_to_euler_degrees(mapped_quat)
+    staged_rpy_degrees = _stage_orientation_rpy_degrees(mapped_rpy_degrees, config)
+    clamped_rpy_degrees, clamped = _clamp_orientation_rpy_degrees(
+        staged_rpy_degrees,
+        config,
+    )
+    return OrientationMappingResult(
+        quaternion=euler_degrees_to_quaternion(clamped_rpy_degrees),
+        rpy_degrees=clamped_rpy_degrees,
+        clamped=clamped,
+    )
+
+
+def euler_degrees_to_quaternion(rpy_degrees: np.ndarray) -> np.ndarray:
+    """Convert XYZ roll/pitch/yaw degrees to a ``[w, x, y, z]`` quaternion."""
+
+    roll, pitch, yaw = np.deg2rad(_coerce_vector(rpy_degrees, "rpy_degrees"))
+    half_roll = 0.5 * roll
+    half_pitch = 0.5 * pitch
+    half_yaw = 0.5 * yaw
+    cr = np.cos(half_roll)
+    sr = np.sin(half_roll)
+    cp = np.cos(half_pitch)
+    sp = np.sin(half_pitch)
+    cy = np.cos(half_yaw)
+    sy = np.sin(half_yaw)
+    return normalize_quaternion(
+        np.asarray(
+            [
+                (cr * cp * cy) + (sr * sp * sy),
+                (sr * cp * cy) - (cr * sp * sy),
+                (cr * sp * cy) + (sr * cp * sy),
+                (cr * cp * sy) - (sr * sp * cy),
+            ],
+            dtype=np.float64,
+        )
+    )
 
 
 def quaternion_to_rotation_vector(quaternion: np.ndarray) -> np.ndarray:
@@ -990,6 +1203,36 @@ def quaternion_to_euler_degrees(quaternion: np.ndarray) -> np.ndarray:
     pitch = np.arcsin(np.clip(2.0 * ((w * y) - (z * x)), -1.0, 1.0))
     yaw = np.arctan2(2.0 * ((w * z) + (x * y)), 1.0 - (2.0 * ((y * y) + (z * z))))
     return np.rad2deg(np.asarray([roll, pitch, yaw], dtype=np.float64))
+
+
+def _stage_orientation_rpy_degrees(
+    rpy_degrees: np.ndarray,
+    config: HandBaseControlConfig,
+) -> np.ndarray:
+    staged = np.zeros(3, dtype=np.float64)
+    raw = _coerce_vector(rpy_degrees, "orientation_rpy_degrees")
+    dof_to_index = {"roll": 0, "pitch": 1, "yaw": 2}
+    for dof in config.orientation_dofs:
+        staged[dof_to_index[dof]] = raw[dof_to_index[dof]]
+    if config.orientation_deadband_deg <= 0.0:
+        return staged
+    return np.asarray(
+        [
+            _apply_deadband(value, config.orientation_deadband_deg)
+            for value in staged
+        ],
+        dtype=np.float64,
+    )
+
+
+def _clamp_orientation_rpy_degrees(
+    rpy_degrees: np.ndarray,
+    config: HandBaseControlConfig,
+) -> tuple[np.ndarray, bool]:
+    raw = _coerce_vector(rpy_degrees, "orientation_rpy_degrees")
+    maximum = config.max_orientation_rpy_degrees
+    clamped = np.clip(raw, -maximum, maximum)
+    return clamped, bool(not np.allclose(raw, clamped))
 
 
 def _limit_position_step(
@@ -1137,11 +1380,47 @@ def _coerce_nonnegative_float(value: object, field_name: str) -> float:
     return result
 
 
+def _coerce_unit_interval_alpha(value: object, field_name: str) -> float:
+    result = _coerce_float(value, field_name)
+    if not 0.0 < result <= 1.0:
+        raise ValueError(f"{field_name} must be in the range (0.0, 1.0].")
+    return result
+
+
 def _coerce_depth_sign(value: object) -> float:
     result = _coerce_float(value, "depth_sign")
     if result == 0.0:
         raise ValueError("depth_sign must be non-zero.")
     return 1.0 if result > 0.0 else -1.0
+
+
+def _coerce_orientation_mode(value: str) -> OrientationMode:
+    if value not in ("relative_palm",):
+        raise ValueError("orientation_mode must be 'relative_palm'.")
+    return value  # type: ignore[return-value]
+
+
+def _coerce_orientation_dofs(value: object) -> tuple[OrientationDof, ...]:
+    if isinstance(value, str):
+        raw_dofs = tuple(part.strip() for part in value.split(",") if part.strip())
+    else:
+        try:
+            raw_dofs = tuple(str(part).strip() for part in value)  # type: ignore[arg-type]
+        except TypeError as exc:
+            raise ValueError(
+                "orientation_dofs must be a comma-separated string or sequence."
+            ) from exc
+    if not raw_dofs:
+        raise ValueError("orientation_dofs must include at least one of roll, pitch, yaw.")
+
+    allowed = ("roll", "pitch", "yaw")
+    normalized: list[OrientationDof] = []
+    for dof in raw_dofs:
+        if dof not in allowed:
+            raise ValueError("orientation_dofs values must be roll, pitch, or yaw.")
+        if dof not in normalized:
+            normalized.append(dof)  # type: ignore[arg-type]
+    return tuple(normalized)
 
 
 def _coerce_rotation_mode(value: str) -> RotationMode:
