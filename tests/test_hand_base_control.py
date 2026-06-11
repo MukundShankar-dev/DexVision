@@ -94,6 +94,24 @@ def _image_target(
     )
 
 
+def _body_position(env: object, body_name: str) -> np.ndarray:
+    body_id = env._mujoco.mj_name2id(  # type: ignore[attr-defined]
+        env.model,  # type: ignore[attr-defined]
+        env._mujoco.mjtObj.mjOBJ_BODY,  # type: ignore[attr-defined]
+        body_name,
+    )
+    return np.asarray(env.data.xpos[body_id], dtype=np.float64).copy()  # type: ignore[attr-defined]
+
+
+def _body_quaternion(env: object, body_name: str) -> np.ndarray:
+    body_id = env._mujoco.mj_name2id(  # type: ignore[attr-defined]
+        env.model,  # type: ignore[attr-defined]
+        env._mujoco.mjtObj.mjOBJ_BODY,  # type: ignore[attr-defined]
+        body_name,
+    )
+    return np.asarray(env.data.xquat[body_id], dtype=np.float64).copy()  # type: ignore[attr-defined]
+
+
 def test_palm_pose_estimator_returns_valid_normalized_quaternion_and_axes() -> None:
     target = estimate_hand_base_target(_open_hand_landmarks(), confidence=0.87)
 
@@ -1118,10 +1136,45 @@ def test_absolute_palm_rotation_maps_synthetic_upright_pose_to_fingers_up() -> N
 
 def test_hand_scene_contains_mocap_body_and_weld() -> None:
     text = HAND_MODEL_PATH.read_text(encoding="utf-8")
+    shadow_hand_text = (
+        ROOT / "assets" / "mujoco" / "menagerie" / "shadow_hand" / "right_hand_dexvision.xml"
+    ).read_text(encoding="utf-8")
 
     assert 'body name="dexvision_hand_base_target" mocap="true"' in text
-    assert 'body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14"' in text
+    assert (
+        'body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14" '
+        'quat="1 0 0 0"'
+    ) in text
+    assert 'body name="rh_forearm" childclass="right_hand" pos="0 0 0.14" quat="1 0 0 0"' in (
+        shadow_hand_text
+    )
     assert 'weld name="dexvision_hand_base_weld"' in text
+
+
+def test_hand_scene_neutral_pose_starts_upright_with_palm_forward() -> None:
+    pytest.importorskip("mujoco")
+
+    from dexvision.sim.mujoco_env import MujocoEnv
+
+    with MujocoEnv(HAND_MODEL_PATH) as env:
+        env.reset()
+        _, mocap_quat = env.get_mocap_pose("dexvision_hand_base_target")
+        palm = _body_position(env, "rh_palm")
+        middle_tip = _body_position(env, "rh_mfdistal")
+        index_tip = _body_position(env, "rh_ffdistal")
+        pinky_tip = _body_position(env, "rh_lfdistal")
+        forearm_quat = _body_quaternion(env, "rh_forearm")
+
+    finger_direction = middle_tip - palm
+    spread_direction = index_tip - pinky_tip
+    palm_normal = np.cross(spread_direction, finger_direction)
+    palm_normal /= np.linalg.norm(palm_normal)
+
+    assert mocap_quat.tolist() == pytest.approx([1.0, 0.0, 0.0, 0.0])
+    assert forearm_quat.tolist() == pytest.approx([1.0, 0.0, 0.0, 0.0])
+    assert finger_direction[2] > 0.12
+    assert abs(finger_direction[2]) > (5.0 * max(abs(finger_direction[0]), abs(finger_direction[1])))
+    assert palm_normal[0] > 0.95
 
 
 def test_check_hand_base_control_help_runs_without_real_webcam() -> None:

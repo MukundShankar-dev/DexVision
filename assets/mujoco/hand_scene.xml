@@ -29,7 +29,7 @@
     <light name="fill_light" pos="0 0 1"/>
     <light name="key_light" pos="0.3 0 1.5" dir="0 0 -1" directional="true"/>
     <geom name="floor" pos="0 0 -0.1" size="0 0 0.05" type="plane" material="dexvision_groundplane"/>
-    <body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14" quat="0 1 0 1">
+    <body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14" quat="1 0 0 0">
       <site name="dexvision_hand_base_target_site" type="sphere" size="0.012" rgba="0 0.8 1 0.6"/>
     </body>
     <camera name="overview" pos="0.55 -0.8 0.5" euler="1.15 0 0.58"/>
