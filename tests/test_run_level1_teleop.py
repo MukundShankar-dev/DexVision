@@ -89,6 +89,11 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
             "--model",
             "hand.xml",
             "--show-camera-window",
+            "--enable-base-control",
+            "--base-control-mode",
+            "image_2d",
+            "--enable-base-orientation",
+            "--enable-depth-control",
             "--camera-window-name",
             "Demo Window",
         ]
@@ -100,6 +105,10 @@ def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
     assert args.width == run_level1_teleop.DEFAULT_CAMERA_WIDTH
     assert args.height == run_level1_teleop.DEFAULT_CAMERA_HEIGHT
     assert args.show_camera_window is True
+    assert args.enable_base_control is True
+    assert args.base_control_mode == "image_2d"
+    assert args.enable_base_orientation is True
+    assert args.enable_depth_control is True
     assert args.camera_window_name == "Demo Window"
 
 
@@ -255,6 +264,50 @@ def test_run_loop_maps_full_hand_features_without_real_camera_or_viewer(
     assert env.targets["rh_A_LFJ0"] == pytest.approx(2.25)
 
 
+def test_instability_guard_keeps_strict_finger_only_qvel_limit() -> None:
+    state = MujocoState(
+        time=0.0,
+        qpos=np.asarray([0.5], dtype=np.float64),
+        qvel=np.asarray([run_level1_teleop.MAX_ABS_QVEL + 1.0], dtype=np.float64),
+        ctrl=np.zeros(1, dtype=np.float64),
+    )
+
+    with pytest.raises(run_level1_teleop.MujocoError, match="max_abs_qvel"):
+        run_level1_teleop._raise_if_unstable(state)
+
+
+def test_instability_guard_allows_bounded_base_control_qvel_transients() -> None:
+    state = MujocoState(
+        time=0.0,
+        qpos=np.asarray([0.5], dtype=np.float64),
+        qvel=np.asarray([run_level1_teleop.MAX_ABS_QVEL + 30.0], dtype=np.float64),
+        ctrl=np.zeros(1, dtype=np.float64),
+    )
+
+    run_level1_teleop._raise_if_unstable(
+        state,
+        max_abs_qvel=run_level1_teleop.MAX_ABS_BASE_CONTROL_QVEL,
+    )
+
+
+def test_instability_guard_still_rejects_extreme_base_control_qvel() -> None:
+    state = MujocoState(
+        time=0.0,
+        qpos=np.asarray([0.5], dtype=np.float64),
+        qvel=np.asarray(
+            [run_level1_teleop.MAX_ABS_BASE_CONTROL_QVEL + 1.0],
+            dtype=np.float64,
+        ),
+        ctrl=np.zeros(1, dtype=np.float64),
+    )
+
+    with pytest.raises(run_level1_teleop.MujocoError, match="max_abs_qvel"):
+        run_level1_teleop._raise_if_unstable(
+            state,
+            max_abs_qvel=run_level1_teleop.MAX_ABS_BASE_CONTROL_QVEL,
+        )
+
+
 def test_run_loop_sends_presentable_demo_overlay_frames(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -372,6 +425,18 @@ def test_tracking_loss_default_decays_full_hand_controls_toward_neutral() -> Non
     assert neutral_targets["rh_A_LFJ0"] < lost_targets["rh_A_LFJ0"] < stable_targets["rh_A_LFJ0"]
 
 
+def test_poll_overlay_commands_returns_camera_key_commands() -> None:
+    class CommandOverlay:
+        def poll_commands(self) -> tuple[str, ...]:
+            return ("calibrate_base", "reset_base")
+
+    assert run_level1_teleop._poll_overlay_commands(CommandOverlay()) == (
+        "calibrate_base",
+        "reset_base",
+    )
+    assert run_level1_teleop._poll_overlay_commands(None) == ()
+
+
 def test_status_formatters_keep_console_output_compact() -> None:
     features = _full_hand_features(
         thumb=0.2,
@@ -425,6 +490,11 @@ def test_run_level1_teleop_help_runs_without_real_webcam() -> None:
     assert "--model" in result.stdout
     assert "--hand-landmarker-model" in result.stdout
     assert "--show-camera-window" in result.stdout
+    assert "--enable-base-control" in result.stdout
+    assert "--base-control-mode" in result.stdout
+    assert "--enable-base-orientation" in result.stdout
+    assert "--enable-depth-control" in result.stdout
+    assert "--disable-depth-control" in result.stdout
     assert "--camera-window-name" in result.stdout
 
 

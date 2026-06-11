@@ -10,13 +10,19 @@ import sys
 import time
 from collections.abc import Mapping
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 import numpy as np
 
 from dexvision.camera.opencv_camera import CameraOpenError, OpenCVCamera
+from dexvision.features.hand_base import (
+    HandBaseTargetSmoother,
+    extract_hand_base_target,
+    extract_image_palm_center_target,
+    quaternion_angle,
+)
 from dexvision.features.hand_features import HandFeatures, extract_hand_features, no_hand_features
 from dexvision.features.smoothing import FeatureSmoother, LowConfidenceBehavior
 from dexvision.perception.hand_tracker import (
@@ -30,6 +36,12 @@ from dexvision.retargeting.curl_retargeter import (
     CurlRetargeter,
     CurlRetargeterError,
     load_curl_retargeter_config,
+)
+from dexvision.sim.hand_base_control import (
+    HandBaseMocapController,
+    HandBaseControlStatus,
+    format_hand_base_status,
+    hand_base_config_from_teleop_config,
 )
 from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
 
@@ -47,6 +59,10 @@ DEFAULT_VIEWER_SLEEP = 0.0
 DEFAULT_CAMERA_WINDOW_NAME = "DexVision Level 1 Demo"
 MAX_ABS_QPOS = 3.5
 MAX_ABS_QVEL = 45.0
+MAX_ABS_BASE_CONTROL_QVEL = 300.0
+BASE_REACQUIRE_POSITION_JUMP = 0.20
+BASE_REACQUIRE_ROTATION_JUMP_RADIANS = float(np.deg2rad(70.0))
+BaseCommand = Literal["calibrate_base", "reset_base"]
 
 
 class ViewerHandle(Protocol):
@@ -65,6 +81,9 @@ class CameraOverlaySink(Protocol):
     def should_stop(self) -> bool:
         """Return whether the overlay requested the teleop loop to stop."""
 
+    def poll_commands(self) -> tuple[BaseCommand, ...]:
+        """Return queued camera-overlay key commands."""
+
     def close(self) -> None:
         """Release overlay resources."""
 
@@ -82,6 +101,7 @@ class CameraOverlayFrame:
     fps: float
     simulation_time: float
     status_message: str
+    base_status_message: str = "base=off"
 
 
 class CameraOverlayProcess:
@@ -90,10 +110,11 @@ class CameraOverlayProcess:
     def __init__(self, *, window_name: str) -> None:
         self._ctx = mp.get_context("spawn")
         self._queue = self._ctx.Queue(maxsize=1)
+        self._command_queue = self._ctx.Queue(maxsize=8)
         self._stop_event = self._ctx.Event()
         self._process = self._ctx.Process(
             target=_camera_overlay_worker,
-            args=(self._queue, self._stop_event, window_name),
+            args=(self._queue, self._command_queue, self._stop_event, window_name),
             daemon=True,
         )
         self._warned_stopped = False
@@ -126,6 +147,19 @@ class CameraOverlayProcess:
             self._warn_once_stopped()
         return False
 
+    def poll_commands(self) -> tuple[BaseCommand, ...]:
+        """Return all queued key commands from the camera overlay."""
+
+        commands: list[BaseCommand] = []
+        while True:
+            try:
+                command = self._command_queue.get_nowait()
+            except queue.Empty:
+                break
+            if command in ("calibrate_base", "reset_base"):
+                commands.append(command)
+        return tuple(commands)
+
     def close(self) -> None:
         """Stop the overlay process."""
 
@@ -138,6 +172,8 @@ class CameraOverlayProcess:
             self._process.join(timeout=1.0)
         with suppress(Exception):
             self._queue.close()
+        with suppress(Exception):
+            self._command_queue.close()
 
     def _warn_once_stopped(self) -> None:
         if self._warned_stopped:
@@ -252,6 +288,42 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show a best-effort OpenCV camera overlay in a separate process.",
     )
     parser.add_argument(
+        "--enable-base-control",
+        action="store_true",
+        help="Drive the Shadow Hand base from the tracked palm/wrist pose.",
+    )
+    parser.add_argument(
+        "--base-control-mode",
+        choices=("image_2d", "pose_3d"),
+        default=None,
+        help=(
+            "Base-control mapping mode. Defaults to the config value, currently "
+            "image_2d for calibrated 2D translation."
+        ),
+    )
+    parser.add_argument(
+        "--enable-base-orientation",
+        action="store_true",
+        help=(
+            "Also apply palm orientation to the hand base. Off by default while "
+            "Level 1.13 translation is being stabilized."
+        ),
+    )
+    depth_group = parser.add_mutually_exclusive_group()
+    depth_group.add_argument(
+        "--enable-depth-control",
+        dest="enable_depth_control",
+        action="store_true",
+        default=None,
+        help="Enable monocular hand-scale depth/in-out base control.",
+    )
+    depth_group.add_argument(
+        "--disable-depth-control",
+        dest="enable_depth_control",
+        action="store_false",
+        help="Disable monocular hand-scale depth/in-out base control.",
+    )
+    parser.add_argument(
         "--camera-window-name",
         default=DEFAULT_CAMERA_WINDOW_NAME,
         help=f"OpenCV camera overlay window title. Defaults to {DEFAULT_CAMERA_WINDOW_NAME!r}.",
@@ -325,6 +397,10 @@ def run_level1_teleop(
     viewer_sleep: float,
     print_interval: int,
     show_camera_window: bool,
+    enable_base_control: bool,
+    base_control_mode: str | None,
+    enable_base_orientation: bool,
+    enable_depth_control: bool | None,
     camera_window_name: str,
 ) -> int:
     """Run live full-hand camera-to-MuJoCo teleoperation."""
@@ -341,6 +417,16 @@ def run_level1_teleop(
         override=mujoco_model_path,
     )
     retargeter = CurlRetargeter.from_mapping(raw_config)
+    base_config = hand_base_config_from_teleop_config(
+        raw_config,
+        enable_override=enable_base_control,
+    )
+    if base_control_mode is not None:
+        base_config = replace(base_config, base_control_mode=base_control_mode)
+    if enable_base_orientation:
+        base_config = replace(base_config, enable_base_orientation=True)
+    if enable_depth_control is not None:
+        base_config = replace(base_config, enable_depth_control=enable_depth_control)
     target_names = robot_target_names(retargeter)
     control_fields = configured_control_fields(retargeter)
     neutral_targets = build_full_hand_targets(retargeter, no_hand_features())
@@ -360,6 +446,56 @@ def run_level1_teleop(
     print(f"Control fields: {', '.join(control_fields)}")
     print(f"Robot targets: {', '.join(target_names)}")
     print(
+        "Base control: "
+        f"{'on' if base_config.enabled else 'off'} "
+        f"(mode: {base_config.base_control_mode}, mocap body: {base_config.mocap_body_name})"
+    )
+    if base_config.enabled:
+        if base_config.base_control_mode == "image_2d":
+            print("Base control mapping: calibrated image_2d palm center")
+            print(
+                "Base control fixed height: "
+                f"z={base_config.base_fixed_z:.3f}, "
+                f"scale_x={base_config.base_position_scale_x:.3f}, "
+                f"scale_y={base_config.base_position_scale_y:.3f}"
+            )
+            print(
+                "Depth control: "
+                f"{'on' if base_config.enable_depth_control else 'off'} "
+                f"(source={base_config.depth_source}, axis={base_config.depth_axis}, "
+                f"scale={base_config.depth_scale:.3f}, sign={base_config.depth_sign:+.0f}, "
+                f"limits=[{base_config.depth_min:.3f}, {base_config.depth_max:.3f}])"
+            )
+            print(
+                "Base calibration captures your current palm pose as the human "
+                "neutral center/scale; you do not need to match the robot model's orientation."
+            )
+            print(
+                "Image left/right maps to robot lateral motion; image up/down maps "
+                f"to robot {base_config.base_image_y_axis} motion."
+            )
+            if base_config.enable_depth_control:
+                print(
+                    "Hand moving closer to the camera increases image hand scale and "
+                    f"moves the base along {base_config.depth_sign:+.0f}"
+                    f"{base_config.depth_axis}."
+                )
+        else:
+            print(
+                "Base control position mapping: "
+                f"{base_config.position_mode} {base_config.position_source}"
+            )
+        print(f"Base orientation: {'on' if base_config.enable_base_orientation else 'off'}")
+        print(
+            "Base control tracking loss: hold current base pose, then reacquire from "
+            "the current palm/base target."
+        )
+        print(
+            "Base workspace: "
+            f"min={base_config.workspace_limits.minimum.tolist()}, "
+            f"max={base_config.workspace_limits.maximum.tolist()}"
+        )
+    print(
         "Long fingers use Level 1.3B bend controls "
         "(bend = 1.0 - smoothed extension); thumb uses configured thumb control."
     )
@@ -371,6 +507,9 @@ def run_level1_teleop(
     print("Close the MuJoCo viewer or press Ctrl-C in the terminal to quit.")
     if show_camera_window:
         print("Camera overlay shows landmarks, feature bars, FPS, and tracking status.")
+        if base_config.enabled and base_config.base_control_mode == "image_2d":
+            print("Press c in the camera overlay to calibrate base/depth neutral.")
+            print("Press r in the camera overlay to reset the base and clear calibration.")
         print("Press q in the camera overlay to quit.")
     _ensure_viewer_can_launch(
         camera_id=camera_id,
@@ -390,6 +529,10 @@ def run_level1_teleop(
         viewer_sleep=viewer_sleep,
         print_interval=print_interval,
         show_camera_window=show_camera_window,
+        enable_base_control=base_config.enabled,
+        base_control_mode=base_config.base_control_mode,
+        enable_base_orientation=base_config.enable_base_orientation,
+        enable_depth_control=base_config.enable_depth_control,
         camera_window_name=camera_window_name,
     )
 
@@ -410,6 +553,21 @@ def run_level1_teleop(
             MujocoEnv(model_path) as env,
         ):
             env.reset()
+            base_controller = (
+                HandBaseMocapController(env, base_config) if base_config.enabled else None
+            )
+            base_smoother = (
+                HandBaseTargetSmoother(
+                    alpha=base_config.base_smoothing_alpha,
+                    min_confidence=base_config.min_confidence,
+                )
+                if base_config.enabled
+                and (
+                    base_config.base_control_mode == "pose_3d"
+                    or base_config.enable_base_orientation
+                )
+                else None
+            )
             env.set_joint_targets(neutral_targets)
             env.step(n_steps=max(1, sim_steps_per_frame))
             _run_with_viewer(
@@ -419,6 +577,8 @@ def run_level1_teleop(
                 smoother=smoother,
                 retargeter=retargeter,
                 target_names=target_names,
+                base_controller=base_controller,
+                base_smoother=base_smoother,
                 camera_overlay=camera_overlay,
                 sim_steps_per_frame=sim_steps_per_frame,
                 viewer_sleep=viewer_sleep,
@@ -440,6 +600,8 @@ def _run_with_viewer(
     smoother: FeatureSmoother,
     retargeter: CurlRetargeter,
     target_names: tuple[str, ...],
+    base_controller: HandBaseMocapController | None,
+    base_smoother: HandBaseTargetSmoother | None,
     camera_overlay: CameraOverlaySink | None,
     sim_steps_per_frame: int,
     viewer_sleep: float,
@@ -459,6 +621,8 @@ def _run_with_viewer(
                 smoother=smoother,
                 retargeter=retargeter,
                 target_names=target_names,
+                base_controller=base_controller,
+                base_smoother=base_smoother,
                 camera_overlay=camera_overlay,
                 sim_steps_per_frame=sim_steps_per_frame,
                 viewer_handle=viewer_handle,
@@ -482,6 +646,8 @@ def _run_loop(
     viewer_handle: ViewerHandle,
     viewer_sleep: float,
     print_interval: int,
+    base_controller: HandBaseMocapController | None = None,
+    base_smoother: HandBaseTargetSmoother | None = None,
 ) -> None:
     last_frame_time = time.monotonic()
     fps = 0.0
@@ -505,8 +671,20 @@ def _run_loop(
         smoothed_features = smoother.update(raw_features)
         targets = build_full_hand_targets(retargeter, smoothed_features)
         env.set_joint_targets(targets)
+        base_commands = _poll_overlay_commands(camera_overlay)
+        base_status = _apply_hand_base_control(
+            tracking_result=tracking_result,
+            base_controller=base_controller,
+            base_smoother=base_smoother,
+            commands=base_commands,
+        )
         state = env.step(n_steps=sim_steps_per_frame)
-        _raise_if_unstable(state)
+        _raise_if_unstable(
+            state,
+            max_abs_qvel=(
+                MAX_ABS_BASE_CONTROL_QVEL if base_controller is not None else MAX_ABS_QVEL
+            ),
+        )
 
         frame_index += 1
         now = time.monotonic()
@@ -533,6 +711,7 @@ def _run_loop(
                     fps=fps,
                     simulation_time=state.time,
                     status_message=status_message,
+                    base_status_message=format_hand_base_status(base_status),
                 )
             )
 
@@ -548,6 +727,7 @@ def _run_loop(
                 f"status={status_message!r} "
                 f"fps={fps:.1f} "
                 f"{_format_control_summary(smoothed_features)} "
+                f"{format_hand_base_status(base_status)} "
                 f"targets={_format_target_summary(targets, target_names)} "
                 f"t={state.time:.3f}s"
             )
@@ -558,7 +738,124 @@ def _run_loop(
             break
 
 
-def _camera_overlay_worker(frame_queue: Any, stop_event: Any, window_name: str) -> None:
+def _poll_overlay_commands(camera_overlay: CameraOverlaySink | None) -> tuple[BaseCommand, ...]:
+    if camera_overlay is None:
+        return ()
+    poller = getattr(camera_overlay, "poll_commands", None)
+    if not callable(poller):
+        return ()
+    return tuple(poller())
+
+
+def _apply_hand_base_control(
+    *,
+    tracking_result: HandTrackingResult,
+    base_controller: HandBaseMocapController | None,
+    base_smoother: HandBaseTargetSmoother | None,
+    commands: tuple[BaseCommand, ...] = (),
+) -> HandBaseControlStatus | None:
+    if base_controller is None:
+        return None
+
+    if base_controller.config.base_control_mode == "image_2d":
+        image_target = extract_image_palm_center_target(
+            tracking_result,
+            depth_source=base_controller.config.depth_source,
+        )
+        raw_orientation_target = None
+        if base_controller.config.enable_base_orientation:
+            raw_orientation_target = extract_hand_base_target(
+                tracking_result,
+                position_source=base_controller.config.position_source,
+            )
+
+        for command in commands:
+            if command == "reset_base":
+                if base_smoother is not None:
+                    base_smoother.reset()
+                base_controller.reset_to_neutral(clear_image_calibration=True)
+                print("Base control reset to neutral; press c to calibrate image_2d neutral.")
+            elif command == "calibrate_base":
+                if base_smoother is not None:
+                    base_smoother.reset()
+                calibrated = base_controller.calibrate_image_2d(
+                    image_target,
+                    orientation_target=raw_orientation_target,
+                )
+                if calibrated:
+                    print(
+                        "Base control calibrated: current palm center and scale map "
+                        "to the robot neutral/base pose."
+                    )
+                else:
+                    print(
+                        "WARNING: Cannot calibrate base neutral until a confident "
+                        "palm pose and hand scale are tracked."
+                    )
+
+        orientation_target = None
+        if raw_orientation_target is not None:
+            if base_smoother is not None:
+                orientation_target = base_smoother.update(raw_orientation_target)
+            else:
+                orientation_target = raw_orientation_target
+
+        return base_controller.apply_image_2d(
+            image_target,
+            orientation_target=orientation_target,
+        )
+
+    if base_smoother is None:
+        raise MujocoError("Base control is enabled but no base target smoother was configured.")
+
+    for command in commands:
+        if command == "reset_base":
+            base_smoother.reset()
+            base_controller.reset_to_neutral(clear_image_calibration=True)
+            print("Base control reset to neutral.")
+        elif command == "calibrate_base":
+            base_smoother.reset()
+            base_controller.reset_source_neutral()
+            print("Base control pose_3d neutral will use the next confident tracked pose.")
+
+    raw_base_target = extract_hand_base_target(
+        tracking_result,
+        position_source=base_controller.config.position_source,
+    )
+    if (
+        not raw_base_target.valid
+        or raw_base_target.confidence < base_controller.config.min_confidence
+    ):
+        base_smoother.reset()
+        base_controller.reset_source_neutral()
+        return base_controller.apply(raw_base_target)
+
+    previous_base_target = base_smoother.state
+    if previous_base_target is not None and previous_base_target.valid:
+        position_jump = float(
+            np.linalg.norm(raw_base_target.position - previous_base_target.position)
+        )
+        rotation_jump = quaternion_angle(
+            raw_base_target.orientation_quat,
+            previous_base_target.orientation_quat,
+        )
+        if (
+            position_jump > BASE_REACQUIRE_POSITION_JUMP
+            or rotation_jump > BASE_REACQUIRE_ROTATION_JUMP_RADIANS
+        ):
+            base_smoother.reset()
+            base_controller.reset_source_neutral()
+
+    smoothed_base_target = base_smoother.update(raw_base_target)
+    return base_controller.apply(smoothed_base_target)
+
+
+def _camera_overlay_worker(
+    frame_queue: Any,
+    command_queue: Any,
+    stop_event: Any,
+    window_name: str,
+) -> None:
     cv2_module = None
     draw_overlay = True
     warned_overlay_failure = False
@@ -579,9 +876,14 @@ def _camera_overlay_worker(frame_queue: Any, stop_event: Any, window_name: str) 
                 draw_overlay=draw_overlay,
                 warned_overlay_failure=warned_overlay_failure,
             )
-            if cv2_module.waitKey(1) & 0xFF == ord("q"):
+            key = cv2_module.waitKey(1) & 0xFF
+            if key == ord("q"):
                 stop_event.set()
                 break
+            if key == ord("c"):
+                _send_overlay_command(command_queue, "calibrate_base")
+            elif key == ord("r"):
+                _send_overlay_command(command_queue, "reset_base")
     except Exception as exc:  # pragma: no cover - depends on desktop GUI backend.
         print(
             "WARNING: OpenCV camera overlay process stopped; "
@@ -592,6 +894,13 @@ def _camera_overlay_worker(frame_queue: Any, stop_event: Any, window_name: str) 
         if cv2_module is not None:
             with suppress(Exception):
                 cv2_module.destroyWindow(window_name)
+
+
+def _send_overlay_command(command_queue: Any, command: BaseCommand) -> None:
+    try:
+        command_queue.put_nowait(command)
+    except queue.Full:
+        pass
 
 
 def _show_camera_overlay_frame_safely(
@@ -670,9 +979,11 @@ def _draw_level1_demo_overlay(
     y = 62
     bar_width = 170
     bar_height = 13
+    panel_right = max(428, min(frame.shape[1] - 8, 632))
+    panel_bottom = max(330, min(frame.shape[0] - 8, 390))
 
-    cv2_module.rectangle(frame, (8, 44), (428, 268), (24, 24, 24), -1)
-    cv2_module.rectangle(frame, (8, 44), (428, 268), (80, 80, 80), 1)
+    cv2_module.rectangle(frame, (8, 44), (panel_right, panel_bottom), (24, 24, 24), -1)
+    cv2_module.rectangle(frame, (8, 44), (panel_right, panel_bottom), (80, 80, 80), 1)
     cv2_module.putText(
         frame,
         f"FPS {payload.fps:5.1f}   sim {payload.simulation_time:6.3f}s",
@@ -725,10 +1036,21 @@ def _draw_level1_demo_overlay(
             color=(0, 210, 120),
         )
 
+    for line_index, line in enumerate(payload.base_status_message.split(" | ")[:6]):
+        cv2_module.putText(
+            frame,
+            line,
+            (x, y + 204 + (line_index * 18)),
+            cv2_module.FONT_HERSHEY_SIMPLEX,
+            0.38,
+            (230, 230, 230),
+            1,
+            cv2_module.LINE_AA,
+        )
     cv2_module.putText(
         frame,
         "raw marker | smoothed fill",
-        (x, y + 204),
+        (x, y + 318),
         cv2_module.FONT_HERSHEY_SIMPLEX,
         0.42,
         (230, 230, 230),
@@ -885,6 +1207,10 @@ def _ensure_viewer_can_launch(
     viewer_sleep: float,
     print_interval: int,
     show_camera_window: bool,
+    enable_base_control: bool,
+    base_control_mode: str,
+    enable_base_orientation: bool,
+    enable_depth_control: bool,
     camera_window_name: str,
 ) -> None:
     if sys.platform != "darwin":
@@ -918,6 +1244,10 @@ def _ensure_viewer_can_launch(
         viewer_sleep=viewer_sleep,
         print_interval=print_interval,
         show_camera_window=show_camera_window,
+        enable_base_control=enable_base_control,
+        base_control_mode=base_control_mode,
+        enable_base_orientation=enable_base_orientation,
+        enable_depth_control=enable_depth_control,
         camera_window_name=camera_window_name,
     )
     raise MujocoError(
@@ -946,6 +1276,10 @@ def _format_mjpython_command(
     viewer_sleep: float,
     print_interval: int,
     show_camera_window: bool,
+    enable_base_control: bool,
+    base_control_mode: str,
+    enable_base_orientation: bool,
+    enable_depth_control: bool,
     camera_window_name: str,
 ) -> str:
     command = [
@@ -987,20 +1321,27 @@ def _format_mjpython_command(
         command.extend(["--print-interval", str(print_interval)])
     if show_camera_window:
         command.append("--show-camera-window")
+    if enable_base_control:
+        command.append("--enable-base-control")
+        if base_control_mode != "image_2d":
+            command.extend(["--base-control-mode", base_control_mode])
+        if enable_base_orientation:
+            command.append("--enable-base-orientation")
+        command.append("--enable-depth-control" if enable_depth_control else "--disable-depth-control")
     if camera_window_name != DEFAULT_CAMERA_WINDOW_NAME:
         command.extend(["--camera-window-name", camera_window_name])
     return " ".join(shlex.quote(part) for part in command)
 
 
-def _raise_if_unstable(state: MujocoState) -> None:
+def _raise_if_unstable(state: MujocoState, *, max_abs_qvel: float = MAX_ABS_QVEL) -> None:
     if not np.all(np.isfinite(state.qpos)) or not np.all(np.isfinite(state.qvel)):
         raise MujocoError("Simulation became unstable: non-finite qpos or qvel.")
     max_abs_qpos = _max_abs(state.qpos)
-    max_abs_qvel = _max_abs(state.qvel)
-    if max_abs_qpos > MAX_ABS_QPOS or max_abs_qvel > MAX_ABS_QVEL:
+    observed_max_abs_qvel = _max_abs(state.qvel)
+    if max_abs_qpos > MAX_ABS_QPOS or observed_max_abs_qvel > max_abs_qvel:
         raise MujocoError(
             "Simulation became unstable: "
-            f"max_abs_qpos={max_abs_qpos:.6f}, max_abs_qvel={max_abs_qvel:.6f}."
+            f"max_abs_qpos={max_abs_qpos:.6f}, max_abs_qvel={observed_max_abs_qvel:.6f}."
         )
 
 
@@ -1045,6 +1386,10 @@ def main(argv: list[str] | None = None) -> int:
             viewer_sleep=args.viewer_sleep,
             print_interval=args.print_interval,
             show_camera_window=args.show_camera_window,
+            enable_base_control=args.enable_base_control,
+            base_control_mode=args.base_control_mode,
+            enable_base_orientation=args.enable_base_orientation,
+            enable_depth_control=args.enable_depth_control,
             camera_window_name=args.camera_window_name,
         )
     except (

@@ -110,6 +110,49 @@ class MujocoEnv:
                 raise MujocoError(f"Unknown MuJoCo actuator target: {actuator_name}")
             self.data.ctrl[actuator_id] = float(target)
 
+    def set_mocap_pose(
+        self,
+        body_name: str,
+        *,
+        position: Sequence[float] | np.ndarray,
+        orientation_quat: Sequence[float] | np.ndarray,
+    ) -> None:
+        """Set a named MuJoCo mocap body pose.
+
+        ``orientation_quat`` uses MuJoCo's ``[w, x, y, z]`` convention.
+        """
+
+        mocap_id = self._mocap_id_for_body(body_name)
+        position_array = np.asarray(position, dtype=np.float64)
+        quat_array = np.asarray(orientation_quat, dtype=np.float64)
+        if position_array.shape != (3,):
+            raise MujocoError(
+                f"Mocap position for '{body_name}' must have shape [3], "
+                f"got {position_array.shape}."
+            )
+        if quat_array.shape != (4,):
+            raise MujocoError(
+                f"Mocap orientation for '{body_name}' must have shape [4], "
+                f"got {quat_array.shape}."
+            )
+        if not np.all(np.isfinite(position_array)) or not np.all(np.isfinite(quat_array)):
+            raise MujocoError(f"Mocap pose for '{body_name}' must be finite.")
+        quat_norm = float(np.linalg.norm(quat_array))
+        if quat_norm <= 0.0:
+            raise MujocoError(f"Mocap orientation for '{body_name}' must be non-zero.")
+
+        self.data.mocap_pos[mocap_id] = position_array
+        self.data.mocap_quat[mocap_id] = quat_array / quat_norm
+
+    def get_mocap_pose(self, body_name: str) -> tuple[np.ndarray, np.ndarray]:
+        """Return copies of a named mocap body's position and quaternion."""
+
+        mocap_id = self._mocap_id_for_body(body_name)
+        return (
+            np.asarray(self.data.mocap_pos[mocap_id], dtype=np.float64).copy(),
+            np.asarray(self.data.mocap_quat[mocap_id], dtype=np.float64).copy(),
+        )
+
     def get_state(self) -> MujocoState:
         """Return a copy of the current simulation state."""
 
@@ -142,6 +185,21 @@ class MujocoEnv:
                 f"expected {expected_shape}, got {action_array.shape}."
             )
         self.data.ctrl[:] = action_array
+
+    def _mocap_id_for_body(self, body_name: str) -> int:
+        if not body_name:
+            raise MujocoError("Mocap body name cannot be empty.")
+        body_id = self._mujoco.mj_name2id(
+            self.model,
+            self._mujoco.mjtObj.mjOBJ_BODY,
+            body_name,
+        )
+        if body_id < 0:
+            raise MujocoError(f"Unknown MuJoCo mocap body: {body_name}")
+        mocap_id = int(self.model.body_mocapid[body_id])
+        if mocap_id < 0:
+            raise MujocoError(f"MuJoCo body '{body_name}' is not a mocap body.")
+        return mocap_id
 
 
 def _load_mujoco() -> Any:

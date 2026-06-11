@@ -90,6 +90,7 @@ def inspect_hand_model(model_path: str | Path) -> HandModelInfo:
                 limit=_joint_limit(model, joint_id),
             )
             for joint_id in range(model.njnt)
+            if not _is_free_joint(mujoco_module, model, joint_id)
         )
         actuators = tuple(
             HandActuatorInfo(
@@ -112,7 +113,7 @@ def inspect_hand_model(model_path: str | Path) -> HandModelInfo:
 
         return HandModelInfo(
             model_path=env.model_path,
-            joint_count=int(model.njnt),
+            joint_count=len(joints),
             actuator_count=int(model.nu),
             body_count=len(body_names),
             joints=joints,
@@ -237,6 +238,10 @@ def _joint_limit(model: object, joint_id: int) -> JointLimit:
         minimum=float(model.jnt_range[joint_id, 0]),
         maximum=float(model.jnt_range[joint_id, 1]),
     )
+
+
+def _is_free_joint(mujoco_module: object, model: object, joint_id: int) -> bool:
+    return int(model.jnt_type[joint_id]) == int(mujoco_module.mjtJoint.mjJNT_FREE)
 
 
 def _control_range(model: object, actuator_id: int) -> JointLimit:

@@ -1,6 +1,94 @@
 {
   "model_path": "assets/mujoco/hand_scene.xml",
   "gesture_config_path": "configs/hand_gestures.yaml",
+  "base_control": {
+    "enable_base_control": false,
+    "base_control_mode": "image_2d",
+    "mocap_body": "dexvision_hand_base_target",
+    "base_fixed_z": 0.14,
+    "base_position_scale_x": 0.45,
+    "base_position_scale_y": 0.35,
+    "base_image_y_axis": "height",
+    "enable_depth_control": true,
+    "depth_source": "robust_palm_scale",
+    "depth_axis": "x",
+    "depth_scale": 0.35,
+    "depth_sign": 1.0,
+    "depth_min": -0.12,
+    "depth_max": 0.16,
+    "depth_smoothing_alpha": 0.25,
+    "depth_deadband": 0.03,
+    "depth_hold_on_tracking_loss": true,
+    "position_source": "wrist",
+    "position_mode": "absolute",
+    "position_scale": [
+      0.35,
+      0.35,
+      0.35
+    ],
+    "position_offset": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rotation_mode": "fixed",
+    "enable_base_orientation": false,
+    "base_orientation_axis_signs": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "base_orientation_remap_matrix": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "rotation_offset_quat": [
+      0.49939,
+      0.500609,
+      0.46235,
+      -0.535007
+    ],
+    "base_workspace_min": [
+      -0.18,
+      -0.18,
+      0.08
+    ],
+    "base_workspace_max": [
+      0.22,
+      0.18,
+      0.24
+    ],
+    "workspace_limits": {
+      "min": [
+        -0.18,
+        -0.18,
+        0.08
+      ],
+      "max": [
+        0.22,
+        0.18,
+        0.24
+      ]
+    },
+    "base_smoothing_alpha": 0.25,
+    "min_confidence": 0.2,
+    "max_position_step": 0.025,
+    "max_rotation_step_degrees": 3.0,
+    "reset_base_pose": "tracking_reacquire"
+  },
   "retargeting": {
     "type": "curl",
     "min_confidence": 0.0,
