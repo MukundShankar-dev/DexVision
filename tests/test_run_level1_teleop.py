@@ -80,13 +80,27 @@ def _full_hand_features(
 def test_parser_exposes_level1_teleop_paths_and_camera_options() -> None:
     parser = run_level1_teleop.build_parser()
 
-    args = parser.parse_args(["--camera-id", "2", "--config", "custom.yaml", "--model", "hand.xml"])
+    args = parser.parse_args(
+        [
+            "--camera-id",
+            "2",
+            "--config",
+            "custom.yaml",
+            "--model",
+            "hand.xml",
+            "--show-camera-window",
+            "--camera-window-name",
+            "Demo Window",
+        ]
+    )
 
     assert args.camera_id == 2
     assert args.config == Path("custom.yaml")
     assert args.model == Path("hand.xml")
     assert args.width == run_level1_teleop.DEFAULT_CAMERA_WIDTH
     assert args.height == run_level1_teleop.DEFAULT_CAMERA_HEIGHT
+    assert args.show_camera_window is True
+    assert args.camera_window_name == "Demo Window"
 
 
 def test_default_target_names_cover_full_shadow_hand_config() -> None:
@@ -225,6 +239,7 @@ def test_run_loop_maps_full_hand_features_without_real_camera_or_viewer(
         smoother=FeatureSmoother(alpha=1.0),
         retargeter=retargeter,
         target_names=run_level1_teleop.robot_target_names(retargeter),
+        camera_overlay=None,
         sim_steps_per_frame=1,
         viewer_handle=viewer,
         viewer_sleep=0.0,
@@ -238,6 +253,90 @@ def test_run_loop_maps_full_hand_features_without_real_camera_or_viewer(
     assert env.targets["rh_A_MFJ0"] == pytest.approx(2.25)
     assert env.targets["rh_A_RFJ0"] == pytest.approx(2.25)
     assert env.targets["rh_A_LFJ0"] == pytest.approx(2.25)
+
+
+def test_run_loop_sends_presentable_demo_overlay_frames(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class OneFrameCamera:
+        def read(self) -> CameraFrame:
+            frame = np.zeros((16, 16, 3), dtype=np.uint8)
+            return CameraFrame(success=True, frame=frame, timestamp=1.0)
+
+    class SyntheticTracker:
+        def process(self, frame: np.ndarray, *, timestamp: float):
+            del frame
+            return HandTracker.no_hand_result(timestamp)
+
+    class FakeEnv:
+        def __init__(self) -> None:
+            self.targets: dict[str, float] | None = None
+
+        def set_joint_targets(self, targets: dict[str, float]) -> None:
+            self.targets = targets
+
+        def step(self, *, n_steps: int) -> MujocoState:
+            assert n_steps == 1
+            return MujocoState(
+                time=0.002,
+                qpos=np.zeros(1, dtype=np.float64),
+                qvel=np.zeros(1, dtype=np.float64),
+                ctrl=np.zeros(1, dtype=np.float64),
+            )
+
+    class ClosingViewer:
+        def __init__(self) -> None:
+            self.sync_count = 0
+
+        def sync(self) -> None:
+            self.sync_count += 1
+
+        def is_running(self) -> bool:
+            return self.sync_count == 0
+
+    class RecordingOverlay:
+        def __init__(self) -> None:
+            self.payloads: list[run_level1_teleop.CameraOverlayFrame] = []
+
+        def send(self, payload: run_level1_teleop.CameraOverlayFrame) -> None:
+            self.payloads.append(payload)
+
+        def should_stop(self) -> bool:
+            return False
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(
+        run_level1_teleop,
+        "extract_hand_features",
+        lambda _result: _full_hand_features(confidence=0.0),
+    )
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+    overlay = RecordingOverlay()
+
+    run_level1_teleop._run_loop(
+        env=FakeEnv(),
+        camera=OneFrameCamera(),
+        tracker=SyntheticTracker(),
+        smoother=FeatureSmoother(
+            min_confidence=run_level1_teleop.DEFAULT_MIN_SMOOTHING_CONFIDENCE,
+            low_confidence_behavior=run_level1_teleop.DEFAULT_LOW_CONFIDENCE_BEHAVIOR,
+        ),
+        retargeter=retargeter,
+        target_names=run_level1_teleop.robot_target_names(retargeter),
+        camera_overlay=overlay,
+        sim_steps_per_frame=1,
+        viewer_handle=ClosingViewer(),
+        viewer_sleep=0.0,
+        print_interval=1,
+    )
+
+    assert len(overlay.payloads) == 1
+    payload = overlay.payloads[0]
+    assert payload.frame.shape == (16, 16, 3)
+    assert payload.status_message == "TRACKING LOST - controls decaying to open"
+    assert payload.target_names == EXPECTED_TARGETS
 
 
 def test_tracking_loss_default_decays_full_hand_controls_toward_neutral() -> None:
@@ -291,6 +390,24 @@ def test_status_formatters_keep_console_output_compact() -> None:
         EXPECTED_TARGETS,
         max_items=3,
     ) == "rh_A_WRJ2=0.00, rh_A_WRJ1=1.00, rh_A_THJ5=2.00, ...(17 more)"
+    assert (
+        run_level1_teleop._format_tracking_status(
+            detected=False,
+            confidence=0.0,
+            min_confidence=0.2,
+            low_confidence_behavior="decay",
+        )
+        == "TRACKING LOST - controls decaying to open"
+    )
+    assert (
+        run_level1_teleop._format_tracking_status(
+            detected=True,
+            confidence=0.1,
+            min_confidence=0.2,
+            low_confidence_behavior="hold",
+        )
+        == "LOW CONFIDENCE 0.10 - controls holding last pose"
+    )
 
 
 def test_run_level1_teleop_help_runs_without_real_webcam() -> None:
@@ -307,6 +424,8 @@ def test_run_level1_teleop_help_runs_without_real_webcam() -> None:
     assert "--config" in result.stdout
     assert "--model" in result.stdout
     assert "--hand-landmarker-model" in result.stdout
+    assert "--show-camera-window" in result.stdout
+    assert "--camera-window-name" in result.stdout
 
 
 def test_main_reports_startup_errors(
