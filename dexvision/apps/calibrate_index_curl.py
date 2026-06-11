@@ -1,4 +1,9 @@
-"""Measure observed index-curl ranges for Level 1 one-finger teleop."""
+"""Inspect index curl, extension, and bend ranges for Level 1 teleop.
+
+The module name is kept for compatibility with earlier Level 1.10 diagnostics.
+Raw ``index_curl`` is now diagnostic; ``index_bend = 1.0 - index.extension``
+is the preferred long-finger robot-control signal.
+"""
 
 from __future__ import annotations
 
@@ -39,7 +44,7 @@ class IndexCurlCalibrationError(RuntimeError):
 
 @dataclass(frozen=True)
 class IndexCurlStats:
-    """Summary statistics for one stream of index-curl samples."""
+    """Summary statistics for one stream of index-signal samples."""
 
     count: int
     minimum: float
@@ -51,7 +56,7 @@ class IndexCurlStats:
 
 @dataclass(frozen=True)
 class IndexCurlCalibrationResult:
-    """Calibration summary for one requested pose."""
+    """Signal summary for one requested pose."""
 
     pose: PoseName
     seconds: float
@@ -61,11 +66,18 @@ class IndexCurlCalibrationResult:
     recorded_frames: int
     raw_index_curl: IndexCurlStats
     smoothed_index_curl: IndexCurlStats
+    raw_index_extension: IndexCurlStats
+    smoothed_index_extension: IndexCurlStats
+    raw_index_bend: IndexCurlStats
+    smoothed_index_bend: IndexCurlStats
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Collect index_curl stats for an open or curled index pose."
+        description=(
+            "Collect index signal stats for an open or curled index pose. "
+            "Reports diagnostic index_curl plus extension-derived index_bend."
+        )
     )
     parser.add_argument("--camera-id", type=int, default=0, help="OpenCV camera index.")
     parser.add_argument(
@@ -164,12 +176,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def summarize_index_curl_samples(samples: Sequence[float]) -> IndexCurlStats:
-    """Return finite summary stats for one list of index-curl samples."""
+    """Return finite summary stats for one list of index-signal samples."""
 
     values = np.asarray(samples, dtype=np.float64)
     values = values[np.isfinite(values)]
     if values.size == 0:
-        raise IndexCurlCalibrationError("No finite index_curl samples were recorded.")
+        raise IndexCurlCalibrationError("No finite index signal samples were recorded.")
 
     return IndexCurlStats(
         count=int(values.size),
@@ -214,7 +226,7 @@ def run_calibration(
         decay_alpha=decay_alpha,
     )
 
-    print("DexVision index curl calibration")
+    print("DexVision index signal inspection")
     print(f"Pose: {pose}")
     print(f"Camera: id={camera_id}, width={width}, height={height}")
     print(f"Hand tracker model: {model_path or DEFAULT_HAND_LANDMARKER_MODEL}")
@@ -224,9 +236,14 @@ def run_calibration(
         f"min_sample_confidence={min_sample_confidence:.2f}"
     )
     print("Hold the requested pose steady until the summary prints.")
+    print("index_curl is diagnostic; index_bend is computed as 1.0 - index.extension.")
 
-    raw_samples: list[float] = []
-    smoothed_samples: list[float] = []
+    raw_curl_samples: list[float] = []
+    smoothed_curl_samples: list[float] = []
+    raw_extension_samples: list[float] = []
+    smoothed_extension_samples: list[float] = []
+    raw_bend_samples: list[float] = []
+    smoothed_bend_samples: list[float] = []
     total_frames = 0
     detected_frames = 0
     start_time = time.monotonic()
@@ -265,8 +282,12 @@ def run_calibration(
             ):
                 continue
 
-            raw_samples.append(raw_features.index_curl)
-            smoothed_samples.append(smoothed_features.index_curl)
+            raw_curl_samples.append(raw_features.index_curl)
+            smoothed_curl_samples.append(smoothed_features.index_curl)
+            raw_extension_samples.append(raw_features.index.extension)
+            smoothed_extension_samples.append(smoothed_features.index.extension)
+            raw_bend_samples.append(raw_features.index_bend)
+            smoothed_bend_samples.append(smoothed_features.index_bend)
 
     result = IndexCurlCalibrationResult(
         pose=pose,
@@ -274,9 +295,13 @@ def run_calibration(
         warmup_seconds=warmup_seconds,
         total_frames=total_frames,
         detected_frames=detected_frames,
-        recorded_frames=len(raw_samples),
-        raw_index_curl=summarize_index_curl_samples(raw_samples),
-        smoothed_index_curl=summarize_index_curl_samples(smoothed_samples),
+        recorded_frames=len(raw_curl_samples),
+        raw_index_curl=summarize_index_curl_samples(raw_curl_samples),
+        smoothed_index_curl=summarize_index_curl_samples(smoothed_curl_samples),
+        raw_index_extension=summarize_index_curl_samples(raw_extension_samples),
+        smoothed_index_extension=summarize_index_curl_samples(smoothed_extension_samples),
+        raw_index_bend=summarize_index_curl_samples(raw_bend_samples),
+        smoothed_index_bend=summarize_index_curl_samples(smoothed_bend_samples),
     )
     _print_result(result)
     if print_json:
@@ -295,10 +320,15 @@ def _print_result(result: IndexCurlCalibrationResult) -> None:
     )
     print(_format_stats("Raw index_curl", result.raw_index_curl))
     print(_format_stats("Smoothed index_curl", result.smoothed_index_curl))
+    print(_format_stats("Raw index_extension", result.raw_index_extension))
+    print(_format_stats("Smoothed index_extension", result.smoothed_index_extension))
+    print(_format_stats("Raw index_bend", result.raw_index_bend))
+    print(_format_stats("Smoothed index_bend", result.smoothed_index_bend))
     print("")
     print("Compare open and curled medians:")
-    print("- wide separation means retargeting response/limits need tuning")
-    print("- narrow separation means the Level 1.3 index feature needs improvement")
+    print("- extension should be high when open and low when curled")
+    print("- index_bend should be low when open and high when curled")
+    print("- index_curl remains useful as a diagnostic geometry signal")
 
 
 def _format_stats(label: str, stats: IndexCurlStats) -> str:
@@ -360,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
     except KeyboardInterrupt:
-        print("\nInterrupted. Index curl calibration closed cleanly.")
+        print("\nInterrupted. Index signal inspection closed cleanly.")
         return 130
     except Exception as exc:
         if _is_cv2_error(exc):

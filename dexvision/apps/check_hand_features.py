@@ -10,7 +10,7 @@ from pathlib import Path
 
 from dexvision.camera.opencv_camera import CameraOpenError, OpenCVCamera
 from dexvision.features.hand_features import (
-    FINGER_CURL_FIELDS,
+    FINGER_NAMES,
     HandFeatures,
     extract_hand_features,
 )
@@ -82,27 +82,59 @@ def _draw_fps(cv2_module, frame, fps: float) -> None:
 
 def _draw_feature_bars(cv2_module, frame, features: HandFeatures) -> None:
     rows = [
-        ("Thumb", features.thumb_curl),
-        ("Index", features.index_curl),
-        ("Middle", features.middle_curl),
-        ("Ring", features.ring_curl),
-        ("Pinky", features.pinky_curl),
-        ("Pinch", features.pinch_thumb_index),
-        ("Conf", features.confidence),
+        ("Thumb", features.thumb),
+        ("Index", features.index),
+        ("Middle", features.middle),
+        ("Ring", features.ring),
+        ("Pinky", features.pinky),
     ]
     x = 16
     y = 96
-    label_width = 72
-    bar_width = 150
+    label_width = 62
+    bar_width = 72
     bar_height = 12
-    row_gap = 24
+    value_width = 42
+    column_gap = 10
+    row_gap = 28
+    curl_x = x + label_width
+    extension_x = curl_x + bar_width + value_width + column_gap
+    bend_x = extension_x + bar_width + value_width + column_gap
+    up_x = bend_x + bar_width + value_width + 8
 
-    for index, (label, value) in enumerate(rows):
+    cv2_module.putText(
+        frame,
+        "Curl",
+        (curl_x, y - 12),
+        cv2_module.FONT_HERSHEY_SIMPLEX,
+        0.42,
+        (245, 245, 245),
+        1,
+        cv2_module.LINE_AA,
+    )
+    cv2_module.putText(
+        frame,
+        "Ext",
+        (extension_x, y - 12),
+        cv2_module.FONT_HERSHEY_SIMPLEX,
+        0.42,
+        (245, 245, 245),
+        1,
+        cv2_module.LINE_AA,
+    )
+    cv2_module.putText(
+        frame,
+        "Bend",
+        (bend_x, y - 12),
+        cv2_module.FONT_HERSHEY_SIMPLEX,
+        0.42,
+        (245, 245, 245),
+        1,
+        cv2_module.LINE_AA,
+    )
+
+    for index, (label, state) in enumerate(rows):
         row_y = y + index * row_gap
-        safe_value = max(0.0, min(float(value), 1.0))
-        filled_width = int(round(bar_width * safe_value))
-        color = (0, 220, 120) if label != "Pinch" else (255, 190, 40)
-
+        finger_name = label.lower()
         cv2_module.putText(
             frame,
             label,
@@ -113,28 +145,46 @@ def _draw_feature_bars(cv2_module, frame, features: HandFeatures) -> None:
             1,
             cv2_module.LINE_AA,
         )
-        cv2_module.rectangle(
+        _draw_bar(
+            cv2_module,
             frame,
-            (x + label_width, row_y),
-            (x + label_width + bar_width, row_y + bar_height),
-            (60, 60, 60),
-            1,
+            x=curl_x,
+            y=row_y,
+            width=bar_width,
+            height=bar_height,
+            value=state.curl,
+            color=(0, 220, 120),
         )
-        if filled_width > 0:
-            cv2_module.rectangle(
+        _draw_bar(
+            cv2_module,
+            frame,
+            x=extension_x,
+            y=row_y,
+            width=bar_width,
+            height=bar_height,
+            value=state.extension,
+            color=(255, 190, 40),
+        )
+        bend = getattr(features, f"{finger_name}_bend", None)
+        if bend is not None:
+            _draw_bar(
+                cv2_module,
                 frame,
-                (x + label_width, row_y),
-                (x + label_width + filled_width, row_y + bar_height),
-                color,
-                -1,
+                x=bend_x,
+                y=row_y,
+                width=bar_width,
+                height=bar_height,
+                value=bend,
+                color=(80, 210, 255),
             )
+        value_color = (0, 255, 80) if state.is_up else (180, 180, 180)
         cv2_module.putText(
             frame,
-            f"{safe_value:.2f}",
-            (x + label_width + bar_width + 12, row_y + bar_height),
+            "UP" if state.is_up else "--",
+            (up_x, row_y + bar_height),
             cv2_module.FONT_HERSHEY_SIMPLEX,
             0.45,
-            (245, 245, 245),
+            value_color,
             1,
             cv2_module.LINE_AA,
         )
@@ -142,10 +192,48 @@ def _draw_feature_bars(cv2_module, frame, features: HandFeatures) -> None:
     palm_y = y + len(rows) * row_gap + 8
     cv2_module.putText(
         frame,
-        f"Palm roll/pitch: {features.palm_roll_proxy:+.2f} / {features.palm_pitch_proxy:+.2f}",
+        f"Pinch {features.pinch_thumb_index:.2f}   Conf {features.confidence:.2f}",
         (x, palm_y),
         cv2_module.FONT_HERSHEY_SIMPLEX,
         0.5,
+        (245, 245, 245),
+        1,
+        cv2_module.LINE_AA,
+    )
+    cv2_module.putText(
+        frame,
+        f"Palm roll/pitch: {features.palm_roll_proxy:+.2f} / {features.palm_pitch_proxy:+.2f}",
+        (x, palm_y + 24),
+        cv2_module.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        (245, 245, 245),
+        1,
+        cv2_module.LINE_AA,
+    )
+
+
+def _draw_bar(
+    cv2_module,
+    frame,
+    *,
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    value: float,
+    color: tuple[int, int, int],
+) -> None:
+    safe_value = max(0.0, min(float(value), 1.0))
+    filled_width = int(round(width * safe_value))
+    cv2_module.rectangle(frame, (x, y), (x + width, y + height), (60, 60, 60), 1)
+    if filled_width > 0:
+        cv2_module.rectangle(frame, (x, y), (x + filled_width, y + height), color, -1)
+    cv2_module.putText(
+        frame,
+        f"{safe_value:.2f}",
+        (x + width + 6, y + height),
+        cv2_module.FONT_HERSHEY_SIMPLEX,
+        0.42,
         (245, 245, 245),
         1,
         cv2_module.LINE_AA,
@@ -175,7 +263,11 @@ def run_hand_features(
         f"min_tracking_confidence={min_tracking_confidence}, "
         f"assume_mirrored_input={assume_mirrored_input}"
     )
-    print(f"Feature bars: {', '.join(FINGER_CURL_FIELDS)}, pinch_thumb_index, confidence")
+    print(
+        "Feature rows: "
+        f"{', '.join(FINGER_NAMES)} with curl, extension, bend, and is_up; "
+        "plus pinch_thumb_index and confidence"
+    )
     print("Press q to quit.")
 
     try:

@@ -7,7 +7,12 @@ import numpy as np
 import pytest
 
 from dexvision.apps import check_smoothing
-from dexvision.features.hand_features import HandFeatures, feature_values, no_hand_features
+from dexvision.features.hand_features import (
+    FingerState,
+    HandFeatures,
+    feature_values,
+    no_hand_features,
+)
 from dexvision.features.smoothing import FeatureSmoother, SmoothingConfig, sanitize_hand_features
 from dexvision.perception.hand_tracker import HandTrackerError
 
@@ -41,8 +46,29 @@ def test_step_response_moves_partway_toward_new_value() -> None:
 
     assert first.index_curl == pytest.approx(0.0)
     assert second.index_curl == pytest.approx(0.25)
+    assert second.index.extension == pytest.approx(0.75)
+    assert second.index_bend == pytest.approx(0.25)
     assert second.thumb_curl == pytest.approx(0.25)
     assert 0.0 < second.index_curl < 1.0
+
+
+def test_extension_is_smoothed_before_bend_is_derived() -> None:
+    smoother = FeatureSmoother(alpha=0.5)
+    first = HandFeatures(
+        index=FingerState(curl=0.9, extension=1.0, abduction=None, is_up=True, valid=True),
+        confidence=1.0,
+    )
+    second = HandFeatures(
+        index=FingerState(curl=0.1, extension=0.2, abduction=None, is_up=False, valid=True),
+        confidence=1.0,
+    )
+
+    smoother.update(first)
+    smoothed = smoother.update(second)
+
+    assert smoothed.index_curl == pytest.approx(0.5)
+    assert smoothed.index.extension == pytest.approx(0.6)
+    assert smoothed.index_bend == pytest.approx(0.4)
 
 
 def test_noisy_input_has_less_variation_after_smoothing() -> None:

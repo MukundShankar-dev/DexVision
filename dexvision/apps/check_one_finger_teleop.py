@@ -17,6 +17,7 @@ import numpy as np
 
 from dexvision.camera.opencv_camera import CameraOpenError, OpenCVCamera
 from dexvision.features.hand_features import (
+    FingerState,
     HandFeatures,
     extract_hand_features,
     no_hand_features,
@@ -47,10 +48,7 @@ DEFAULT_DECAY_ALPHA = 0.15
 DEFAULT_SIM_STEPS_PER_FRAME = 1
 DEFAULT_PRINT_INTERVAL = 30
 DEFAULT_VIEWER_SLEEP = 0.0
-DEFAULT_INDEX_OPEN_CURL = 0.20
-DEFAULT_INDEX_CLOSED_CURL = 0.80
-DEFAULT_INDEX_RESPONSE_GAMMA = 1.30
-INDEX_CURL_FIELD = "index_curl"
+INDEX_BEND_FIELD = "index_bend"
 MAX_ABS_QPOS = 3.5
 MAX_ABS_QVEL = 45.0
 
@@ -237,33 +235,6 @@ def build_parser() -> argparse.ArgumentParser:
         help="EMA alpha used only when --low-confidence-behavior=decay.",
     )
     parser.add_argument(
-        "--index-open-curl",
-        type=float,
-        default=DEFAULT_INDEX_OPEN_CURL,
-        help=(
-            "Measured smoothed index_curl for an open index finger. Values at "
-            "or below this map to the robot index open target."
-        ),
-    )
-    parser.add_argument(
-        "--index-closed-curl",
-        type=float,
-        default=DEFAULT_INDEX_CLOSED_CURL,
-        help=(
-            "Measured smoothed index_curl for a fully curled index finger. "
-            "Values at or above this map to the robot index closed target."
-        ),
-    )
-    parser.add_argument(
-        "--index-response-gamma",
-        type=float,
-        default=DEFAULT_INDEX_RESPONSE_GAMMA,
-        help=(
-            "Curve applied after index curl normalization. Values above 1.0 "
-            "soften small open-hand curl without changing the endpoints."
-        ),
-    )
-    parser.add_argument(
         "--sim-steps-per-frame",
         type=int,
         default=DEFAULT_SIM_STEPS_PER_FRAME,
@@ -291,47 +262,16 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def normalize_index_curl(
-    index_curl: float,
-    *,
-    open_curl: float = 0.0,
-    closed_curl: float = 1.0,
-    gamma: float = 1.0,
-) -> float:
-    """Normalize measured index curl into a robot control curl in [0, 1]."""
+def index_only_features(features: HandFeatures) -> HandFeatures:
+    """Return features with only the index bend connected to robot control."""
 
-    if not np.isfinite(index_curl):
-        return 0.0
-    if closed_curl <= open_curl:
-        raise ValueError("closed_curl must be greater than open_curl.")
-    if gamma <= 0.0:
-        raise ValueError("gamma must be positive.")
-
-    normalized = (float(index_curl) - open_curl) / (closed_curl - open_curl)
-    clipped = float(np.clip(normalized, 0.0, 1.0))
-    return float(clipped**gamma)
-
-
-def index_only_features(
-    features: HandFeatures,
-    *,
-    index_open_curl: float = 0.0,
-    index_closed_curl: float = 1.0,
-    index_response_gamma: float = 1.0,
-) -> HandFeatures:
-    """Return features with only the index curl connected to robot control."""
-
+    neutral = _neutral_finger_state()
     return HandFeatures(
-        thumb_curl=0.0,
-        index_curl=normalize_index_curl(
-            features.index_curl,
-            open_curl=index_open_curl,
-            closed_curl=index_closed_curl,
-            gamma=index_response_gamma,
-        ),
-        middle_curl=0.0,
-        ring_curl=0.0,
-        pinky_curl=0.0,
+        thumb=neutral,
+        index=features.index,
+        middle=neutral,
+        ring=neutral,
+        pinky=neutral,
         pinch_thumb_index=0.0,
         palm_roll_proxy=0.0,
         palm_pitch_proxy=0.0,
@@ -342,40 +282,33 @@ def index_only_features(
 def build_index_finger_targets(
     retargeter: CurlRetargeter,
     features: HandFeatures,
-    *,
-    index_open_curl: float = 0.0,
-    index_closed_curl: float = 1.0,
-    index_response_gamma: float = 1.0,
 ) -> dict[str, float]:
-    """Map only human ``index_curl`` to robot targets.
+    """Map only human ``index_bend`` to robot targets.
 
-    All non-index finger curls are forced open before retargeting so their
+    All non-index finger bends are forced open before retargeting so their
     configured robot actuators stay at neutral open-hand targets.
     """
 
-    return retargeter.map(
-        index_only_features(
-            features,
-            index_open_curl=index_open_curl,
-            index_closed_curl=index_closed_curl,
-            index_response_gamma=index_response_gamma,
-        )
-    )
+    return retargeter.map(index_only_features(features))
 
 
 def index_target_names(retargeter: CurlRetargeter) -> tuple[str, ...]:
-    """Return robot target names driven by the configured index curl mapping."""
+    """Return robot target names driven by the configured index mapping."""
 
     names: list[str] = []
     for finger in retargeter.config.fingers:
-        if finger.feature == INDEX_CURL_FIELD:
+        if finger.name == "index":
             names.extend(target.name for target in finger.targets)
 
     if not names:
         raise CurlRetargeterError(
-            f"Teleop config must include a finger mapping for {INDEX_CURL_FIELD!r}."
+            "Teleop config must include a finger mapping named 'index'."
         )
     return tuple(names)
+
+
+def _neutral_finger_state() -> FingerState:
+    return FingerState(curl=0.0, extension=1.0, abduction=None, is_up=False, valid=False)
 
 
 def resolve_mujoco_model_path(
@@ -414,9 +347,6 @@ def run_one_finger_teleop(
     min_smoothing_confidence: float,
     low_confidence_behavior: LowConfidenceBehavior,
     decay_alpha: float,
-    index_open_curl: float,
-    index_closed_curl: float,
-    index_response_gamma: float,
     sim_steps_per_frame: int,
     viewer_sleep: float,
     print_interval: int,
@@ -428,9 +358,6 @@ def run_one_finger_teleop(
         sim_steps_per_frame=sim_steps_per_frame,
         viewer_sleep=viewer_sleep,
         print_interval=print_interval,
-        index_open_curl=index_open_curl,
-        index_closed_curl=index_closed_curl,
-        index_response_gamma=index_response_gamma,
     )
     raw_config = load_curl_retargeter_config(config_path)
     model_path = resolve_mujoco_model_path(
@@ -443,9 +370,6 @@ def run_one_finger_teleop(
     neutral_targets = build_index_finger_targets(
         retargeter,
         no_hand_features(),
-        index_open_curl=index_open_curl,
-        index_closed_curl=index_closed_curl,
-        index_response_gamma=index_response_gamma,
     )
     smoother = FeatureSmoother(
         alpha=smoothing_alpha,
@@ -461,11 +385,11 @@ def run_one_finger_teleop(
     print(f"Teleop config: {config_path}")
     print(f"MuJoCo model: {model_path}")
     print(f"Index robot targets: {', '.join(index_targets)}")
-    print("Only human index_curl is connected; other robot fingers stay neutral/open.")
+    print("Only human index_bend is connected; other robot fingers stay neutral/open.")
     print(
         "Index response: "
-        f"open={index_open_curl:.2f}, closed={index_closed_curl:.2f}, "
-        f"gamma={index_response_gamma:.2f}, smoothing_alpha={smoothing_alpha:.2f}."
+        "bend = 1.0 - smoothed index extension; "
+        f"raw index_curl remains diagnostic; smoothing_alpha={smoothing_alpha:.2f}."
     )
     print(f"Camera overlay window: {'on' if show_camera_window else 'off'}")
     print(
@@ -506,9 +430,6 @@ def run_one_finger_teleop(
                 index_targets=index_targets,
                 camera_overlay=camera_overlay,
                 window_name=window_name,
-                index_open_curl=index_open_curl,
-                index_closed_curl=index_closed_curl,
-                index_response_gamma=index_response_gamma,
                 sim_steps_per_frame=sim_steps_per_frame,
                 viewer_sleep=viewer_sleep,
                 print_interval=print_interval,
@@ -531,9 +452,6 @@ def _run_with_viewer(
     index_targets: tuple[str, ...],
     camera_overlay: CameraOverlaySink | None,
     window_name: str,
-    index_open_curl: float,
-    index_closed_curl: float,
-    index_response_gamma: float,
     sim_steps_per_frame: int,
     viewer_sleep: float,
     print_interval: int,
@@ -555,9 +473,6 @@ def _run_with_viewer(
                 index_targets=index_targets,
                 camera_overlay=camera_overlay,
                 window_name=window_name,
-                index_open_curl=index_open_curl,
-                index_closed_curl=index_closed_curl,
-                index_response_gamma=index_response_gamma,
                 sim_steps_per_frame=sim_steps_per_frame,
                 viewer_handle=viewer_handle,
                 viewer_sleep=viewer_sleep,
@@ -579,9 +494,6 @@ def _run_loop(
     index_targets: tuple[str, ...],
     camera_overlay: CameraOverlaySink | None,
     window_name: str,
-    index_open_curl: float,
-    index_closed_curl: float,
-    index_response_gamma: float,
     sim_steps_per_frame: int,
     viewer_handle: ViewerHandle,
     viewer_sleep: float,
@@ -607,12 +519,7 @@ def _run_loop(
         )
         raw_features = extract_hand_features(tracking_result)
         smoothed_features = smoother.update(raw_features)
-        effective_features = index_only_features(
-            smoothed_features,
-            index_open_curl=index_open_curl,
-            index_closed_curl=index_closed_curl,
-            index_response_gamma=index_response_gamma,
-        )
+        effective_features = index_only_features(smoothed_features)
         targets = retargeter.map(effective_features)
         env.set_joint_targets(targets)
         state = env.step(n_steps=sim_steps_per_frame)
@@ -648,9 +555,8 @@ def _run_loop(
                 f"frame={frame_index:05d} "
                 f"detected={tracking_result.detected} "
                 f"confidence={raw_features.confidence:.2f} "
-                f"{_format_finger_curl_summary('raw', raw_features)} "
-                f"{_format_finger_curl_summary('smooth', smoothed_features)} "
-                f"index_effective={effective_features.index_curl:.2f} "
+                f"{_format_index_signal_summary(raw_features, smoothed_features)} "
+                f"index_bend={effective_features.index_bend:.2f} "
                 f"targets={_format_target_summary(targets, index_targets)} "
                 f"t={state.time:.3f}s"
             )
@@ -803,7 +709,7 @@ def _draw_status_overlay(
     _draw_labeled_bar(
         cv2_module,
         frame,
-        label="Index raw",
+        label="Raw curl",
         value=raw_features.index_curl,
         x=x,
         y=y + 28,
@@ -814,10 +720,32 @@ def _draw_status_overlay(
     _draw_labeled_bar(
         cv2_module,
         frame,
-        label="Index smooth",
-        value=smoothed_features.index_curl,
+        label="Raw ext",
+        value=raw_features.index.extension,
         x=x,
         y=y + 54,
+        width=bar_width,
+        height=bar_height,
+        color=(255, 190, 40),
+    )
+    _draw_labeled_bar(
+        cv2_module,
+        frame,
+        label="Smooth ext",
+        value=smoothed_features.index.extension,
+        x=x,
+        y=y + 80,
+        width=bar_width,
+        height=bar_height,
+        color=(255, 220, 110),
+    )
+    _draw_labeled_bar(
+        cv2_module,
+        frame,
+        label="Index bend",
+        value=smoothed_features.index_bend,
+        x=x,
+        y=y + 106,
         width=bar_width,
         height=bar_height,
         color=(0, 220, 120),
@@ -825,7 +753,7 @@ def _draw_status_overlay(
     cv2_module.putText(
         frame,
         _format_target_summary(targets, index_targets),
-        (x, y + 96),
+        (x, y + 148),
         cv2_module.FONT_HERSHEY_SIMPLEX,
         0.45,
         (245, 245, 245),
@@ -834,21 +762,11 @@ def _draw_status_overlay(
     )
     cv2_module.putText(
         frame,
-        _format_finger_curl_summary("Raw", raw_features),
-        (x, y + 122),
+        _format_index_signal_summary(raw_features, smoothed_features),
+        (x, y + 174),
         cv2_module.FONT_HERSHEY_SIMPLEX,
         0.42,
         (245, 245, 245),
-        1,
-        cv2_module.LINE_AA,
-    )
-    cv2_module.putText(
-        frame,
-        _format_finger_curl_summary("Smooth", smoothed_features),
-        (x, y + 146),
-        cv2_module.FONT_HERSHEY_SIMPLEX,
-        0.42,
-        (120, 255, 80),
         1,
         cv2_module.LINE_AA,
     )
@@ -978,6 +896,16 @@ def _format_finger_curl_summary(label: str, features: HandFeatures) -> str:
     )
 
 
+def _format_index_signal_summary(raw: HandFeatures, smoothed: HandFeatures) -> str:
+    return (
+        "index_signal="
+        f"raw_curl:{raw.index_curl:.2f},"
+        f"raw_ext:{raw.index.extension:.2f},"
+        f"smooth_ext:{smoothed.index.extension:.2f},"
+        f"bend:{smoothed.index_bend:.2f}"
+    )
+
+
 def _viewer_was_closed(viewer_handle: ViewerHandle) -> bool:
     is_running = getattr(viewer_handle, "is_running", None)
     if not callable(is_running):
@@ -1038,9 +966,6 @@ def _validate_run_parameters(
     sim_steps_per_frame: int,
     viewer_sleep: float,
     print_interval: int,
-    index_open_curl: float,
-    index_closed_curl: float,
-    index_response_gamma: float,
 ) -> None:
     if sim_steps_per_frame <= 0:
         raise ValueError("sim_steps_per_frame must be a positive integer.")
@@ -1048,13 +973,6 @@ def _validate_run_parameters(
         raise ValueError("viewer_sleep must be non-negative.")
     if print_interval <= 0:
         raise ValueError("print_interval must be a positive integer.")
-    if not 0.0 <= index_open_curl < index_closed_curl <= 1.0:
-        raise ValueError(
-            "index_open_curl and index_closed_curl must satisfy "
-            "0.0 <= open < closed <= 1.0."
-        )
-    if index_response_gamma <= 0.0:
-        raise ValueError("index_response_gamma must be positive.")
 
 
 def _is_cv2_error(exc: Exception) -> bool:
@@ -1080,9 +998,6 @@ def main(argv: list[str] | None = None) -> int:
             min_smoothing_confidence=args.min_smoothing_confidence,
             low_confidence_behavior=args.low_confidence_behavior,
             decay_alpha=args.decay_alpha,
-            index_open_curl=args.index_open_curl,
-            index_closed_curl=args.index_closed_curl,
-            index_response_gamma=args.index_response_gamma,
             sim_steps_per_frame=args.sim_steps_per_frame,
             viewer_sleep=args.viewer_sleep,
             print_interval=args.print_interval,

@@ -1,4 +1,4 @@
-"""Map normalized human finger curls to robot hand target controls."""
+"""Map normalized human finger control signals to robot hand target controls."""
 
 from __future__ import annotations
 
@@ -9,7 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from dexvision.features.hand_features import FINGER_CURL_FIELDS, HandFeatures, no_hand_features
+from dexvision.features.hand_features import (
+    FINGER_CONTROL_FIELDS,
+    FingerState,
+    HandFeatures,
+    NON_THUMB_FINGER_NAMES,
+    no_hand_features,
+)
 
 
 class CurlRetargeterError(ValueError):
@@ -35,7 +41,7 @@ class TargetLimit:
 
 @dataclass(frozen=True)
 class CurlTarget:
-    """One robot target driven by a normalized finger curl."""
+    """One robot target driven by a normalized finger control value."""
 
     name: str
     open_value: float
@@ -47,6 +53,11 @@ class CurlTarget:
 
         target = self.open_value + (self.closed_value - self.open_value) * curl
         return self.limit.clip(target)
+
+    def map_control(self, control: float) -> float:
+        """Interpolate from open to closed target and clip to limits."""
+
+        return self.map_curl(control)
 
 
 @dataclass(frozen=True)
@@ -65,7 +76,7 @@ class StaticTarget:
 
 @dataclass(frozen=True)
 class FingerCurlMapping:
-    """Mapping from a ``HandFeatures`` curl field to robot targets."""
+    """Mapping from a ``HandFeatures`` control field to robot targets."""
 
     name: str
     feature: str
@@ -84,7 +95,7 @@ class CurlRetargeterConfig:
 
 
 class CurlRetargeter:
-    """Convert ``HandFeatures`` finger curls to robot target dictionaries.
+    """Convert ``HandFeatures`` finger control signals to robot target dictionaries.
 
     The output keys are the configured robot control target names. For the
     Level 1 Shadow Hand model, these names are MuJoCo actuator names accepted by
@@ -132,10 +143,10 @@ class CurlRetargeter:
             for static_target in self.config.static_targets
         }
         for finger in self.config.fingers:
-            raw_curl = 0.0 if low_confidence else getattr(features, finger.feature)
-            curl = _clip01(finger.offset + finger.scale * _clip01(raw_curl))
+            raw_control = 0.0 if low_confidence else _feature_value(features, finger.feature)
+            control = _clip01(finger.offset + finger.scale * _clip01(raw_control))
             for target in finger.targets:
-                targets[target.name] = target.map_curl(curl)
+                targets[target.name] = target.map_control(control)
         return targets
 
 
@@ -238,12 +249,17 @@ def _coerce_fingers(raw_fingers: object) -> tuple[FingerCurlMapping, ...]:
         if not isinstance(raw_mapping, Mapping):
             raise CurlRetargeterError(f"retargeting.fingers.{finger_name} must be a mapping.")
 
+        default_feature = (
+            f"{finger_name}_bend"
+            if finger_name in NON_THUMB_FINGER_NAMES
+            else f"{finger_name}_curl"
+        )
         feature = _coerce_name(
-            raw_mapping.get("feature", f"{finger_name}_curl"),
+            raw_mapping.get("feature", default_feature),
             field_name=f"retargeting.fingers.{finger_name}.feature",
         )
-        if feature not in FINGER_CURL_FIELDS:
-            allowed = ", ".join(FINGER_CURL_FIELDS)
+        if feature not in FINGER_CONTROL_FIELDS:
+            allowed = ", ".join(FINGER_CONTROL_FIELDS)
             raise CurlRetargeterError(
                 f"retargeting.fingers.{finger_name}.feature must be one of: {allowed}."
             )
@@ -334,16 +350,54 @@ def _sanitize_features(features: HandFeatures | None) -> HandFeatures:
     if features is None:
         return no_hand_features()
     return HandFeatures(
-        thumb_curl=_clip01(features.thumb_curl),
-        index_curl=_clip01(features.index_curl),
-        middle_curl=_clip01(features.middle_curl),
-        ring_curl=_clip01(features.ring_curl),
-        pinky_curl=_clip01(features.pinky_curl),
-        pinch_thumb_index=_clip01(features.pinch_thumb_index),
-        palm_roll_proxy=_clip_signed(features.palm_roll_proxy),
-        palm_pitch_proxy=_clip_signed(features.palm_pitch_proxy),
-        confidence=_clip01(features.confidence),
+        thumb=_sanitize_named_finger(features, "thumb"),
+        index=_sanitize_named_finger(features, "index"),
+        middle=_sanitize_named_finger(features, "middle"),
+        ring=_sanitize_named_finger(features, "ring"),
+        pinky=_sanitize_named_finger(features, "pinky"),
+        palm=getattr(features, "palm", None),
+        pinch_thumb_index=_clip01(float(getattr(features, "pinch_thumb_index", 0.0))),
+        palm_roll_proxy=_clip_signed(float(getattr(features, "palm_roll_proxy", 0.0))),
+        palm_pitch_proxy=_clip_signed(float(getattr(features, "palm_pitch_proxy", 0.0))),
+        confidence=_clip01(float(getattr(features, "confidence", 0.0))),
     )
+
+
+def _sanitize_named_finger(features: object, finger: str) -> FingerState:
+    state = getattr(features, finger, None)
+    if isinstance(state, FingerState):
+        return _sanitize_finger_state(state)
+
+    curl = _clip01(float(getattr(features, f"{finger}_curl", 0.0)))
+    bend = getattr(features, f"{finger}_bend", None)
+    extension = 1.0 - curl if bend is None else 1.0 - _clip01(float(bend))
+    return FingerState(
+        curl=curl,
+        extension=_clip01(extension),
+        abduction=None,
+        is_up=False,
+        valid=True,
+    )
+
+
+def _sanitize_finger_state(state: FingerState) -> FingerState:
+    return FingerState(
+        curl=_clip01(state.curl),
+        extension=_clip01(state.extension),
+        abduction=None if state.abduction is None else _clip_signed(state.abduction),
+        is_up=bool(state.is_up),
+        valid=bool(state.valid),
+    )
+
+
+def _feature_value(features: HandFeatures, feature: str) -> float:
+    if hasattr(features, feature):
+        return _clip01(getattr(features, feature))
+    if feature.endswith("_bend"):
+        legacy_feature = f"{feature.removesuffix('_bend')}_curl"
+        if hasattr(features, legacy_feature):
+            return _clip01(getattr(features, legacy_feature))
+    raise CurlRetargeterError(f"HandFeatures does not provide configured feature {feature!r}.")
 
 
 def _coerce_name(value: object, *, field_name: str) -> str:

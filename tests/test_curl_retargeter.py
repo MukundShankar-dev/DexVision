@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from dexvision.features.hand_features import HandFeatures
+from dexvision.features.hand_features import FingerState, HandFeatures
 from dexvision.retargeting.curl_retargeter import (
     CurlRetargeter,
     CurlRetargeterError,
@@ -63,6 +63,36 @@ def _features(
     )
 
 
+def _features_with_extensions(
+    *,
+    index_extension: float = 1.0,
+    middle_extension: float = 1.0,
+    ring_extension: float = 1.0,
+    pinky_extension: float = 1.0,
+    confidence: float = 1.0,
+) -> HandFeatures:
+    def state(extension: float) -> FingerState:
+        return FingerState(
+            curl=0.9,
+            extension=extension,
+            abduction=None,
+            is_up=extension >= 0.55,
+            valid=True,
+        )
+
+    return HandFeatures(
+        thumb_curl=0.0,
+        index=state(index_extension),
+        middle=state(middle_extension),
+        ring=state(ring_extension),
+        pinky=state(pinky_extension),
+        pinch_thumb_index=0.0,
+        palm_roll_proxy=0.0,
+        palm_pitch_proxy=0.0,
+        confidence=confidence,
+    )
+
+
 def test_default_level1_config_loads_shadow_hand_targets() -> None:
     retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
     targets = retargeter.map(_features())
@@ -87,6 +117,25 @@ def test_open_hand_maps_to_open_robot_hand() -> None:
     assert _all_targets_obey_config_limits(retargeter, targets)
 
 
+def test_high_extension_low_bend_maps_long_fingers_open() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=1.0,
+            middle_extension=1.0,
+            ring_extension=1.0,
+            pinky_extension=1.0,
+        )
+    )
+
+    assert targets["rh_A_FFJ3"] == pytest.approx(-0.15)
+    assert targets["rh_A_FFJ0"] == pytest.approx(0.05)
+    assert targets["rh_A_MFJ3"] == pytest.approx(-0.15)
+    assert targets["rh_A_RFJ0"] == pytest.approx(0.05)
+    assert targets["rh_A_LFJ3"] == pytest.approx(-0.15)
+
+
 def test_fist_maps_to_closed_robot_hand() -> None:
     retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
 
@@ -103,6 +152,25 @@ def test_fist_maps_to_closed_robot_hand() -> None:
     assert targets["rh_A_RFJ3"] == pytest.approx(1.2)
     assert targets["rh_A_LFJ0"] == pytest.approx(2.25)
     assert _all_targets_obey_config_limits(retargeter, targets)
+
+
+def test_low_extension_high_bend_maps_long_fingers_closed() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.0,
+            middle_extension=0.0,
+            ring_extension=0.0,
+            pinky_extension=0.0,
+        )
+    )
+
+    assert targets["rh_A_FFJ3"] == pytest.approx(1.2)
+    assert targets["rh_A_FFJ0"] == pytest.approx(2.25)
+    assert targets["rh_A_MFJ0"] == pytest.approx(2.25)
+    assert targets["rh_A_RFJ3"] == pytest.approx(1.2)
+    assert targets["rh_A_LFJ0"] == pytest.approx(2.25)
 
 
 def test_pointing_hand_keeps_index_open_and_curls_other_fingers() -> None:
@@ -176,6 +244,32 @@ def test_joint_limit_clipping_is_applied_after_interpolation() -> None:
 
     assert retargeter.map(_features(index=0.0))["index_motor"] == pytest.approx(0.0)
     assert retargeter.map(_features(index=1.0))["index_motor"] == pytest.approx(1.0)
+
+
+def test_legacy_curl_feature_config_still_maps_to_robot_targets() -> None:
+    retargeter = CurlRetargeter.from_mapping(
+        {
+            "retargeting": {
+                "type": "curl",
+                "fingers": {
+                    "index": {
+                        "feature": "index_curl",
+                        "targets": {
+                            "index_motor": {
+                                "open": 0.0,
+                                "closed": 2.0,
+                                "min": 0.0,
+                                "max": 2.0,
+                            }
+                        },
+                    }
+                },
+            }
+        }
+    )
+
+    assert retargeter.map(_features(index=0.0))["index_motor"] == pytest.approx(0.0)
+    assert retargeter.map(_features(index=1.0))["index_motor"] == pytest.approx(2.0)
 
 
 def test_per_finger_scale_config_changes_effective_curl() -> None:

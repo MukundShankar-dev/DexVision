@@ -55,7 +55,7 @@
         }
       },
       "index": {
-        "feature": "index_curl",
+        "feature": "index_bend",
         "scale": 1.0,
         "offset": 0.0,
         "targets": {
@@ -80,7 +80,7 @@
         }
       },
       "middle": {
-        "feature": "middle_curl",
+        "feature": "middle_bend",
         "scale": 1.0,
         "offset": 0.0,
         "targets": {
@@ -105,7 +105,7 @@
         }
       },
       "ring": {
-        "feature": "ring_curl",
+        "feature": "ring_bend",
         "scale": 1.0,
         "offset": 0.0,
         "targets": {
@@ -130,7 +130,7 @@
         }
       },
       "pinky": {
-        "feature": "pinky_curl",
+        "feature": "pinky_bend",
         "scale": 1.0,
         "offset": 0.0,
         "targets": {
@@ -211,7 +211,9 @@
   },
   "notes": [
     "Retargeting target names are MuJoCo actuator names for the selected final Shadow Hand model.",
-    "Curl retargeting output is intended for MujocoEnv.set_joint_targets.",
+    "Retargeting output is intended for MujocoEnv.set_joint_targets.",
+    "Long-finger robot bend is driven by index_bend/middle_bend/ring_bend/pinky_bend, derived as 1.0 - extension.",
+    "Raw long-finger curl remains a diagnostic signal; thumb remains on conservative thumb_curl behavior.",
     "Finger distal and middle joints are coupled through tendon actuators ending in J0.",
     "Pinch and peace gestures in configs/hand_gestures.yaml are approximate until visual tuning."
   ]

@@ -7,7 +7,7 @@ from typing import Final, Literal
 
 import numpy as np
 
-from dexvision.features.hand_features import HandFeatures, no_hand_features
+from dexvision.features.hand_features import FingerState, HandFeatures, no_hand_features
 
 
 CONTROL_FEATURE_FIELDS: Final[tuple[str, ...]] = (
@@ -16,6 +16,10 @@ CONTROL_FEATURE_FIELDS: Final[tuple[str, ...]] = (
     "middle_curl",
     "ring_curl",
     "pinky_curl",
+    "index_bend",
+    "middle_bend",
+    "ring_bend",
+    "pinky_bend",
     "pinch_thumb_index",
     "palm_roll_proxy",
     "palm_pitch_proxy",
@@ -118,11 +122,12 @@ def sanitize_hand_features(features: HandFeatures) -> HandFeatures:
     """Clip non-finite or out-of-range feature values to safe bounds."""
 
     return HandFeatures(
-        thumb_curl=_clip01(features.thumb_curl),
-        index_curl=_clip01(features.index_curl),
-        middle_curl=_clip01(features.middle_curl),
-        ring_curl=_clip01(features.ring_curl),
-        pinky_curl=_clip01(features.pinky_curl),
+        thumb=_sanitize_finger_state(features.thumb),
+        index=_sanitize_finger_state(features.index),
+        middle=_sanitize_finger_state(features.middle),
+        ring=_sanitize_finger_state(features.ring),
+        pinky=_sanitize_finger_state(features.pinky),
+        palm=features.palm,
         pinch_thumb_index=_clip01(features.pinch_thumb_index),
         palm_roll_proxy=_clip_signed(features.palm_roll_proxy),
         palm_pitch_proxy=_clip_signed(features.palm_pitch_proxy),
@@ -132,16 +137,47 @@ def sanitize_hand_features(features: HandFeatures) -> HandFeatures:
 
 def _ema_features(previous: HandFeatures, current: HandFeatures, alpha: float) -> HandFeatures:
     return HandFeatures(
-        thumb_curl=_ema(previous.thumb_curl, current.thumb_curl, alpha),
-        index_curl=_ema(previous.index_curl, current.index_curl, alpha),
-        middle_curl=_ema(previous.middle_curl, current.middle_curl, alpha),
-        ring_curl=_ema(previous.ring_curl, current.ring_curl, alpha),
-        pinky_curl=_ema(previous.pinky_curl, current.pinky_curl, alpha),
+        thumb=_ema_finger(previous.thumb, current.thumb, alpha),
+        index=_ema_finger(previous.index, current.index, alpha),
+        middle=_ema_finger(previous.middle, current.middle, alpha),
+        ring=_ema_finger(previous.ring, current.ring, alpha),
+        pinky=_ema_finger(previous.pinky, current.pinky, alpha),
+        palm=current.palm,
         pinch_thumb_index=_ema(previous.pinch_thumb_index, current.pinch_thumb_index, alpha),
         palm_roll_proxy=_ema(previous.palm_roll_proxy, current.palm_roll_proxy, alpha),
         palm_pitch_proxy=_ema(previous.palm_pitch_proxy, current.palm_pitch_proxy, alpha),
         confidence=_ema(previous.confidence, current.confidence, alpha),
     )
+
+
+def _sanitize_finger_state(state: FingerState) -> FingerState:
+    return FingerState(
+        curl=_clip01(state.curl),
+        extension=_clip01(state.extension),
+        abduction=None if state.abduction is None else _clip_signed(state.abduction),
+        is_up=bool(state.is_up),
+        valid=bool(state.valid),
+    )
+
+
+def _ema_finger(previous: FingerState, current: FingerState, alpha: float) -> FingerState:
+    return FingerState(
+        curl=_ema(previous.curl, current.curl, alpha),
+        extension=_ema(previous.extension, current.extension, alpha),
+        abduction=_ema_optional(previous.abduction, current.abduction, alpha),
+        is_up=bool(current.is_up),
+        valid=bool(current.valid),
+    )
+
+
+def _ema_optional(previous: float | None, current: float | None, alpha: float) -> float | None:
+    if previous is None and current is None:
+        return None
+    if previous is None:
+        return _clip_signed(current if current is not None else 0.0)
+    if current is None:
+        return _clip_signed(previous)
+    return _clip_signed(_ema(previous, current, alpha))
 
 
 def _ema(previous: float, current: float, alpha: float) -> float:

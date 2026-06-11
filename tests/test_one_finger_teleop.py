@@ -9,7 +9,7 @@ import pytest
 
 from dexvision.apps import check_one_finger_teleop
 from dexvision.camera.opencv_camera import CameraFrame
-from dexvision.features.hand_features import HandFeatures, no_hand_features
+from dexvision.features.hand_features import FingerState, HandFeatures, no_hand_features
 from dexvision.features.smoothing import FeatureSmoother
 from dexvision.perception.hand_tracker import HandTracker, HandTrackerError
 from dexvision.retargeting.curl_retargeter import (
@@ -46,7 +46,7 @@ def _features(
     )
 
 
-def test_index_only_features_preserves_only_index_curl_and_confidence() -> None:
+def test_index_only_features_preserves_only_index_bend_and_confidence() -> None:
     source = _features(
         thumb=1.0,
         index=0.6,
@@ -60,31 +60,36 @@ def test_index_only_features_preserves_only_index_curl_and_confidence() -> None:
 
     assert one_finger.thumb_curl == pytest.approx(0.0)
     assert one_finger.index_curl == pytest.approx(0.6)
+    assert one_finger.index_bend == pytest.approx(0.6)
     assert one_finger.middle_curl == pytest.approx(0.0)
+    assert one_finger.middle_bend == pytest.approx(0.0)
     assert one_finger.ring_curl == pytest.approx(0.0)
+    assert one_finger.ring_bend == pytest.approx(0.0)
     assert one_finger.pinky_curl == pytest.approx(0.0)
+    assert one_finger.pinky_bend == pytest.approx(0.0)
     assert one_finger.pinch_thumb_index == pytest.approx(0.0)
     assert one_finger.palm_roll_proxy == pytest.approx(0.0)
     assert one_finger.palm_pitch_proxy == pytest.approx(0.0)
     assert one_finger.confidence == pytest.approx(0.8)
 
 
-def test_measured_index_normalization_softens_open_pose_and_preserves_curl() -> None:
-    open_effective = check_one_finger_teleop.normalize_index_curl(
-        0.234,
-        open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
-    )
-    curled_effective = check_one_finger_teleop.normalize_index_curl(
-        0.801,
-        open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
+def test_index_only_features_uses_extension_derived_bend_not_raw_curl() -> None:
+    source = HandFeatures(
+        index=FingerState(
+            curl=0.9,
+            extension=0.8,
+            abduction=None,
+            is_up=True,
+            valid=True,
+        ),
+        confidence=1.0,
     )
 
-    assert 0.0 < open_effective < 0.05
-    assert curled_effective == pytest.approx(1.0)
+    one_finger = check_one_finger_teleop.index_only_features(source)
+
+    assert one_finger.index_curl == pytest.approx(0.9)
+    assert one_finger.index.extension == pytest.approx(0.8)
+    assert one_finger.index_bend == pytest.approx(0.2)
 
 
 def test_index_only_targets_move_index_and_keep_other_fingers_neutral() -> None:
@@ -107,21 +112,24 @@ def test_index_only_targets_move_index_and_keep_other_fingers_neutral() -> None:
             assert curled_target == pytest.approx(neutral_targets[target_name])
 
 
-def test_measured_index_defaults_make_open_pose_targets_near_neutral() -> None:
+def test_high_index_extension_makes_open_pose_targets_near_neutral() -> None:
     retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
     neutral_targets = check_one_finger_teleop.build_index_finger_targets(
         retargeter,
         no_hand_features(),
-        index_open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        index_closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        index_response_gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
     )
     open_pose_targets = check_one_finger_teleop.build_index_finger_targets(
         retargeter,
-        _features(index=0.234),
-        index_open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        index_closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        index_response_gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
+        HandFeatures(
+            index=FingerState(
+                curl=0.9,
+                extension=1.0,
+                abduction=None,
+                is_up=True,
+                valid=True,
+            ),
+            confidence=1.0,
+        ),
     )
 
     assert open_pose_targets["rh_A_FFJ3"] == pytest.approx(
@@ -141,6 +149,21 @@ def test_finger_curl_summary_includes_all_fingers() -> None:
     )
 
     assert summary == "raw_curls=T:0.10,I:0.20,M:0.30,R:0.40,P:0.50"
+
+
+def test_index_signal_summary_prints_raw_curl_extension_and_bend() -> None:
+    raw = HandFeatures(
+        index=FingerState(curl=0.7, extension=0.25, abduction=None, is_up=False, valid=True),
+        confidence=1.0,
+    )
+    smoothed = HandFeatures(
+        index=FingerState(curl=0.6, extension=0.4, abduction=None, is_up=False, valid=True),
+        confidence=1.0,
+    )
+
+    summary = check_one_finger_teleop._format_index_signal_summary(raw, smoothed)
+
+    assert summary == "index_signal=raw_curl:0.70,raw_ext:0.25,smooth_ext:0.40,bend:0.60"
 
 
 def test_normalized_landmarks_to_pixels_clips_coordinates() -> None:
@@ -241,7 +264,7 @@ def test_tracking_loss_default_decays_index_control_toward_neutral() -> None:
         no_hand_features(),
     )
 
-    assert 0.0 < lost.index_curl < stable.index_curl
+    assert 0.0 < lost.index_bend < stable.index_bend
     assert (
         neutral_targets["rh_A_FFJ0"]
         < lost_targets["rh_A_FFJ0"]
@@ -276,9 +299,9 @@ def test_check_one_finger_teleop_help_runs_without_real_webcam() -> None:
     assert "--model" in result.stdout
     assert "--hand-landmarker-model" in result.stdout
     assert "--show-camera-window" in result.stdout
-    assert "--index-open-curl" in result.stdout
-    assert "--index-closed-curl" in result.stdout
-    assert "--index-response-gamma" in result.stdout
+    assert "--index-open-curl" not in result.stdout
+    assert "--index-closed-curl" not in result.stdout
+    assert "--index-response-gamma" not in result.stdout
 
 
 def test_camera_overlay_window_defaults_off_and_can_be_enabled() -> None:
@@ -293,15 +316,6 @@ def test_camera_overlay_window_defaults_off_and_can_be_enabled() -> None:
     )
     assert default_args.viewer_sleep == pytest.approx(
         check_one_finger_teleop.DEFAULT_VIEWER_SLEEP
-    )
-    assert default_args.index_open_curl == pytest.approx(
-        check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL
-    )
-    assert default_args.index_closed_curl == pytest.approx(
-        check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL
-    )
-    assert default_args.index_response_gamma == pytest.approx(
-        check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA
     )
     assert overlay_args.show_camera_window is True
 
@@ -376,9 +390,6 @@ def test_run_loop_default_path_does_not_require_cv2_display_module() -> None:
         index_targets=check_one_finger_teleop.index_target_names(retargeter),
         camera_overlay=None,
         window_name="unused",
-        index_open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        index_closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        index_response_gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
         sim_steps_per_frame=1,
         viewer_handle=viewer,
         viewer_sleep=0.0,
@@ -453,9 +464,6 @@ def test_run_loop_sends_frames_to_camera_overlay() -> None:
         index_targets=check_one_finger_teleop.index_target_names(retargeter),
         camera_overlay=overlay,
         window_name="unused",
-        index_open_curl=check_one_finger_teleop.DEFAULT_INDEX_OPEN_CURL,
-        index_closed_curl=check_one_finger_teleop.DEFAULT_INDEX_CLOSED_CURL,
-        index_response_gamma=check_one_finger_teleop.DEFAULT_INDEX_RESPONSE_GAMMA,
         sim_steps_per_frame=1,
         viewer_handle=viewer,
         viewer_sleep=0.0,

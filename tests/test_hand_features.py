@@ -8,6 +8,10 @@ import pytest
 
 from dexvision.apps import check_hand_features
 from dexvision.features.hand_features import (
+    FingerCalibration,
+    FingerState,
+    HandFeatureCalibration,
+    HandFeatures,
     compute_hand_features,
     extract_hand_features,
     feature_values,
@@ -19,17 +23,13 @@ from dexvision.perception.hand_tracker import (
     HandTrackingResult,
 )
 
-_NON_THUMB_FINGER_INDICES = {
+
+_LONG_FINGERS = ("index", "middle", "ring", "pinky")
+_FINGER_INDICES = {
     "index": (5, 6, 7, 8),
     "middle": (9, 10, 11, 12),
     "ring": (13, 14, 15, 16),
     "pinky": (17, 18, 19, 20),
-}
-_NON_THUMB_CURL_FIELDS = {
-    "index": "index_curl",
-    "middle": "middle_curl",
-    "ring": "ring_curl",
-    "pinky": "pinky_curl",
 }
 _CURL_DIRECTIONS = {
     "index": 1.0,
@@ -75,265 +75,222 @@ def _open_hand() -> np.ndarray:
     return landmarks
 
 
-def _curl_finger(
-    landmarks: np.ndarray,
-    indices: tuple[int, int, int, int],
-    *,
-    horizontal_sign: float,
-) -> None:
-    base, mid, distal, tip = indices
-    landmarks[mid] = landmarks[base] + [0.0, 0.20, 0.0]
-    landmarks[distal] = landmarks[mid] + [0.16 * horizontal_sign, 0.0, 0.0]
-    landmarks[tip] = landmarks[distal] + [0.0, -0.16, 0.0]
+def _curl_long_finger(landmarks: np.ndarray, finger: str) -> None:
+    base, pip, dip, tip = _FINGER_INDICES[finger]
+    horizontal_sign = _CURL_DIRECTIONS[finger]
+    landmarks[pip] = landmarks[base] + [0.0, 0.20, 0.0]
+    landmarks[dip] = landmarks[pip] + [0.16 * horizontal_sign, 0.0, 0.0]
+    landmarks[tip] = landmarks[dip] + [0.0, -0.16, 0.0]
 
 
-def _fist() -> np.ndarray:
-    landmarks = _open_hand()
+def _curl_thumb(landmarks: np.ndarray) -> None:
     landmarks[1:5] = [
         [-0.25, 0.20, 0.0],
         [-0.37, 0.32, 0.0],
         [-0.25, 0.32, 0.0],
         [-0.25, 0.20, 0.0],
     ]
-    _curl_finger(landmarks, (5, 6, 7, 8), horizontal_sign=1.0)
-    _curl_finger(landmarks, (9, 10, 11, 12), horizontal_sign=1.0)
-    _curl_finger(landmarks, (13, 14, 15, 16), horizontal_sign=-1.0)
-    _curl_finger(landmarks, (17, 18, 19, 20), horizontal_sign=-1.0)
+
+
+def _fist() -> np.ndarray:
+    landmarks = _open_hand()
+    _curl_thumb(landmarks)
+    for finger in _LONG_FINGERS:
+        _curl_long_finger(landmarks, finger)
     return landmarks
 
 
-def _pointing_hand() -> np.ndarray:
+def _single_finger_up(finger: str) -> np.ndarray:
     landmarks = _fist()
     open_landmarks = _open_hand()
-    landmarks[5:9] = open_landmarks[5:9]
+    for landmark_index in _FINGER_INDICES[finger]:
+        landmarks[landmark_index] = open_landmarks[landmark_index]
+    return landmarks
+
+
+def _peace_sign() -> np.ndarray:
+    landmarks = _fist()
+    open_landmarks = _open_hand()
+    for finger in ("index", "middle"):
+        for landmark_index in _FINGER_INDICES[finger]:
+            landmarks[landmark_index] = open_landmarks[landmark_index]
     return landmarks
 
 
 def _index_curled_other_fingers_open() -> np.ndarray:
     landmarks = _open_hand()
-    _curl_finger(landmarks, (5, 6, 7, 8), horizontal_sign=1.0)
+    _curl_long_finger(landmarks, "index")
     return landmarks
 
 
-def _finger_curled_other_fingers_open(finger: str) -> np.ndarray:
-    landmarks = _open_hand()
-    _curl_finger(
-        landmarks,
-        _NON_THUMB_FINGER_INDICES[finger],
-        horizontal_sign=_CURL_DIRECTIONS[finger],
-    )
-    return landmarks
+def _states(features: HandFeatures) -> dict[str, FingerState]:
+    return {
+        "thumb": features.thumb,
+        "index": features.index,
+        "middle": features.middle,
+        "ring": features.ring,
+        "pinky": features.pinky,
+    }
 
 
-def _finger_extended_other_fingers_curled(finger: str) -> np.ndarray:
-    landmarks = _fist()
-    open_landmarks = _open_hand()
-    for landmark_index in _NON_THUMB_FINGER_INDICES[finger]:
-        landmarks[landmark_index] = open_landmarks[landmark_index]
-    return landmarks
-
-
-def _extended_index_with_local_angle_noise_and_curled_neighbors() -> np.ndarray:
-    landmarks = _pointing_hand()
-    landmarks[5] = [-0.18, 0.36, 0.0]
-    landmarks[6] = [0.02, 0.56, 0.0]
-    landmarks[7] = [0.02, 0.78, 0.0]
-    landmarks[8] = [0.02, 1.00, 0.0]
-    return landmarks
-
-
-def _ambiguous_compact_index_image() -> np.ndarray:
-    landmarks = _fist()
-    landmarks[5] = [0.38, 0.40, 0.0]
-    landmarks[6] = [0.20, 0.40, 0.0]
-    landmarks[7] = [0.30, 0.40, 0.0]
-    landmarks[8] = [0.40, 0.40, 0.0]
-    return landmarks
-
-
-def _realistic_thumb_fist() -> np.ndarray:
-    landmarks = _open_hand()
-    segment = 0.12
-    angle = np.deg2rad(50.0)
-    landmarks[1] = [-0.25, 0.20, 0.0]
-    landmarks[2] = landmarks[1] + [segment, 0.0, 0.0]
-    landmarks[3] = landmarks[2] + [segment * np.cos(angle), segment * np.sin(angle), 0.0]
-    landmarks[4] = landmarks[3] + [segment, 0.0, 0.0]
-    return landmarks
-
-
-def test_open_hand_gives_low_curl_values() -> None:
+def test_open_hand_produces_extended_local_finger_states() -> None:
     features = compute_hand_features(_open_hand(), confidence=0.93)
 
-    assert features.thumb_curl < 0.1
-    assert features.index_curl < 0.1
-    assert features.middle_curl < 0.1
-    assert features.ring_curl < 0.1
-    assert features.pinky_curl < 0.1
+    assert features.palm.valid
     assert features.confidence == pytest.approx(0.93)
+    for finger, state in _states(features).items():
+        assert state.valid, finger
+        assert state.curl <= 0.25, finger
+        assert state.extension >= 0.55, finger
+        if finger in _LONG_FINGERS:
+            assert getattr(features, f"{finger}_bend") <= 0.45, finger
+    assert features.index_curl == pytest.approx(features.index.curl)
+    assert features.middle_curl == pytest.approx(features.middle.curl)
+    assert features.ring_curl == pytest.approx(features.ring.curl)
+    assert features.pinky_curl == pytest.approx(features.pinky.curl)
 
 
-def test_fist_gives_high_curl_values() -> None:
+def test_fist_produces_curled_local_finger_states() -> None:
     features = compute_hand_features(_fist())
 
-    assert features.thumb_curl > 0.65
-    assert features.index_curl > 0.9
-    assert features.middle_curl > 0.9
-    assert features.ring_curl > 0.9
-    assert features.pinky_curl > 0.9
+    for finger, state in _states(features).items():
+        assert state.valid, finger
+        assert state.curl >= 0.65, finger
+        assert not state.is_up, finger
+        if finger in _LONG_FINGERS:
+            assert getattr(features, f"{finger}_bend") >= 0.65, finger
 
 
-def test_realistic_thumb_fist_maps_above_half_curl() -> None:
-    features = compute_hand_features(_realistic_thumb_fist())
+@pytest.mark.parametrize("finger", _LONG_FINGERS)
+def test_single_non_thumb_finger_up_pose_is_local(finger: str) -> None:
+    features = compute_hand_features(_single_finger_up(finger))
 
-    assert features.thumb_curl > 0.9
+    for other_finger in _LONG_FINGERS:
+        state = getattr(features, other_finger)
+        if other_finger == finger:
+            assert state.curl <= 0.25
+            assert state.extension >= 0.55
+            assert getattr(features, f"{other_finger}_bend") <= 0.45
+            assert state.is_up
+        else:
+            assert state.curl >= 0.65
+            assert state.extension <= 0.35
+            assert getattr(features, f"{other_finger}_bend") >= 0.65
+            assert not state.is_up
 
 
-def test_pointing_hand_keeps_index_low_and_other_fingers_curled() -> None:
-    features = compute_hand_features(_pointing_hand())
+def test_peace_sign_keeps_only_index_and_middle_up() -> None:
+    features = compute_hand_features(_peace_sign())
 
+    assert features.index.is_up
+    assert features.middle.is_up
+    assert not features.ring.is_up
+    assert not features.pinky.is_up
     assert features.index_curl <= 0.25
-    assert features.middle_curl > 0.9
-    assert features.ring_curl > 0.9
-    assert features.pinky_curl > 0.9
+    assert features.middle_curl <= 0.25
+    assert features.ring_curl >= 0.65
+    assert features.pinky_curl >= 0.65
 
 
-def test_index_curl_pass_criteria_are_decoupled_from_other_fingers() -> None:
-    assert compute_hand_features(_open_hand()).index_curl <= 0.25
-    assert compute_hand_features(_pointing_hand()).index_curl <= 0.25
-    assert compute_hand_features(_index_curled_other_fingers_open()).index_curl >= 0.65
-    assert compute_hand_features(_fist()).index_curl >= 0.65
-
-
-def test_non_thumb_finger_curls_are_decoupled_from_other_fingers() -> None:
-    for finger, field_name in _NON_THUMB_CURL_FIELDS.items():
-        extended_features = compute_hand_features(_finger_extended_other_fingers_curled(finger))
-        curled_features = compute_hand_features(_finger_curled_other_fingers_open(finger))
-
-        assert getattr(extended_features, field_name) <= 0.25
-        assert getattr(curled_features, field_name) >= 0.65
-
-
-def test_index_curl_stays_low_when_extended_index_chain_is_stable() -> None:
-    features = compute_hand_features(_extended_index_with_local_angle_noise_and_curled_neighbors())
-
-    assert features.index_curl <= 0.25
-
-
-def test_thumb_index_pinch_distance_changes_visibly() -> None:
+def test_moving_index_does_not_move_other_finger_features() -> None:
     open_features = compute_hand_features(_open_hand())
+    index_moved_features = compute_hand_features(_index_curled_other_fingers_open())
+
+    assert index_moved_features.index_curl >= 0.65
+    for finger in ("middle", "ring", "pinky"):
+        before = getattr(open_features, finger)
+        after = getattr(index_moved_features, finger)
+        assert after.curl == pytest.approx(before.curl, abs=0.02), finger
+        assert after.extension == pytest.approx(before.extension, abs=0.02), finger
+        assert after.is_up == before.is_up, finger
+
+
+def test_thumb_uses_separate_logic_and_tracks_pinching() -> None:
+    open_features = compute_hand_features(_open_hand())
+    fist_features = compute_hand_features(_fist())
     pinch_landmarks = _open_hand()
     pinch_landmarks[4] = pinch_landmarks[8] + [0.02, 0.0, 0.0]
 
     pinch_features = compute_hand_features(pinch_landmarks)
 
+    assert open_features.thumb.curl <= 0.25
+    assert open_features.thumb.extension >= 0.55
+    assert fist_features.thumb.curl >= 0.65
     assert pinch_features.pinch_thumb_index < open_features.pinch_thumb_index
     assert pinch_features.pinch_thumb_index < 0.1
+    assert pinch_features.thumb.abduction is not None
 
 
-def test_missing_tracking_returns_finite_neutral_features() -> None:
-    result = HandTracker.no_hand_result(timestamp=2.5)
+def test_invalid_landmarks_and_no_hand_frames_stay_finite() -> None:
+    invalid_landmarks = np.full((21, 3), np.nan, dtype=np.float32)
+    invalid_features = compute_hand_features(invalid_landmarks, confidence=float("nan"))
+    missing_features = extract_hand_features(HandTracker.no_hand_result(timestamp=2.5))
 
-    features = extract_hand_features(result)
+    assert invalid_features.confidence == 0.0
+    assert all(np.isfinite(feature_values(invalid_features)))
+    assert all(not state.valid for state in _states(invalid_features).values())
+    assert missing_features == no_hand_features()
+    assert missing_features.index_bend == pytest.approx(0.0)
+    assert missing_features.middle_bend == pytest.approx(0.0)
+    assert missing_features.ring_bend == pytest.approx(0.0)
+    assert missing_features.pinky_bend == pytest.approx(0.0)
+    assert all(np.isfinite(feature_values(missing_features)))
 
-    assert features == no_hand_features()
-    assert all(np.isfinite(feature_values(features)))
 
-
-def test_extract_hand_features_uses_tracking_confidence_and_landmarks() -> None:
-    landmarks = _open_hand()
+def test_extract_hand_features_defaults_to_visible_image_landmarks() -> None:
     result = HandTrackingResult(
         detected=True,
         handedness="Right",
         confidence=0.82,
-        image_landmarks=landmarks,
-        world_landmarks=None,
+        image_landmarks=_open_hand(),
+        world_landmarks=_fist(),
         timestamp=4.0,
     )
 
-    features = extract_hand_features(result)
+    visible_features = extract_hand_features(result)
+    world_features = extract_hand_features(result, prefer_world_landmarks=True)
 
-    assert features.confidence == pytest.approx(0.82)
-    assert features.index_curl < 0.1
-    assert features.palm_roll == features.palm_roll_proxy
-    assert features.palm_pitch == features.palm_pitch_proxy
+    assert visible_features.confidence == pytest.approx(0.82)
+    assert visible_features.index_curl <= 0.25
+    assert world_features.index_curl >= 0.65
+    assert visible_features.palm_roll == visible_features.palm_roll_proxy
+    assert visible_features.palm_pitch == visible_features.palm_pitch_proxy
 
 
-def test_extract_hand_features_keeps_index_low_when_only_world_index_is_curled() -> None:
-    result = HandTrackingResult(
-        detected=True,
-        handedness="Right",
-        confidence=0.91,
-        image_landmarks=_pointing_hand(),
-        world_landmarks=_fist(),
-        timestamp=5.0,
+def test_legacy_constructor_and_calibration_api_remain_available() -> None:
+    legacy = HandFeatures(
+        thumb_curl=0.1,
+        index_curl=0.7,
+        middle_curl=0.0,
+        ring_curl=0.0,
+        pinky_curl=0.0,
+        pinch_thumb_index=0.5,
+        confidence=1.0,
     )
-
-    features = extract_hand_features(result)
-
-    assert features.index_curl <= 0.25
-    assert features.middle_curl > 0.9
-
-
-def test_extract_hand_features_vetoes_world_curl_for_visible_extended_non_thumb_fingers() -> None:
-    for finger, field_name in _NON_THUMB_CURL_FIELDS.items():
-        result = HandTrackingResult(
-            detected=True,
-            handedness="Right",
-            confidence=0.91,
-            image_landmarks=_finger_extended_other_fingers_curled(finger),
-            world_landmarks=_fist(),
-            timestamp=5.0,
-        )
-
-        features = extract_hand_features(result)
-
-        assert getattr(features, field_name) <= 0.25
-
-
-def test_extract_hand_features_does_not_veto_curled_world_index_from_ambiguous_image() -> None:
-    result = HandTrackingResult(
-        detected=True,
-        handedness="Right",
-        confidence=0.91,
-        image_landmarks=_ambiguous_compact_index_image(),
-        world_landmarks=_fist(),
-        timestamp=5.0,
+    calibration = HandFeatureCalibration(
+        fingers={
+            "index": FingerCalibration(
+                curl_min=0.2,
+                curl_max=0.8,
+                extension_min=0.0,
+                extension_max=1.0,
+            )
+        },
+        open_hand_baseline=no_hand_features(),
+        fist_baseline=no_hand_features(),
     )
+    calibrated = compute_hand_features(_single_finger_up("index"), calibration=calibration)
 
-    features = extract_hand_features(result)
-
-    assert features.index_curl >= 0.65
-
-
-def test_extract_hand_features_keeps_index_high_when_image_and_world_are_curled() -> None:
-    result = HandTrackingResult(
-        detected=True,
-        handedness="Right",
-        confidence=0.91,
-        image_landmarks=_fist(),
-        world_landmarks=_fist(),
-        timestamp=5.0,
-    )
-
-    features = extract_hand_features(result)
-
-    assert features.index_curl >= 0.65
+    assert legacy.index.curl == pytest.approx(0.7)
+    assert legacy.index_curl == pytest.approx(0.7)
+    assert legacy.index.extension == pytest.approx(0.3)
+    assert legacy.index_bend == pytest.approx(0.7)
+    assert calibrated.index.curl == pytest.approx(0.0)
 
 
 def test_hand_features_validate_landmark_shape() -> None:
     with pytest.raises(ValueError, match="shape"):
         compute_hand_features(np.zeros((20, 3), dtype=np.float32))
-
-
-def test_hand_features_sanitize_nonfinite_landmarks_and_confidence() -> None:
-    landmarks = _open_hand()
-    landmarks[8] = [np.nan, np.inf, -np.inf]
-
-    features = compute_hand_features(landmarks, confidence=float("nan"))
-
-    assert all(np.isfinite(feature_values(features)))
-    assert features.confidence == 0.0
 
 
 def test_check_hand_features_help_runs_without_real_webcam() -> None:
