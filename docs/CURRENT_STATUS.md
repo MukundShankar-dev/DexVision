@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.1 — Demo Episode Schema
+Level 2.2 — Demo Logger
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.2 — Demo Logger
+Level 2.3 — Demo Replay
 
 ---
 
@@ -240,8 +240,17 @@ in-memory demo episode schema, full Level 1.13 action schema validation,
 observation schema validation, synthetic validation tests, and no live
 recording, replay, learning, or two-hand control.
 
-Level 2.2 — Demo Logger is the next target. Implement only demo recording; do
-not add replay, filtering, learning, or two-hand control.
+Level 2.2 — Demo Logger manually passed on June 14, 2026 after the user
+confirmed the full Level 1.13-style recording path worked. The verified manual
+path used `mjpython -m dexvision.apps.record_demo --task free_space_gesture
+--retargeter curl --output data/demos/free_space_gesture_level113_check
+--level1-13-full --overwrite`; it opened the MuJoCo viewer and separate camera
+overlay, recorded full base/depth/orientation/finger teleoperation, saved the
+demo arrays and metadata, and did not require a video file by default.
+Automated checks passed using
+`pytest tests/test_dataset_schema.py tests/test_demo_logger.py` with 20 passed,
+plus the synthetic recorder smoke command. No replay, filtering, learning, or
+two-hand control was implemented.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

@@ -324,12 +324,12 @@ pytest tests/test_demo_logger.py
 ### Pass Criteria
 
 ```text
-[ ] Demo directory created
-[ ] Metadata saved
-[ ] Arrays saved
-[ ] Arrays have same T
-[ ] Recording can start/stop cleanly
-[ ] No giant video required by default
+[x] Demo directory created
+[x] Metadata saved
+[x] Arrays saved
+[x] Arrays have same T
+[x] Recording can start/stop cleanly
+[x] No giant video required by default
 ```
 
 ### Codex Prompt
@@ -910,7 +910,7 @@ Do not add policy learning.
 ```text
 [x] Skill-learning task board environment and initial skill set documented
 [x] DemoEpisode schema implemented
-[ ] Demo logger records full-action skill-demo data
+[x] Demo logger records full-action skill-demo data
 [ ] Demo replay works for base/wrist/finger actions
 [ ] Free-space gesture demos recorded
 [ ] Core task schemas implemented for reach_touch_target, button_press, and push_cube_to_target
