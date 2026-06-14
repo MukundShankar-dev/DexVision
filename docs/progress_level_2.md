@@ -317,7 +317,7 @@ metadata/config snapshot
 ### Run
 
 ```bash
-python -m dexvision.apps.record_demo --task free_space_gesture --retargeter curl --output data/demos/free_space_gesture
+mjpython -m dexvision.apps.record_demo --task free_space_gesture --retargeter curl --output data/demos/free_space_gesture_attempt_001 --level1-13-full
 pytest tests/test_demo_logger.py
 ```
 
@@ -345,6 +345,96 @@ Do not add replay, filtering, or learning yet.
 
 ---
 
+## Level 2.2B — Dataset Collection Runbook and Tracker
+
+### Goal
+
+Create the practical Level 2 dataset collection runbook and tracker that
+operators can follow before recording serious demo datasets, and define when
+Level 2 data is complete enough to move into Level 3 behavior cloning.
+
+This is a docs-only checkpoint. It wraps the Level 2 collection workflow
+without implementing replay, filtering, learning, or Level 5 orchestration.
+
+### Files
+
+```text
+docs/progress_level_2.md
+docs/level2_dataset_runbook.md
+docs/CURRENT_STATUS.md
+docs/codex_prompts.md
+```
+
+### Build
+
+Create a runbook that documents:
+
+```text
+Level 2 purpose
+recorded episode fields
+full Level 1.13 action schema
+dataset folder naming convention
+current and future task recording commands
+per-task demo targets
+per-demo recording checklist
+manual quality checklist
+replay/validation/filter command placeholders
+Level 3 readiness criteria
+Level 2 completion tracker table
+explicit do-not-do-yet guidance
+```
+
+Recommended dataset layout:
+
+```text
+data/demos/
+  raw/<task_id>/<YYYY-MM-DD>_<attempt_number>/
+  processed/<task_id>/
+  reports/quality/
+  reports/summaries/
+```
+
+The runbook must preserve the full Level 1.13 action guidance:
+
+```text
+base_position_target
+base_orientation_target
+finger_actuator_targets
+```
+
+### Run
+
+```bash
+git diff --check
+rg -n "level2_dataset_runbook|Dataset Collection Runbook|base_position_target|base_orientation_target|finger_actuator_targets|free_space_gesture_attempt_001" docs/
+```
+
+### Pass Criteria
+
+```text
+[x] Runbook exists
+[x] Task recording commands exist
+[x] Naming convention exists
+[x] Per-task demo targets exist
+[x] Replay/filter commands are documented and marked TODO until implemented
+[x] Dataset readiness criteria are documented
+[x] No replay, filtering, learning, or Level 5 orchestration code is implemented
+```
+
+### Codex Prompt
+
+```text
+Update the Level 2 dataset collection runbook and tracker only.
+Read CURRENT_STATUS first and do not override the active next checkpoint unless
+the user explicitly asks to change it.
+Keep this docs-only: do not implement replay, filtering, learning, or Level 5
+orchestration.
+Make sure the runbook preserves the full Level 1.13 action schema:
+base_position_target, base_orientation_target, and finger_actuator_targets.
+```
+
+---
+
 ## Level 2.3 — Demo Replay
 
 ### Goal
@@ -362,7 +452,7 @@ tests/test_replay_loader.py
 ### Run
 
 ```bash
-python -m dexvision.apps.replay_demo --demo data/demos/free_space_gesture/demo_001
+mjpython -m dexvision.apps.replay_demo --demo data/demos/raw/free_space_gesture/2026-06-14_001
 pytest tests/test_replay_loader.py
 ```
 
@@ -419,8 +509,8 @@ gesture_label, optional
 ### Run
 
 ```bash
-python -m dexvision.apps.record_demo --task free_space_gesture --output data/demos/free_space_gesture
-python -m dexvision.apps.replay_demo --demo data/demos/free_space_gesture/demo_001
+mjpython -m dexvision.apps.record_demo --task free_space_gesture --retargeter curl --output data/demos/raw/free_space_gesture/2026-06-14_001 --level1-13-full
+mjpython -m dexvision.apps.replay_demo --demo data/demos/raw/free_space_gesture/2026-06-14_001
 ```
 
 ### Pass Criteria
@@ -516,9 +606,9 @@ Record real teleop demonstrations for the first core skill tasks.
 ### Run
 
 ```bash
-python -m dexvision.apps.record_demo --task reach_touch_target --output data/demos/reach_touch_target
-python -m dexvision.apps.record_demo --task button_press --output data/demos/button_press
-python -m dexvision.apps.record_demo --task push_cube_to_target --output data/demos/push_cube_to_target
+mjpython -m dexvision.apps.record_demo --task reach_touch_target --retargeter curl --output data/demos/raw/reach_touch_target/2026-06-14_001 --level1-13-full
+mjpython -m dexvision.apps.record_demo --task button_press --retargeter curl --output data/demos/raw/button_press/2026-06-14_001 --level1-13-full
+mjpython -m dexvision.apps.record_demo --task push_cube_to_target --retargeter curl --output data/demos/raw/push_cube_to_target/2026-06-14_001 --level1-13-full
 ```
 
 ### Target Dataset
@@ -567,7 +657,7 @@ tests/test_success_relabeling.py
 ### Run
 
 ```bash
-python -m dexvision.apps.relabel_demos --dataset data/demos/reach_touch_target
+python -m dexvision.apps.relabel_demos --dataset data/demos/raw/reach_touch_target
 pytest tests/test_success_relabeling.py
 ```
 
@@ -621,7 +711,7 @@ workspace-limit hits
 ### Run
 
 ```bash
-python -m dexvision.apps.filter_demos --dataset data/demos/push_cube_to_target
+python -m dexvision.apps.filter_demos --dataset data/demos/raw/push_cube_to_target
 pytest tests/test_quality_filters.py
 ```
 
@@ -911,6 +1001,7 @@ Do not add policy learning.
 [x] Skill-learning task board environment and initial skill set documented
 [x] DemoEpisode schema implemented
 [x] Demo logger records full-action skill-demo data
+[x] Dataset collection runbook and tracker documented
 [ ] Demo replay works for base/wrist/finger actions
 [ ] Free-space gesture demos recorded
 [ ] Core task schemas implemented for reach_touch_target, button_press, and push_cube_to_target

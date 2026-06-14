@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.2 — Demo Logger
+Level 2.2B — Dataset Collection Runbook and Tracker
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -251,6 +251,16 @@ Automated checks passed using
 `pytest tests/test_dataset_schema.py tests/test_demo_logger.py` with 20 passed,
 plus the synthetic recorder smoke command. No replay, filtering, learning, or
 two-hand control was implemented.
+
+Level 2.2B — Dataset Collection Runbook and Tracker did not require manual
+verification. It was completed as a docs-only checkpoint before continuing to
+replay and serious dataset recording on June 14, 2026. The runbook documents
+the full Level 1.13 action schema, recording naming convention, current
+free-space recording command, future task command placeholders, per-task demo
+targets, manual quality checklist, TODO replay/filter/summary commands, and
+Level 3 dataset readiness criteria. No code, replay, filtering, learning, or
+Level 5 orchestration was implemented. The next implementation checkpoint
+remains Level 2.3 — Demo Replay.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
