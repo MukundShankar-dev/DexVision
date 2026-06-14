@@ -459,12 +459,12 @@ pytest tests/test_replay_loader.py
 ### Pass Criteria
 
 ```text
-[ ] Saved demo loads
-[ ] Actions replay in MuJoCo
-[ ] Full base/finger action schema replays
-[ ] Replay can run headless or with viewer
-[ ] Replay speed can be normal/slow
-[ ] Missing files produce clear errors
+[x] Saved demo loads
+[x] Actions replay in MuJoCo
+[x] Full base/finger action schema replays
+[x] Replay can run headless or with viewer
+[x] Replay speed can be normal/slow
+[x] Missing files produce clear errors
 ```
 
 ### Codex Prompt
@@ -1002,7 +1002,7 @@ Do not add policy learning.
 [x] DemoEpisode schema implemented
 [x] Demo logger records full-action skill-demo data
 [x] Dataset collection runbook and tracker documented
-[ ] Demo replay works for base/wrist/finger actions
+[x] Demo replay works for base/wrist/finger actions
 [ ] Free-space gesture demos recorded
 [ ] Core task schemas implemented for reach_touch_target, button_press, and push_cube_to_target
 [ ] Core skill demos recorded
