@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 1.13D — Final Pose-Control Polish/Safety
+Level 2.1 — Demo Episode Schema
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.1 — Demo Episode Schema
+Level 2.2 — Demo Logger
 
 ---
 
@@ -227,9 +227,21 @@ depth, and finger teleop intact. Final Level 1 full teleop with base/depth/
 orientation/finger control was manually smoke-tested by the user for the
 current scope with no reported crashes. Level 1 is complete.
 
-Level 2.1 — Demo Episode Schema is the next target. Implement only the demo
-episode schema and synthetic validation tests; do not add live recording,
-replay, learning, or two-hand control.
+Level 2.0 — Task Board Environment and Task Set Design did not require manual
+verification. The task board environment, initial skill/task set, demonstration
+requirements, and future Level 5 orchestration boundary are documented. No
+demo recording, replay, learning, two-hand control, or future skill
+orchestration code was implemented.
+
+Level 2.1 — Demo Episode Schema did not require manual verification.
+Automated schema checks passed on June 14, 2026 using
+`pytest tests/test_dataset_schema.py`. The implementation defines the
+in-memory demo episode schema, full Level 1.13 action schema validation,
+observation schema validation, synthetic validation tests, and no live
+recording, replay, learning, or two-hand control.
+
+Level 2.2 — Demo Logger is the next target. Implement only demo recording; do
+not add replay, filtering, learning, or two-hand control.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

@@ -271,6 +271,154 @@ Should support headless load tests.
 
 ---
 
+## Task Specs
+
+Module:
+
+```text
+dexvision/sim/tasks.py
+```
+
+Contract:
+
+```python
+@dataclass(frozen=True)
+class TaskSpec:
+    task_id: str
+    skill_name: str
+    required_objects: tuple[str, ...]
+    observation_schema: "ObservationSchema"
+    action_schema: "ActionSchema"
+    success_condition: str
+    failure_conditions: tuple[str, ...]
+    max_episode_steps: int
+    reset_config: dict
+```
+
+Rules:
+
+```text
+TaskSpec defines resettable MuJoCo task environments for Level 2 demos.
+Task ids should be stable, for example reach_touch_target, button_press, and push_cube_to_target.
+Each task must expose state fields needed to compute success/failure after recording.
+Task specs should not train policies or call learning modules.
+```
+
+---
+
+## Action Schema
+
+Module:
+
+```text
+dexvision/logging/dataset_schema.py
+```
+
+Contract:
+
+```python
+@dataclass(frozen=True)
+class ActionSchema:
+    version: str
+    base_position_target: slice | tuple[int, int]  # shape [3]
+    base_orientation_target: slice | tuple[int, int]  # replay may use MuJoCo wxyz quaternion, shape [4]
+    finger_actuator_targets: slice | tuple[int, int]  # shape [N]
+    representation_notes: dict
+```
+
+Rules:
+
+```text
+Every Level 2 demo must preserve the full Level 1.13 action at each timestep.
+The policy action includes base position target, base orientation target, and finger actuator targets.
+Replay storage may keep MuJoCo wxyz quaternions.
+Learning datasets may convert orientation to 6D rotation or another stable representation.
+Action subsets may be exposed for ablations, but saved demos must retain the full action.
+```
+
+---
+
+## Observation Schema
+
+Module:
+
+```text
+dexvision/logging/dataset_schema.py
+```
+
+Contract:
+
+```python
+@dataclass(frozen=True)
+class ObservationSchema:
+    version: str
+    fields: tuple[str, ...]
+    shapes: dict[str, tuple[int, ...]]
+    optional_fields: tuple[str, ...]
+```
+
+Expected Level 2/3 fields:
+
+```text
+robot qpos/qvel
+hand/base pose
+hand/base velocity, if available
+finger joint positions
+finger joint velocities
+object pose/velocity, when present
+target pose
+task state
+tracking quality
+success metric inputs
+metadata/config snapshot
+```
+
+Rules:
+
+```text
+Observation schemas must be versioned and saved with demos.
+Fields that are absent for a task should be masked or explicitly marked optional.
+Future skill policies must declare the observation schema they were trained on.
+```
+
+---
+
+## Demo Episode Schema
+
+Module:
+
+```text
+dexvision/logging/dataset_schema.py
+```
+
+Contract:
+
+```python
+@dataclass
+class DemoEpisode:
+    metadata: dict
+    landmarks: np.ndarray | None
+    features: np.ndarray
+    actions: np.ndarray
+    robot_states: np.ndarray
+    object_states: np.ndarray | None
+    task_states: np.ndarray | None
+    tracking_quality: np.ndarray
+    timestamps: np.ndarray
+    success: bool | None
+```
+
+Rules:
+
+```text
+metadata must include skill_name, task_id, episode_id, action_schema version, observation_schema version, robot model/config, task config, and teleop config snapshot.
+actions must preserve base_position_target, base_orientation_target, and finger_actuator_targets.
+robot/task/object state must preserve inputs needed for replay, quality filtering, and task-specific success relabeling.
+DemoEpisode validation should use synthetic arrays and should not require camera, GUI, or learning code.
+```
+
+---
+
 ## Demo Logging
 
 Module:
@@ -293,6 +441,46 @@ Rules:
 Must save metadata and arrays.
 Must validate array lengths.
 Should not require video recording.
+Must record skill_name/task_id when logging task demos.
+Must preserve the full Level 1.13 action schema: base position target, base orientation target, and finger actuator targets.
+Should save task/object state and success metric inputs when present.
+```
+
+---
+
+## Skill Cards
+
+Module:
+
+```text
+dexvision/learning/skill_cards.py
+```
+
+Contract:
+
+```python
+@dataclass(frozen=True)
+class SkillCard:
+    skill_name: str
+    task_id: str
+    policy_checkpoint: str
+    observation_schema: str
+    action_schema: str
+    inputs: dict
+    preconditions: tuple[str, ...]
+    success_condition: str
+    failure_conditions: tuple[str, ...]
+    metrics: dict
+    known_limitations: tuple[str, ...]
+```
+
+Rules:
+
+```text
+Skill cards describe trained Level 3 policies for future Level 5 orchestration.
+They must declare observation/action schemas and success/failure metrics.
+The action schema must include base position target, base orientation target, and finger actuator targets.
+Skill cards are metadata only; they must not implement an LLM planner or long-horizon orchestration.
 ```
 
 ---
@@ -309,8 +497,8 @@ Contract:
 
 ```python
 sample = {
-  "obs": Tensor,
-  "action": Tensor,
+  "obs": Tensor,  # hand/base pose and velocity, finger qpos/qvel, object pose, target pose
+  "action": Tensor,  # base position target, base orientation target, finger actuator targets
   "demo_id": str,
   "timestep": int,
 }
@@ -322,4 +510,7 @@ Rules:
 No live camera.
 No live teleop.
 Should work from saved demos only.
+Saved demos should preserve the full Level 1.13 base-plus-finger action at each timestep.
+Early learning experiments may expose action subsets, but should not require recollecting demos.
+Replay storage may keep MuJoCo wxyz quaternions; learning datasets may convert orientation to 6D or another stable representation.
 ```
