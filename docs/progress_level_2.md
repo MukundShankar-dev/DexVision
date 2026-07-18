@@ -1009,11 +1009,11 @@ pytest tests/test_dataset_summary.py
 ### Pass Criteria
 
 ```text
-[ ] Summary is produced per skill
-[ ] Empty or missing datasets produce clear warnings
-[ ] Schema versions are reported
-[ ] JSON/CSV output is saved
-[ ] Pilot quality failures and relabel disagreements are reported
+[x] Summary is produced per skill
+[x] Empty or missing datasets produce clear warnings
+[x] Schema versions are reported
+[x] JSON/CSV output is saved
+[x] Pilot quality failures and relabel disagreements are reported
 ```
 
 ### Codex Prompt
@@ -1497,8 +1497,8 @@ Do not add policy learning.
 [x] Observation layouts are executable and versioned
 [x] reach_touch_target task and deterministic reset work
 [x] Reach-touch pilot demos pass replay
-[ ] Reach-touch success relabeling works
-[ ] Pilot quality filters work without mutating raw data
+[x] Reach-touch success relabeling works
+[x] Pilot quality filters work without mutating raw data
 [ ] Reach-touch summary and scaled dataset are Level 3-ready
 [ ] button_press task and pilot pass all data-quality gates
 [ ] push_cube_to_target task and pilot pass all data-quality gates

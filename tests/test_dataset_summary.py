@@ -1,0 +1,295 @@
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+
+import numpy as np
+
+from dexvision.apps import summarize_demos
+from dexvision.logging.dataset_summary import (
+    DATASET_SUMMARY_VERSION,
+    default_summary_paths,
+    save_dataset_summary,
+    summarize_demo_dataset,
+)
+
+
+def _write_episode(
+    dataset: Path,
+    name: str,
+    *,
+    skill_name: str = "reach_touch_target",
+    task_id: str = "reach_touch_target",
+    success: bool | None = True,
+    frame_count: int = 4,
+    tracking_confidence: float = 0.9,
+    action_schema_version: str = "level1.13/full-action-v1",
+    observation_schema_version: str = "level2/observation-layout-v2",
+) -> Path:
+    episode = dataset / name
+    episode.mkdir(parents=True)
+    metadata = {
+        "episode_id": f"{task_id}_{name}",
+        "skill_name": skill_name,
+        "task_id": task_id,
+        "success": success,
+        "action_schema_version": action_schema_version,
+        "action_schema": {"version": action_schema_version},
+        "observation_schema_version": observation_schema_version,
+        "observation_schema": {"version": observation_schema_version},
+        "tracking_quality_fields": [
+            "detected",
+            "hand_tracking_confidence",
+            "feature_confidence",
+        ],
+    }
+    (episode / "metadata.json").write_text(
+        json.dumps(metadata),
+        encoding="utf-8",
+    )
+    np.save(episode / "timestamps.npy", np.arange(frame_count, dtype=np.float64))
+    tracking = np.ones((frame_count, 3), dtype=np.float64)
+    tracking[:, 1] = tracking_confidence
+    np.save(episode / "tracking_quality.npy", tracking)
+    return episode
+
+
+def _write_quality_report(
+    dataset: Path,
+    entries: tuple[tuple[Path, bool, tuple[str, ...]], ...],
+) -> None:
+    report = {
+        "version": "level2/pilot-quality-report-v1",
+        "episodes": [
+            {
+                "episode_directory": episode.name,
+                "episode_id": json.loads(
+                    (episode / "metadata.json").read_text(encoding="utf-8")
+                )["episode_id"],
+                "passed": passed,
+                "failed_filters": list(failed_filters),
+            }
+            for episode, passed, failed_filters in entries
+        ],
+    }
+    (dataset / "quality_report.json").write_text(
+        json.dumps(report),
+        encoding="utf-8",
+    )
+
+
+def _write_relabel_report(
+    dataset: Path,
+    entries: tuple[tuple[Path, bool | None, bool], ...],
+) -> None:
+    report = {
+        "version": "level2/reach-touch-success-v1",
+        "episodes": [
+            {
+                "episode_directory": episode.name,
+                "episode_id": json.loads(
+                    (episode / "metadata.json").read_text(encoding="utf-8")
+                )["episode_id"],
+                "operator_success": operator_success,
+                "recomputed_success": recomputed_success,
+                "labels_agree": (
+                    None
+                    if operator_success is None
+                    else operator_success == recomputed_success
+                ),
+            }
+            for episode, operator_success, recomputed_success in entries
+        ],
+    }
+    (dataset / "relabel_report.json").write_text(
+        json.dumps(report),
+        encoding="utf-8",
+    )
+
+
+def test_summary_reports_metrics_quality_failures_and_relabel_disagreements(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "raw" / "reach_touch_target"
+    first = _write_episode(
+        dataset,
+        "episode_001",
+        success=True,
+        frame_count=4,
+        tracking_confidence=0.8,
+    )
+    second = _write_episode(
+        dataset,
+        "episode_002",
+        success=True,
+        frame_count=6,
+        tracking_confidence=1.0,
+    )
+    _write_quality_report(
+        dataset,
+        (
+            (first, True, ()),
+            (second, False, ("high_action_jerk",)),
+        ),
+    )
+    _write_relabel_report(
+        dataset,
+        (
+            (first, True, True),
+            (second, True, False),
+        ),
+    )
+
+    report = summarize_demo_dataset(tmp_path)
+
+    assert report.version == DATASET_SUMMARY_VERSION
+    assert report.num_groups == 1
+    assert report.num_episodes == 2
+    assert report.raw_episodes_modified is False
+    assert report.warnings == ()
+    group = report.groups[0]
+    assert group.skill_name == "reach_touch_target"
+    assert group.task_id == "reach_touch_target"
+    assert group.num_episodes == 2
+    assert group.num_success == 1
+    assert group.num_unlabeled == 0
+    assert group.success_rate == 0.5
+    assert group.mean_episode_length == 5.0
+    assert np.isclose(group.mean_tracking_confidence, 0.9)
+    assert group.quality_pass_count == 1
+    assert group.quality_fail_count == 1
+    assert group.quality_unreported_count == 0
+    assert group.relabel_disagreement_count == 1
+    assert group.relabel_unreported_count == 0
+    assert group.action_schema_version == "level1.13/full-action-v1"
+    assert group.observation_schema_version == "level2/observation-layout-v2"
+    assert group.quality_failures[0].episode_id.endswith("episode_002")
+    assert group.quality_failures[0].failed_filters == ("high_action_jerk",)
+    assert group.relabel_disagreements[0].operator_success is True
+    assert group.relabel_disagreements[0].recomputed_success is False
+
+
+def test_summary_is_grouped_per_skill_and_reports_missing_coverage(
+    tmp_path: Path,
+) -> None:
+    _write_episode(
+        tmp_path / "raw" / "reach_touch_target",
+        "reach_001",
+    )
+    _write_episode(
+        tmp_path / "raw" / "free_space_gesture",
+        "gesture_001",
+        skill_name="free_space_gesture",
+        task_id="free_space_gesture",
+        success=None,
+        action_schema_version="level1.13/full-action-v1",
+        observation_schema_version="level2/observation-v1",
+    )
+
+    report = summarize_demo_dataset(tmp_path)
+
+    assert [(group.skill_name, group.task_id) for group in report.groups] == [
+        ("free_space_gesture", "free_space_gesture"),
+        ("reach_touch_target", "reach_touch_target"),
+    ]
+    gesture = report.groups[0]
+    assert gesture.num_unlabeled == 1
+    assert gesture.success_rate is None
+    assert gesture.quality_unreported_count == 1
+    assert gesture.relabel_unreported_count == 1
+    assert len(report.warnings) == 4
+    assert all("coverage is missing" in warning for warning in report.warnings)
+
+
+def test_dataset_root_uses_raw_subtree_and_excludes_smoke_recordings(
+    tmp_path: Path,
+) -> None:
+    _write_episode(
+        tmp_path / "raw" / "reach_touch_target",
+        "raw_episode",
+    )
+    _write_episode(
+        tmp_path / "free_space_smoke_check",
+        "smoke_episode",
+        skill_name="free_space_gesture",
+        task_id="free_space_gesture",
+    )
+
+    report = summarize_demo_dataset(tmp_path)
+
+    assert report.num_episodes == 1
+    assert report.groups[0].skill_name == "reach_touch_target"
+
+
+def test_missing_and_empty_datasets_produce_clear_warnings(tmp_path: Path) -> None:
+    missing = summarize_demo_dataset(tmp_path / "missing")
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+    empty = summarize_demo_dataset(empty_dir)
+
+    assert missing.num_episodes == 0
+    assert "does not exist" in missing.warnings[0]
+    assert empty.num_episodes == 0
+    assert "No episode directories" in empty.warnings[0]
+
+
+def test_json_and_csv_outputs_are_saved(tmp_path: Path) -> None:
+    dataset = tmp_path / "demos"
+    _write_episode(dataset, "episode_001")
+    report = summarize_demo_dataset(dataset)
+    json_path = tmp_path / "reports" / "summary.json"
+    csv_path = tmp_path / "reports" / "summary.csv"
+
+    saved_json, saved_csv = save_dataset_summary(
+        report,
+        json_path=json_path,
+        csv_path=csv_path,
+    )
+
+    assert saved_json == json_path
+    assert saved_csv == csv_path
+    loaded = json.loads(json_path.read_text(encoding="utf-8"))
+    assert loaded["groups"][0]["num_episodes"] == 1
+    with csv_path.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    assert rows[0]["skill_name"] == "reach_touch_target"
+    assert rows[0]["action_schema_version"] == "level1.13/full-action-v1"
+
+
+def test_cli_saves_default_outputs_and_keeps_episode_files_unchanged(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    dataset = tmp_path / "demos"
+    episode = _write_episode(dataset, "episode_001")
+    metadata_before = (episode / "metadata.json").read_bytes()
+    timestamps_before = (episode / "timestamps.npy").read_bytes()
+    expected_json, expected_csv = default_summary_paths(dataset)
+
+    result = summarize_demos.main(["--dataset", str(dataset)])
+
+    assert result == 0
+    assert expected_json.is_file()
+    assert expected_csv.is_file()
+    assert (episode / "metadata.json").read_bytes() == metadata_before
+    assert (episode / "timestamps.npy").read_bytes() == timestamps_before
+    output = capsys.readouterr()
+    assert "Summary complete: groups=1, episodes=1" in output.out
+    assert "WARNING:" in output.err
+
+
+def test_cli_missing_dataset_warns_and_saves_empty_summary(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    dataset = tmp_path / "missing"
+
+    result = summarize_demos.main(["--dataset", str(dataset)])
+
+    assert result == 0
+    json_path, csv_path = default_summary_paths(dataset)
+    assert json_path.is_file()
+    assert csv_path.is_file()
+    output = capsys.readouterr()
+    assert "WARNING: Dataset directory does not exist" in output.err

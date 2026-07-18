@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7 — Pilot Quality Filters
+Level 2.7B — Reach-Touch Dataset Summary
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7B — Reach-Touch Dataset Summary
+Level 2.7C — Scale Reach-Touch Dataset
 
 ---
 
@@ -347,6 +347,20 @@ quality flag: `2026-07-18_003` exceeded the default action-jerk threshold
 data/demos/raw/reach_touch_target`, `conda run -n dexvision pytest
 tests/test_quality_filters.py` with 8 passed, `conda run -n dexvision ruff
 check dexvision tests`, and `conda run -n dexvision pytest` with 288 passed.
+
+Level 2.7B — Reach-Touch Dataset Summary did not require manual verification.
+The read-only summary scans the documented `data/demos/raw/` layout, groups
+episodes by skill and task, reports success, episode length, tracking
+confidence, action/observation schema versions, quality pass/fail counts, and
+relabel disagreements, and saves JSON plus CSV outputs under
+`data/demos/reports/summaries/`. The reach-touch pilot summary reports five
+recomputed successes, four quality passes, one quality failure
+(`2026-07-18_003` for high action jerk), and zero relabel disagreements.
+Automated checks passed on July 18, 2026 using `conda run -n dexvision python
+-m dexvision.apps.summarize_demos --dataset data/demos`, `conda run -n
+dexvision pytest tests/test_dataset_summary.py` with 7 passed, `conda run -n
+dexvision ruff check dexvision tests`, and `conda run -n dexvision pytest`
+with 295 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
