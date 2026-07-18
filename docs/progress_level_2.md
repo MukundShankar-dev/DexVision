@@ -801,13 +801,13 @@ pytest tests/test_task_specs.py
 ### Pass Criteria
 
 ```text
-[ ] Task board scene loads
-[ ] reach_touch_target state and success metric work
-[ ] Reset supports deterministic starts
-[ ] Target pose can be selected from a configured set
-[ ] Sampled target and initial state are saved in task state
-[ ] Success functions work on synthetic states
-[ ] No button, cube-push, demonstration-collection, or learning work is added
+[x] Task board scene loads
+[x] reach_touch_target state and success metric work
+[x] Reset supports deterministic starts
+[x] Target pose can be selected from a configured set
+[x] Sampled target and initial state are saved in task state
+[x] Success functions work on synthetic states
+[x] No button, cube-push, demonstration-collection, or learning work is added
 ```
 
 ### Codex Prompt

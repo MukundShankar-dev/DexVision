@@ -1,0 +1,70 @@
+<!--
+  DexVision Level 2 task-board scene.
+
+  This checkpoint adds only the shared board and reach_touch_target fixtures.
+  Later button and movable-object fixtures belong to later checkpoints.
+-->
+<mujoco model="dexvision_task_board">
+  <include file="menagerie/shadow_hand/right_hand_dexvision.xml"/>
+
+  <statistic extent="0.55" center="0 -0.08 0.18"/>
+
+  <visual>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <quality shadowsize="4096"/>
+    <global azimuth="220" elevation="-28"/>
+  </visual>
+
+  <asset>
+    <texture name="task_skybox" type="skybox" builtin="gradient"
+      rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture name="task_floor_texture" type="2d" builtin="checker" mark="edge"
+      rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8"
+      width="300" height="300"/>
+    <material name="task_floor_material" texture="task_floor_texture"
+      texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+    <material name="task_board_material" rgba="0.28 0.31 0.34 1"/>
+    <material name="task_target_material" rgba="0.9 0.2 0.15 1"/>
+  </asset>
+
+  <worldbody>
+    <light name="task_fill_light" pos="0 0 1"/>
+    <light name="task_key_light" pos="0.3 -0.2 1.5" dir="0 0 -1"
+      directional="true"/>
+    <geom name="task_floor" pos="0 0 -0.12" size="0 0 0.05" type="plane"
+      material="task_floor_material"/>
+    <geom name="task_table" pos="0 -0.12 -0.06" size="0.22 0.18 0.025"
+      type="box" material="task_board_material"/>
+    <geom name="task_board" pos="0 -0.16 0.49" size="0.18 0.015 0.12"
+      type="box" material="task_board_material"/>
+
+    <site name="reach_target_left" pos="-0.10 -0.14 0.45" type="cylinder"
+      size="0.025 0.004" euler="1.5708 0 0"
+      material="task_target_material" group="4"/>
+    <site name="reach_target_center" pos="0 -0.14 0.49" type="cylinder"
+      size="0.025 0.004" euler="1.5708 0 0"
+      material="task_target_material" group="4"/>
+    <site name="reach_target_right" pos="0.10 -0.14 0.53" type="cylinder"
+      size="0.025 0.004" euler="1.5708 0 0"
+      material="task_target_material" group="4"/>
+
+    <body name="reach_target_marker" mocap="true" pos="0 -0.135 0.49"
+      quat="1 0 0 0">
+      <site name="active_reach_target" type="sphere" size="0.013"
+        rgba="1 0.85 0.05 0.9" group="4"/>
+    </body>
+
+    <body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14"
+      quat="1 0 0 0">
+      <site name="dexvision_hand_base_target_site" type="sphere" size="0.012"
+        rgba="0 0.8 1 0.6"/>
+    </body>
+    <camera name="task_overview" pos="0.58 -0.82 0.48"
+      euler="1.15 0 0.58"/>
+  </worldbody>
+
+  <equality>
+    <weld name="dexvision_hand_base_weld" body1="dexvision_hand_base_target"
+      body2="rh_forearm" solref="0.02 1" solimp="0.9 0.95 0.001"/>
+  </equality>
+</mujoco>
