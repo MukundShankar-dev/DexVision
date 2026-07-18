@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -155,6 +156,8 @@ def test_record_demo_parser_accepts_progress_command() -> None:
             "--viewer",
             "--viewer-sleep",
             "0.01",
+            "--gesture-label",
+            "peace sign",
             "--require-hand-detected",
             "--min-hand-detected-frames",
             "2",
@@ -165,6 +168,7 @@ def test_record_demo_parser_accepts_progress_command() -> None:
 
     assert args.task == "free_space_gesture"
     assert args.skill_name is None
+    assert args.gesture_label == "peace sign"
     assert args.retargeter == "curl"
     assert args.output == Path("data/demos/free_space_gesture")
     assert args.show_camera_window is True
@@ -175,21 +179,88 @@ def test_record_demo_parser_accepts_progress_command() -> None:
     assert args.synthetic is False
 
 
+def test_record_demo_normalizes_free_space_gesture_label() -> None:
+    parser = record_demo.build_parser()
+    args = parser.parse_args(["--task", "free_space_gesture", "--gesture-label", "Open Palm"])
+
+    record_demo._validate_recording_args(args)
+
+    assert args.gesture_label == "open_palm"
+
+
+def test_record_demo_rejects_gesture_label_for_other_tasks() -> None:
+    parser = record_demo.build_parser()
+    args = parser.parse_args(["--task", "reach_touch_target", "--gesture-label", "fist"])
+
+    with pytest.raises(ValueError, match="--gesture-label"):
+        record_demo._validate_recording_args(args)
+
+
 def test_level1_13_full_preset_enables_interactive_full_teleop_recording() -> None:
     parser = record_demo.build_parser()
     args = parser.parse_args(["--task", "free_space_gesture", "--level1-13-full"])
 
     record_demo._apply_recording_presets(args)
+    record_demo._validate_recording_args(args)
 
     assert args.show_camera_window is True
     assert args.viewer is True
     assert args.enable_base_control is True
     assert args.enable_base_orientation is True
-    assert args.auto_calibrate_base is True
+    assert args.auto_calibrate_base is False
+    assert args.start_on_calibration is True
     assert args.enable_depth_control is True
     assert args.require_hand_detected is True
     assert args.min_hand_detected_frames == 10
     assert args.max_frames == 0
+
+
+def test_start_on_calibration_requires_camera_preview() -> None:
+    parser = record_demo.build_parser()
+    args = parser.parse_args(["--task", "free_space_gesture", "--start-on-calibration"])
+
+    with pytest.raises(ValueError, match="requires --show-camera-window"):
+        record_demo._validate_recording_args(args)
+
+
+def test_calibration_command_starts_recording_only_after_successful_base_calibration() -> None:
+    assert (
+        record_demo._calibration_started_recording(
+            commands=("calibrate_base",),
+            base_status=SimpleNamespace(neutral_captured=True),
+            base_control_enabled=True,
+        )
+        is True
+    )
+    assert (
+        record_demo._calibration_started_recording(
+            commands=("calibrate_base",),
+            base_status=SimpleNamespace(neutral_captured=False),
+            base_control_enabled=True,
+        )
+        is False
+    )
+    assert (
+        record_demo._calibration_started_recording(
+            commands=(),
+            base_status=None,
+            base_control_enabled=True,
+        )
+        is False
+    )
+
+
+def test_recording_status_tells_operator_to_press_c_until_started() -> None:
+    assert record_demo._format_recording_status(
+        recording_started=False,
+        recorded_frames=0,
+        gesture_label="wave",
+    ) == "recording=armed press-c-to-calibrate gesture=wave"
+    assert record_demo._format_recording_status(
+        recording_started=True,
+        recorded_frames=12,
+        gesture_label="wave",
+    ) == "recording=on frames=12 gesture=wave"
 
 
 def test_record_demo_synthetic_smoke_writes_episode(tmp_path: Path) -> None:
@@ -207,6 +278,8 @@ def test_record_demo_synthetic_smoke_writes_episode(tmp_path: Path) -> None:
             str(output),
             "--episode-id",
             "synthetic_0001",
+            "--gesture-label",
+            "fist",
             "--synthetic",
             "--max-frames",
             "3",
@@ -220,7 +293,17 @@ def test_record_demo_synthetic_smoke_writes_episode(tmp_path: Path) -> None:
     tracking_quality = np.load(output / "tracking_quality.npy")
 
     assert metadata["task_id"] == "free_space_gesture"
+    assert metadata["gesture_label"] == "fist"
+    assert metadata["task_config"]["gesture_labels"] == [
+        "open_palm",
+        "fist",
+        "point",
+        "pinch",
+        "peace_sign",
+        "wave",
+    ]
     assert metadata["recording"]["synthetic"] is True
+    assert metadata["recording"]["start_on_calibration"] is False
     assert metadata["num_steps"] == 3
     assert actions.shape == (3, 27)
     assert timestamps.shape == (3,)

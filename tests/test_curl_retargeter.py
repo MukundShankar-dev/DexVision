@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import math
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -48,6 +49,7 @@ def _features(
     middle: float = 0.0,
     ring: float = 0.0,
     pinky: float = 0.0,
+    pinch_thumb_index: float = 1.0,
     confidence: float = 1.0,
 ) -> HandFeatures:
     return HandFeatures(
@@ -56,7 +58,7 @@ def _features(
         middle_curl=middle,
         ring_curl=ring,
         pinky_curl=pinky,
-        pinch_thumb_index=0.0,
+        pinch_thumb_index=pinch_thumb_index,
         palm_roll_proxy=0.0,
         palm_pitch_proxy=0.0,
         confidence=confidence,
@@ -69,6 +71,7 @@ def _features_with_extensions(
     middle_extension: float = 1.0,
     ring_extension: float = 1.0,
     pinky_extension: float = 1.0,
+    pinch_thumb_index: float = 1.0,
     confidence: float = 1.0,
 ) -> HandFeatures:
     def state(extension: float) -> FingerState:
@@ -86,7 +89,7 @@ def _features_with_extensions(
         middle=state(middle_extension),
         ring=state(ring_extension),
         pinky=state(pinky_extension),
-        pinch_thumb_index=0.0,
+        pinch_thumb_index=pinch_thumb_index,
         palm_roll_proxy=0.0,
         palm_pitch_proxy=0.0,
         confidence=confidence,
@@ -186,6 +189,102 @@ def test_pointing_hand_keeps_index_open_and_curls_other_fingers() -> None:
     assert targets["rh_A_LFJ3"] == pytest.approx(1.2)
 
 
+def test_low_thumb_index_distance_overlays_pinch_targets() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    open_targets = retargeter.map(_features())
+    pinch_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.65,
+            middle_extension=1.0,
+            ring_extension=1.0,
+            pinky_extension=1.0,
+            pinch_thumb_index=0.2,
+        )
+    )
+
+    assert pinch_targets["rh_A_THJ5"] > open_targets["rh_A_THJ5"]
+    assert pinch_targets["rh_A_THJ4"] > open_targets["rh_A_THJ4"]
+    assert pinch_targets["rh_A_THJ3"] > open_targets["rh_A_THJ3"]
+    assert pinch_targets["rh_A_THJ1"] > open_targets["rh_A_THJ1"]
+    assert pinch_targets["rh_A_FFJ4"] > open_targets["rh_A_FFJ4"]
+    assert pinch_targets["rh_A_FFJ3"] > open_targets["rh_A_FFJ3"]
+    assert pinch_targets["rh_A_FFJ0"] > open_targets["rh_A_FFJ0"]
+    assert pinch_targets["rh_A_THJ5"] == pytest.approx(0.438)
+    assert pinch_targets["rh_A_FFJ0"] == pytest.approx(1.95)
+    assert _all_targets_obey_config_limits(retargeter, pinch_targets)
+
+
+def test_wide_camera_pinch_distance_still_overlays_when_shape_matches() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    open_targets = retargeter.map(_features())
+    pinch_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.65,
+            middle_extension=1.0,
+            ring_extension=1.0,
+            pinky_extension=1.0,
+            pinch_thumb_index=0.77,
+        )
+    )
+
+    assert open_targets["rh_A_THJ5"] < pinch_targets["rh_A_THJ5"] < 0.438
+    assert open_targets["rh_A_THJ4"] < pinch_targets["rh_A_THJ4"] < 0.736
+    assert open_targets["rh_A_FFJ0"] < pinch_targets["rh_A_FFJ0"] < 1.95
+    assert _all_targets_obey_config_limits(retargeter, pinch_targets)
+
+
+def test_pinch_overlay_does_not_change_far_thumb_index_targets() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    open_pinch_shape_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.65,
+            middle_extension=1.0,
+            ring_extension=1.0,
+            pinky_extension=1.0,
+            pinch_thumb_index=1.0,
+        )
+    )
+    far_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.65,
+            middle_extension=1.0,
+            ring_extension=1.0,
+            pinky_extension=1.0,
+            pinch_thumb_index=0.98,
+        )
+    )
+
+    assert far_targets == open_pinch_shape_targets
+
+
+def test_pinch_overlay_does_not_change_fist_shape() -> None:
+    retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
+
+    fist_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.0,
+            middle_extension=0.0,
+            ring_extension=0.0,
+            pinky_extension=0.0,
+            pinch_thumb_index=1.0,
+        )
+    )
+    near_thumb_index_fist_targets = retargeter.map(
+        _features_with_extensions(
+            index_extension=0.0,
+            middle_extension=0.0,
+            ring_extension=0.0,
+            pinky_extension=0.0,
+            pinch_thumb_index=0.5,
+        )
+    )
+
+    assert near_thumb_index_fist_targets == fist_targets
+
+
 def test_missing_and_low_confidence_features_map_to_open_pose() -> None:
     raw_config = copy.deepcopy(load_curl_retargeter_config(TELEOP_CONFIG_PATH))
     raw_config["retargeting"]["min_confidence"] = 0.5
@@ -200,7 +299,7 @@ def test_missing_and_low_confidence_features_map_to_open_pose() -> None:
 
 def test_nonfinite_features_are_sanitized_to_finite_targets() -> None:
     retargeter = CurlRetargeter.from_yaml(TELEOP_CONFIG_PATH)
-    dirty_features = HandFeatures(
+    dirty_features = SimpleNamespace(
         thumb_curl=float("nan"),
         index_curl=float("inf"),
         middle_curl=-1.0,
@@ -308,7 +407,7 @@ def test_invalid_feature_name_is_rejected() -> None:
                     "type": "curl",
                     "fingers": {
                         "index": {
-                            "feature": "pinch_thumb_index",
+                            "feature": "not_a_feature",
                             "targets": {
                                 "index_motor": {
                                     "open": 0.0,

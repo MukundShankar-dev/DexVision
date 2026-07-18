@@ -67,7 +67,7 @@ def test_index_only_features_preserves_only_index_bend_and_confidence() -> None:
     assert one_finger.ring_bend == pytest.approx(0.0)
     assert one_finger.pinky_curl == pytest.approx(0.0)
     assert one_finger.pinky_bend == pytest.approx(0.0)
-    assert one_finger.pinch_thumb_index == pytest.approx(0.0)
+    assert one_finger.pinch_thumb_index == pytest.approx(1.0)
     assert one_finger.palm_roll_proxy == pytest.approx(0.0)
     assert one_finger.palm_pitch_proxy == pytest.approx(0.0)
     assert one_finger.confidence == pytest.approx(0.8)

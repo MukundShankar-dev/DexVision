@@ -118,6 +118,7 @@ class CameraOverlayProcess:
             daemon=True,
         )
         self._warned_stopped = False
+        self._closed = False
 
     def start(self) -> "CameraOverlayProcess":
         """Start the overlay process."""
@@ -163,17 +164,37 @@ class CameraOverlayProcess:
     def close(self) -> None:
         """Stop the overlay process."""
 
+        if self._closed:
+            return
+        self._closed = True
         self._stop_event.set()
+        _drop_stale_queue_items(self._queue)
         with suppress(Exception):
             self._queue.put_nowait(None)
+
+        # Camera frames are large enough for the multiprocessing feeder thread
+        # to still be flushing when the preview worker exits. Do not let that
+        # feeder keep mjpython alive after the recording has already been saved.
+        for process_queue in (self._queue, self._command_queue):
+            with suppress(Exception):
+                process_queue.cancel_join_thread()
+
         self._process.join(timeout=1.0)
         if self._process.is_alive():
             self._process.terminate()
             self._process.join(timeout=1.0)
-        with suppress(Exception):
-            self._queue.close()
-        with suppress(Exception):
-            self._command_queue.close()
+        if self._process.is_alive():
+            kill = getattr(self._process, "kill", None)
+            if callable(kill):
+                kill()
+                self._process.join(timeout=1.0)
+
+        for process_queue in (self._queue, self._command_queue):
+            with suppress(Exception):
+                process_queue.close()
+        if not self._process.is_alive():
+            with suppress(Exception):
+                self._process.close()
 
     def _warn_once_stopped(self) -> None:
         if self._warned_stopped:
@@ -1068,7 +1089,7 @@ def _draw_level1_demo_overlay(
     bar_width = 170
     bar_height = 13
     panel_right = max(428, min(frame.shape[1] - 8, 632))
-    panel_bottom = max(330, min(frame.shape[0] - 8, 390))
+    panel_bottom = max(354, min(frame.shape[0] - 8, 420))
 
     cv2_module.rectangle(frame, (8, 44), (panel_right, panel_bottom), (24, 24, 24), -1)
     cv2_module.rectangle(frame, (8, 44), (panel_right, panel_bottom), (80, 80, 80), 1)
@@ -1109,6 +1130,11 @@ def _draw_level1_demo_overlay(
         ("Middle bend", payload.smoothed_features.middle_bend, payload.raw_features.middle_bend),
         ("Ring bend", payload.smoothed_features.ring_bend, payload.raw_features.ring_bend),
         ("Pinky bend", payload.smoothed_features.pinky_bend, payload.raw_features.pinky_bend),
+        (
+            "Pinch close",
+            1.0 - payload.smoothed_features.pinch_thumb_index,
+            1.0 - payload.raw_features.pinch_thumb_index,
+        ),
     )
     for index, (label, smoothed_value, raw_value) in enumerate(controls):
         _draw_labeled_bar(
@@ -1128,7 +1154,7 @@ def _draw_level1_demo_overlay(
         cv2_module.putText(
             frame,
             line,
-            (x, y + 204 + (line_index * 18)),
+            (x, y + 228 + (line_index * 18)),
             cv2_module.FONT_HERSHEY_SIMPLEX,
             0.38,
             (230, 230, 230),
@@ -1138,7 +1164,7 @@ def _draw_level1_demo_overlay(
     cv2_module.putText(
         frame,
         "raw marker | smoothed fill",
-        (x, y + 318),
+        (x, y + 342),
         cv2_module.FONT_HERSHEY_SIMPLEX,
         0.42,
         (230, 230, 230),
@@ -1250,7 +1276,8 @@ def _format_control_summary(features: HandFeatures) -> str:
         f"Ibend:{features.index_bend:.2f},"
         f"Mbend:{features.middle_bend:.2f},"
         f"Rbend:{features.ring_bend:.2f},"
-        f"Pbend:{features.pinky_bend:.2f}"
+        f"Pbend:{features.pinky_bend:.2f},"
+        f"Pinch:{1.0 - features.pinch_thumb_index:.2f}"
     )
 
 

@@ -22,7 +22,11 @@ from dexvision.features.hand_base import (
 )
 from dexvision.features.hand_features import HandFeatures, extract_hand_features, no_hand_features
 from dexvision.features.smoothing import FeatureSmoother
-from dexvision.logging.dataset_schema import ActionSchema, ObservationSchema
+from dexvision.logging.dataset_schema import (
+    FREE_SPACE_GESTURE_LABELS,
+    ActionSchema,
+    ObservationSchema,
+)
 from dexvision.logging.demo_logger import (
     DEFAULT_OBSERVATION_SCHEMA_VERSION,
     DemoLogger,
@@ -83,6 +87,14 @@ TRACKING_QUALITY_FIELDS = (
     "dropped_frame",
     "reacquired",
 )
+FREE_SPACE_GESTURE_INSTRUCTIONS = {
+    "open_palm": "Hold an open palm toward the camera with fingers extended.",
+    "fist": "Close all fingers into a fist, then hold it steady.",
+    "point": "Extend the index finger while the other long fingers stay folded.",
+    "pinch": "Touch or nearly touch thumb and index fingertips.",
+    "peace_sign": "Extend index and middle fingers while ring and pinky stay folded.",
+    "wave": "Use an open palm and wave left/right or up/down while staying in frame.",
+}
 
 
 @dataclass(frozen=True)
@@ -123,6 +135,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--task-name",
         default=None,
         help="Human-readable task name. Defaults to a title-cased --task.",
+    )
+    parser.add_argument(
+        "--gesture-label",
+        default=None,
+        help=(
+            "Optional free_space_gesture metadata label. Supported labels: "
+            + ", ".join(FREE_SPACE_GESTURE_LABELS)
+            + ". Spaces and hyphens are normalized to underscores."
+        ),
     )
     parser.add_argument(
         "--retargeter",
@@ -257,7 +278,7 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Record with the full Level 1.13 teleop interface: camera preview, "
             "MuJoCo viewer, base x/y/depth/orientation control, finger control, "
-            "and hand-detection guard. Press c in the preview to calibrate."
+            "hand-detection guard, and recording gated until c calibrates/centers."
         ),
     )
     parser.add_argument(
@@ -271,8 +292,22 @@ def build_parser() -> argparse.ArgumentParser:
         default=False,
         help=(
             "Automatically capture the first valid hand pose as the base/depth/"
-            "orientation neutral pose. Enabled by --level1-13-full."
+            "orientation neutral pose. Intended for smoke tests, not manual datasets."
         ),
+    )
+    start_group = parser.add_mutually_exclusive_group()
+    start_group.add_argument(
+        "--start-on-calibration",
+        dest="start_on_calibration",
+        action="store_true",
+        default=None,
+        help="Wait to save live frames until c successfully calibrates/centers the hand.",
+    )
+    start_group.add_argument(
+        "--record-immediately",
+        dest="start_on_calibration",
+        action="store_false",
+        help="Save live frames immediately instead of waiting for c.",
     )
     parser.add_argument(
         "--viewer",
@@ -372,6 +407,8 @@ def run_record_demo(args: argparse.Namespace) -> int:
     print("DexVision Level 2 demo recorder")
     print(f"Task: {args.task}")
     print(f"Skill: {args.skill_name or args.task}")
+    if args.gesture_label is not None:
+        print(f"Gesture label: {args.gesture_label}")
     print(f"Episode: {episode_id}")
     print(f"Output: {args.output}")
     print(f"Retargeter: {args.retargeter} ({args.config})")
@@ -380,6 +417,8 @@ def run_record_demo(args: argparse.Namespace) -> int:
     print("Video recording: off")
     if args.level1_13_full:
         print("Recording preset: full Level 1.13 teleop")
+    if args.task == "free_space_gesture":
+        _print_free_space_recording_guide(args.gesture_label)
 
     if args.synthetic:
         return _run_synthetic_recording(
@@ -505,13 +544,16 @@ def _run_live_recording(
     )
     if base_config.enabled:
         print(
-            "Base/depth/orientation calibration: press c in the camera preview "
-            "with your neutral palm pose in frame; press r to reset."
+            "Calibration/start gate: put your neutral palm pose in frame, then press c "
+            "in the camera preview to calibrate/center it. Recording starts after that succeeds; "
+            "press r to reset base control."
         )
         print(f"Base auto-calibration: {'on' if args.auto_calibrate_base else 'off'}")
+    elif args.start_on_calibration:
+        print("Recording gate: press c in the camera preview before saving frames.")
     print(f"Camera preview: {'on' if args.show_camera_window else 'off'}")
     if args.show_camera_window:
-        print("Preview keys: q stop/save, c calibrate base, r reset base.")
+        print("Preview keys: c calibrate/center, q stop/save, r reset base.")
     print(f"MuJoCo viewer: {'on' if args.viewer else 'off'}")
     if args.require_hand_detected:
         print(
@@ -613,6 +655,12 @@ def _run_live_recording(
                     detected_frames=_detected_frames_from_logger(logger),
                 )
 
+            if logger.step_count == 0:
+                raise DemoLoggerError(
+                    "recording stopped before any frames were saved. "
+                    "Put your neutral hand pose in frame, press c to calibrate/center it, "
+                    "then perform the gesture before pressing q."
+                )
             _validate_detection_guard(args=args, summary=summary)
             if summary.detected_frames == 0:
                 print(
@@ -704,18 +752,23 @@ def _record_live_loop(
 ) -> RecordingSummary:
     start_time = time.monotonic()
     previous_detected = False
-    frame_index = 0
+    recorded_frame_index = 0
+    preview_frame_index = 0
     detected_frames = 0
     stopped_by_preview = False
     pending_base_commands: tuple[BaseCommand, ...] = ()
     auto_base_calibrated = False
+    recording_started = not args.start_on_calibration
+    recording_start_time = start_time if recording_started else None
 
     while True:
-        if args.max_frames > 0 and frame_index >= args.max_frames:
+        if recording_started and args.max_frames > 0 and recorded_frame_index >= args.max_frames:
             break
         if (
-            args.duration_seconds > 0.0
-            and (time.monotonic() - start_time) >= args.duration_seconds
+            recording_started
+            and recording_start_time is not None
+            and args.duration_seconds > 0.0
+            and (time.monotonic() - recording_start_time) >= args.duration_seconds
         ):
             break
 
@@ -752,6 +805,20 @@ def _record_live_loop(
             base_smoother=base_smoother,
             commands=applied_base_commands,
         )
+        if (
+            not recording_started
+            and _calibration_started_recording(
+                commands=applied_base_commands,
+                base_status=base_status,
+                base_control_enabled=base_controller is not None,
+            )
+        ):
+            recording_started = True
+            recording_start_time = time.monotonic()
+            print(
+                "Recording started after successful c calibration. "
+                f"{_format_recording_status(recording_started=True, recorded_frames=0, gesture_label=args.gesture_label)}"
+            )
         if "reset_base" in applied_base_commands:
             auto_base_calibrated = False
         elif "calibrate_base" in applied_base_commands and base_status is not None:
@@ -771,45 +838,61 @@ def _record_live_loop(
             base_config=base_config,
             base_status=base_status,
         )
-        logger.append(
-            DemoStepData(
-                features=feature_vector(smoothed_features),
-                action=action_vector(
-                    base_position=base_position,
-                    base_orientation=base_orientation,
-                    targets=targets,
-                    target_names=target_names,
-                ),
-                robot_state=robot_state_vector(
-                    state,
-                    base_position=base_position,
-                    base_orientation=base_orientation,
-                ),
-                tracking_quality=tracking_quality_vector(
-                    tracking_result=tracking_result,
-                    features=smoothed_features,
-                    dropped_frame=False,
-                    reacquired=tracking_result.detected and not previous_detected,
-                ),
-                timestamp=camera_result.timestamp,
-                landmarks=(
-                    landmarks_array(tracking_result)
-                    if args.save_landmarks
-                    else None
-                ),
+        if recording_started:
+            logger.append(
+                DemoStepData(
+                    features=feature_vector(smoothed_features),
+                    action=action_vector(
+                        base_position=base_position,
+                        base_orientation=base_orientation,
+                        targets=targets,
+                        target_names=target_names,
+                    ),
+                    robot_state=robot_state_vector(
+                        state,
+                        base_position=base_position,
+                        base_orientation=base_orientation,
+                    ),
+                    tracking_quality=tracking_quality_vector(
+                        tracking_result=tracking_result,
+                        features=smoothed_features,
+                        dropped_frame=False,
+                        reacquired=tracking_result.detected and not previous_detected,
+                    ),
+                    timestamp=camera_result.timestamp,
+                    landmarks=(
+                        landmarks_array(tracking_result)
+                        if args.save_landmarks
+                        else None
+                    ),
+                )
             )
-        )
+            if tracking_result.detected:
+                detected_frames += 1
+            previous_detected = tracking_result.detected
+            recorded_frame_index += 1
 
-        if tracking_result.detected:
-            detected_frames += 1
-        previous_detected = tracking_result.detected
-        frame_index += 1
-        if frame_index == 1 or frame_index % args.print_interval == 0:
+        preview_frame_index += 1
+        if recording_started and (
+            recorded_frame_index == 1 or recorded_frame_index % args.print_interval == 0
+        ):
             print(
-                f"recorded={frame_index:05d} "
+                f"recorded={recorded_frame_index:05d} "
                 f"detected={tracking_result.detected} "
                 f"confidence={raw_features.confidence:.2f} "
+                f"{_format_recording_status(recording_started=True, recorded_frames=recorded_frame_index, gesture_label=args.gesture_label)} "
                 f"{run_level1_teleop._format_control_summary(smoothed_features)} "
+                f"{format_hand_base_status(base_status)} "
+                f"sim_t={state.time:.3f}s"
+            )
+        elif not recording_started and (
+            preview_frame_index == 1 or preview_frame_index % args.print_interval == 0
+        ):
+            print(
+                f"armed={preview_frame_index:05d} "
+                f"detected={tracking_result.detected} "
+                f"confidence={raw_features.confidence:.2f} "
+                f"{_format_recording_status(recording_started=False, recorded_frames=0, gesture_label=args.gesture_label)} "
                 f"{format_hand_base_status(base_status)} "
                 f"sim_t={state.time:.3f}s"
             )
@@ -821,9 +904,12 @@ def _record_live_loop(
                 features=smoothed_features,
                 targets=targets,
                 target_names=target_names,
-                frame_index=frame_index,
+                frame_index=preview_frame_index,
                 state=state,
                 base_status=base_status,
+                recording_started=recording_started,
+                recorded_frames=recorded_frame_index,
+                gesture_label=args.gesture_label,
             )
             pending_base_commands = preview_event.base_commands
             if preview_event.should_stop:
@@ -837,7 +923,7 @@ def _record_live_loop(
                 break
 
     return RecordingSummary(
-        frames=frame_index,
+        frames=recorded_frame_index,
         detected_frames=detected_frames,
         stopped_by_preview=stopped_by_preview,
     )
@@ -890,6 +976,42 @@ def _maybe_auto_calibrate_base(
     return calibrated
 
 
+def _calibration_started_recording(
+    *,
+    commands: tuple[BaseCommand, ...],
+    base_status: HandBaseControlStatus | None,
+    base_control_enabled: bool,
+) -> bool:
+    if "calibrate_base" not in commands:
+        return False
+    if not base_control_enabled:
+        return True
+    return bool(base_status is not None and base_status.neutral_captured)
+
+
+def _format_recording_status(
+    *,
+    recording_started: bool,
+    recorded_frames: int,
+    gesture_label: str | None,
+) -> str:
+    label = gesture_label or "unlabeled"
+    if recording_started:
+        return f"recording=on frames={recorded_frames} gesture={label}"
+    return f"recording=armed press-c-to-calibrate gesture={label}"
+
+
+def _print_free_space_recording_guide(gesture_label: str | None) -> None:
+    print("Free-space gesture recording plan:")
+    print("  Start each clip from a neutral upright palm in frame, press c to calibrate/center, perform/hold 3-5 seconds, then press q.")
+    if gesture_label is not None:
+        print(f"  This clip label: {gesture_label}")
+        print(f"  What to record: {FREE_SPACE_GESTURE_INSTRUCTIONS[gesture_label]}")
+        return
+    print("  Suggested 10-demo set: open_palm x2, fist x2, pinch x2, wave x2, point x1, peace_sign x1.")
+    print("  Use --gesture-label open_palm|fist|point|pinch|peace_sign|wave for labeled clips.")
+
+
 class RecordingPreview:
     """Separate-process camera overlay for manual demo recording."""
 
@@ -912,6 +1034,9 @@ class RecordingPreview:
         frame_index: int,
         state: MujocoState,
         base_status: HandBaseControlStatus | None,
+        recording_started: bool,
+        recorded_frames: int,
+        gesture_label: str | None,
     ) -> RecordingPreviewEvent:
         """Send one preview frame and return queued keyboard commands."""
 
@@ -932,7 +1057,15 @@ class RecordingPreview:
                     min_confidence=0.0,
                     low_confidence_behavior="decay",
                 ),
-                base_status_message=format_hand_base_status(base_status),
+                base_status_message=(
+                    _format_recording_status(
+                        recording_started=recording_started,
+                        recorded_frames=recorded_frames,
+                        gesture_label=gesture_label,
+                    )
+                    + " | "
+                    + format_hand_base_status(base_status)
+                ),
             )
         )
         commands = tuple(self._overlay.poll_commands())
@@ -1043,7 +1176,7 @@ def _metadata(
     synthetic: bool,
 ) -> dict[str, Any]:
     task_config = _default_task_config(args.task)
-    return {
+    metadata: dict[str, Any] = {
         "skill_name": args.skill_name or args.task,
         "task_name": args.task_name or _default_task_name(args.task),
         "task_id": args.task,
@@ -1075,6 +1208,7 @@ def _metadata(
             "height": int(args.height),
             "show_camera_window": bool(args.show_camera_window),
             "auto_calibrate_base": bool(args.auto_calibrate_base),
+            "start_on_calibration": bool(args.start_on_calibration),
             "viewer": bool(args.viewer),
             "level1_13_full": bool(args.level1_13_full),
             "require_hand_detected": bool(args.require_hand_detected),
@@ -1085,6 +1219,9 @@ def _metadata(
             "observation_fields": observation_schema.fields,
         },
     }
+    if args.gesture_label is not None:
+        metadata["gesture_label"] = args.gesture_label
+    return metadata
 
 
 def _default_task_config(task_id: str) -> dict[str, Any]:
@@ -1094,6 +1231,7 @@ def _default_task_config(task_id: str) -> dict[str, Any]:
             "requires_task_state": False,
             "requires_success_metric_inputs": False,
             "required_observation_fields": (),
+            "gesture_labels": FREE_SPACE_GESTURE_LABELS,
         }
     return {
         "required_objects": (),
@@ -1141,6 +1279,13 @@ def _recorded_base_pose(
 
 
 def _validate_recording_args(args: argparse.Namespace) -> None:
+    args.gesture_label = _normalize_gesture_label(args.gesture_label)
+    if args.gesture_label is not None and args.task != "free_space_gesture":
+        raise ValueError("--gesture-label is only supported with --task free_space_gesture.")
+    if args.start_on_calibration is None:
+        args.start_on_calibration = False
+    if args.start_on_calibration and not args.show_camera_window:
+        raise ValueError("--start-on-calibration requires --show-camera-window so c can be pressed.")
     if args.max_frames < 0:
         raise ValueError("max_frames must be non-negative.")
     if args.duration_seconds < 0.0:
@@ -1164,7 +1309,9 @@ def _apply_recording_presets(args: argparse.Namespace) -> None:
     args.viewer = True
     args.enable_base_control = True
     args.enable_base_orientation = True
-    args.auto_calibrate_base = True
+    args.auto_calibrate_base = False
+    if args.start_on_calibration is None:
+        args.start_on_calibration = True
     if args.enable_depth_control is None:
         args.enable_depth_control = True
     args.require_hand_detected = True
@@ -1229,10 +1376,14 @@ def _ensure_mujoco_viewer_can_launch(args: argparse.Namespace) -> None:
     ]
     if args.level1_13_full:
         command.append("--level1-13-full")
+        if args.start_on_calibration is False:
+            command.append("--record-immediately")
     else:
         command.append("--viewer")
         if args.show_camera_window:
             command.append("--show-camera-window")
+        if args.start_on_calibration:
+            command.append("--start-on-calibration")
         if args.enable_base_control:
             command.append("--enable-base-control")
         if args.enable_base_orientation:
@@ -1246,6 +1397,8 @@ def _ensure_mujoco_viewer_can_launch(args: argparse.Namespace) -> None:
         command.extend(["--min-hand-detected-frames", str(args.min_hand_detected_frames)])
     if args.max_frames:
         command.extend(["--max-frames", str(args.max_frames)])
+    if args.gesture_label is not None:
+        command.extend(["--gesture-label", args.gesture_label])
     raise MujocoError(
         "MuJoCo viewer on macOS requires the mjpython launcher.\n"
         "Run this from a regular macOS Terminal or iTerm session:\n"
@@ -1266,6 +1419,18 @@ def _default_episode_id(task_id: str) -> str:
 
 def _default_task_name(task_id: str) -> str:
     return task_id.replace("_", " ").title()
+
+
+def _normalize_gesture_label(label: str | None) -> str | None:
+    if label is None:
+        return None
+    normalized = "_".join(str(label).strip().lower().replace("-", " ").split())
+    if not normalized:
+        raise ValueError("gesture_label must be non-empty when provided.")
+    if normalized not in FREE_SPACE_GESTURE_LABELS:
+        allowed = ", ".join(FREE_SPACE_GESTURE_LABELS)
+        raise ValueError(f"gesture_label must be one of: {allowed}.")
+    return normalized
 
 
 def _handedness_code(handedness: str | None) -> float:

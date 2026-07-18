@@ -38,6 +38,14 @@ REQUIRED_OBSERVATION_FIELDS = (
     "finger_joint_velocities",
     "tracking_quality",
 )
+FREE_SPACE_GESTURE_LABELS = (
+    "open_palm",
+    "fist",
+    "point",
+    "pinch",
+    "peace_sign",
+    "wave",
+)
 
 
 @dataclass(frozen=True)
@@ -273,6 +281,12 @@ def _validate_metadata(metadata: Mapping[str, Any]) -> None:
     for field in ("teleop_config", "task_config"):
         if not isinstance(metadata[field], Mapping):
             raise DemoSchemaError(f"metadata field '{field}' must be a mapping.")
+
+    if "gesture_label" in metadata:
+        label = metadata["gesture_label"]
+        if label is not None and label not in FREE_SPACE_GESTURE_LABELS:
+            allowed = ", ".join(FREE_SPACE_GESTURE_LABELS)
+            raise DemoSchemaError(f"metadata field 'gesture_label' must be one of: {allowed}.")
 
 
 def _validate_schema_versions(

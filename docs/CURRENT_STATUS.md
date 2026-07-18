@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.3 — Demo Replay
+Level 2.4 — Free-Space Gesture Skill Dataset
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.4 — Free-Space Gesture Skill Dataset
+Level 2.4B — Repository Reproducibility Baseline
 
 ---
 
@@ -271,6 +271,18 @@ supports headless or viewer replay plus replay speed control. Automated checks
 passed using `pytest tests/test_replay_loader.py`, and a synthetic headless
 MuJoCo replay smoke test passed. No quality filtering, dataset collection,
 learning, or future checkpoint work was implemented.
+
+Level 2.4 — Free-Space Gesture Skill Dataset manually passed on July 18, 2026.
+The final raw collection contains 60 schema-valid episodes balanced at 10 each
+for `open_palm`, `fist`, `point`, `pinch`, `peace_sign`, and `wave`. All 60
+episodes completed headless MuJoCo replay, gesture-specific audits found
+sufficiently long valid poses or wave motion in every clip, and the user
+confirmed that pressing q saved the episode, closed the recorder windows, and
+returned the macOS terminal prompt normally. The original
+`2026-07-14_001` pinch contains extra open-hand transition footage but retains
+an uninterrupted 3.97-second valid pinch and remains documented as usable raw
+data. No quality filtering, object-task implementation, or learning was
+started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

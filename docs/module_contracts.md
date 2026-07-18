@@ -240,6 +240,8 @@ Rules:
 Output must obey joint limits.
 Retargeter can know robot joint names.
 Retargeter should not step MuJoCo directly.
+For free_space_gesture pinch collection, the curl retargeter may apply a bounded thumb-index pinch overlay from pinch_thumb_index while keeping the saved full action schema unchanged.
+The pinch overlay may use simple hand-shape gates, such as requiring index bend and open middle/ring/pinky fingers, so loose thumb-index distance thresholds do not corrupt fist demos.
 ```
 
 ---
@@ -412,6 +414,7 @@ Rules:
 
 ```text
 metadata must include skill_name, task_id, episode_id, action_schema version, observation_schema version, robot model/config, task config, and teleop config snapshot.
+free_space_gesture demos may include an optional gesture_label metadata field: open_palm, fist, point, pinch, peace_sign, or wave.
 actions must preserve base_position_target, base_orientation_target, and finger_actuator_targets.
 robot/task/object state must preserve inputs needed for replay, quality filtering, and task-specific success relabeling.
 DemoEpisode validation should use synthetic arrays and should not require camera, GUI, or learning code.
@@ -443,6 +446,7 @@ Must validate array lengths.
 Should not require video recording.
 Must record skill_name/task_id when logging task demos.
 Must preserve the full Level 1.13 action schema: base position target, base orientation target, and finger actuator targets.
+Manual free_space_gesture recording should not append live frames until c successfully calibrates/centers the hand.
 Should save task/object state and success metric inputs when present.
 ```
 

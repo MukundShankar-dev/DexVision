@@ -498,6 +498,63 @@ peace sign
 wave
 ```
 
+Suggested minimum 10-demo mix:
+
+```text
+open_palm x2
+fist x2
+pinch x2
+wave x2
+point x1
+peace_sign x1
+```
+
+Preferred balanced collection if recording time is available:
+
+```text
+open_palm x10
+fist x10
+point x10
+pinch x10
+peace_sign x10
+wave x10
+```
+
+The smaller mix is only the checkpoint minimum. A balanced 10-per-gesture set
+is better training data and easier to inspect later.
+
+Recording recipe for each clip:
+
+```text
+1. Start from a neutral upright palm pose in frame.
+2. Press c to calibrate/center the hand; saved recording begins only after this succeeds.
+3. Hold the requested static gesture still for about 3-5 seconds. Wave is the
+   only moving gesture in this checkpoint.
+4. Press q to stop/save the clip.
+5. Replay the clip and delete/re-record it manually if the motion is bad.
+```
+
+Recorder shutdown verification:
+
+```text
+After q saves the clip, the camera preview and MuJoCo viewer should close and
+the terminal prompt should return within 3 seconds. A "Saved demo" message
+without the prompt returning is a failed shutdown check.
+```
+
+Pinch-specific note:
+
+```text
+Pinch demos should show the robot thumb and index moving toward an approximate
+pinch. True fingertip contact is not required, but it should read visually as
+a thumb-index pinch. If the thumb stays open while the index curls, delete that
+clip and re-record after restarting the recorder with the current pinch overlay
+retargeting patch.
+The live camera overlay shows a Pinch close bar; use that bar, not Thumb curl
+alone, to confirm whether the app sees a pinch. Pinch close should rise while
+middle/ring/pinky bend stay low.
+```
+
 ### Build
 
 Add metadata field:
@@ -509,18 +566,27 @@ gesture_label, optional
 ### Run
 
 ```bash
-mjpython -m dexvision.apps.record_demo --task free_space_gesture --retargeter curl --output data/demos/raw/free_space_gesture/2026-06-14_001 --level1-13-full
+mjpython -m dexvision.apps.record_demo --task free_space_gesture --retargeter curl --output data/demos/raw/free_space_gesture/2026-06-14_001 --gesture-label open_palm --level1-13-full
 mjpython -m dexvision.apps.replay_demo --demo data/demos/raw/free_space_gesture/2026-06-14_001
 ```
 
 ### Pass Criteria
 
 ```text
-[ ] At least 10 demos recorded
-[ ] Demos replay correctly
-[ ] Gesture labels optional but supported
-[ ] Bad demos can be manually deleted
+[x] At least 10 demos recorded
+[x] Demos replay correctly
+[x] Gesture labels optional but supported
+[x] Recording waits until c calibrates/centers the hand before saving frames
+[x] Pinch overlay retargeting supports approximate thumb-index pinch actions
+[x] Recorder exits cleanly after q on macOS
+[x] Bad demos can be manually deleted
 ```
+
+The July 18, 2026 collection audit found 60 schema-valid episodes with 10
+episodes for each gesture label, and all 60 completed headless MuJoCo replay.
+The original `2026-07-14_001` pinch contains extra open-hand transition
+footage, but its uninterrupted 3.97-second valid pinch satisfies the recording
+recipe, so it remains usable raw data with that caveat documented.
 
 ### Codex Prompt
 
@@ -531,12 +597,169 @@ Do not implement object tasks yet.
 
 ---
 
-## Level 2.5 — Task Schemas and Core Skill Tasks
+## Level 2.4B — Repository Reproducibility Baseline
 
 ### Goal
 
-Add task specs, reset logic, state extraction, and success metrics for the
-first core skill tasks.
+Make the repository cloneable and testable before adding task environments or
+collecting larger manipulation datasets.
+
+This checkpoint happens after the active free-space gesture collection
+checkpoint. It must not change the completed Level 1 behavior, the saved Level
+2 action format, or the Level 2.4 gesture collection requirements.
+
+### Files
+
+```text
+.gitignore
+pyproject.toml
+environment.yml, or an equivalent committed environment specification
+README.md
+docs/
+```
+
+### Build
+
+Establish a reproducible baseline:
+
+```text
+track the roadmap, task-environment, runbook, and orchestration docs in Git
+ignore __pycache__, *.pyc, .DS_Store, and local raw datasets
+document how to create the dexvision environment from a clean machine
+declare runtime and development dependencies
+include pytest and ruff in the development environment
+preserve macOS and Windows setup instructions
+```
+
+Do not delete or rewrite the operator's local raw datasets. Repository cleanup
+must remove generated files from version control without removing local source
+data unless the user explicitly requests that separate destructive action.
+
+### Run
+
+```bash
+git ls-files docs/progress_level_3.md docs/task_environment.md docs/skill_orchestration_future.md
+ruff check dexvision tests
+pytest
+python -m dexvision.apps.health_check
+```
+
+### Pass Criteria
+
+```text
+[ ] Future roadmap and task-design docs are tracked by Git
+[ ] Generated Python caches and OS metadata are ignored
+[ ] A clean-environment creation command is documented
+[ ] Runtime and development dependencies are declared
+[ ] Ruff and pytest run in the dexvision environment
+[ ] Existing automated tests still pass
+[ ] No local raw dataset is deleted
+```
+
+### Codex Prompt
+
+```text
+Implement only the Level 2.4B repository reproducibility baseline.
+Do not change teleoperation, recording, replay, task, retargeting, or learning behavior.
+Preserve local raw datasets.
+Stop after the repository and environment checks pass.
+```
+
+---
+
+## Level 2.4C — Executable Observation Layout Contract
+
+### Goal
+
+Make every saved observation field reconstructable by code before object-task
+pilots or Level 3 learning begin.
+
+The current full Level 1.13 action schema remains unchanged. Existing Level 2.4
+gesture demos must remain replayable; if the observation layout version
+changes, provide an explicit compatibility adapter or migration path instead
+of silently reinterpreting old arrays.
+
+### Files
+
+```text
+dexvision/logging/dataset_schema.py
+dexvision/logging/demo_logger.py
+tests/test_dataset_schema.py
+tests/test_demo_logger.py
+docs/module_contracts.md
+```
+
+### Build
+
+Define an executable layout for every dense state array. Each field must
+declare:
+
+```text
+field name
+source array
+column range or named MuJoCo joints/actuators
+shape
+dtype
+units
+coordinate frame
+optional/mask behavior
+normalization guidance for future learning
+```
+
+At minimum, code must reconstruct and validate:
+
+```text
+robot qpos
+robot qvel
+actuator controls
+base position
+base orientation
+finger joint positions
+finger joint velocities
+tracking quality
+object state, when present
+target/task state, when present
+```
+
+### Run
+
+```bash
+pytest tests/test_dataset_schema.py tests/test_demo_logger.py tests/test_replay_loader.py
+```
+
+### Pass Criteria
+
+```text
+[ ] Observation fields have explicit executable mappings
+[ ] Dense array widths are validated against their layouts
+[ ] Named robot fields preserve MuJoCo joint/actuator order
+[ ] Units and coordinate frames are declared
+[ ] Optional task/object fields have explicit masks or absence rules
+[ ] Existing Level 2.4 demos remain replayable
+[ ] Synthetic extraction tests verify every declared field
+[ ] No task environment or learning model is implemented
+```
+
+### Codex Prompt
+
+```text
+Implement only the executable observation layout contract.
+Keep the full Level 1.13 action schema unchanged.
+Make existing free-space demos replay-compatible through an explicit versioned adapter if needed.
+Add synthetic schema and extraction tests.
+Do not implement task environments, policy learning, or orchestration.
+```
+
+---
+
+## Level 2.5 — Task Board and Reach-Touch Task
+
+### Goal
+
+Add the shared task-board scene plus one resettable, goal-parameterized task:
+`reach_touch_target`.
+
+Do not add `button_press` or `push_cube_to_target` in this checkpoint.
 
 ### Files
 
@@ -546,26 +769,26 @@ assets/mujoco/task_board_scene.xml
 tests/test_task_specs.py
 ```
 
-### Initial Tasks
+### Initial Task
 
 ```text
 reach_touch_target
-button_press
-push_cube_to_target
 ```
 
-These task specs should define:
+The task spec should define:
 
 ```text
 task_id
 skill_name
 required objects
 initial state
+typed skill parameters, including target_pose or a named target site
 observation/state fields
 success metric inputs
 success condition
 failure condition
 max episode length
+deterministic seed/reset behavior
 ```
 
 ### Run
@@ -580,71 +803,75 @@ pytest tests/test_task_specs.py
 ```text
 [ ] Task board scene loads
 [ ] reach_touch_target state and success metric work
-[ ] button_press state and success metric work
-[ ] push_cube_to_target state and success metric work
 [ ] Reset supports deterministic starts
+[ ] Target pose can be selected from a configured set
+[ ] Sampled target and initial state are saved in task state
 [ ] Success functions work on synthetic states
+[ ] No button, cube-push, demonstration-collection, or learning work is added
 ```
 
 ### Codex Prompt
 
 ```text
-Implement task schemas for reach_touch_target, button_press, and push_cube_to_target.
-Add reset, state extraction, and success metrics.
+Implement only the shared task-board scene and reach_touch_target task schema.
+Add typed target parameters, deterministic reset, state extraction, and success metrics.
 Use synthetic tests for success/failure functions.
-Do not add learning yet.
+Do not add button_press, push_cube_to_target, demonstration collection, or learning.
 ```
 
 ---
 
-## Level 2.6 — Record Core Skill Demonstrations
+## Level 2.6 — Reach-Touch Pilot Demonstrations
 
 ### Goal
 
-Record real teleop demonstrations for the first core skill tasks.
+Record a small pilot dataset for `reach_touch_target` before implementing
+generic relabeling and quality filters.
+
+This is a pipeline-validation pilot, not the final training dataset.
 
 ### Run
 
 ```bash
 mjpython -m dexvision.apps.record_demo --task reach_touch_target --retargeter curl --output data/demos/raw/reach_touch_target/2026-06-14_001 --level1-13-full
-mjpython -m dexvision.apps.record_demo --task button_press --retargeter curl --output data/demos/raw/button_press/2026-06-14_001 --level1-13-full
-mjpython -m dexvision.apps.record_demo --task push_cube_to_target --retargeter curl --output data/demos/raw/push_cube_to_target/2026-06-14_001 --level1-13-full
 ```
 
-### Target Dataset
+### Pilot Dataset
 
 ```text
-minimum per skill: 20 demos
-better per skill: 50 demos
-ideal for Level 3 per skill: 100-200 demos
+5 manually reviewed demos
+at least 3 configured target positions
+one task attempt per episode
 ```
 
 ### Pass Criteria
 
 ```text
 [ ] Demos include task state
-[ ] Demos include object state when the skill has objects
 [ ] Success/failure label saved
 [ ] Replay shows the intended skill behavior
 [ ] Full Level 1.13 action schema is saved
+[ ] Target pose and initial state are saved
+[ ] No large-scale collection starts before relabeling and quality filters exist
 ```
 
 ### Codex Prompt
 
 ```text
-Update record_demo to support reach_touch_target, button_press, and push_cube_to_target.
-Log task/object state and success/failure at the end of each episode.
+Update record_demo only for the reach_touch_target pilot.
+Log target/task state and the operator success/failure label.
+Record only five manually reviewed pilot episodes across at least three targets.
 Do not train any policy.
 ```
 
 ---
 
-## Level 2.6B — Task-Specific Success Relabeling
+## Level 2.6B — Reach-Touch Success Relabeling
 
 ### Goal
 
-Recompute success/failure labels from saved state instead of trusting only the
-operator's end-of-recording label.
+Recompute `reach_touch_target` success/failure from saved state instead of
+trusting only the operator's end-of-recording label.
 
 ### Files
 
@@ -665,27 +892,29 @@ pytest tests/test_success_relabeling.py
 
 ```text
 [ ] reach_touch_target success can be recomputed
-[ ] button_press success can be recomputed
-[ ] push_cube_to_target success can be recomputed
 [ ] Relabel report is saved
 [ ] Missing metric inputs produce clear errors
+[ ] Operator and recomputed labels are both preserved for audit
+[ ] No other task relabeler is added
 ```
 
 ### Codex Prompt
 
 ```text
-Implement task-specific success relabeling for saved demos.
-Use saved task/object state and success metric inputs.
+Implement success relabeling only for reach_touch_target pilot demos.
+Use saved target/task state and success metric inputs.
+Preserve both the operator label and recomputed label.
 Do not train policies.
 ```
 
 ---
 
-## Level 2.7 — Quality Filters
+## Level 2.7 — Pilot Quality Filters
 
 ### Goal
 
-Flag bad demos automatically.
+Flag bad demonstrations automatically, using the reach-touch pilot as the
+first real dataset.
 
 ### Files
 
@@ -703,15 +932,14 @@ too many missing frames
 high feature jitter
 high action jerk
 too many joint-limit hits
-task failure
-object not moved
+recomputed task failure
 workspace-limit hits
 ```
 
 ### Run
 
 ```bash
-python -m dexvision.apps.filter_demos --dataset data/demos/raw/push_cube_to_target
+python -m dexvision.apps.filter_demos --dataset data/demos/raw/reach_touch_target
 pytest tests/test_quality_filters.py
 ```
 
@@ -724,26 +952,29 @@ pytest tests/test_quality_filters.py
 [ ] Failed task demo is flagged
 [ ] Report saved as JSON/CSV
 [ ] Report groups results by skill_name/task_id
+[ ] Thresholds are versioned and configurable
+[ ] Raw episodes remain immutable
 ```
 
 ### Codex Prompt
 
 ```text
 Implement quality filtering for saved demos.
-Add filters for confidence, missing frames, action jerk, and task success.
+Add filters for confidence, missing frames, action jerk, workspace limits, and recomputed task success.
 Create a filter_demos app that writes a report.
 Group quality reports by skill/task.
+Do not delete or rewrite raw episodes.
 Use tests with synthetic demos.
 Do not add learning.
 ```
 
 ---
 
-## Level 2.7B — Per-Skill Dataset Summary
+## Level 2.7B — Reach-Touch Dataset Summary
 
 ### Goal
 
-Summarize each skill dataset before Level 3 training.
+Summarize the reach-touch pilot and confirm it is safe to scale.
 
 ### Files
 
@@ -782,19 +1013,272 @@ pytest tests/test_dataset_summary.py
 [ ] Empty or missing datasets produce clear warnings
 [ ] Schema versions are reported
 [ ] JSON/CSV output is saved
+[ ] Pilot quality failures and relabel disagreements are reported
 ```
 
 ### Codex Prompt
 
 ```text
-Implement per-skill dataset summaries for saved demos.
+Implement the dataset summary path and run it first on reach_touch_target.
 Report counts, success rate, tracking quality, and schema versions.
 Do not train policies.
 ```
 
 ---
 
-## Level 2.7C — Optional Skill Card Export Metadata
+## Level 2.7C — Scale Reach-Touch Dataset
+
+### Goal
+
+Collect the first Level 3-ready dataset only after replay, relabeling, quality
+filtering, and summary tooling work on the pilot.
+
+### Target Dataset
+
+```text
+minimum: 50 clean reach_touch_target demos
+preferred: 100 clean reach_touch_target demos
+multiple configured target positions
+separate held-out target positions reserved for Level 3 evaluation
+```
+
+### Pass Criteria
+
+```text
+[ ] Raw demos remain immutable
+[ ] Every episode validates and replays
+[ ] Every episode has a recomputed success label
+[ ] Quality report covers every episode
+[ ] At least 50 clean successful demos remain
+[ ] Target-position distribution is summarized
+[ ] Held-out evaluation targets are identified before training
+[ ] Dataset summary marks reach_touch_target ready for Level 3
+```
+
+### Codex Prompt
+
+```text
+Scale only the reach_touch_target dataset after the pilot gates pass.
+Collect at least 50 clean successful demos over multiple target positions.
+Reserve target positions for held-out Level 3 evaluation.
+Do not implement another task or train a policy.
+```
+
+---
+
+## Level 2.7D — Button-Press Task
+
+### Goal
+
+Implement one goal-parameterized `button_press` task.
+
+Do not record button demonstrations in this checkpoint.
+
+### Files
+
+```text
+dexvision/sim/tasks.py
+assets/mujoco/task_board_scene.xml
+tests/test_task_specs.py
+tests/test_success_relabeling.py
+```
+
+### Skill Parameters
+
+```text
+button_id
+target_press_depth or pressed-state target
+optional approach pose
+```
+
+### Pass Criteria
+
+```text
+[ ] Button task reset is deterministic
+[ ] Button state and press-depth metric are saved
+[ ] Success can be recomputed
+[ ] Parameter and terminal-state schemas are declared
+[ ] Synthetic success/failure tests pass
+[ ] No cube-push or learning work is added
+```
+
+### Codex Prompt
+
+```text
+Implement only the button_press task schema, reset, state extraction, and success metric.
+Do not record demonstrations or implement push_cube_to_target or learning.
+```
+
+---
+
+## Level 2.7E — Button-Press Pilot
+
+### Goal
+
+Record five button-press demonstrations and pass them through the existing
+replay, relabel, quality, and summary pipeline.
+
+### Pass Criteria
+
+```text
+[ ] Five pilot demos cover the configured button parameters
+[ ] Every pilot validates and replays
+[ ] Recomputed success labels are available
+[ ] Pilot quality report and summary are produced
+[ ] No dataset scale-up, cube-push task, or learning work is added
+```
+
+### Codex Prompt
+
+```text
+Record and validate only the five-demo button_press pilot.
+Reuse the existing replay, relabel, quality, and summary paths.
+Do not scale the dataset or implement push_cube_to_target or learning.
+```
+
+---
+
+## Level 2.7F — Push-Cube Task
+
+### Goal
+
+Implement one goal-parameterized `push_cube_to_target` task.
+
+Do not record cube-push demonstrations in this checkpoint.
+
+### Files
+
+```text
+dexvision/sim/tasks.py
+assets/mujoco/task_board_scene.xml
+tests/test_task_specs.py
+tests/test_success_relabeling.py
+```
+
+### Skill Parameters
+
+```text
+object_id
+target_pose or target_zone_id
+optional approach side
+```
+
+### Pass Criteria
+
+```text
+[ ] Cube and target resets are deterministic
+[ ] Object pose/velocity and target state are saved
+[ ] Success can be recomputed
+[ ] Parameter and terminal-state schemas are declared
+[ ] Synthetic success/failure tests pass
+[ ] No demonstration collection or learning starts yet
+```
+
+### Codex Prompt
+
+```text
+Implement only the push_cube_to_target task schema, reset, state extraction, and success metric.
+Do not record demonstrations or add learning in this checkpoint.
+```
+
+---
+
+## Level 2.7G — Push-Cube Pilot
+
+### Goal
+
+Record five cube-push demonstrations and pass them through the existing replay,
+relabel, quality, and summary pipeline.
+
+### Pass Criteria
+
+```text
+[ ] Five pilot demos cover configured object/target parameters
+[ ] Every pilot validates and replays
+[ ] Recomputed success labels are available
+[ ] Pilot quality report and summary are produced
+[ ] No dataset scale-up or learning work is added
+```
+
+### Codex Prompt
+
+```text
+Record and validate only the five-demo push_cube_to_target pilot.
+Reuse the existing replay, relabel, quality, and summary paths.
+Do not scale the dataset or add learning.
+```
+
+---
+
+## Level 2.7H — Scale Button-Press Dataset
+
+### Goal
+
+Scale the button-press dataset only after its pilot passes replay, relabeling,
+quality, and summary gates.
+
+### Target Dataset
+
+```text
+button_press: 50-100 clean successful demos
+held-out button poses/press targets identified before Level 3
+```
+
+### Pass Criteria
+
+```text
+[ ] Button pilot passed every gate
+[ ] Every episode has replay, relabel, and quality results
+[ ] Initial-state and goal distributions are summarized
+[ ] Held-out evaluation states are declared before training
+[ ] Dataset summary marks button_press Level 3-ready
+```
+
+### Codex Prompt
+
+```text
+Scale only button_press after its pilot gate passes.
+Preserve raw episodes and run validation, relabeling, filtering, and summaries for every button episode.
+Do not train policies.
+```
+
+---
+
+## Level 2.7I — Scale Push-Cube Dataset
+
+### Goal
+
+Scale the cube-push dataset only after its pilot passes replay, relabeling,
+quality, and summary gates.
+
+### Target Dataset
+
+```text
+push_cube_to_target: 100+ clean successful demos
+held-out cube starts and target poses identified before Level 3
+```
+
+### Pass Criteria
+
+```text
+[ ] Cube-push pilot passed every gate
+[ ] Every episode has replay, relabel, and quality results
+[ ] Initial-state and goal distributions are summarized
+[ ] Held-out evaluation states are declared before training
+[ ] Dataset summary marks push_cube_to_target Level 3-ready
+```
+
+### Codex Prompt
+
+```text
+Scale only push_cube_to_target after its pilot gate passes.
+Preserve raw episodes and run validation, relabeling, filtering, and summaries for every cube-push episode.
+Do not train policies.
+```
+
+---
+
+## Level 2.7J — Optional Skill Card Export Metadata
 
 ### Goal
 
@@ -812,13 +1296,16 @@ tests/test_skill_card_metadata.py
 
 ```text
 skill_name
+skill version
 task_id
-observation_schema
-action_schema
-inputs/parameters, such as target_pose or object_id
+observation schema version
+action schema version
+typed parameter schema, including units and coordinate frames
 preconditions
 success_condition
 failure_conditions
+timeout
+terminal-state fields
 dataset summary path
 known limitations
 ```
@@ -828,7 +1315,9 @@ known limitations
 ```text
 [ ] Metadata stub can be exported per skill
 [ ] Full Level 1.13 action schema is declared
+[ ] Typed parameters include units and coordinate frames
 [ ] Success/failure conditions are included
+[ ] Timeout and terminal-state fields are included
 [ ] No policy checkpoint is required yet
 ```
 
@@ -1003,12 +1492,17 @@ Do not add policy learning.
 [x] Demo logger records full-action skill-demo data
 [x] Dataset collection runbook and tracker documented
 [x] Demo replay works for base/wrist/finger actions
-[ ] Free-space gesture demos recorded
-[ ] Core task schemas implemented for reach_touch_target, button_press, and push_cube_to_target
-[ ] Core skill demos recorded
-[ ] Task-specific success relabeling works
-[ ] Quality filters work
-[ ] Per-skill dataset summary works
+[x] Free-space gesture demos recorded
+[ ] Repository and environment are reproducible from a clean clone
+[ ] Observation layouts are executable and versioned
+[ ] reach_touch_target task and deterministic reset work
+[ ] Reach-touch pilot demos pass replay
+[ ] Reach-touch success relabeling works
+[ ] Pilot quality filters work without mutating raw data
+[ ] Reach-touch summary and scaled dataset are Level 3-ready
+[ ] button_press task and pilot pass all data-quality gates
+[ ] push_cube_to_target task and pilot pass all data-quality gates
+[ ] Button and push datasets are scaled only after their pilot gates pass
 [ ] Optional skill-card metadata export documented
 [ ] Fingertip retargeter implemented
 [ ] Optimization retargeter implemented

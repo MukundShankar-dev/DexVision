@@ -51,7 +51,7 @@ def test_decision_doc_records_debug_only_state_without_todos() -> None:
     assert "assets/mujoco/debug_hand_scene.xml" in text
     assert "assets/mujoco/hand_scene.xml" in text
     assert "Shadow Hand E3M5" in text
-    assert "manual visual verification: pending" in text
+    assert "manual visual verification: passed" in text
     assert "Apache-2.0" in text
     assert "configs/level1_teleop.yaml" in text
     assert "TODO" not in text

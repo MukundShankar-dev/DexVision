@@ -272,7 +272,7 @@ def index_only_features(features: HandFeatures) -> HandFeatures:
         middle=neutral,
         ring=neutral,
         pinky=neutral,
-        pinch_thumb_index=0.0,
+        pinch_thumb_index=1.0,
         palm_roll_proxy=0.0,
         palm_pitch_proxy=0.0,
         confidence=features.confidence,

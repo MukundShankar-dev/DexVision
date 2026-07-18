@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import queue
 import subprocess
 import sys
 from pathlib import Path
@@ -45,6 +46,69 @@ EXPECTED_TARGETS = (
 )
 
 
+def test_camera_overlay_close_does_not_wait_for_pending_frame_flush() -> None:
+    events: list[str] = []
+
+    class FakeQueue:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def get_nowait(self) -> None:
+            raise queue.Empty
+
+        def put_nowait(self, payload: object) -> None:
+            assert payload is None
+            events.append(f"{self.name}:sentinel")
+
+        def cancel_join_thread(self) -> None:
+            events.append(f"{self.name}:cancel_join")
+
+        def close(self) -> None:
+            events.append(f"{self.name}:close")
+
+    class FakeStopEvent:
+        def set(self) -> None:
+            events.append("stop")
+
+    class StubbornProcess:
+        def __init__(self) -> None:
+            self.alive = True
+
+        def join(self, *, timeout: float) -> None:
+            events.append(f"join:{timeout}")
+
+        def is_alive(self) -> bool:
+            return self.alive
+
+        def terminate(self) -> None:
+            events.append("terminate")
+
+        def kill(self) -> None:
+            events.append("kill")
+            self.alive = False
+
+        def close(self) -> None:
+            events.append("process:close")
+
+    overlay = object.__new__(run_level1_teleop.CameraOverlayProcess)
+    overlay._queue = FakeQueue("frames")
+    overlay._command_queue = FakeQueue("commands")
+    overlay._stop_event = FakeStopEvent()
+    overlay._process = StubbornProcess()
+    overlay._closed = False
+
+    overlay.close()
+    overlay.close()
+
+    assert events.count("stop") == 1
+    assert events.index("frames:cancel_join") < events.index("join:1.0")
+    assert events.index("commands:cancel_join") < events.index("join:1.0")
+    assert events.count("join:1.0") == 3
+    assert "terminate" in events
+    assert "kill" in events
+    assert events[-3:] == ["frames:close", "commands:close", "process:close"]
+
+
 def _state(curl: float, extension: float) -> FingerState:
     return FingerState(
         curl=curl,
@@ -62,6 +126,7 @@ def _full_hand_features(
     middle_extension: float = 1.0,
     ring_extension: float = 1.0,
     pinky_extension: float = 1.0,
+    pinch_thumb_index: float = 1.0,
     confidence: float = 1.0,
 ) -> HandFeatures:
     return HandFeatures(
@@ -70,7 +135,7 @@ def _full_hand_features(
         middle=_state(0.9, middle_extension),
         ring=_state(0.9, ring_extension),
         pinky=_state(0.9, pinky_extension),
-        pinch_thumb_index=0.0,
+        pinch_thumb_index=pinch_thumb_index,
         palm_roll_proxy=0.0,
         palm_pitch_proxy=0.0,
         confidence=confidence,
@@ -512,7 +577,7 @@ def test_status_formatters_keep_console_output_compact() -> None:
     targets = {name: float(index) for index, name in enumerate(EXPECTED_TARGETS)}
 
     assert run_level1_teleop._format_control_summary(features) == (
-        "controls=Tcurl:0.20,Ibend:0.10,Mbend:0.20,Rbend:0.30,Pbend:0.40"
+        "controls=Tcurl:0.20,Ibend:0.10,Mbend:0.20,Rbend:0.30,Pbend:0.40,Pinch:0.00"
     )
     assert run_level1_teleop._format_target_summary(
         targets,

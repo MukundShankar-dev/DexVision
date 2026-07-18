@@ -184,6 +184,14 @@ def test_skill_and_task_identifiers_are_required() -> None:
         _validate(episode)
 
 
+def test_optional_gesture_label_is_validated_when_present() -> None:
+    episode = _valid_episode()
+    episode.metadata["gesture_label"] = "not_a_gesture"
+
+    with pytest.raises(DemoSchemaError, match="gesture_label"):
+        _validate(episode)
+
+
 def test_success_metric_inputs_are_validated_when_required_by_task() -> None:
     episode = _valid_episode()
     episode.task_states = None

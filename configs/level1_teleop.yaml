@@ -281,6 +281,55 @@
           }
         }
       }
+    },
+    "pinch_overlay": {
+      "feature": "pinch_thumb_index",
+      "activation_below": 0.95,
+      "closed_at": 0.70,
+      "min_index_bend": 0.25,
+      "max_other_bend": 0.45,
+      "targets": {
+        "rh_A_THJ5": {
+          "closed": 0.438,
+          "min": -1.047,
+          "max": 1.047
+        },
+        "rh_A_THJ4": {
+          "closed": 0.736,
+          "min": 0.0,
+          "max": 1.222
+        },
+        "rh_A_THJ3": {
+          "closed": 0.044,
+          "min": -0.209,
+          "max": 0.209
+        },
+        "rh_A_THJ2": {
+          "closed": 0.372,
+          "min": -0.698,
+          "max": 0.698
+        },
+        "rh_A_THJ1": {
+          "closed": 0.329,
+          "min": -0.262,
+          "max": 1.571
+        },
+        "rh_A_FFJ4": {
+          "closed": 0.291,
+          "min": -0.349,
+          "max": 0.349
+        },
+        "rh_A_FFJ3": {
+          "closed": 1.037,
+          "min": -0.262,
+          "max": 1.571
+        },
+        "rh_A_FFJ0": {
+          "closed": 1.95,
+          "min": 0.0,
+          "max": 3.142
+        }
+      }
     }
   },
   "final_hand": {
