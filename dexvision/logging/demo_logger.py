@@ -14,13 +14,14 @@ import numpy as np
 from dexvision.logging.dataset_schema import (
     ActionSchema,
     DemoEpisode,
+    ObservationFieldLayout,
     ObservationSchema,
     validate_demo,
 )
 
 
 DEFAULT_ACTION_SCHEMA_VERSION = "level1.13/full-action-v1"
-DEFAULT_OBSERVATION_SCHEMA_VERSION = "level2/observation-v1"
+DEFAULT_OBSERVATION_SCHEMA_VERSION = "level2/observation-layout-v2"
 
 
 class DemoLoggerError(RuntimeError):
@@ -239,15 +240,63 @@ def build_level2_observation_schema(
     robot_qvel_dim: int,
     finger_target_dim: int,
     tracking_quality_dim: int,
+    robot_qpos_names: Sequence[str] | None = None,
+    robot_qvel_names: Sequence[str] | None = None,
+    actuator_names: Sequence[str] | None = None,
+    finger_joint_qpos_indices: Sequence[int] | None = None,
+    finger_joint_qvel_indices: Sequence[int] | None = None,
+    finger_joint_names: Sequence[str] | None = None,
+    tracking_quality_names: Sequence[str] | None = None,
     object_state_dim: int | None = None,
     task_state_dim: int | None = None,
+    target_state_dim: int | None = None,
     success_metric_dim: int | None = None,
 ) -> ObservationSchema:
-    """Return a Level 2 observation schema for one recorded task setup."""
+    """Return the executable Level 2 dense observation layout."""
 
+    qpos_dim = _positive_dim(robot_qpos_dim, "robot_qpos_dim")
+    qvel_dim = _positive_dim(robot_qvel_dim, "robot_qvel_dim")
+    control_dim = _positive_dim(finger_target_dim, "finger_target_dim")
+    tracking_dim = _positive_dim(tracking_quality_dim, "tracking_quality_dim")
+    qpos_names = _ordered_names(robot_qpos_names, qpos_dim, prefix="qpos")
+    qvel_names = _ordered_names(robot_qvel_names, qvel_dim, prefix="qvel")
+    control_names = _ordered_names(actuator_names, control_dim, prefix="actuator")
+    tracking_names = _ordered_names(
+        tracking_quality_names,
+        tracking_dim,
+        prefix="tracking_quality",
+    )
+    finger_qpos_indices = _selection_indices(
+        finger_joint_qpos_indices,
+        source_dim=qpos_dim,
+        default_dim=control_dim,
+        field_name="finger_joint_qpos_indices",
+    )
+    finger_qvel_indices = _selection_indices(
+        finger_joint_qvel_indices,
+        source_dim=qvel_dim,
+        default_dim=control_dim,
+        field_name="finger_joint_qvel_indices",
+    )
+    if len(finger_qpos_indices) != len(finger_qvel_indices):
+        raise DemoLoggerError(
+            "finger joint position and velocity selections must have the same length."
+        )
+    selected_finger_names = _ordered_names(
+        finger_joint_names,
+        len(finger_qpos_indices),
+        prefix="finger_joint",
+    )
+
+    qpos_start = 0
+    qvel_start = qpos_start + qpos_dim
+    control_start = qvel_start + qvel_dim
+    base_position_start = control_start + control_dim
+    base_orientation_start = base_position_start + 3
     fields = [
         "robot_qpos",
         "robot_qvel",
+        "actuator_controls",
         "base_position",
         "base_orientation",
         "finger_joint_positions",
@@ -255,31 +304,171 @@ def build_level2_observation_schema(
         "tracking_quality",
     ]
     shapes: dict[str, tuple[int, ...]] = {
-        "robot_qpos": (_positive_dim(robot_qpos_dim, "robot_qpos_dim"),),
-        "robot_qvel": (_positive_dim(robot_qvel_dim, "robot_qvel_dim"),),
+        "robot_qpos": (qpos_dim,),
+        "robot_qvel": (qvel_dim,),
+        "actuator_controls": (control_dim,),
         "base_position": (3,),
         "base_orientation": (4,),
-        "finger_joint_positions": (_positive_dim(finger_target_dim, "finger_target_dim"),),
-        "finger_joint_velocities": (_positive_dim(finger_target_dim, "finger_target_dim"),),
-        "tracking_quality": (_positive_dim(tracking_quality_dim, "tracking_quality_dim"),),
+        "finger_joint_positions": (len(finger_qpos_indices),),
+        "finger_joint_velocities": (len(finger_qvel_indices),),
+        "tracking_quality": (tracking_dim,),
     }
+    layouts: dict[str, ObservationFieldLayout] = {
+        "robot_qpos": ObservationFieldLayout(
+            source_array="robot_states",
+            column_range=(qpos_start, qvel_start),
+            shape=shapes["robot_qpos"],
+            dtype="float64",
+            units="MuJoCo generalized-position units: metres, unit quaternion, or radians",
+            coordinate_frame="MuJoCo model coordinates; free-joint pose is in world frame",
+            normalization="Normalize each named degree of freedom with training-set statistics.",
+            names=qpos_names,
+        ),
+        "robot_qvel": ObservationFieldLayout(
+            source_array="robot_states",
+            column_range=(qvel_start, control_start),
+            shape=shapes["robot_qvel"],
+            dtype="float64",
+            units="MuJoCo generalized-velocity units: metres/second or radians/second",
+            coordinate_frame="MuJoCo model velocity coordinates",
+            normalization="Normalize each named degree of freedom with training-set statistics.",
+            names=qvel_names,
+        ),
+        "actuator_controls": ObservationFieldLayout(
+            source_array="robot_states",
+            column_range=(control_start, base_position_start),
+            shape=shapes["actuator_controls"],
+            dtype="float64",
+            units="MuJoCo actuator control units",
+            coordinate_frame="MuJoCo actuator order recorded by actuator names",
+            normalization="Scale per actuator using control limits before learning.",
+            names=control_names,
+        ),
+        "base_position": ObservationFieldLayout(
+            source_array="robot_states",
+            column_range=(base_position_start, base_orientation_start),
+            shape=shapes["base_position"],
+            dtype="float64",
+            units="metres",
+            coordinate_frame="MuJoCo world frame",
+            normalization="Center on workspace neutral and scale by workspace range.",
+            names=("x", "y", "z"),
+        ),
+        "base_orientation": ObservationFieldLayout(
+            source_array="robot_states",
+            column_range=(base_orientation_start, base_orientation_start + 4),
+            shape=shapes["base_orientation"],
+            dtype="float64",
+            units="unitless normalized quaternion",
+            coordinate_frame="MuJoCo world frame; wxyz quaternion",
+            normalization="Convert to a continuous rotation representation before learning.",
+            names=("qw", "qx", "qy", "qz"),
+        ),
+        "finger_joint_positions": ObservationFieldLayout(
+            source_array="robot_states",
+            column_indices=tuple(qpos_start + index for index in finger_qpos_indices),
+            shape=shapes["finger_joint_positions"],
+            dtype="float64",
+            units="radians",
+            coordinate_frame="Named MuJoCo hand-joint coordinates",
+            normalization="Scale each named joint by its configured joint range.",
+            names=selected_finger_names,
+        ),
+        "finger_joint_velocities": ObservationFieldLayout(
+            source_array="robot_states",
+            column_indices=tuple(qvel_start + index for index in finger_qvel_indices),
+            shape=shapes["finger_joint_velocities"],
+            dtype="float64",
+            units="radians/second",
+            coordinate_frame="Named MuJoCo hand-joint velocity coordinates",
+            normalization="Normalize each named joint velocity with training-set statistics.",
+            names=selected_finger_names,
+        ),
+        "tracking_quality": ObservationFieldLayout(
+            source_array="tracking_quality",
+            column_range=(0, tracking_dim),
+            shape=shapes["tracking_quality"],
+            dtype="float64",
+            units="unitless flags, categorical code, and confidence values",
+            coordinate_frame="camera/tracker status",
+            normalization="Keep flags/codes categorical and confidence values in [0, 1].",
+            names=tracking_names,
+        ),
+    }
+    optional_fields: list[str] = []
     if object_state_dim is not None:
+        object_dim = _positive_dim(object_state_dim, "object_state_dim")
         fields.append("object_state")
-        shapes["object_state"] = (_positive_dim(object_state_dim, "object_state_dim"),)
+        shapes["object_state"] = (object_dim,)
+        optional_fields.append("object_state")
+        layouts["object_state"] = _optional_layout(
+            source_array="object_states",
+            shape=(object_dim,),
+            name_prefix="object_state",
+            units="task-defined SI units",
+            coordinate_frame="task-defined MuJoCo world/object frames",
+            normalization="Normalize named object fields with training-set statistics.",
+            absence_rule="object_states.npy is omitted when the task has no objects.",
+        )
     if task_state_dim is not None:
+        task_dim = _positive_dim(task_state_dim, "task_state_dim")
         fields.append("task_state")
-        shapes["task_state"] = (_positive_dim(task_state_dim, "task_state_dim"),)
+        shapes["task_state"] = (task_dim,)
+        optional_fields.append("task_state")
+        layouts["task_state"] = _optional_layout(
+            source_array="task_states",
+            shape=(task_dim,),
+            name_prefix="task_state",
+            units="task-defined SI units and unitless flags",
+            coordinate_frame="task-defined world/target frames",
+            normalization="Normalize continuous task fields; keep flags categorical.",
+            absence_rule="task_states.npy is omitted when the task has no task state.",
+        )
+    if target_state_dim is not None:
+        target_dim = _positive_dim(target_state_dim, "target_state_dim")
+        if task_state_dim is None or target_dim > task_state_dim:
+            raise DemoLoggerError(
+                "target_state_dim must not exceed the containing task_state_dim."
+            )
+        fields.append("target_state")
+        shapes["target_state"] = (target_dim,)
+        optional_fields.append("target_state")
+        layouts["target_state"] = _optional_layout(
+            source_array="task_states",
+            shape=(target_dim,),
+            name_prefix="target_state",
+            units="task-defined SI units",
+            coordinate_frame="task-defined MuJoCo world/target frame",
+            normalization="Normalize named target fields with training-set statistics.",
+            absence_rule="task_states.npy is omitted when the task has no target state.",
+        )
     if success_metric_dim is not None:
+        metric_dim = _positive_dim(success_metric_dim, "success_metric_dim")
+        if task_state_dim is None or metric_dim > task_state_dim:
+            raise DemoLoggerError(
+                "success_metric_dim must not exceed the containing task_state_dim."
+            )
         fields.append("success_metric_inputs")
-        shapes["success_metric_inputs"] = (
-            _positive_dim(success_metric_dim, "success_metric_dim"),
+        shapes["success_metric_inputs"] = (metric_dim,)
+        optional_fields.append("success_metric_inputs")
+        layouts["success_metric_inputs"] = _optional_layout(
+            source_array="task_states",
+            shape=(metric_dim,),
+            name_prefix="success_metric",
+            units="task-defined SI units and unitless flags",
+            coordinate_frame="task-defined metric frame",
+            normalization="Preserve raw relabeling inputs; normalize only policy copies.",
+            absence_rule=(
+                "task_states.npy is omitted when the task has no recomputable success metric."
+            ),
         )
 
     return ObservationSchema(
         version=DEFAULT_OBSERVATION_SCHEMA_VERSION,
         fields=tuple(fields),
         shapes=shapes,
-        optional_fields=(),
+        optional_fields=tuple(optional_fields),
+        layouts=layouts,
     )
 
 
@@ -388,6 +577,73 @@ def _positive_dim(value: int, field_name: str) -> int:
     if dimension <= 0:
         raise DemoLoggerError(f"{field_name} must be positive.")
     return dimension
+
+
+def _ordered_names(
+    values: Sequence[str] | None,
+    expected_dim: int,
+    *,
+    prefix: str,
+) -> tuple[str, ...]:
+    if values is None:
+        return tuple(f"{prefix}[{index}]" for index in range(expected_dim))
+    names = tuple(str(value) for value in values)
+    if len(names) != expected_dim:
+        raise DemoLoggerError(
+            f"{prefix} names must contain {expected_dim} entries, got {len(names)}."
+        )
+    if any(not name for name in names) or len(set(names)) != len(names):
+        raise DemoLoggerError(f"{prefix} names must be unique non-empty strings.")
+    return names
+
+
+def _selection_indices(
+    values: Sequence[int] | None,
+    *,
+    source_dim: int,
+    default_dim: int,
+    field_name: str,
+) -> tuple[int, ...]:
+    if values is None:
+        if default_dim > source_dim:
+            raise DemoLoggerError(
+                f"{field_name} is required because finger_target_dim {default_dim} "
+                f"exceeds source dimension {source_dim}."
+            )
+        return tuple(range(source_dim - default_dim, source_dim))
+    indices = tuple(values)
+    if not indices:
+        raise DemoLoggerError(f"{field_name} must contain at least one index.")
+    if any(not isinstance(index, int) or index < 0 or index >= source_dim for index in indices):
+        raise DemoLoggerError(f"{field_name} must contain indices in [0, {source_dim}).")
+    if len(set(indices)) != len(indices):
+        raise DemoLoggerError(f"{field_name} must not contain duplicate indices.")
+    return indices
+
+
+def _optional_layout(
+    *,
+    source_array: str,
+    shape: tuple[int, ...],
+    name_prefix: str,
+    units: str,
+    coordinate_frame: str,
+    normalization: str,
+    absence_rule: str,
+) -> ObservationFieldLayout:
+    width = int(np.prod(shape))
+    return ObservationFieldLayout(
+        source_array=source_array,
+        column_range=(0, width),
+        shape=shape,
+        dtype="float64",
+        units=units,
+        coordinate_frame=coordinate_frame,
+        normalization=normalization,
+        names=tuple(f"{name_prefix}[{index}]" for index in range(width)),
+        optional=True,
+        absence_rule=absence_rule,
+    )
 
 
 def _range_to_tuple(index_range: object) -> tuple[int, int]:

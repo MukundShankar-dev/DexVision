@@ -185,6 +185,27 @@ def test_replay_loader_requires_finger_target_names(tmp_path: Path) -> None:
         load_replay_demo(demo_dir)
 
 
+def test_replay_loader_explicitly_adapts_legacy_level2_observation_v1(
+    tmp_path: Path,
+) -> None:
+    demo_dir = _write_demo(tmp_path)
+    metadata_path = demo_dir / "metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    observation = metadata["observation_schema"]
+    observation["version"] = "level2/observation-v1"
+    observation["fields"].remove("actuator_controls")
+    observation["shapes"].pop("actuator_controls")
+    observation.pop("layouts")
+    metadata["observation_schema_version"] = "level2/observation-v1"
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    loaded = load_replay_demo(demo_dir)
+
+    assert loaded.observation_schema.executable is False
+    assert "shape-only" in loaded.observation_schema.compatibility_notes[0]
+    assert len(iter_replay_steps(loaded)) == 3
+
+
 def test_replay_demo_parser_accepts_progress_command() -> None:
     parser = replay_app.build_parser()
 

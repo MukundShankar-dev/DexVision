@@ -38,6 +38,13 @@ REQUIRED_OBSERVATION_FIELDS = (
     "finger_joint_velocities",
     "tracking_quality",
 )
+EXECUTABLE_OBSERVATION_FIELDS = REQUIRED_OBSERVATION_FIELDS + ("actuator_controls",)
+OBSERVATION_SOURCE_ARRAYS = (
+    "robot_states",
+    "tracking_quality",
+    "object_states",
+    "task_states",
+)
 FREE_SPACE_GESTURE_LABELS = (
     "open_palm",
     "fist",
@@ -132,6 +139,119 @@ class ActionSchema:
 
 
 @dataclass(frozen=True)
+class ObservationFieldLayout:
+    """Executable mapping from one dense saved array to one observation field."""
+
+    source_array: str
+    shape: tuple[int, ...]
+    dtype: str
+    units: str
+    coordinate_frame: str
+    normalization: str
+    column_range: tuple[int, int] | None = None
+    column_indices: tuple[int, ...] = ()
+    names: tuple[str, ...] = ()
+    optional: bool = False
+    absence_rule: str | None = None
+    mask_field: str | None = None
+
+    def validate(self, *, field_name: str) -> None:
+        """Validate one dense-array selection and its semantic metadata."""
+
+        if self.source_array not in OBSERVATION_SOURCE_ARRAYS:
+            allowed = ", ".join(OBSERVATION_SOURCE_ARRAYS)
+            raise DemoSchemaError(
+                f"observation field '{field_name}' has unknown source_array "
+                f"'{self.source_array}'; expected one of: {allowed}."
+            )
+        if not self.shape or any(dimension <= 0 for dimension in self.shape):
+            raise DemoSchemaError(
+                f"observation field '{field_name}' must have a positive shape."
+            )
+        if not self.dtype:
+            raise DemoSchemaError(f"observation field '{field_name}' must declare dtype.")
+        for attribute_name, value in (
+            ("units", self.units),
+            ("coordinate_frame", self.coordinate_frame),
+            ("normalization", self.normalization),
+        ):
+            if not isinstance(value, str) or not value:
+                raise DemoSchemaError(
+                    f"observation field '{field_name}' must declare {attribute_name}."
+                )
+
+        has_range = self.column_range is not None
+        has_indices = bool(self.column_indices)
+        if has_range == has_indices:
+            raise DemoSchemaError(
+                f"observation field '{field_name}' must declare exactly one of "
+                "column_range or column_indices."
+            )
+        if self.column_range is not None:
+            selection_width = _range_length(
+                _coerce_range(self.column_range, field_name=f"{field_name}.column_range")
+            )
+        else:
+            if any(not isinstance(index, int) or index < 0 for index in self.column_indices):
+                raise DemoSchemaError(
+                    f"observation field '{field_name}' column_indices must be "
+                    "non-negative integers."
+                )
+            if len(set(self.column_indices)) != len(self.column_indices):
+                raise DemoSchemaError(
+                    f"observation field '{field_name}' column_indices must be unique."
+                )
+            selection_width = len(self.column_indices)
+
+        expected_width = int(np.prod(self.shape))
+        if selection_width != expected_width:
+            raise DemoSchemaError(
+                f"observation field '{field_name}' selects {selection_width} columns "
+                f"but declares shape {self.shape} ({expected_width} values)."
+            )
+        if self.names and len(self.names) != selection_width:
+            raise DemoSchemaError(
+                f"observation field '{field_name}' has {len(self.names)} names for "
+                f"{selection_width} selected columns."
+            )
+        if self.names and (
+            any(not isinstance(name, str) or not name for name in self.names)
+            or len(set(self.names)) != len(self.names)
+        ):
+            raise DemoSchemaError(
+                f"observation field '{field_name}' names must be unique non-empty strings."
+            )
+        if self.optional and not self.absence_rule and not self.mask_field:
+            raise DemoSchemaError(
+                f"optional observation field '{field_name}' must declare an "
+                "absence_rule or mask_field."
+            )
+        if not self.optional and (self.absence_rule or self.mask_field):
+            raise DemoSchemaError(
+                f"required observation field '{field_name}' cannot declare optional "
+                "absence or mask behavior."
+            )
+
+    @property
+    def maximum_column(self) -> int:
+        """Exclusive upper column bound used by this field."""
+
+        if self.column_range is not None:
+            return _coerce_range(self.column_range, field_name="column_range")[1]
+        return max(self.column_indices) + 1
+
+    def extract(self, source: np.ndarray) -> np.ndarray:
+        """Extract this field from a validated two-dimensional source array."""
+
+        if self.column_range is not None:
+            start, stop = _coerce_range(self.column_range, field_name="column_range")
+            values = source[:, start:stop]
+        else:
+            values = source[:, self.column_indices]
+        return values.reshape((source.shape[0], *self.shape))
+
+
+@dataclass(frozen=True)
 class ObservationSchema:
     """Named observation/state fields saved alongside a demonstration."""
 
@@ -139,6 +259,8 @@ class ObservationSchema:
     fields: tuple[str, ...]
     shapes: Mapping[str, tuple[int, ...]]
     optional_fields: tuple[str, ...] = ()
+    layouts: Mapping[str, ObservationFieldLayout] = field(default_factory=dict)
+    compatibility_notes: tuple[str, ...] = ()
 
     def validate(self, *, task_config: Mapping[str, Any] | None = None) -> None:
         """Validate required observation fields and declared shapes."""
@@ -149,7 +271,10 @@ class ObservationSchema:
             raise DemoSchemaError("observation schema must declare at least one field.")
 
         field_set = set(self.fields)
-        missing_base_fields = [field for field in REQUIRED_OBSERVATION_FIELDS if field not in field_set]
+        required_fields = (
+            EXECUTABLE_OBSERVATION_FIELDS if self.layouts else REQUIRED_OBSERVATION_FIELDS
+        )
+        missing_base_fields = [field for field in required_fields if field not in field_set]
         if missing_base_fields:
             raise DemoSchemaError(
                 "observation schema is missing required fields: "
@@ -171,6 +296,52 @@ class ObservationSchema:
                     f"observation schema field '{field_name}' must have a positive shape."
                 )
 
+        unknown_optional = set(self.optional_fields) - field_set
+        if unknown_optional:
+            raise DemoSchemaError(
+                "observation schema optional_fields contains unknown fields: "
+                + ", ".join(sorted(unknown_optional))
+            )
+
+        if self.layouts:
+            missing_layouts = field_set - set(self.layouts)
+            unknown_layouts = set(self.layouts) - field_set
+            if missing_layouts:
+                raise DemoSchemaError(
+                    "observation schema is missing executable layouts for fields: "
+                    + ", ".join(sorted(missing_layouts))
+                )
+            if unknown_layouts:
+                raise DemoSchemaError(
+                    "observation schema has layouts for unknown fields: "
+                    + ", ".join(sorted(unknown_layouts))
+                )
+            for field_name in self.fields:
+                layout = self.layouts[field_name]
+                layout.validate(field_name=field_name)
+                if tuple(layout.shape) != tuple(self.shapes[field_name]):
+                    raise DemoSchemaError(
+                        f"observation field '{field_name}' layout shape {layout.shape} "
+                        f"does not match declared shape {self.shapes[field_name]}."
+                    )
+                declared_optional = field_name in self.optional_fields
+                if layout.optional != declared_optional:
+                    raise DemoSchemaError(
+                        f"observation field '{field_name}' optional flag does not match "
+                        "optional_fields."
+                    )
+                if field_name in {
+                    "robot_qpos",
+                    "robot_qvel",
+                    "actuator_controls",
+                    "finger_joint_positions",
+                    "finger_joint_velocities",
+                    "tracking_quality",
+                } and not layout.names:
+                    raise DemoSchemaError(
+                        f"observation field '{field_name}' must preserve ordered names."
+                    )
+
         task_config = task_config or {}
         task_fields = _string_tuple(task_config.get("required_observation_fields", ()))
         missing_task_fields = [field for field in task_fields if field not in field_set]
@@ -179,6 +350,74 @@ class ObservationSchema:
                 "observation schema is missing task-required fields: "
                 + ", ".join(missing_task_fields)
             )
+
+    @property
+    def executable(self) -> bool:
+        """Whether every declared field has an executable dense-array layout."""
+
+        return bool(self.layouts)
+
+    def extract(
+        self,
+        source_arrays: Mapping[str, np.ndarray | None],
+        *,
+        time_steps: int | None = None,
+    ) -> dict[str, np.ndarray | None]:
+        """Validate dense widths and reconstruct every declared observation field."""
+
+        if not self.layouts:
+            raise DemoSchemaError(
+                f"observation schema '{self.version}' is a legacy shape-only schema; "
+                "it remains replay-compatible but does not support field extraction."
+            )
+        self.validate()
+
+        fields_by_source: dict[str, list[str]] = {}
+        for field_name, layout in self.layouts.items():
+            fields_by_source.setdefault(layout.source_array, []).append(field_name)
+
+        extracted: dict[str, np.ndarray | None] = {}
+        observed_time_steps = time_steps
+        for source_name, field_names in fields_by_source.items():
+            source = source_arrays.get(source_name)
+            if source is None:
+                required = [
+                    field_name
+                    for field_name in field_names
+                    if not self.layouts[field_name].optional
+                ]
+                if required:
+                    raise DemoSchemaError(
+                        f"{source_name} is required by observation fields: "
+                        + ", ".join(required)
+                    )
+                for field_name in field_names:
+                    extracted[field_name] = None
+                continue
+
+            array = _required_array(source, name=source_name, ndim=2)
+            if observed_time_steps is None:
+                observed_time_steps = int(array.shape[0])
+            _require_time_dim(array, observed_time_steps, name=source_name)
+            expected_width = max(
+                self.layouts[field_name].maximum_column for field_name in field_names
+            )
+            if array.shape[1] != expected_width:
+                raise DemoSchemaError(
+                    f"{source_name} width does not match its executable observation "
+                    f"layout: expected {expected_width}, got {array.shape[1]}."
+                )
+
+            for field_name in field_names:
+                layout = self.layouts[field_name]
+                if np.dtype(array.dtype).name != np.dtype(layout.dtype).name:
+                    raise DemoSchemaError(
+                        f"{source_name} dtype does not match observation field "
+                        f"'{field_name}': expected {layout.dtype}, got {array.dtype}."
+                    )
+                extracted[field_name] = layout.extract(array)
+
+        return {field_name: extracted[field_name] for field_name in self.fields}
 
 
 @dataclass
@@ -260,8 +499,28 @@ def validate_demo(
 
     task_config = _mapping_field(episode.metadata, "task_config")
     observation_schema.validate(task_config=task_config)
+    if observation_schema.executable:
+        extract_observations(episode, observation_schema=observation_schema)
     _validate_schema_versions(episode.metadata, action_schema, observation_schema)
     _validate_task_state_requirements(episode, observation_schema)
+
+
+def extract_observations(
+    episode: DemoEpisode,
+    *,
+    observation_schema: ObservationSchema,
+) -> dict[str, np.ndarray | None]:
+    """Reconstruct all declared observation fields from one saved episode."""
+
+    return observation_schema.extract(
+        {
+            "robot_states": episode.robot_states,
+            "tracking_quality": episode.tracking_quality,
+            "object_states": episode.object_states,
+            "task_states": episode.task_states,
+        },
+        time_steps=int(episode.timestamps.shape[0]),
+    )
 
 
 def _validate_metadata(metadata: Mapping[str, Any]) -> None:

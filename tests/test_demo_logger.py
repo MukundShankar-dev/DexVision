@@ -17,6 +17,7 @@ from dexvision.logging.demo_logger import (
     build_level2_observation_schema,
     load_logged_demo,
 )
+from dexvision.sim.mujoco_env import MujocoEnv
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -94,6 +95,16 @@ def test_demo_logger_saves_required_episode_files(tmp_path: Path) -> None:
     assert metadata["success"] is True
     assert metadata["num_steps"] == 3
     assert metadata["action_schema"]["finger_actuator_targets"] == [7, 9]
+    assert metadata["observation_schema_version"] == "level2/observation-layout-v2"
+    assert metadata["observation_schema"]["layouts"]["robot_qpos"]["source_array"] == (
+        "robot_states"
+    )
+    assert metadata["observation_schema"]["layouts"]["robot_qpos"]["column_range"] == [0, 4]
+    assert metadata["observation_schema"]["layouts"]["actuator_controls"]["names"] == [
+        "actuator[0]",
+        "actuator[1]",
+    ]
+    assert metadata["observation_schema"]["layouts"]["base_position"]["units"] == "metres"
 
     loaded = load_logged_demo(demo_dir)
     validate_demo(
@@ -140,6 +151,30 @@ def test_demo_logger_rejects_empty_episode(tmp_path: Path) -> None:
     logger.start_episode(_metadata())
 
     with pytest.raises(DemoLoggerError, match="empty demo episode"):
+        logger.close(success=None)
+
+
+def test_demo_logger_rejects_robot_state_width_outside_layout(tmp_path: Path) -> None:
+    action_schema, observation_schema = _schemas()
+    logger = DemoLogger(
+        tmp_path / "demo",
+        action_schema=action_schema,
+        observation_schema=observation_schema,
+    )
+    logger.start_episode(_metadata())
+    step = _step(0, action_schema.action_dim, target_dim=2)
+    logger.append(
+        DemoStepData(
+            features=step.features,
+            action=step.action,
+            robot_state=step.robot_state[:-1],
+            tracking_quality=step.tracking_quality,
+            timestamp=step.timestamp,
+            landmarks=step.landmarks,
+        )
+    )
+
+    with pytest.raises(ValueError, match="robot_states width"):
         logger.close(success=None)
 
 
@@ -325,6 +360,39 @@ def test_action_vector_preserves_full_base_and_actuator_targets() -> None:
     assert action[:3] == pytest.approx([0.1, 0.2, 0.3])
     assert action[3:7] == pytest.approx([1.0, 0.0, 0.0, 0.0])
     assert action[7:] == pytest.approx([0.2, 0.8])
+
+
+def test_mujoco_observation_order_preserves_named_model_dofs() -> None:
+    pytest.importorskip("mujoco")
+    model_path = ROOT / "assets" / "mujoco" / "hand_scene.xml"
+
+    with MujocoEnv(model_path) as env:
+        (
+            qpos_names,
+            qvel_names,
+            actuator_names,
+            finger_qpos_indices,
+            finger_qvel_indices,
+            finger_joint_names,
+        ) = record_demo.mujoco_observation_order(env)
+
+        assert len(qpos_names) == env.model.nq
+        assert len(qvel_names) == env.model.nv
+        assert qpos_names[:7] == (
+            "rh_base_freejoint/x",
+            "rh_base_freejoint/y",
+            "rh_base_freejoint/z",
+            "rh_base_freejoint/qw",
+            "rh_base_freejoint/qx",
+            "rh_base_freejoint/qy",
+            "rh_base_freejoint/qz",
+        )
+        assert finger_joint_names[:2] == ("rh_WRJ2", "rh_WRJ1")
+        assert actuator_names[:2] == ("rh_A_WRJ2", "rh_A_WRJ1")
+        assert len(actuator_names) == env.model.nu
+        assert finger_qpos_indices[:2] == (7, 8)
+        assert finger_qvel_indices[:2] == (6, 7)
+        assert len(finger_joint_names) == 24
 
 
 def test_detection_guard_rejects_empty_manual_recording() -> None:

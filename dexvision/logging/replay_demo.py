@@ -14,6 +14,7 @@ from dexvision.logging.dataset_schema import (
     ActionSchema,
     DemoEpisode,
     DemoSchemaError,
+    ObservationFieldLayout,
     ObservationSchema,
     validate_demo,
 )
@@ -170,16 +171,97 @@ def observation_schema_from_metadata(metadata: Mapping[str, Any]) -> Observation
         "shapes",
         message="metadata observation_schema is missing shapes.",
     )
+    version = str(payload.get("version") or metadata.get("observation_schema_version") or "")
+    fields = _string_tuple_value(payload.get("fields"), "observation_schema.fields")
+    shapes = {
+        str(name): _shape_value(shape, f"observation_schema.shapes.{name}")
+        for name, shape in shapes_payload.items()
+    }
+    optional_fields = _string_tuple_value(
+        payload.get("optional_fields", ()),
+        "observation_schema.optional_fields",
+    )
+    raw_layouts = payload.get("layouts")
+    if not raw_layouts:
+        return adapt_legacy_observation_schema(
+            version=version,
+            fields=fields,
+            shapes=shapes,
+            optional_fields=optional_fields,
+        )
+    if not isinstance(raw_layouts, Mapping):
+        raise DemoReplayError("metadata observation_schema.layouts must be a mapping.")
+
+    layouts: dict[str, ObservationFieldLayout] = {}
+    for field_name, raw_layout in raw_layouts.items():
+        if not isinstance(raw_layout, Mapping):
+            raise DemoReplayError(
+                f"metadata observation layout '{field_name}' must be a mapping."
+            )
+        raw_range = raw_layout.get("column_range")
+        column_range = (
+            None
+            if raw_range is None
+            else _range_value(raw_layout, "column_range")
+        )
+        layouts[str(field_name)] = ObservationFieldLayout(
+            source_array=str(raw_layout.get("source_array") or ""),
+            shape=_shape_value(
+                raw_layout.get("shape"),
+                f"observation_schema.layouts.{field_name}.shape",
+            ),
+            dtype=str(raw_layout.get("dtype") or ""),
+            units=str(raw_layout.get("units") or ""),
+            coordinate_frame=str(raw_layout.get("coordinate_frame") or ""),
+            normalization=str(raw_layout.get("normalization") or ""),
+            column_range=column_range,
+            column_indices=_integer_tuple_value(
+                raw_layout.get("column_indices", ()),
+                f"observation_schema.layouts.{field_name}.column_indices",
+            ),
+            names=_string_tuple_value(
+                raw_layout.get("names", ()),
+                f"observation_schema.layouts.{field_name}.names",
+            ),
+            optional=bool(raw_layout.get("optional", False)),
+            absence_rule=_optional_string(raw_layout.get("absence_rule")),
+            mask_field=_optional_string(raw_layout.get("mask_field")),
+        )
     return ObservationSchema(
-        version=str(payload.get("version") or metadata.get("observation_schema_version") or ""),
-        fields=_string_tuple_value(payload.get("fields"), "observation_schema.fields"),
-        shapes={
-            str(name): _shape_value(shape, f"observation_schema.shapes.{name}")
-            for name, shape in shapes_payload.items()
-        },
-        optional_fields=_string_tuple_value(
-            payload.get("optional_fields", ()),
-            "observation_schema.optional_fields",
+        version=version,
+        fields=fields,
+        shapes=shapes,
+        optional_fields=optional_fields,
+        layouts=layouts,
+        compatibility_notes=_string_tuple_value(
+            payload.get("compatibility_notes", ()),
+            "observation_schema.compatibility_notes",
+        ),
+    )
+
+
+def adapt_legacy_observation_schema(
+    *,
+    version: str,
+    fields: tuple[str, ...],
+    shapes: Mapping[str, tuple[int, ...]],
+    optional_fields: tuple[str, ...],
+) -> ObservationSchema:
+    """Keep v1 shape-only demos replayable without inventing field mappings."""
+
+    if version != "level2/observation-v1":
+        raise DemoReplayError(
+            f"observation schema '{version}' is missing executable layouts."
+        )
+    return ObservationSchema(
+        version=version,
+        fields=fields,
+        shapes=shapes,
+        optional_fields=optional_fields,
+        layouts={},
+        compatibility_notes=(
+            "Legacy Level 2.4 shape-only observation schema: full actions remain replayable, "
+            "but dense observation extraction requires migration to observation-layout-v2.",
         ),
     )
 
@@ -389,11 +471,13 @@ def _optional_mapping(value: object) -> Mapping[str, Any]:
 def _range_value(payload: Mapping[str, Any], key: str) -> tuple[int, int]:
     value = payload.get(key)
     if not isinstance(value, Sequence) or isinstance(value, str) or len(value) != 2:
-        raise DemoReplayError(f"metadata action_schema.{key} must be [start, stop].")
+        raise DemoReplayError(f"metadata schema field '{key}' must be [start, stop].")
     start = int(value[0])
     stop = int(value[1])
     if start < 0 or stop <= start:
-        raise DemoReplayError(f"metadata action_schema.{key} must satisfy 0 <= start < stop.")
+        raise DemoReplayError(
+            f"metadata schema field '{key}' must satisfy 0 <= start < stop."
+        )
     return (start, stop)
 
 
@@ -424,6 +508,25 @@ def _string_tuple_value(
     if not all(isinstance(item, str) and item for item in values):
         raise DemoReplayError(f"metadata field '{field_name}' must contain non-empty strings.")
     return values
+
+
+def _integer_tuple_value(value: object, field_name: str) -> tuple[int, ...]:
+    if not isinstance(value, Sequence) or isinstance(value, str):
+        raise DemoReplayError(f"metadata field '{field_name}' must be an integer sequence.")
+    values = tuple(value)
+    if not all(isinstance(item, int) and item >= 0 for item in values):
+        raise DemoReplayError(
+            f"metadata field '{field_name}' must contain non-negative integers."
+        )
+    return values
+
+
+def _optional_string(value: object) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value:
+        raise DemoReplayError("optional schema text fields must be non-empty strings.")
+    return value
 
 
 def _shape_value(value: object, field_name: str) -> tuple[int, ...]:

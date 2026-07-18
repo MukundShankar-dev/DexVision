@@ -352,17 +352,35 @@ Contract:
 
 ```python
 @dataclass(frozen=True)
+class ObservationFieldLayout:
+    source_array: str  # robot_states, tracking_quality, object_states, or task_states
+    shape: tuple[int, ...]
+    dtype: str
+    units: str
+    coordinate_frame: str
+    normalization: str
+    column_range: tuple[int, int] | None
+    column_indices: tuple[int, ...]
+    names: tuple[str, ...]
+    optional: bool
+    absence_rule: str | None
+    mask_field: str | None
+
+@dataclass(frozen=True)
 class ObservationSchema:
     version: str
     fields: tuple[str, ...]
     shapes: dict[str, tuple[int, ...]]
     optional_fields: tuple[str, ...]
+    layouts: dict[str, ObservationFieldLayout]
+    compatibility_notes: tuple[str, ...]
 ```
 
 Expected Level 2/3 fields:
 
 ```text
 robot qpos/qvel
+actuator controls
 hand/base pose
 hand/base velocity, if available
 finger joint positions
@@ -379,7 +397,26 @@ Rules:
 
 ```text
 Observation schemas must be versioned and saved with demos.
+level2/observation-layout-v2 is the default executable observation schema.
+Every v2 field maps to one saved dense source array through an explicit column
+range or ordered column indices.
+robot_states.npy is packed as robot qpos, robot qvel, actuator controls,
+commanded base position, and commanded base orientation.
+Robot qpos/qvel and actuator-control layouts preserve the recorded MuJoCo
+degree-of-freedom and actuator names in exact array order.
+Finger joint fields select named MuJoCo joint columns from qpos/qvel; they are
+not inferred from actuator-target count.
+Each layout declares shape, float dtype, units, coordinate frame, optional
+behavior, and future-learning normalization guidance.
+Dense source-array widths must exactly match the maximum column declared by
+their executable layouts.
+object_states.npy and task_states.npy may be absent only when every field using
+that source is optional and declares an absence rule or mask field.
 Fields that are absent for a task should be masked or explicitly marked optional.
+Legacy level2/observation-v1 free-space demos remain full-action replayable
+through an explicit shape-only compatibility adapter. The adapter does not
+invent unavailable finger-joint column mappings; observation extraction
+requires migration to v2.
 Future skill policies must declare the observation schema they were trained on.
 ```
 

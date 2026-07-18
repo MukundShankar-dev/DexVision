@@ -10,8 +10,10 @@ from dexvision.logging.dataset_schema import (
     DemoEpisode,
     DemoSchemaError,
     ObservationSchema,
+    extract_observations,
     validate_demo,
 )
+from dexvision.logging.demo_logger import build_level2_observation_schema
 
 
 def _action_schema() -> ActionSchema:
@@ -219,3 +221,117 @@ def test_observation_schema_must_include_success_metric_inputs_when_required() -
             action_schema=_action_schema(),
             observation_schema=observation_schema,
         )
+
+
+def _executable_observation_schema() -> ObservationSchema:
+    return build_level2_observation_schema(
+        robot_qpos_dim=4,
+        robot_qvel_dim=4,
+        finger_target_dim=2,
+        tracking_quality_dim=6,
+        robot_qpos_names=("base/x", "base/qw", "joint_a", "joint_b"),
+        robot_qvel_names=("base/vx", "base/wx", "joint_a", "joint_b"),
+        actuator_names=("actuator_b", "actuator_a"),
+        finger_joint_qpos_indices=(2, 3),
+        finger_joint_qvel_indices=(2, 3),
+        finger_joint_names=("joint_a", "joint_b"),
+        tracking_quality_names=(
+            "detected",
+            "handedness",
+            "tracking_confidence",
+            "feature_confidence",
+            "dropped_frame",
+            "reacquired",
+        ),
+        object_state_dim=3,
+        task_state_dim=5,
+        target_state_dim=3,
+        success_metric_dim=2,
+    )
+
+
+def _executable_episode() -> DemoEpisode:
+    time_steps = 2
+    episode = _valid_episode(time_steps)
+    episode.metadata["observation_schema_version"] = _executable_observation_schema().version
+    episode.robot_states = np.arange(time_steps * 17, dtype=np.float64).reshape(time_steps, 17)
+    episode.object_states = np.arange(time_steps * 3, dtype=np.float64).reshape(time_steps, 3)
+    episode.task_states = np.arange(time_steps * 5, dtype=np.float64).reshape(time_steps, 5)
+    return episode
+
+
+def test_executable_layout_extracts_every_declared_field() -> None:
+    schema = _executable_observation_schema()
+    episode = _executable_episode()
+
+    validate_demo(
+        episode,
+        action_schema=_action_schema(),
+        observation_schema=schema,
+    )
+    observations = extract_observations(episode, observation_schema=schema)
+
+    assert tuple(observations) == schema.fields
+    assert observations["robot_qpos"][0] == pytest.approx([0.0, 1.0, 2.0, 3.0])
+    assert observations["robot_qvel"][0] == pytest.approx([4.0, 5.0, 6.0, 7.0])
+    assert observations["actuator_controls"][0] == pytest.approx([8.0, 9.0])
+    assert observations["base_position"][0] == pytest.approx([10.0, 11.0, 12.0])
+    assert observations["base_orientation"][0] == pytest.approx([13.0, 14.0, 15.0, 16.0])
+    assert observations["finger_joint_positions"][0] == pytest.approx([2.0, 3.0])
+    assert observations["finger_joint_velocities"][0] == pytest.approx([6.0, 7.0])
+    assert observations["tracking_quality"].shape == (2, 6)
+    assert observations["object_state"].shape == (2, 3)
+    assert observations["task_state"].shape == (2, 5)
+    assert observations["target_state"].shape == (2, 3)
+    assert observations["success_metric_inputs"].shape == (2, 2)
+    for layout in schema.layouts.values():
+        assert layout.units
+        assert layout.coordinate_frame
+        assert layout.normalization
+
+
+def test_executable_layout_validates_dense_array_widths() -> None:
+    episode = _executable_episode()
+    episode.robot_states = episode.robot_states[:, :-1]
+
+    with pytest.raises(DemoSchemaError, match="robot_states width"):
+        validate_demo(
+            episode,
+            action_schema=_action_schema(),
+            observation_schema=_executable_observation_schema(),
+        )
+
+
+def test_executable_layout_preserves_named_mujoco_and_actuator_order() -> None:
+    schema = _executable_observation_schema()
+
+    assert schema.layouts["robot_qpos"].names == (
+        "base/x",
+        "base/qw",
+        "joint_a",
+        "joint_b",
+    )
+    assert schema.layouts["robot_qvel"].names[-2:] == ("joint_a", "joint_b")
+    assert schema.layouts["actuator_controls"].names == ("actuator_b", "actuator_a")
+    assert schema.layouts["finger_joint_positions"].column_indices == (2, 3)
+    assert schema.layouts["finger_joint_velocities"].column_indices == (6, 7)
+
+
+def test_optional_object_and_task_sources_have_explicit_absence_rules() -> None:
+    schema = _executable_observation_schema()
+    episode = _executable_episode()
+    episode.metadata["task_config"] = {
+        "required_objects": (),
+        "requires_task_state": False,
+        "requires_success_metric_inputs": False,
+        "required_observation_fields": (),
+    }
+    episode.object_states = None
+    episode.task_states = None
+
+    observations = extract_observations(episode, observation_schema=schema)
+
+    assert observations["object_state"] is None
+    assert observations["task_state"] is None
+    assert schema.layouts["object_state"].absence_rule
+    assert schema.layouts["task_state"].absence_rule

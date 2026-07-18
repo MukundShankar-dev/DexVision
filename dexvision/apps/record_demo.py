@@ -453,11 +453,19 @@ def _run_synthetic_recording(
     episode_id: str,
 ) -> int:
     max_frames = args.max_frames if args.max_frames > 0 else 5
+    synthetic_joint_names = tuple(f"synthetic_joint:{name}" for name in target_names)
     observation_schema = build_level2_observation_schema(
-        robot_qpos_dim=4,
-        robot_qvel_dim=4,
+        robot_qpos_dim=len(target_names),
+        robot_qvel_dim=len(target_names),
         finger_target_dim=len(target_names),
         tracking_quality_dim=len(TRACKING_QUALITY_FIELDS),
+        robot_qpos_names=synthetic_joint_names,
+        robot_qvel_names=synthetic_joint_names,
+        actuator_names=target_names,
+        finger_joint_qpos_indices=tuple(range(len(target_names))),
+        finger_joint_qvel_indices=tuple(range(len(target_names))),
+        finger_joint_names=synthetic_joint_names,
+        tracking_quality_names=TRACKING_QUALITY_FIELDS,
     )
     logger = DemoLogger(
         args.output,
@@ -499,8 +507,8 @@ def _run_synthetic_recording(
         )
         state = MujocoState(
             time=frame_index / args.control_rate_hz,
-            qpos=np.full(4, phase, dtype=np.float64),
-            qvel=np.zeros(4, dtype=np.float64),
+            qpos=np.full(len(target_names), phase, dtype=np.float64),
+            qvel=np.zeros(len(target_names), dtype=np.float64),
             ctrl=ordered_targets(targets, target_names),
         )
         logger.append(
@@ -608,11 +616,26 @@ def _run_live_recording(
             env.set_joint_targets(neutral_targets)
             env.step(n_steps=max(1, args.sim_steps_per_frame))
             initial_state = env.get_state()
+            (
+                qpos_names,
+                qvel_names,
+                actuator_names,
+                finger_qpos_indices,
+                finger_qvel_indices,
+                finger_joint_names,
+            ) = mujoco_observation_order(env)
             observation_schema = build_level2_observation_schema(
                 robot_qpos_dim=initial_state.qpos.size,
                 robot_qvel_dim=initial_state.qvel.size,
-                finger_target_dim=len(target_names),
+                finger_target_dim=initial_state.ctrl.size,
                 tracking_quality_dim=len(TRACKING_QUALITY_FIELDS),
+                robot_qpos_names=qpos_names,
+                robot_qvel_names=qvel_names,
+                actuator_names=actuator_names,
+                finger_joint_qpos_indices=finger_qpos_indices,
+                finger_joint_qvel_indices=finger_qvel_indices,
+                finger_joint_names=finger_joint_names,
+                tracking_quality_names=TRACKING_QUALITY_FIELDS,
             )
             logger = DemoLogger(
                 args.output,
@@ -1129,6 +1152,100 @@ def robot_state_vector(
             np.asarray(base_position, dtype=np.float64),
             normalize_quaternion(np.asarray(base_orientation, dtype=np.float64)),
         )
+    )
+
+
+def mujoco_observation_order(
+    env: MujocoEnv,
+) -> tuple[
+    tuple[str, ...],
+    tuple[str, ...],
+    tuple[str, ...],
+    tuple[int, ...],
+    tuple[int, ...],
+    tuple[str, ...],
+]:
+    """Return named MuJoCo qpos/qvel order and scalar hand-joint selections."""
+
+    model = env.model
+    mujoco_module = env._mujoco
+    qpos_names: list[str] = []
+    qvel_names: list[str] = []
+    actuator_names = tuple(
+        (
+            mujoco_module.mj_id2name(
+                model,
+                mujoco_module.mjtObj.mjOBJ_ACTUATOR,
+                actuator_id,
+            )
+            or f"actuator_{actuator_id}"
+        )
+        for actuator_id in range(model.nu)
+    )
+    finger_qpos_indices: list[int] = []
+    finger_qvel_indices: list[int] = []
+    finger_joint_names: list[str] = []
+
+    free_type = int(mujoco_module.mjtJoint.mjJNT_FREE)
+    ball_type = int(mujoco_module.mjtJoint.mjJNT_BALL)
+    for joint_id in range(model.njnt):
+        joint_name = (
+            mujoco_module.mj_id2name(
+                model,
+                mujoco_module.mjtObj.mjOBJ_JOINT,
+                joint_id,
+            )
+            or f"joint_{joint_id}"
+        )
+        qpos_start = int(model.jnt_qposadr[joint_id])
+        qpos_stop = (
+            int(model.jnt_qposadr[joint_id + 1])
+            if joint_id + 1 < model.njnt
+            else int(model.nq)
+        )
+        qvel_start = int(model.jnt_dofadr[joint_id])
+        qvel_stop = (
+            int(model.jnt_dofadr[joint_id + 1])
+            if joint_id + 1 < model.njnt
+            else int(model.nv)
+        )
+        joint_type = int(model.jnt_type[joint_id])
+
+        if joint_type == free_type:
+            qpos_suffixes = ("x", "y", "z", "qw", "qx", "qy", "qz")
+            qvel_suffixes = ("vx", "vy", "vz", "wx", "wy", "wz")
+        elif joint_type == ball_type:
+            qpos_suffixes = ("qw", "qx", "qy", "qz")
+            qvel_suffixes = ("wx", "wy", "wz")
+        else:
+            qpos_suffixes = ()
+            qvel_suffixes = ()
+
+        if qpos_suffixes:
+            qpos_names.extend(f"{joint_name}/{suffix}" for suffix in qpos_suffixes)
+        else:
+            qpos_names.append(joint_name)
+        if qvel_suffixes:
+            qvel_names.extend(f"{joint_name}/{suffix}" for suffix in qvel_suffixes)
+        else:
+            qvel_names.append(joint_name)
+
+        if qpos_stop - qpos_start == 1 and qvel_stop - qvel_start == 1:
+            finger_qpos_indices.append(qpos_start)
+            finger_qvel_indices.append(qvel_start)
+            finger_joint_names.append(joint_name)
+
+    if len(qpos_names) != model.nq or len(qvel_names) != model.nv:
+        raise DemoLoggerError(
+            "failed to reconstruct the complete named MuJoCo qpos/qvel order."
+        )
+    return (
+        tuple(qpos_names),
+        tuple(qvel_names),
+        actuator_names,
+        tuple(finger_qpos_indices),
+        tuple(finger_qvel_indices),
+        tuple(finger_joint_names),
     )
 
 
