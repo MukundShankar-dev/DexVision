@@ -54,6 +54,7 @@ def test_reach_touch_spec_declares_typed_goal_state_and_metric_contracts() -> No
         "target_position",
         "touch_position",
         "distance_to_target",
+        "palm_contact",
     )
     spec.action_schema.validate()
     spec.observation_schema.validate()
@@ -73,14 +74,15 @@ def test_reset_is_deterministic_and_saves_sampled_target_and_initial_state() -> 
     assert first.initial_robot_qpos == pytest.approx(second.initial_robot_qpos)
     assert first.initial_robot_qvel == pytest.approx(second.initial_robot_qvel)
     assert second.target_position == pytest.approx(vector[0:3])
-    assert second.initial_base_position == pytest.approx(vector[13:16])
-    assert second.initial_base_orientation == pytest.approx(vector[16:20])
+    assert second.palm_contact is False
+    assert second.initial_base_position == pytest.approx(vector[14:17])
+    assert second.initial_base_orientation == pytest.approx(vector[17:21])
     assert second.initial_robot_qpos.size == task.env.model.nq
     assert second.initial_robot_qvel.size == task.env.model.nv
-    qpos_stop = 20 + task.env.model.nq
-    assert second.initial_robot_qpos == pytest.approx(vector[20:qpos_stop])
+    qpos_stop = 21 + task.env.model.nq
+    assert second.initial_robot_qpos == pytest.approx(vector[21:qpos_stop])
     assert second.initial_robot_qvel == pytest.approx(vector[qpos_stop:])
-    assert vector.shape == (20 + task.env.model.nq + task.env.model.nv,)
+    assert vector.shape == (21 + task.env.model.nq + task.env.model.nv,)
 
 
 def test_reset_accepts_named_site_and_explicit_world_target_pose() -> None:
@@ -132,6 +134,13 @@ def test_synthetic_reach_success_requires_distance_and_dwell() -> None:
         dwell_steps=5,
         distance_threshold_m=0.03,
         required_dwell_steps=5,
+    )
+    assert not is_reach_touch_success(
+        distance_m=0.01,
+        dwell_steps=5,
+        distance_threshold_m=0.03,
+        required_dwell_steps=5,
+        palm_contact=False,
     )
 
 

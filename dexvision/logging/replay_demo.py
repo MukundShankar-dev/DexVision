@@ -22,6 +22,8 @@ from dexvision.logging.demo_logger import DemoLoggerError, load_logged_demo
 
 
 DEFAULT_MOCAP_BODY_NAME = "dexvision_hand_base_target"
+REACH_TOUCH_TARGET_TASK_ID = "reach_touch_target"
+DEFAULT_REACH_TOUCH_TARGET_MARKER_BODY = "reach_target_marker"
 
 
 class DemoReplayError(RuntimeError):
@@ -375,6 +377,7 @@ def replay_loaded_demo(
         raise DemoReplayError("demo contains no replayable actions.")
 
     env.reset()
+    _restore_task_replay_state(loaded_demo, env)
     previous_timestamp: float | None = None
     final_sim_time: float | None = None
     steps_replayed = 0
@@ -412,6 +415,43 @@ def replay_loaded_demo(
         last_timestamp=last_timestamp,
         final_sim_time=final_sim_time,
         stopped_early=stopped_early,
+    )
+
+
+def _restore_task_replay_state(
+    loaded_demo: LoadedReplayDemo,
+    env: ReplayEnv,
+) -> None:
+    """Restore task objects that are not part of the recorded action vector."""
+
+    metadata = loaded_demo.episode.metadata
+    if metadata.get("task_id") != REACH_TOUCH_TARGET_TASK_ID:
+        return
+
+    task_config = _mapping_value(
+        metadata,
+        "task_config",
+        message="reach_touch_target metadata is missing task_config.",
+    )
+    target_position = np.asarray(task_config.get("target_position"), dtype=np.float64)
+    if target_position.shape != (3,) or not np.all(np.isfinite(target_position)):
+        raise DemoReplayError(
+            "reach_touch_target metadata task_config.target_position "
+            "must contain three finite world-frame values."
+        )
+    marker_body = task_config.get(
+        "target_marker_body",
+        DEFAULT_REACH_TOUCH_TARGET_MARKER_BODY,
+    )
+    if not isinstance(marker_body, str) or not marker_body:
+        raise DemoReplayError(
+            "reach_touch_target metadata task_config.target_marker_body "
+            "must be a non-empty string."
+        )
+    env.set_mocap_pose(
+        marker_body,
+        position=target_position,
+        orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
     )
 
 

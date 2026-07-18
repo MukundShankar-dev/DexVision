@@ -847,12 +847,12 @@ one task attempt per episode
 ### Pass Criteria
 
 ```text
-[ ] Demos include task state
-[ ] Success/failure label saved
-[ ] Replay shows the intended skill behavior
-[ ] Full Level 1.13 action schema is saved
-[ ] Target pose and initial state are saved
-[ ] No large-scale collection starts before relabeling and quality filters exist
+[x] Demos include task state
+[x] Success/failure label saved
+[x] Replay shows the intended skill behavior
+[x] Full Level 1.13 action schema is saved
+[x] Target pose and initial state are saved
+[x] No large-scale collection starts before relabeling and quality filters exist
 ```
 
 ### Codex Prompt
@@ -1494,9 +1494,9 @@ Do not add policy learning.
 [x] Demo replay works for base/wrist/finger actions
 [x] Free-space gesture demos recorded
 [x] Repository and environment are reproducible from a clean clone
-[ ] Observation layouts are executable and versioned
-[ ] reach_touch_target task and deterministic reset work
-[ ] Reach-touch pilot demos pass replay
+[x] Observation layouts are executable and versioned
+[x] reach_touch_target task and deterministic reset work
+[x] Reach-touch pilot demos pass replay
 [ ] Reach-touch success relabeling works
 [ ] Pilot quality filters work without mutating raw data
 [ ] Reach-touch summary and scaled dataset are Level 3-ready

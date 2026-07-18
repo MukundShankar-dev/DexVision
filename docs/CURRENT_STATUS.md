@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.5 — Task Board and Reach-Touch Task
+Level 2.6 — Reach-Touch Pilot Demonstrations
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.6 — Reach-Touch Pilot Demonstrations
+Level 2.6B — Reach-Touch Success Relabeling
 
 ---
 
@@ -313,6 +313,15 @@ CLI smoke check. Automated checks passed on July 18, 2026 using
 reach_touch_target`, `conda run -n dexvision pytest tests/test_task_specs.py`
 with 9 passed, `conda run -n dexvision ruff check dexvision tests`, and
 `conda run -n dexvision pytest` with 256 passed.
+
+Level 2.6 — Reach-Touch Pilot Demonstrations manually passed on July 18, 2026.
+The final pilot contains five schema-valid, operator-reviewed episodes across
+the right, center, and left targets. Saved task state confirms five consecutive
+physical palm-contact frames and computed success in every episode, all five
+episodes completed semantic headless replay against their recorded target, and
+the user confirmed that all five viewer replays showed the intended skill
+behavior. Automated checks passed using `conda run -n dexvision pytest` with
+272 passed and `conda run -n dexvision ruff check dexvision tests`.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

@@ -7,7 +7,7 @@
 <mujoco model="dexvision_task_board">
   <include file="menagerie/shadow_hand/right_hand_dexvision.xml"/>
 
-  <statistic extent="0.55" center="0 -0.08 0.18"/>
+  <statistic extent="0.55" center="0.02 0 0.18"/>
 
   <visual>
     <rgba haze="0.15 0.25 0.35 1"/>
@@ -33,25 +33,25 @@
       directional="true"/>
     <geom name="task_floor" pos="0 0 -0.12" size="0 0 0.05" type="plane"
       material="task_floor_material"/>
-    <geom name="task_table" pos="0 -0.12 -0.06" size="0.22 0.18 0.025"
+    <geom name="task_table" pos="0 0 -0.06" size="0.22 0.18 0.025"
       type="box" material="task_board_material"/>
-    <geom name="task_board" pos="0 -0.16 0.49" size="0.18 0.015 0.12"
-      type="box" material="task_board_material"/>
+    <geom name="task_board" pos="0.18 0 0.49" size="0.015 0.18 0.12"
+      type="box" material="task_board_material" contype="0" conaffinity="0"/>
 
-    <site name="reach_target_left" pos="-0.10 -0.14 0.45" type="cylinder"
-      size="0.025 0.004" euler="1.5708 0 0"
-      material="task_target_material" group="4"/>
-    <site name="reach_target_center" pos="0 -0.14 0.49" type="cylinder"
-      size="0.025 0.004" euler="1.5708 0 0"
-      material="task_target_material" group="4"/>
-    <site name="reach_target_right" pos="0.10 -0.14 0.53" type="cylinder"
-      size="0.025 0.004" euler="1.5708 0 0"
-      material="task_target_material" group="4"/>
+    <site name="reach_target_left" pos="0.14 -0.10 0.45" type="cylinder"
+      size="0.025 0.025" euler="0 1.5708 0"
+      material="task_target_material" group="1"/>
+    <site name="reach_target_center" pos="0.14 0 0.49" type="cylinder"
+      size="0.025 0.025" euler="0 1.5708 0"
+      material="task_target_material" group="1"/>
+    <site name="reach_target_right" pos="0.14 0.06 0.51" type="cylinder"
+      size="0.025 0.025" euler="0 1.5708 0"
+      material="task_target_material" group="1"/>
 
-    <body name="reach_target_marker" mocap="true" pos="0 -0.135 0.49"
+    <body name="reach_target_marker" mocap="true" pos="0.14 0 0.49"
       quat="1 0 0 0">
-      <site name="active_reach_target" type="sphere" size="0.013"
-        rgba="1 0.85 0.05 0.9" group="4"/>
+      <geom name="active_reach_target" type="sphere" size="0.025"
+        rgba="1 0.85 0.05 0.9" group="1" contype="1" conaffinity="1"/>
     </body>
 
     <body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14"

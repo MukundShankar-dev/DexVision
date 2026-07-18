@@ -67,19 +67,31 @@ class ReachTouchTargetConfig:
     )
     touch_site: str = "grasp_site"
     target_marker_body: str = "reach_target_marker"
+    target_marker_geom: str = "active_reach_target"
+    palm_body: str = "rh_palm"
     base_target_body: str = "dexvision_hand_base_target"
     success_distance_m: float = 0.03
     success_dwell_steps: int = 5
     max_episode_steps: int = 240
-    workspace_min: tuple[float, float, float] = (-0.13, -0.18, 0.42)
-    workspace_max: tuple[float, float, float] = (0.26, 0.18, 0.58)
+    terminate_on_workspace_bounds: bool = False
+    # Keep a practical approach margin outside every configured target's
+    # 3 cm success region. Exact success-boundary limits caused legitimate
+    # left-target approaches to terminate on sub-millimetre tracking drift.
+    workspace_min: tuple[float, float, float] = (-0.18, -0.20, 0.37)
+    workspace_max: tuple[float, float, float] = (0.26, 0.18, 0.61)
 
     def __post_init__(self) -> None:
         if not self.target_sites or any(not name for name in self.target_sites):
             raise ValueError("target_sites must contain non-empty MuJoCo site names.")
         if len(set(self.target_sites)) != len(self.target_sites):
             raise ValueError("target_sites must not contain duplicates.")
-        if not self.touch_site or not self.target_marker_body or not self.base_target_body:
+        if (
+            not self.touch_site
+            or not self.target_marker_body
+            or not self.target_marker_geom
+            or not self.palm_body
+            or not self.base_target_body
+        ):
             raise ValueError("task body and site names must be non-empty.")
         if self.success_distance_m <= 0.0:
             raise ValueError("success_distance_m must be positive.")
@@ -121,6 +133,7 @@ class ReachTouchTargetState:
     target_position: np.ndarray
     touch_position: np.ndarray
     distance_to_target: float
+    palm_contact: bool
     within_success_distance: bool
     dwell_steps: int
     success: bool
@@ -141,6 +154,7 @@ class ReachTouchTargetState:
                 np.asarray(
                     [
                         self.distance_to_target,
+                        float(self.palm_contact),
                         float(self.within_success_distance),
                         float(self.dwell_steps),
                         float(self.success),
@@ -175,6 +189,7 @@ def is_reach_touch_success(
     dwell_steps: int,
     distance_threshold_m: float,
     required_dwell_steps: int,
+    palm_contact: bool = True,
 ) -> bool:
     """Evaluate the fixed distance-and-dwell success condition."""
 
@@ -186,7 +201,11 @@ def is_reach_touch_success(
         raise ValueError("dwell_steps must be non-negative.")
     if required_dwell_steps <= 0:
         raise ValueError("required_dwell_steps must be positive.")
-    return distance_m <= distance_threshold_m and dwell_steps >= required_dwell_steps
+    return (
+        bool(palm_contact)
+        and distance_m <= distance_threshold_m
+        and dwell_steps >= required_dwell_steps
+    )
 
 
 def reach_touch_failure_reason(
@@ -197,6 +216,7 @@ def reach_touch_failure_reason(
     workspace_min: Sequence[float] | np.ndarray,
     workspace_max: Sequence[float] | np.ndarray,
     success: bool = False,
+    enforce_workspace_bounds: bool = True,
 ) -> str | None:
     """Return a deterministic failure label from synthetic or live state."""
 
@@ -209,7 +229,9 @@ def reach_touch_failure_reason(
         raise ValueError("workspace_min must be strictly below workspace_max.")
     if step_count < 0 or max_episode_steps <= 0:
         raise ValueError("step counts must be non-negative with a positive maximum.")
-    if np.any(touch < minimum) or np.any(touch > maximum):
+    if enforce_workspace_bounds and (
+        np.any(touch < minimum) or np.any(touch > maximum)
+    ):
         return "workspace_bounds"
     if step_count >= max_episode_steps:
         return "timeout"
@@ -273,19 +295,26 @@ class ReachTouchTargetTask:
         self._require_reset()
         self.env.step(action, n_steps=n_steps)
         self._step_count += 1
-        touch_position = self._site_position(self.config.touch_site)
+        palm_contact, touch_position = self._palm_target_contact()
         distance = reach_distance(touch_position, self._target_position)
-        if distance <= self.config.success_distance_m:
+        if palm_contact and distance <= self.config.success_distance_m:
             self._dwell_steps += 1
         else:
             self._dwell_steps = 0
-        return self._make_state(touch_position=touch_position)
+        return self._make_state(
+            touch_position=touch_position,
+            palm_contact=palm_contact,
+        )
 
     def get_state(self) -> ReachTouchTargetState:
         """Extract the current task state without advancing simulation."""
 
         self._require_reset()
-        return self._make_state(touch_position=self._site_position(self.config.touch_site))
+        palm_contact, touch_position = self._palm_target_contact()
+        return self._make_state(
+            touch_position=touch_position,
+            palm_contact=palm_contact,
+        )
 
     def task_state_vector(self) -> np.ndarray:
         """Return the current dense task state for future demo logging."""
@@ -338,15 +367,21 @@ class ReachTouchTargetTask:
         site_name = self.config.target_sites[index]
         return site_name, index, self._site_position(site_name)
 
-    def _make_state(self, *, touch_position: np.ndarray) -> ReachTouchTargetState:
+    def _make_state(
+        self,
+        *,
+        touch_position: np.ndarray,
+        palm_contact: bool,
+    ) -> ReachTouchTargetState:
         self._require_reset()
         distance = reach_distance(touch_position, self._target_position)
-        within = distance <= self.config.success_distance_m
+        within = palm_contact and distance <= self.config.success_distance_m
         success = is_reach_touch_success(
             distance_m=distance,
             dwell_steps=self._dwell_steps,
             distance_threshold_m=self.config.success_distance_m,
             required_dwell_steps=self.config.success_dwell_steps,
+            palm_contact=palm_contact,
         )
         failure = reach_touch_failure_reason(
             touch_position=touch_position,
@@ -355,6 +390,7 @@ class ReachTouchTargetTask:
             workspace_min=self.config.workspace_min,
             workspace_max=self.config.workspace_max,
             success=success,
+            enforce_workspace_bounds=self.config.terminate_on_workspace_bounds,
         )
         initial = self._initial_robot_state
         if initial is None:  # pragma: no cover - guarded by _require_reset.
@@ -365,6 +401,7 @@ class ReachTouchTargetTask:
             target_position=np.asarray(self._target_position, dtype=np.float64).copy(),
             touch_position=touch_position.copy(),
             distance_to_target=distance,
+            palm_contact=palm_contact,
             within_success_distance=within,
             dwell_steps=self._dwell_steps,
             success=success,
@@ -379,6 +416,52 @@ class ReachTouchTargetTask:
             initial_robot_qpos=initial.qpos.copy(),
             initial_robot_qvel=initial.qvel.copy(),
         )
+
+    def _palm_target_contact(self) -> tuple[bool, np.ndarray]:
+        """Return the closest physical palm-to-active-target contact point."""
+
+        target_geom_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_GEOM,
+            self.config.target_marker_geom,
+        )
+        palm_body_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_BODY,
+            self.config.palm_body,
+        )
+        if target_geom_id < 0:
+            raise TaskError(
+                "MuJoCo task scene is missing active target geom "
+                f"'{self.config.target_marker_geom}'."
+            )
+        if palm_body_id < 0:
+            raise TaskError(
+                f"MuJoCo hand model is missing palm body '{self.config.palm_body}'."
+            )
+
+        contact_positions: list[np.ndarray] = []
+        for contact_index in range(int(self.env.data.ncon)):
+            contact = self.env.data.contact[contact_index]
+            if contact.geom1 == target_geom_id:
+                other_geom_id = int(contact.geom2)
+            elif contact.geom2 == target_geom_id:
+                other_geom_id = int(contact.geom1)
+            else:
+                continue
+            if int(self.env.model.geom_bodyid[other_geom_id]) != palm_body_id:
+                continue
+            contact_positions.append(
+                np.asarray(contact.pos, dtype=np.float64).copy()
+            )
+
+        if not contact_positions:
+            return False, self._site_position(self.config.touch_site)
+        closest = min(
+            contact_positions,
+            key=lambda position: reach_distance(position, self._target_position),
+        )
+        return True, closest
 
     def _site_position(self, site_name: str) -> np.ndarray:
         site_id = self.env._mujoco.mj_name2id(
@@ -430,7 +513,7 @@ def _build_reach_touch_target_spec(
         finger_joint_names,
     ) = _mujoco_observation_order(env)
     action_schema = build_level1_action_schema(actuator_names)
-    task_state_dim = 20 + int(env.model.nq) + int(env.model.nv)
+    task_state_dim = 21 + int(env.model.nq) + int(env.model.nv)
     observation_schema = build_level2_observation_schema(
         robot_qpos_dim=int(env.model.nq),
         robot_qvel_dim=int(env.model.nv),
@@ -445,7 +528,7 @@ def _build_reach_touch_target_spec(
         tracking_quality_names=DEFAULT_TRACKING_QUALITY_NAMES,
         task_state_dim=task_state_dim,
         target_state_dim=3,
-        success_metric_dim=7,
+        success_metric_dim=8,
     )
     observation_schema.validate()
     action_schema.validate()
@@ -453,6 +536,7 @@ def _build_reach_touch_target_spec(
         "target_position",
         "touch_position",
         "distance_to_target",
+        "palm_contact",
         "within_success_distance",
         "dwell_steps",
         "success",
@@ -471,10 +555,15 @@ def _build_reach_touch_target_spec(
         observation_schema=observation_schema,
         action_schema=action_schema,
         success_condition=(
-            f"touch site within {config.success_distance_m:.3f} m of target for "
+            f"physical {config.palm_body} contact with {config.target_marker_geom} "
+            f"within {config.success_distance_m:.3f} m of target center for "
             f"{config.success_dwell_steps} consecutive control steps"
         ),
-        failure_conditions=("timeout", "workspace_bounds", "tracking_quality"),
+        failure_conditions=(
+            ("timeout", "workspace_bounds", "tracking_quality")
+            if config.terminate_on_workspace_bounds
+            else ("timeout", "tracking_quality")
+        ),
         max_episode_steps=config.max_episode_steps,
         reset_config={
             "target_sites": config.target_sites,
@@ -482,6 +571,9 @@ def _build_reach_touch_target_spec(
             "target_pose_frame": "MuJoCo world",
             "deterministic_seed": True,
             "initial_robot_state_saved": True,
+            "terminate_on_workspace_bounds": config.terminate_on_workspace_bounds,
+            "contact_body": config.palm_body,
+            "contact_target_geom": config.target_marker_geom,
         },
         parameter_type=ReachTouchTargetParameters,
         parameter_schema={
@@ -504,6 +596,7 @@ def _build_reach_touch_target_spec(
             "target_position",
             "touch_position",
             "distance_to_target",
+            "palm_contact",
         ),
     )
 

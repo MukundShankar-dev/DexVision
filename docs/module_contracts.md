@@ -304,6 +304,11 @@ TaskSpec defines resettable MuJoCo task environments for Level 2 demos.
 Task ids should be stable, for example reach_touch_target, button_press, and push_cube_to_target.
 Each task must expose state fields needed to compute success/failure after recording.
 Task specs should not train policies or call learning modules.
+reach_touch_target success requires physical contact between the rh_palm body
+and the collidable active target marker for the configured dwell duration.
+The saved task state must include the palm_contact flag, closest contact
+position, target position, contact-to-target distance, and dwell count so
+success can be recomputed later.
 ```
 
 ---
