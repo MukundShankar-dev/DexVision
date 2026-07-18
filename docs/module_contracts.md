@@ -494,6 +494,67 @@ Should save task/object state and success metric inputs when present.
 
 ---
 
+## Success Relabeling
+
+Module:
+
+```text
+dexvision/logging/relabel_success.py
+```
+
+Contract:
+
+```python
+report = relabel_reach_touch_dataset(dataset_dir)
+save_relabel_report(report, output_path)
+```
+
+Rules:
+
+```text
+Level 2.6B supports only reach_touch_target.
+Recompute distance from saved target and touch positions and validate the saved distance.
+Recompute consecutive qualifying contact frames from saved palm-contact flags.
+Use the fixed reach-touch distance and dwell thresholds from the task definition.
+Preserve the operator label and recomputed label together in the audit report.
+Never rewrite raw episode metadata or arrays.
+Missing or inconsistent metric inputs must produce clear errors.
+```
+
+---
+
+## Demo Quality Filtering
+
+Module:
+
+```text
+dexvision/logging/quality_filters.py
+```
+
+Contract:
+
+```python
+report = filter_demo_dataset(dataset_dir, thresholds=QualityThresholds())
+save_quality_report(report, output_path)
+```
+
+Rules:
+
+```text
+Level 2.7 evaluates saved reach_touch_target pilot episodes only.
+Quality thresholds must be versioned, configurable, and embedded in each report.
+Filters cover mean tracking confidence, missing frames, feature jitter, action
+jerk, actuator-limit hits, recomputed task failure, and workspace-limit hits.
+Actuator and workspace bounds come from the saved episode metadata/config snapshot.
+Task success must use the Level 2.6B recomputed reach-touch label.
+Reports group results by skill_name and task_id.
+Reports may be added beside a dataset, but raw episode metadata and arrays must
+never be deleted or rewritten.
+Missing, inconsistent, or non-finite quality inputs must produce clear errors.
+```
+
+---
+
 ## Skill Cards
 
 Module:

@@ -891,11 +891,11 @@ pytest tests/test_success_relabeling.py
 ### Pass Criteria
 
 ```text
-[ ] reach_touch_target success can be recomputed
-[ ] Relabel report is saved
-[ ] Missing metric inputs produce clear errors
-[ ] Operator and recomputed labels are both preserved for audit
-[ ] No other task relabeler is added
+[x] reach_touch_target success can be recomputed
+[x] Relabel report is saved
+[x] Missing metric inputs produce clear errors
+[x] Operator and recomputed labels are both preserved for audit
+[x] No other task relabeler is added
 ```
 
 ### Codex Prompt
@@ -946,14 +946,14 @@ pytest tests/test_quality_filters.py
 ### Pass Criteria
 
 ```text
-[ ] Good synthetic demo passes
-[ ] Low-confidence synthetic demo fails
-[ ] High-jitter synthetic demo fails
-[ ] Failed task demo is flagged
-[ ] Report saved as JSON/CSV
-[ ] Report groups results by skill_name/task_id
-[ ] Thresholds are versioned and configurable
-[ ] Raw episodes remain immutable
+[x] Good synthetic demo passes
+[x] Low-confidence synthetic demo fails
+[x] High-jitter synthetic demo fails
+[x] Failed task demo is flagged
+[x] Report saved as JSON/CSV
+[x] Report groups results by skill_name/task_id
+[x] Thresholds are versioned and configurable
+[x] Raw episodes remain immutable
 ```
 
 ### Codex Prompt
