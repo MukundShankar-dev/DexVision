@@ -730,14 +730,14 @@ pytest tests/test_dataset_schema.py tests/test_demo_logger.py tests/test_replay_
 ### Pass Criteria
 
 ```text
-[ ] Observation fields have explicit executable mappings
-[ ] Dense array widths are validated against their layouts
-[ ] Named robot fields preserve MuJoCo joint/actuator order
-[ ] Units and coordinate frames are declared
-[ ] Optional task/object fields have explicit masks or absence rules
-[ ] Existing Level 2.4 demos remain replayable
-[ ] Synthetic extraction tests verify every declared field
-[ ] No task environment or learning model is implemented
+[x] Observation fields have explicit executable mappings
+[x] Dense array widths are validated against their layouts
+[x] Named robot fields preserve MuJoCo joint/actuator order
+[x] Units and coordinate frames are declared
+[x] Optional task/object fields have explicit masks or absence rules
+[x] Existing Level 2.4 demos remain replayable
+[x] Synthetic extraction tests verify every declared field
+[x] No task environment or learning model is implemented
 ```
 
 ### Codex Prompt

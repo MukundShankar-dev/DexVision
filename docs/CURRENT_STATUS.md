@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.4B — Repository Reproducibility Baseline
+Level 2.4C — Executable Observation Layout Contract
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.4C — Executable Observation Layout Contract
+Level 2.5 — Task Board and Reach-Touch Task
 
 ---
 
@@ -294,6 +294,14 @@ datasets. Automated checks passed on July 18, 2026 using
 `conda run -n dexvision ruff check dexvision tests`,
 `conda run -n dexvision pytest` with 240 passed, and
 `conda run -n dexvision python -m dexvision.apps.health_check`.
+
+Level 2.4C — Executable Observation Layout Contract did not require manual
+verification. The versioned Level 2 observation schema now provides executable
+dense-array mappings, ordered MuJoCo joint and actuator names, semantic units
+and coordinate frames, explicit optional-state absence rules, and a legacy
+Level 2.4 replay compatibility adapter. Automated checks passed on July 18,
+2026 using `conda run -n dexvision pytest tests/test_dataset_schema.py
+tests/test_demo_logger.py tests/test_replay_loader.py` with 39 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
