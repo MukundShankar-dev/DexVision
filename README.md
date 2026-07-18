@@ -1,21 +1,37 @@
 # DexVision / Hand2Bot
 
 DexVision is a staged robotics and computer-vision project for controlling a
-simulated dexterous robot hand from live hand-pose tracking.
+simulated dexterous robot hand from live hand-pose tracking. The current Level 2
+work turns the completed Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation
+pipeline into reproducible demonstration datasets.
 
-Level 1 focuses on real-time camera-to-MuJoCo teleoperation using OpenCV,
-MediaPipe hand landmarks, local hand features, smoothing, a curl/bend
-retargeter, and the vendored Shadow Hand MuJoCo model.
+## Clean setup
 
-## Setup
-
-Use the project Conda environment before running the apps or tests:
+Install Git and a Conda distribution such as Miniconda or Miniforge, clone this
+repository, and run the following commands from the repository root:
 
 ```bash
+conda env create -f environment.yml
+conda activate dexvision
+python -m dexvision.apps.health_check
+```
+
+The environment specification installs Python 3.11, the runtime dependencies,
+pytest, and Ruff. To update an existing environment after the specification
+changes:
+
+```bash
+conda env update --name dexvision --file environment.yml --prune
 conda activate dexvision
 ```
 
-The Level 1 demo expects these local assets to exist:
+PyTorch is reserved for Level 3 learning work and is an optional dependency:
+
+```bash
+python -m pip install -e ".[learning]"
+```
+
+The live demo uses these repository assets:
 
 ```text
 assets/models/hand_landmarker.task
@@ -25,66 +41,66 @@ configs/level1_teleop.yaml
 
 ## Level 1 Demo
 
-On macOS, run the polished demo from a regular Terminal or iTerm session with
-`mjpython` so the MuJoCo viewer can open:
+### macOS
+
+Run viewer-based applications from Terminal or iTerm with `mjpython`, which is
+installed with MuJoCo:
 
 ```bash
 mjpython -m dexvision.apps.run_level1_teleop --camera-id 0 --show-camera-window --print-interval 10
 ```
 
-On Windows, run the same module with Python:
+macOS may ask for camera permission the first time the application runs. The
+automated checks do not open a camera or GUI.
 
-```bash
+### Windows
+
+Run the same module from Anaconda Prompt or PowerShell after activating the
+environment:
+
+```powershell
 python -m dexvision.apps.run_level1_teleop --camera-id 0 --show-camera-window --print-interval 10
 ```
 
-The demo opens the MuJoCo hand viewer and, when `--show-camera-window` is set, a
-camera overlay window with landmarks, finger-control bars, tracking confidence,
-FPS, and tracking-loss status. Press `q` in the camera overlay, close the MuJoCo
-viewer, or press `Ctrl-C` in the terminal to stop.
+Allow camera access in Windows privacy settings if the live application cannot
+open the selected camera.
 
-Useful options:
+The demo opens the MuJoCo hand viewer and a camera overlay with landmarks,
+finger-control bars, tracking confidence, FPS, and tracking-loss status. Press
+`q` in the camera overlay, close the viewer, or press `Ctrl-C` to stop.
 
-```bash
-python -m dexvision.apps.run_level1_teleop --help
-python -m dexvision.apps.run_level1_teleop --camera-id 1 --width 640 --height 480 --show-camera-window
-python -m dexvision.apps.run_level1_teleop --camera-id 0 --assume-mirrored-input --show-camera-window
-```
+For a short demo video or GIF, record the camera overlay and MuJoCo viewer with
+the operating system screen recorder while the demo is running.
 
-For a short demo video or GIF, record both the camera overlay and MuJoCo viewer
-with the operating system screen recorder while running the demo command above.
-On macOS, `Shift-Command-5` can record a selected portion of the screen.
+## Development checks
 
-## Automated Checks
-
-Run the focused Level 1 demo checks:
+Always run checks in the `dexvision` environment:
 
 ```bash
-python -m dexvision.apps.run_level1_teleop --help
-pytest tests/test_run_level1_teleop.py tests/test_curl_retargeter.py tests/test_one_finger_teleop.py
-```
-
-Run the full automated suite:
-
-```bash
+conda activate dexvision
+ruff check dexvision tests
 pytest
+python -m dexvision.apps.health_check
 ```
 
 Automated tests use synthetic camera data and do not require a webcam, GPU, or
 visible MuJoCo GUI.
 
+## Demonstration data
+
+Operator-recorded demos under `data/demos/` are local data and are intentionally
+ignored by Git. Creating or updating the environment does not remove them. See
+the [Level 2 dataset runbook](docs/level2_dataset_runbook.md) for the collection
+layout and commands.
+
+Project staging and checkpoint status are documented in
+[CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
+[Level 2 progress file](docs/progress_level_2.md).
+
 ## Known Limitations
 
-This is a Level 1 teleoperation demo, not a real-robot controller.
-
-The thumb mapping is intentionally conservative and less expressive than the
-long-finger bend controls.
-
-Pinch and peace-sign poses are approximate because the current retargeter maps
-simple hand features to Shadow Hand actuator targets.
-
-Tracking quality depends on lighting, camera placement, and whether the input is
-mirrored. Use `--assume-mirrored-input` only for selfie-mirrored camera feeds.
-
-When tracking is lost or confidence is low, controls decay or hold according to
-the smoothing configuration instead of trying to infer unseen fingers.
+This is a simulated teleoperation and dataset pipeline, not a real-robot
+controller. The thumb mapping is intentionally conservative, and pinch and
+peace-sign poses remain approximate. Tracking quality depends on lighting,
+camera placement, and whether the input is mirrored. Use
+`--assume-mirrored-input` only for selfie-mirrored camera feeds.

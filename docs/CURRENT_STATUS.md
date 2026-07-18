@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.4 — Free-Space Gesture Skill Dataset
+Level 2.4B — Repository Reproducibility Baseline
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.4B — Repository Reproducibility Baseline
+Level 2.4C — Executable Observation Layout Contract
 
 ---
 
@@ -283,6 +283,17 @@ returned the macOS terminal prompt normally. The original
 an uninterrupted 3.97-second valid pinch and remains documented as usable raw
 data. No quality filtering, object-task implementation, or learning was
 started.
+
+Level 2.4B — Repository Reproducibility Baseline did not require manual
+verification. The repository now declares its runtime and development
+dependencies in `pyproject.toml` and `environment.yml`, documents clean macOS
+and Windows setup, tracks the roadmap/task/runbook/orchestration docs, and
+ignores generated Python caches, OS metadata, operator demos, and outputs.
+Generated files were removed from Git tracking without deleting the local
+datasets. Automated checks passed on July 18, 2026 using
+`conda run -n dexvision ruff check dexvision tests`,
+`conda run -n dexvision pytest` with 240 passed, and
+`conda run -n dexvision python -m dexvision.apps.health_check`.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

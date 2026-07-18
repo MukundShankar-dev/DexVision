@@ -647,13 +647,13 @@ python -m dexvision.apps.health_check
 ### Pass Criteria
 
 ```text
-[ ] Future roadmap and task-design docs are tracked by Git
-[ ] Generated Python caches and OS metadata are ignored
-[ ] A clean-environment creation command is documented
-[ ] Runtime and development dependencies are declared
-[ ] Ruff and pytest run in the dexvision environment
-[ ] Existing automated tests still pass
-[ ] No local raw dataset is deleted
+[x] Future roadmap and task-design docs are tracked by Git
+[x] Generated Python caches and OS metadata are ignored
+[x] A clean-environment creation command is documented
+[x] Runtime and development dependencies are declared
+[x] Ruff and pytest run in the dexvision environment
+[x] Existing automated tests still pass
+[x] No local raw dataset is deleted
 ```
 
 ### Codex Prompt
@@ -1493,7 +1493,7 @@ Do not add policy learning.
 [x] Dataset collection runbook and tracker documented
 [x] Demo replay works for base/wrist/finger actions
 [x] Free-space gesture demos recorded
-[ ] Repository and environment are reproducible from a clean clone
+[x] Repository and environment are reproducible from a clean clone
 [ ] Observation layouts are executable and versioned
 [ ] reach_touch_target task and deterministic reset work
 [ ] Reach-touch pilot demos pass replay

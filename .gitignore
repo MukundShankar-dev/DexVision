@@ -1,5 +1,32 @@
+# Local project notes and source material
 DexVision\ Project\ Overview.pdf
 AGENTS.md
 README_REPO_BOOTSTRAP.md
 SETUP_NEXT_STEPS.md
-docs/
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local environments and editor settings
+.env
+.venv/
+venv/
+.idea/
+.vscode/
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+
+# Operator-owned datasets and generated outputs
+data/demos/
+outputs/

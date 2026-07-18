@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dexvision-hand2bot"
+version = "0.1.0"
+description = "Vision-based dexterous teleoperation and imitation-learning pipeline"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "mediapipe>=0.10.21,<0.11",
+    "mujoco>=3.2,<4",
+    "numpy>=1.26,<2",
+    "opencv-contrib-python>=4.10,<5",
+    "PyYAML>=6,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "ruff>=0.12,<1",
+]
+learning = [
+    "torch>=2.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["dexvision*"]
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

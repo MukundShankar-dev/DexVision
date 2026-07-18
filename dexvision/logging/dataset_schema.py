@@ -269,18 +269,22 @@ def _validate_metadata(metadata: Mapping[str, Any]) -> None:
     if missing:
         raise DemoSchemaError("metadata is missing required fields: " + ", ".join(missing))
 
-    for field in ("skill_name", "task_name", "task_id", "episode_id"):
-        value = metadata[field]
+    for metadata_field in ("skill_name", "task_name", "task_id", "episode_id"):
+        value = metadata[metadata_field]
         if not isinstance(value, str) or not value:
-            raise DemoSchemaError(f"metadata field '{field}' must be a non-empty string.")
+            raise DemoSchemaError(
+                f"metadata field '{metadata_field}' must be a non-empty string."
+            )
 
     control_rate = metadata["control_rate_hz"]
     if not isinstance(control_rate, (int, float)) or control_rate <= 0.0:
         raise DemoSchemaError("metadata field 'control_rate_hz' must be positive.")
 
-    for field in ("teleop_config", "task_config"):
-        if not isinstance(metadata[field], Mapping):
-            raise DemoSchemaError(f"metadata field '{field}' must be a mapping.")
+    for metadata_field in ("teleop_config", "task_config"):
+        if not isinstance(metadata[metadata_field], Mapping):
+            raise DemoSchemaError(
+                f"metadata field '{metadata_field}' must be a mapping."
+            )
 
     if "gesture_label" in metadata:
         label = metadata["gesture_label"]
