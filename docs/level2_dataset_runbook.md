@@ -77,6 +77,10 @@ data/demos/
       2026-06-14_002/
     reach_touch_target/
       2026-06-14_001/
+  staging/
+    reach_touch_target/
+  rejected/
+    reach_touch_target/
   processed/
     free_space_gesture/
     reach_touch_target/
@@ -92,8 +96,10 @@ Naming rules:
 - Include a zero-padded attempt number, such as `001`.
 - Optionally include an operator or session id, such as
   `2026-06-14_mukund_001`.
-- Avoid overwriting existing runs. Prefer a new attempt directory; use
-  `--overwrite` only when intentionally replacing a known bad run.
+- Never overwrite or delete an existing raw episode.
+- For quality-gated reach-touch collection, let the selector choose the next
+  unused raw name. Failed attempts are retained outside `raw/` under
+  `rejected/`.
 
 The current single-command style is still acceptable for quick checks:
 
@@ -136,16 +142,18 @@ Optional end labels, when known at recording time:
 --failure
 ```
 
-Future task commands, TODO until task scenes/state extraction are implemented:
+Current quality-gated reach-touch collection:
 
 ```bash
-# TODO Level 2.5/2.6
-mjpython -m dexvision.apps.record_demo \
-  --task reach_touch_target \
-  --retargeter curl \
-  --output data/demos/raw/reach_touch_target/2026-06-14_001 \
-  --level1-13-full
+python -m dexvision.apps.select_reach_target --run
+```
 
+This command balances the clean-success distribution, launches the recorder,
+and admits only quality-passed successful episodes into `raw/`.
+
+Future task commands remain TODO until their checkpoints are implemented:
+
+```bash
 # TODO Level 2.7E
 mjpython -m dexvision.apps.record_demo \
   --task button_press \
@@ -197,7 +205,7 @@ For usable Level 2 validation after the pilot passes:
 
 For the first Level 3 behavior-cloning baseline:
 
-- `reach_touch_target`: 50-100 clean demos
+- `reach_touch_target`: complete with 55 clean demos
 - `button_press`: 50-100 clean demos
 - `push_cube_to_target`: 100+ clean demos
 - `grasp_object` and `pinch_lift_object`: stretch until the task scene,
@@ -205,9 +213,10 @@ For the first Level 3 behavior-cloning baseline:
 
 ## F. Task Recording Checklist
 
-For each demo:
+For each manually named demo:
 
-- Pick a unique output directory before starting.
+- Pick a unique output directory before starting. The reach-touch selector
+  does this automatically.
 - Open the camera and MuJoCo viewer with `--level1-13-full`.
 - Calibrate the Level 1.13 base pose, or confirm auto-calibration captured the
   intended neutral pose.
@@ -222,9 +231,12 @@ For each demo:
   accidental occlusion.
 
 Current recorder behavior: stopping with `q`, closing the viewer, or pressing
-Ctrl-C after frames have been recorded saves the collected frames. There is not
-yet a dedicated discard key. For a bad take, delete the attempt directory or
-rerun the same path with `--overwrite`.
+Ctrl-C after frames have been recorded saves the collected frames. For
+reach-touch collection through `select_reach_target --run`, the attempt is
+first saved under `staging/`; a clean success moves into `raw/`, while a failed
+or invalid take moves into `rejected/`. Existing raw episodes remain immutable.
+For tasks without this gate, record a replacement and retain or clearly flag
+the original raw take.
 
 ## G. Manual Quality Checklist
 
@@ -240,39 +252,43 @@ A demo is bad if:
 - the operator accidentally blocks the camera
 - the success/failure label is wrong
 
-Keep questionable demos in `raw/` only if they can be flagged later. Do not move
-them into `processed/` as clean training data.
+Keep historical questionable raw demos for audit and flag them in quality
+reports. New quality-gated reach-touch failures belong in `rejected/`, not
+`raw/`. Do not move any failed take into `processed/` as clean training data.
 
 ## H. Replay And Validation Commands
 
-Replay is the next Level 2 code checkpoint and is not implemented yet:
+Replay is implemented. Use headless mode for automated coverage or omit
+`--headless` for viewer inspection:
 
 ```bash
-# TODO Level 2.3
-mjpython -m dexvision.apps.replay_demo --demo <path>
+python -m dexvision.apps.replay_demo --demo <episode_path> --headless
+mjpython -m dexvision.apps.replay_demo --demo <episode_path>
 ```
 
-Validation CLI is not implemented yet. The schema validator exists as library
-logic; a CLI can be added later if needed:
+Replay loading validates the saved schema and required arrays before applying
+actions. Success relabeling is implemented for reach-touch:
 
 ```bash
-# TODO future Level 2 validation helper
-python -m dexvision.apps.validate_demo --demo <path>
+python -m dexvision.apps.relabel_demos \
+  --dataset data/demos/raw/reach_touch_target
 ```
 
-Quality filtering is planned for Level 2.7:
+Quality filtering is implemented for reach-touch:
 
 ```bash
-# TODO Level 2.7
-python -m dexvision.apps.filter_demos --dataset <task_dataset>
+python -m dexvision.apps.filter_demos \
+  --dataset data/demos/raw/reach_touch_target
 ```
 
-Dataset summaries are planned for Level 2.7B:
+Dataset summaries and Level 3 readiness evaluation are implemented:
 
 ```bash
-# TODO Level 2.7B
 python -m dexvision.apps.summarize_demos --dataset data/demos
 ```
+
+The summary uses `configs/reach_touch_dataset.yaml` to validate the versioned
+training-target and held-out-evaluation split.
 
 ## I. Dataset Readiness Criteria For Level 3
 
@@ -296,12 +312,24 @@ A task dataset is ready for the first Level 3 behavior-cloning baseline when:
 
 Do not treat raw demos as Level 3-ready just because they were saved.
 
+Current `reach_touch_target` readiness:
+
+- 76 immutable raw episodes
+- 69 recomputed successes with zero operator/recomputed disagreements
+- 55 clean successful episodes
+- clean distribution: left 18, center 18, right 19
+- all 76 episodes validate and complete headless replay
+- held-out Level 3 targets:
+  `reach_eval_left_center = [0.14, -0.05, 0.47]` metres and
+  `reach_eval_center_right = [0.14, 0.03, 0.50]` metres
+- dataset summary result: `level3_ready: true`
+
 ## J. Level 2 Completion Tracker
 
 | Task | Scene implemented | Record command | Replay works | Quality filter works | Clean demos target | Ready for Level 3 |
 |---|---|---|---|---|---:|---|
-| free_space_gesture | yes, no object scene required | yes | no | no | 20 | no |
-| reach_touch_target | no | TODO | no | no | 50 | no |
+| free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
+| reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
 | button_press | no | TODO | no | no | 50 | no |
 | push_cube_to_target | no | TODO | no | no | 100 | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
@@ -311,15 +339,15 @@ Update this table as Level 2 checkpoints land. A row should only move to
 `Ready for Level 3 = yes` after replay, validation, filtering, and clean-demo
 counts are all satisfied.
 
-Future manipulation-task order:
+Manipulation-task order and current completion:
 
 ```text
-1. reach_touch_target task and five-demo pilot
-2. generic relabel/filter/summary gates proven on the reach pilot
-3. scale reach_touch_target and reserve held-out target positions
-4. button_press task and five-demo pilot through the same gates
-5. push_cube_to_target task and five-demo pilot through the same gates
-6. scale only the task datasets whose pilots pass
+[x] 1. reach_touch_target task and five-demo pilot
+[x] 2. relabel/filter/summary gates proven on the reach pilot
+[x] 3. scale reach_touch_target and reserve held-out target positions
+[ ] 4. button_press task and five-demo pilot through the same gates
+[ ] 5. push_cube_to_target task and five-demo pilot through the same gates
+[ ] 6. scale only the task datasets whose pilots pass
 ```
 
 Train/validation/test planning must happen before dataset scale-up. Split by
@@ -328,7 +356,10 @@ timesteps from one episode into multiple splits.
 
 ## K. Do Not Do Yet
 
-- Do not train Level 3 policies until replay, validation, and filtering exist.
+- Do not train a task-specific Level 3 policy until that task has replay,
+  validation, relabeling, filtering, a clean scaled dataset, and held-out
+  evaluation conditions. `reach_touch_target` now satisfies these data gates;
+  later tasks do not.
 - Do not collect large datasets before task schemas, success metrics, action
   schemas, and observation schemas stabilize.
 - Do not implement Level 5 orchestration in this repo.

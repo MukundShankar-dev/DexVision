@@ -7,8 +7,10 @@ import sys
 from pathlib import Path
 
 from dexvision.logging.dataset_summary import (
+    DEFAULT_REACH_TOUCH_CONFIG,
     DatasetSummaryError,
     default_summary_paths,
+    load_reach_touch_dataset_config,
     save_dataset_summary,
     summarize_demo_dataset,
 )
@@ -39,6 +41,15 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="CSV output path. Defaults to <dataset>/reports/summaries/dataset_summary.csv.",
     )
+    parser.add_argument(
+        "--reach-touch-config",
+        type=Path,
+        default=DEFAULT_REACH_TOUCH_CONFIG,
+        help=(
+            "Versioned reach-touch train/held-out split and readiness thresholds. "
+            f"Defaults to {DEFAULT_REACH_TOUCH_CONFIG}."
+        ),
+    )
     return parser
 
 
@@ -52,9 +63,14 @@ def run_summary(args: argparse.Namespace) -> int:
     print(f"Dataset: {args.dataset}")
     print(f"JSON output: {json_path}")
     print(f"CSV output: {csv_path}")
+    print(f"Reach-touch readiness config: {args.reach_touch_config}")
     print("Raw episodes: immutable")
 
-    report = summarize_demo_dataset(args.dataset)
+    reach_touch_config = load_reach_touch_dataset_config(args.reach_touch_config)
+    report = summarize_demo_dataset(
+        args.dataset,
+        reach_touch_config=reach_touch_config,
+    )
     for warning in report.warnings:
         print(f"WARNING: {warning}", file=sys.stderr)
     saved_json, saved_csv = save_dataset_summary(
@@ -75,7 +91,9 @@ def run_summary(args: argparse.Namespace) -> int:
             f"episodes={group.num_episodes}, success_rate={success_rate}, "
             f"quality_pass={group.quality_pass_count}, "
             f"quality_fail={group.quality_fail_count}, "
-            f"relabel_disagreements={group.relabel_disagreement_count}"
+            f"relabel_disagreements={group.relabel_disagreement_count}, "
+            f"clean_success={group.clean_success_count}, "
+            f"level3_ready={group.level3_ready}"
         )
     print(f"Saved JSON: {saved_json}")
     print(f"Saved CSV: {saved_csv}")

@@ -1042,18 +1042,44 @@ multiple configured target positions
 separate held-out target positions reserved for Level 3 evaluation
 ```
 
+### Collection Helper
+
+Use the quality-gated balanced selector for each new attempt:
+
+```bash
+python -m dexvision.apps.select_reach_target --run
+```
+
+The selector chooses randomly among the configured targets with the fewest
+quality-passed successful episodes. A live attempt records into
+`data/demos/staging/reach_touch_target/`; only an attempt that passes the
+current Level 2.7 quality filters is moved into
+`data/demos/raw/reach_touch_target/`. Failed attempts are preserved under
+`data/demos/rejected/reach_touch_target/` for audit and tuning, do not count
+toward clean target balance, and do not rewrite or delete existing raw data.
+
 ### Pass Criteria
 
 ```text
-[ ] Raw demos remain immutable
-[ ] Every episode validates and replays
-[ ] Every episode has a recomputed success label
-[ ] Quality report covers every episode
-[ ] At least 50 clean successful demos remain
-[ ] Target-position distribution is summarized
-[ ] Held-out evaluation targets are identified before training
-[ ] Dataset summary marks reach_touch_target ready for Level 3
+[x] Raw demos remain immutable
+[x] Every episode validates and replays
+[x] Every episode has a recomputed success label
+[x] Quality report covers every episode
+[x] At least 50 clean successful demos remain
+[x] Target-position distribution is summarized
+[x] Held-out evaluation targets are identified before training
+[x] Dataset summary marks reach_touch_target ready for Level 3
 ```
+
+The completed collection contains 76 immutable raw episodes and 55 clean
+successful episodes: 18 left, 18 center, and 19 right. All 76 episodes
+validated and completed headless replay for 9,540 recorded action steps.
+Relabeling covers every episode with 69 recomputed successes and zero
+operator/recomputed disagreements; quality filtering covers every episode
+with 55 passes and 21 retained audit failures. The versioned split in
+`configs/reach_touch_dataset.yaml` reserves two interpolated, unrecorded target
+positions for Level 3 evaluation. The v2 dataset summary reports
+`level3_ready: true`.
 
 ### Codex Prompt
 
@@ -1499,7 +1525,7 @@ Do not add policy learning.
 [x] Reach-touch pilot demos pass replay
 [x] Reach-touch success relabeling works
 [x] Pilot quality filters work without mutating raw data
-[ ] Reach-touch summary and scaled dataset are Level 3-ready
+[x] Reach-touch summary and scaled dataset are Level 3-ready
 [ ] button_press task and pilot pass all data-quality gates
 [ ] push_cube_to_target task and pilot pass all data-quality gates
 [ ] Button and push datasets are scaled only after their pilot gates pass

@@ -541,7 +541,7 @@ save_quality_report(report, output_path)
 Rules:
 
 ```text
-Level 2.7 evaluates saved reach_touch_target pilot episodes only.
+Level 2.7 evaluates saved reach_touch_target pilot and scaled-dataset episodes.
 Quality thresholds must be versioned, configurable, and embedded in each report.
 Filters cover mean tracking confidence, missing frames, feature jitter, action
 jerk, actuator-limit hits, recomputed task failure, and workspace-limit hits.
@@ -551,6 +551,66 @@ Reports group results by skill_name and task_id.
 Reports may be added beside a dataset, but raw episode metadata and arrays must
 never be deleted or rewritten.
 Missing, inconsistent, or non-finite quality inputs must produce clear errors.
+```
+
+---
+
+## Scaled Reach-Touch Collection Gate
+
+Modules:
+
+```text
+dexvision/logging/collection_planner.py
+dexvision/apps/select_reach_target.py
+```
+
+Contract:
+
+```python
+plan = plan_reach_touch_collection(dataset_dir)
+python -m dexvision.apps.select_reach_target --run
+```
+
+Rules:
+
+```text
+Target selection balances quality-passed successful episodes, not raw attempts.
+Ties between least-represented clean targets are selected randomly.
+The next raw episode path must never overwrite an existing directory.
+Quality-gated attempts record into a staging directory first.
+Only episodes passing the current Level 2.7 quality filters move into raw/.
+Rejected or invalid attempts remain outside raw/ for audit and tuning.
+Existing raw episode directories must never be deleted or rewritten.
+```
+
+---
+
+## Dataset Summary and Reach-Touch Readiness
+
+Module:
+
+```text
+dexvision/logging/dataset_summary.py
+```
+
+Contract:
+
+```python
+config = load_reach_touch_dataset_config("configs/reach_touch_dataset.yaml")
+report = summarize_demo_dataset(dataset_dir, reach_touch_config=config)
+```
+
+Rules:
+
+```text
+The reach-touch train/held-out split is versioned in YAML.
+Training and held-out target ids and positions must be distinct.
+Readiness uses recomputed success plus quality-pass results, not operator labels alone.
+The summary reports raw, recomputed-success, quality-pass, and clean-success counts per target.
+Level 3 readiness requires complete relabel/quality coverage, no disagreements,
+one action/observation schema version, the configured clean total and per-target
+minimums, and declared uncontaminated held-out evaluation targets.
+Summary generation remains read-only with respect to raw episode directories.
 ```
 
 ---

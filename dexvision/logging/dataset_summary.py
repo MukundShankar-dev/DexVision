@@ -9,19 +9,56 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import yaml
 
 from dexvision.logging.quality_filters import DEFAULT_REPORT_NAME as QUALITY_REPORT_NAME
 from dexvision.logging.relabel_success import DEFAULT_REPORT_NAME as RELABEL_REPORT_NAME
 
 
-DATASET_SUMMARY_VERSION = "level2/dataset-summary-v1"
+DATASET_SUMMARY_VERSION = "level2/dataset-summary-v2"
 DEFAULT_JSON_NAME = "dataset_summary.json"
 DEFAULT_CSV_NAME = "dataset_summary.csv"
 DEFAULT_REPORT_DIRECTORY = Path("reports") / "summaries"
+DEFAULT_REACH_TOUCH_CONFIG = Path("configs/reach_touch_dataset.yaml")
+REACH_TOUCH_TASK_ID = "reach_touch_target"
 
 
 class DatasetSummaryError(RuntimeError):
     """Raised when saved dataset inputs cannot be summarized safely."""
+
+
+@dataclass(frozen=True)
+class TargetDefinition:
+    """One configured train or held-out target position."""
+
+    target_id: str
+    position: tuple[float, float, float]
+
+
+@dataclass(frozen=True)
+class ReachTouchDatasetConfig:
+    """Versioned readiness and target-split contract."""
+
+    version: str
+    task_id: str
+    minimum_clean_successful_episodes: int
+    minimum_clean_per_training_target: int
+    position_units: str
+    coordinate_frame: str
+    training_targets: tuple[TargetDefinition, ...]
+    held_out_evaluation_targets: tuple[TargetDefinition, ...]
+
+
+@dataclass(frozen=True)
+class TargetPositionSummary:
+    """Recorded distribution and clean count for one training target."""
+
+    target_id: str
+    position: tuple[float, float, float]
+    num_episodes: int
+    num_recomputed_success: int
+    quality_pass_count: int
+    clean_success_count: int
 
 
 @dataclass(frozen=True)
@@ -64,6 +101,14 @@ class SkillDatasetSummary:
     observation_schema_version: str
     action_schema_versions: tuple[str, ...]
     observation_schema_versions: tuple[str, ...]
+    clean_success_count: int
+    target_position_distribution: tuple[TargetPositionSummary, ...]
+    held_out_evaluation_targets: tuple[TargetDefinition, ...]
+    readiness_config_version: str | None
+    minimum_clean_success_count: int | None
+    minimum_clean_per_training_target: int | None
+    level3_ready: bool | None
+    readiness_failures: tuple[str, ...]
     quality_failures: tuple[QualityFailureSummary, ...]
     relabel_disagreements: tuple[RelabelDisagreementSummary, ...]
 
@@ -97,6 +142,8 @@ class _EpisodeSummaryInput:
     mean_tracking_confidence: float
     action_schema_version: str
     observation_schema_version: str
+    target_source: str | None
+    target_position: tuple[float, float, float] | None
 
 
 @dataclass(frozen=True)
@@ -120,7 +167,11 @@ class _ReportIndex:
     relabel_by_episode_id: dict[str, _RelabelResult]
 
 
-def summarize_demo_dataset(dataset_dir: str | Path) -> DatasetSummaryReport:
+def summarize_demo_dataset(
+    dataset_dir: str | Path,
+    *,
+    reach_touch_config: ReachTouchDatasetConfig | None = None,
+) -> DatasetSummaryReport:
     """Summarize every saved episode below ``dataset_dir`` without modifying it."""
 
     dataset = Path(dataset_dir)
@@ -150,6 +201,7 @@ def summarize_demo_dataset(dataset_dir: str | Path) -> DatasetSummaryReport:
             ),
             reports=reports,
             warnings=warnings,
+            reach_touch_config=reach_touch_config,
         )
         for group_key in group_keys
     )
@@ -206,6 +258,14 @@ def save_dataset_summary(
             "observation_schema_version",
             "action_schema_versions",
             "observation_schema_versions",
+            "clean_success_count",
+            "target_position_distribution",
+            "held_out_evaluation_targets",
+            "readiness_config_version",
+            "minimum_clean_success_count",
+            "minimum_clean_per_training_target",
+            "level3_ready",
+            "readiness_failures",
         )
         writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
@@ -213,12 +273,7 @@ def save_dataset_summary(
             row = asdict(group)
             writer.writerow(
                 {
-                    field: (
-                        ";".join(row[field])
-                        if field
-                        in {"action_schema_versions", "observation_schema_versions"}
-                        else row[field]
-                    )
+                    field: _csv_value(field, row[field])
                     for field in fieldnames
                 }
             )
@@ -232,6 +287,78 @@ def default_summary_paths(dataset_dir: str | Path) -> tuple[Path, Path]:
 
     report_dir = Path(dataset_dir) / DEFAULT_REPORT_DIRECTORY
     return report_dir / DEFAULT_JSON_NAME, report_dir / DEFAULT_CSV_NAME
+
+
+def load_reach_touch_dataset_config(
+    config_path: str | Path,
+) -> ReachTouchDatasetConfig:
+    """Load and validate the versioned reach-touch train/evaluation split."""
+
+    path = Path(config_path)
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise DatasetSummaryError(f"Reach-touch dataset config does not exist: {path}") from exc
+    except (OSError, yaml.YAMLError) as exc:
+        raise DatasetSummaryError(
+            f"Could not read valid YAML from reach-touch dataset config {path}: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise DatasetSummaryError(f"{path} must contain a YAML mapping.")
+
+    version = _config_string(payload, "version", path=path)
+    task_id = _config_string(payload, "task_id", path=path)
+    if task_id != REACH_TOUCH_TASK_ID:
+        raise DatasetSummaryError(
+            f"{path} task_id must be {REACH_TOUCH_TASK_ID!r}; got {task_id!r}."
+        )
+    minimum_clean = _config_positive_int(
+        payload,
+        "minimum_clean_successful_episodes",
+        path=path,
+    )
+    minimum_per_target = _config_positive_int(
+        payload,
+        "minimum_clean_per_training_target",
+        path=path,
+    )
+    units = _config_string(payload, "position_units", path=path)
+    coordinate_frame = _config_string(payload, "coordinate_frame", path=path)
+    training_targets = _config_targets(payload, "training_targets", path=path)
+    held_out_targets = _config_targets(
+        payload,
+        "held_out_evaluation_targets",
+        path=path,
+    )
+    if not training_targets:
+        raise DatasetSummaryError(f"{path} must declare at least one training target.")
+    if not held_out_targets:
+        raise DatasetSummaryError(
+            f"{path} must declare at least one held-out evaluation target."
+        )
+    training_ids = {target.target_id for target in training_targets}
+    held_out_ids = {target.target_id for target in held_out_targets}
+    overlap = training_ids & held_out_ids
+    if overlap:
+        raise DatasetSummaryError(
+            f"{path} target ids cannot be both training and held-out: {sorted(overlap)}."
+        )
+    training_positions = {target.position for target in training_targets}
+    held_out_positions = {target.position for target in held_out_targets}
+    if training_positions & held_out_positions:
+        raise DatasetSummaryError(
+            f"{path} held-out positions must be distinct from training positions."
+        )
+    return ReachTouchDatasetConfig(
+        version=version,
+        task_id=task_id,
+        minimum_clean_successful_episodes=minimum_clean,
+        minimum_clean_per_training_target=minimum_per_target,
+        position_units=units,
+        coordinate_frame=coordinate_frame,
+        training_targets=training_targets,
+        held_out_evaluation_targets=held_out_targets,
+    )
 
 
 def _episode_directories(dataset: Path, *, warnings: list[str]) -> tuple[Path, ...]:
@@ -305,6 +432,24 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
 
     action_version = _schema_version(metadata, "action_schema", path=path)
     observation_version = _schema_version(metadata, "observation_schema", path=path)
+    target_source: str | None = None
+    target_position: tuple[float, float, float] | None = None
+    if task_id == REACH_TOUCH_TASK_ID:
+        task_config = metadata.get("task_config")
+        if not isinstance(task_config, dict):
+            raise DatasetSummaryError(
+                f"{path / 'metadata.json'} must declare task_config as an object."
+            )
+        target_source = _required_string(
+            task_config,
+            "resolved_target_source",
+            path=path,
+        )
+        target_position = _position_tuple(
+            task_config.get("target_position"),
+            label="task_config.target_position",
+            path=path / "metadata.json",
+        )
     return _EpisodeSummaryInput(
         path=path.resolve(),
         episode_id=episode_id,
@@ -315,6 +460,8 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
         mean_tracking_confidence=float(np.mean(confidence)),
         action_schema_version=action_version,
         observation_schema_version=observation_version,
+        target_source=target_source,
+        target_position=target_position,
     )
 
 
@@ -323,6 +470,7 @@ def _summarize_group(
     *,
     reports: _ReportIndex,
     warnings: list[str],
+    reach_touch_config: ReachTouchDatasetConfig | None,
 ) -> SkillDatasetSummary:
     skill_name = episodes[0].skill_name
     task_id = episodes[0].task_id
@@ -388,6 +536,29 @@ def _summarize_group(
     observation_versions = tuple(
         sorted({episode.observation_schema_version for episode in episodes})
     )
+    target_distribution = _summarize_target_distribution(
+        episodes,
+        quality_results=tuple(quality_results),
+        relabel_results=tuple(relabel_results),
+        config=reach_touch_config if task_id == REACH_TOUCH_TASK_ID else None,
+    )
+    clean_success_count = sum(
+        target.clean_success_count for target in target_distribution
+    )
+    readiness_failures = _readiness_failures(
+        task_id=task_id,
+        config=reach_touch_config,
+        target_distribution=target_distribution,
+        clean_success_count=clean_success_count,
+        quality_unreported_count=quality_unreported_count,
+        relabel_unreported_count=relabel_unreported_count,
+        disagreement_count=len(disagreements),
+        action_versions=action_versions,
+        observation_versions=observation_versions,
+    )
+    readiness_applies = (
+        task_id == REACH_TOUCH_TASK_ID and reach_touch_config is not None
+    )
     return SkillDatasetSummary(
         skill_name=skill_name,
         task_id=task_id,
@@ -414,9 +585,162 @@ def _summarize_group(
         observation_schema_version=_display_schema_version(observation_versions),
         action_schema_versions=action_versions,
         observation_schema_versions=observation_versions,
+        clean_success_count=clean_success_count,
+        target_position_distribution=target_distribution,
+        held_out_evaluation_targets=(
+            reach_touch_config.held_out_evaluation_targets
+            if readiness_applies
+            else ()
+        ),
+        readiness_config_version=(
+            reach_touch_config.version if readiness_applies else None
+        ),
+        minimum_clean_success_count=(
+            reach_touch_config.minimum_clean_successful_episodes
+            if readiness_applies
+            else None
+        ),
+        minimum_clean_per_training_target=(
+            reach_touch_config.minimum_clean_per_training_target
+            if readiness_applies
+            else None
+        ),
+        level3_ready=(not readiness_failures if readiness_applies else None),
+        readiness_failures=readiness_failures,
         quality_failures=tuple(quality_failures),
         relabel_disagreements=tuple(disagreements),
     )
+
+
+def _summarize_target_distribution(
+    episodes: tuple[_EpisodeSummaryInput, ...],
+    *,
+    quality_results: tuple[_QualityResult | None, ...],
+    relabel_results: tuple[_RelabelResult | None, ...],
+    config: ReachTouchDatasetConfig | None,
+) -> tuple[TargetPositionSummary, ...]:
+    if episodes[0].task_id != REACH_TOUCH_TASK_ID:
+        return ()
+
+    observed_positions: dict[str, tuple[float, float, float]] = {}
+    counts: dict[str, list[int]] = {}
+    for episode, quality, relabel in zip(
+        episodes,
+        quality_results,
+        relabel_results,
+        strict=True,
+    ):
+        if episode.target_source is None or episode.target_position is None:
+            raise DatasetSummaryError(
+                f"{episode.path} is missing its reach-touch target identity."
+            )
+        previous_position = observed_positions.setdefault(
+            episode.target_source,
+            episode.target_position,
+        )
+        if not np.allclose(
+            previous_position,
+            episode.target_position,
+            rtol=0.0,
+            atol=1e-9,
+        ):
+            raise DatasetSummaryError(
+                f"Target {episode.target_source!r} has inconsistent saved positions."
+            )
+        values = counts.setdefault(episode.target_source, [0, 0, 0, 0])
+        values[0] += 1
+        values[1] += int(relabel is not None and relabel.recomputed_success)
+        values[2] += int(quality is not None and quality.passed)
+        values[3] += int(
+            quality is not None
+            and quality.passed
+            and relabel is not None
+            and relabel.recomputed_success
+        )
+
+    if config is not None:
+        configured = {target.target_id: target.position for target in config.training_targets}
+        unknown = set(observed_positions) - set(configured)
+        if unknown:
+            raise DatasetSummaryError(
+                "Reach-touch dataset contains targets absent from the training split: "
+                f"{sorted(unknown)}."
+            )
+        for target_id, position in observed_positions.items():
+            if not np.allclose(position, configured[target_id], rtol=0.0, atol=1e-9):
+                raise DatasetSummaryError(
+                    f"Saved position for {target_id!r} does not match the dataset config."
+                )
+        ordered_targets = config.training_targets
+    else:
+        ordered_targets = tuple(
+            TargetDefinition(target_id=target_id, position=observed_positions[target_id])
+            for target_id in sorted(observed_positions)
+        )
+
+    return tuple(
+        TargetPositionSummary(
+            target_id=target.target_id,
+            position=target.position,
+            num_episodes=counts.get(target.target_id, [0, 0, 0, 0])[0],
+            num_recomputed_success=counts.get(target.target_id, [0, 0, 0, 0])[1],
+            quality_pass_count=counts.get(target.target_id, [0, 0, 0, 0])[2],
+            clean_success_count=counts.get(target.target_id, [0, 0, 0, 0])[3],
+        )
+        for target in ordered_targets
+    )
+
+
+def _readiness_failures(
+    *,
+    task_id: str,
+    config: ReachTouchDatasetConfig | None,
+    target_distribution: tuple[TargetPositionSummary, ...],
+    clean_success_count: int,
+    quality_unreported_count: int,
+    relabel_unreported_count: int,
+    disagreement_count: int,
+    action_versions: tuple[str, ...],
+    observation_versions: tuple[str, ...],
+) -> tuple[str, ...]:
+    if task_id != REACH_TOUCH_TASK_ID or config is None:
+        return ()
+
+    failures: list[str] = []
+    if quality_unreported_count:
+        failures.append(f"quality coverage missing for {quality_unreported_count} episodes")
+    if relabel_unreported_count:
+        failures.append(f"relabel coverage missing for {relabel_unreported_count} episodes")
+    if disagreement_count:
+        failures.append(f"{disagreement_count} operator/recomputed label disagreements")
+    if clean_success_count < config.minimum_clean_successful_episodes:
+        failures.append(
+            f"clean successful episodes {clean_success_count} below required "
+            f"{config.minimum_clean_successful_episodes}"
+        )
+    for target in target_distribution:
+        if target.clean_success_count < config.minimum_clean_per_training_target:
+            failures.append(
+                f"{target.target_id} has {target.clean_success_count} clean successes; "
+                f"requires {config.minimum_clean_per_training_target}"
+            )
+    if not config.held_out_evaluation_targets:
+        failures.append("no held-out evaluation targets declared")
+    recorded_positions = {target.position for target in target_distribution}
+    contaminated = tuple(
+        target.target_id
+        for target in config.held_out_evaluation_targets
+        if target.position in recorded_positions
+    )
+    if contaminated:
+        failures.append(
+            f"held-out target positions overlap recorded training targets: {contaminated}"
+        )
+    if len(action_versions) != 1:
+        failures.append("mixed action schema versions")
+    if len(observation_versions) != 1:
+        failures.append("mixed observation schema versions")
+    return tuple(failures)
 
 
 def _load_report_index(dataset: Path) -> _ReportIndex:
@@ -625,3 +949,77 @@ def _schema_version(metadata: dict[str, Any], schema_name: str, *, path: Path) -
 
 def _display_schema_version(versions: tuple[str, ...]) -> str:
     return versions[0] if len(versions) == 1 else "mixed"
+
+
+def _position_tuple(
+    value: object,
+    *,
+    label: str,
+    path: Path,
+) -> tuple[float, float, float]:
+    try:
+        position = np.asarray(value, dtype=np.float64)
+    except (TypeError, ValueError) as exc:
+        raise DatasetSummaryError(
+            f"{path} {label} must contain three finite numbers."
+        ) from exc
+    if position.shape != (3,) or not np.all(np.isfinite(position)):
+        raise DatasetSummaryError(
+            f"{path} {label} must contain three finite numbers."
+        )
+    return tuple(float(item) for item in position)
+
+
+def _config_string(payload: dict[str, Any], name: str, *, path: Path) -> str:
+    value = payload.get(name)
+    if not isinstance(value, str) or not value:
+        raise DatasetSummaryError(f"{path} must declare non-empty {name!r}.")
+    return value
+
+
+def _config_positive_int(payload: dict[str, Any], name: str, *, path: Path) -> int:
+    value = payload.get(name)
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise DatasetSummaryError(f"{path} {name!r} must be a positive integer.")
+    return value
+
+
+def _config_targets(
+    payload: dict[str, Any],
+    name: str,
+    *,
+    path: Path,
+) -> tuple[TargetDefinition, ...]:
+    value = payload.get(name)
+    if not isinstance(value, dict):
+        raise DatasetSummaryError(f"{path} {name!r} must be a target-id mapping.")
+    targets: list[TargetDefinition] = []
+    for target_id, position in value.items():
+        if not isinstance(target_id, str) or not target_id:
+            raise DatasetSummaryError(f"{path} {name!r} contains an invalid target id.")
+        targets.append(
+            TargetDefinition(
+                target_id=target_id,
+                position=_position_tuple(
+                    position,
+                    label=f"{name}.{target_id}",
+                    path=path,
+                ),
+            )
+        )
+    positions = [target.position for target in targets]
+    if len(set(positions)) != len(positions):
+        raise DatasetSummaryError(f"{path} {name!r} contains duplicate positions.")
+    return tuple(targets)
+
+
+def _csv_value(field: str, value: Any) -> Any:
+    if field in {
+        "action_schema_versions",
+        "observation_schema_versions",
+        "readiness_failures",
+    }:
+        return ";".join(value)
+    if field in {"target_position_distribution", "held_out_evaluation_targets"}:
+        return json.dumps(value, sort_keys=True)
+    return value

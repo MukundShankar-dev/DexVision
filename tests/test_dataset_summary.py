@@ -9,6 +9,8 @@ import numpy as np
 from dexvision.apps import summarize_demos
 from dexvision.logging.dataset_summary import (
     DATASET_SUMMARY_VERSION,
+    ReachTouchDatasetConfig,
+    TargetDefinition,
     default_summary_paths,
     save_dataset_summary,
     summarize_demo_dataset,
@@ -26,6 +28,7 @@ def _write_episode(
     tracking_confidence: float = 0.9,
     action_schema_version: str = "level1.13/full-action-v1",
     observation_schema_version: str = "level2/observation-layout-v2",
+    target_site: str = "reach_target_center",
 ) -> Path:
     episode = dataset / name
     episode.mkdir(parents=True)
@@ -44,6 +47,16 @@ def _write_episode(
             "feature_confidence",
         ],
     }
+    if task_id == "reach_touch_target":
+        target_positions = {
+            "reach_target_left": [0.14, -0.10, 0.45],
+            "reach_target_center": [0.14, 0.00, 0.49],
+            "reach_target_right": [0.14, 0.06, 0.51],
+        }
+        metadata["task_config"] = {
+            "resolved_target_source": target_site,
+            "target_position": target_positions[target_site],
+        }
     (episode / "metadata.json").write_text(
         json.dumps(metadata),
         encoding="utf-8",
@@ -164,6 +177,9 @@ def test_summary_reports_metrics_quality_failures_and_relabel_disagreements(
     assert group.relabel_unreported_count == 0
     assert group.action_schema_version == "level1.13/full-action-v1"
     assert group.observation_schema_version == "level2/observation-layout-v2"
+    assert group.clean_success_count == 1
+    assert group.target_position_distribution[0].target_id == "reach_target_center"
+    assert group.level3_ready is None
     assert group.quality_failures[0].episode_id.endswith("episode_002")
     assert group.quality_failures[0].failed_filters == ("high_action_jerk",)
     assert group.relabel_disagreements[0].operator_success is True
@@ -255,6 +271,62 @@ def test_json_and_csv_outputs_are_saved(tmp_path: Path) -> None:
         rows = list(csv.DictReader(stream))
     assert rows[0]["skill_name"] == "reach_touch_target"
     assert rows[0]["action_schema_version"] == "level1.13/full-action-v1"
+    assert rows[0]["clean_success_count"] == "0"
+
+
+def test_reach_touch_summary_marks_balanced_clean_dataset_ready(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "raw" / "reach_touch_target"
+    episodes = tuple(
+        _write_episode(
+            dataset,
+            f"episode_{index:03d}",
+            target_site=target,
+        )
+        for index, target in enumerate(
+            ("reach_target_left", "reach_target_center", "reach_target_right"),
+            start=1,
+        )
+    )
+    _write_quality_report(
+        dataset,
+        tuple((episode, True, ()) for episode in episodes),
+    )
+    _write_relabel_report(
+        dataset,
+        tuple((episode, True, True) for episode in episodes),
+    )
+    config = ReachTouchDatasetConfig(
+        version="test/reach-touch-split-v1",
+        task_id="reach_touch_target",
+        minimum_clean_successful_episodes=3,
+        minimum_clean_per_training_target=1,
+        position_units="metres",
+        coordinate_frame="MuJoCo world",
+        training_targets=(
+            TargetDefinition("reach_target_left", (0.14, -0.10, 0.45)),
+            TargetDefinition("reach_target_center", (0.14, 0.00, 0.49)),
+            TargetDefinition("reach_target_right", (0.14, 0.06, 0.51)),
+        ),
+        held_out_evaluation_targets=(
+            TargetDefinition("reach_eval_left_center", (0.14, -0.05, 0.47)),
+        ),
+    )
+
+    report = summarize_demo_dataset(tmp_path, reach_touch_config=config)
+
+    group = report.groups[0]
+    assert group.clean_success_count == 3
+    assert [target.clean_success_count for target in group.target_position_distribution] == [
+        1,
+        1,
+        1,
+    ]
+    assert group.held_out_evaluation_targets == config.held_out_evaluation_targets
+    assert group.readiness_config_version == config.version
+    assert group.level3_ready is True
+    assert group.readiness_failures == ()
 
 
 def test_cli_saves_default_outputs_and_keeps_episode_files_unchanged(

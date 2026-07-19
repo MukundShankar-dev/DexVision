@@ -1,0 +1,19 @@
+version: level2/reach-touch-dataset-split-v1
+task_id: reach_touch_target
+
+minimum_clean_successful_episodes: 50
+minimum_clean_per_training_target: 15
+
+position_units: metres
+coordinate_frame: MuJoCo world
+
+training_targets:
+  reach_target_left: [0.14, -0.10, 0.45]
+  reach_target_center: [0.14, 0.00, 0.49]
+  reach_target_right: [0.14, 0.06, 0.51]
+
+# These interpolated positions are reserved for Level 3 evaluation and must
+# not be added to the Level 2 training demonstrations.
+held_out_evaluation_targets:
+  reach_eval_left_center: [0.14, -0.05, 0.47]
+  reach_eval_center_right: [0.14, 0.03, 0.50]

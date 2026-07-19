@@ -97,6 +97,19 @@ Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
 [Level 2 progress file](docs/progress_level_2.md).
 
+### Current Level 2 status
+
+Level 2.7C is complete. The `reach_touch_target` dataset contains 55 clean
+successful demonstrations with balanced left/center/right coverage
+(`18/18/19`). All 76 immutable raw episodes validate and replay headlessly,
+relabeling and quality reports cover every episode, and the versioned held-out
+target split is declared in `configs/reach_touch_dataset.yaml`. The generated
+dataset summary reports `level3_ready: true` for this skill.
+
+The next checkpoint is Level 2.7D — Button-Press Task. Button-press,
+push-cube, additional dataset scale-up, retargeter baselines, and the final
+Level 2 benchmark/results work are not yet complete.
+
 ## Known Limitations
 
 This is a simulated teleoperation and dataset pipeline, not a real-robot

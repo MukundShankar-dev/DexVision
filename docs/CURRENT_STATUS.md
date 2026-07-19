@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7B — Reach-Touch Dataset Summary
+Level 2.7C — Scale Reach-Touch Dataset
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7C — Scale Reach-Touch Dataset
+Level 2.7D — Button-Press Task
 
 ---
 
@@ -361,6 +361,31 @@ Automated checks passed on July 18, 2026 using `conda run -n dexvision python
 dexvision pytest tests/test_dataset_summary.py` with 7 passed, `conda run -n
 dexvision ruff check dexvision tests`, and `conda run -n dexvision pytest`
 with 295 passed.
+
+Level 2.7C — Scale Reach-Touch Dataset manually passed on July 18, 2026 after
+the user completed the live collection and asked for the final dataset gates
+to be applied. The immutable raw collection contains 76 episodes, of which 69
+recompute as successful and 55 pass every Level 2.7 quality filter. Clean
+training coverage is balanced across `reach_target_left` (18),
+`reach_target_center` (18), and `reach_target_right` (19), with zero
+operator/recomputed label disagreements. All 76 episodes validated and
+completed headless replay for 9,540 recorded action steps. The versioned
+`configs/reach_touch_dataset.yaml` split reserves
+`reach_eval_left_center` at `[0.14, -0.05, 0.47]` metres and
+`reach_eval_center_right` at `[0.14, 0.03, 0.50]` metres exclusively for
+Level 3 evaluation. The v2 JSON/CSV summary reports the target distribution,
+55 clean successes, full relabel/quality coverage, and `level3_ready: true`.
+Existing failed raw attempts remain immutable for audit; the quality-gated
+collection helper now balances clean successes and keeps new rejected attempts
+outside `raw/`.
+Automated checks passed on July 18, 2026 using the full 76-episode validation
+and headless replay audit, `conda run -n dexvision python -m
+dexvision.apps.relabel_demos --dataset data/demos/raw/reach_touch_target`,
+`conda run -n dexvision python -m dexvision.apps.filter_demos --dataset
+data/demos/raw/reach_touch_target`, `conda run -n dexvision python -m
+dexvision.apps.summarize_demos --dataset data/demos`, `conda run -n dexvision
+ruff check dexvision tests`, and `conda run -n dexvision pytest` with 303
+passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
