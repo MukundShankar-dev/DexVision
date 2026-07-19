@@ -1,8 +1,8 @@
 <!--
   DexVision Level 2 task-board scene.
 
-  This scene contains the shared board plus reach_touch_target and button_press
-  fixtures. Movable-object fixtures belong to later checkpoints.
+  This scene contains the shared board plus reach_touch_target, button_press,
+  and push_cube_to_target fixtures.
 -->
 <mujoco model="dexvision_task_board">
   <include file="menagerie/shadow_hand/right_hand_dexvision.xml"/>
@@ -28,6 +28,8 @@
     <material name="button_left_material" rgba="0.2 0.55 0.95 1"/>
     <material name="button_center_material" rgba="0.95 0.75 0.15 1"/>
     <material name="button_right_material" rgba="0.25 0.8 0.4 1"/>
+    <material name="push_cube_material" rgba="0.95 0.35 0.1 1"/>
+    <material name="push_target_material" rgba="0.1 1 0.2 0.7"/>
   </asset>
 
   <worldbody>
@@ -83,6 +85,33 @@
         euler="0 1.5708 0" mass="0.04" material="button_right_material"/>
       <site name="button_right_site" pos="-0.008 0 0" type="sphere"
         size="0.006" rgba="0.25 0.8 0.4 0.5"/>
+    </body>
+
+    <site name="push_cube_start_left" pos="-0.09 -0.07 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+    <site name="push_cube_start_center" pos="-0.09 0 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+    <site name="push_cube_start_right" pos="-0.09 0.07 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+    <site name="push_target_left" pos="0.09 -0.07 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+    <site name="push_target_center" pos="0.09 0 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+    <site name="push_target_right" pos="0.09 0.07 -0.015"
+      type="sphere" size="0.003" rgba="0 0 0 0"/>
+
+    <body name="push_cube" pos="-0.09 0 -0.015">
+      <freejoint name="push_cube_joint"/>
+      <geom name="push_cube_geom" type="box" size="0.02 0.02 0.02"
+        mass="0.08" material="push_cube_material" friction="0.8 0.02 0.001"/>
+      <site name="push_cube_site" type="sphere" size="0.004"
+        rgba="1 1 1 0.6"/>
+    </body>
+
+    <body name="push_cube_target_marker" mocap="true" pos="0.09 0 -0.015">
+      <geom name="push_cube_target_geom" type="cylinder" size="0.035 0.001"
+        pos="0 0 -0.019" material="push_target_material"
+        contype="0" conaffinity="0" group="1"/>
     </body>
 
     <body name="dexvision_hand_base_target" mocap="true" pos="0 0 0.14"

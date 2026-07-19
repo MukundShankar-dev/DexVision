@@ -1213,13 +1213,25 @@ optional approach side
 ### Pass Criteria
 
 ```text
-[ ] Cube and target resets are deterministic
-[ ] Object pose/velocity and target state are saved
-[ ] Success can be recomputed
-[ ] Parameter and terminal-state schemas are declared
-[ ] Synthetic success/failure tests pass
-[ ] No demonstration collection or learning starts yet
+[x] Cube and target resets are deterministic
+[x] Object pose/velocity and target state are saved
+[x] Success can be recomputed
+[x] Parameter and terminal-state schemas are declared
+[x] Synthetic success/failure tests pass
+[x] No demonstration collection or learning starts yet
 ```
+
+The shared task-board scene now contains a free-joint cube, three deterministic
+start sites, three named target zones, and a movable non-colliding target
+marker. `PushCubeTask` supports typed object, target-pose/zone, and optional
+approach-side parameters; preserves current and initial object pose/velocity,
+target state, robot state, planar target distance, dwell, and terminal state;
+and exposes a pure saved-state success predicate. Existing reach and button
+tasks hide and isolate the cube fixture. Automated checks passed on July 19,
+2026 using `conda run -n dexvision pytest tests/test_task_specs.py
+tests/test_success_relabeling.py` with 37 passed, `conda run -n dexvision ruff
+check dexvision tests`, and `conda run -n dexvision pytest` with 328 passed.
+No cube demonstrations, dataset relabel dispatch, or learning code was added.
 
 ### Codex Prompt
 
@@ -1237,6 +1249,80 @@ Do not record demonstrations or add learning in this checkpoint.
 Record five cube-push demonstrations and pass them through the existing replay,
 relabel, quality, and summary pipeline.
 
+This checkpoint includes only the minimum recorder/replay/audit integration
+needed to produce and validate the five-demo pilot. Do not add a scaled
+collection planner, training code, or unrelated object tasks.
+
+### Files
+
+```text
+dexvision/apps/record_demo.py
+dexvision/logging/replay_demo.py
+dexvision/logging/relabel_success.py
+dexvision/logging/quality_filters.py
+dexvision/logging/dataset_summary.py
+tests/test_push_cube_recording.py
+tests/test_replay_loader.py
+tests/test_success_relabeling.py
+tests/test_quality_filters.py
+tests/test_dataset_summary.py
+docs/level2_dataset_runbook.md
+```
+
+### Build
+
+Extend the existing task-demo pipeline only far enough to:
+
+```text
+accept object_id, target_pose or target_zone_id, and optional approach_side
+record the full Level 1.13 action plus PushCubeState object/task arrays
+save resolved cube start state, target state, target radius, and dwell requirement
+restore the recorded cube start and target cue during semantic replay
+recompute planar distance-and-dwell success from saved task state
+dispatch push_cube_to_target through existing quality and summary paths
+preserve raw episodes without rewriting them
+```
+
+Before live collection, automated tests must use synthetic/headless episodes
+and prove that malformed or inconsistent cube metric inputs fail clearly.
+
+### Run
+
+```bash
+conda run -n dexvision pytest tests/test_push_cube_recording.py tests/test_replay_loader.py tests/test_success_relabeling.py tests/test_quality_filters.py tests/test_dataset_summary.py
+conda run -n dexvision ruff check dexvision tests
+conda run -n dexvision pytest
+```
+
+After those checks pass, record exactly five pilot episodes spanning all three
+configured target zones. Use the actual recording date and a unique attempt
+number for each output directory:
+
+```bash
+mjpython -m dexvision.apps.record_demo \
+  --task push_cube_to_target \
+  --retargeter curl \
+  --object-id push_cube \
+  --target-zone-id push_target_left \
+  --approach-side left \
+  --output data/demos/raw/push_cube_to_target/YYYY-MM-DD_001 \
+  --level1-13-full
+```
+
+Then run replay, relabeling, filtering, and summary commands against the
+retained pilot:
+
+```bash
+mjpython -m dexvision.apps.replay_demo \
+  --demo data/demos/raw/push_cube_to_target/YYYY-MM-DD_001
+conda run -n dexvision python -m dexvision.apps.relabel_demos \
+  --dataset data/demos/raw/push_cube_to_target
+conda run -n dexvision python -m dexvision.apps.filter_demos \
+  --dataset data/demos/raw/push_cube_to_target
+conda run -n dexvision python -m dexvision.apps.summarize_demos \
+  --dataset data/demos
+```
+
 ### Pass Criteria
 
 ```text
@@ -1244,14 +1330,27 @@ relabel, quality, and summary pipeline.
 [ ] Every pilot validates and replays
 [ ] Recomputed success labels are available
 [ ] Pilot quality report and summary are produced
+[ ] Raw episodes preserve full actions plus cube pose/velocity and target state
+[ ] All three configured target zones are represented
+[ ] Operator and recomputed labels are retained for audit
+[ ] User confirms viewer replay shows the intended cube push into its saved target
 [ ] No dataset scale-up or learning work is added
 ```
+
+Manual verification is required. Do not mark Level 2.7G complete until the user
+confirms that all five viewer replays show the cube starting from the saved
+pose, moving into the saved target zone, and ending with the intended skill
+behavior. A replay with the wrong cube start, wrong target marker, missing cube
+motion, or visibly unrelated action is a failure and must be fixed or
+re-recorded.
 
 ### Codex Prompt
 
 ```text
-Record and validate only the five-demo push_cube_to_target pilot.
-Reuse the existing replay, relabel, quality, and summary paths.
+Implement and validate only the minimum recorder/replay/relabel/filter/summary
+integration required for the five-demo push_cube_to_target pilot.
+Use synthetic/headless tests before live recording, preserve raw episodes, and
+require manual viewer confirmation for all five retained replays.
 Do not scale the dataset or add learning.
 ```
 
@@ -1547,7 +1646,7 @@ Do not add policy learning.
 [x] Reach-touch success relabeling works
 [x] Pilot quality filters work without mutating raw data
 [x] Reach-touch summary and scaled dataset are Level 3-ready
-[ ] button_press task and pilot pass all data-quality gates
+[x] button_press task and pilot pass all data-quality gates
 [ ] push_cube_to_target task and pilot pass all data-quality gates
 [ ] Button and push datasets are scaled only after their pilot gates pass
 [ ] Optional skill-card metadata export documented

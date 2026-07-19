@@ -20,6 +20,7 @@ from dexvision.sim.mujoco_env import MujocoEnv, MujocoState
 DEFAULT_TASK_BOARD_MODEL = Path("assets/mujoco/task_board_scene.xml")
 REACH_TOUCH_TARGET_TASK_ID = "reach_touch_target"
 BUTTON_PRESS_TASK_ID = "button_press"
+PUSH_CUBE_TASK_ID = "push_cube_to_target"
 ACTIVE_REACH_TARGET_GEOM = "active_reach_target"
 BUTTON_TARGET_RGBA = (0.1, 1.0, 0.2, 1.0)
 BUTTON_NON_TARGET_RGBA = (0.22, 0.22, 0.22, 1.0)
@@ -184,6 +185,92 @@ class ButtonPressConfig:
 
 
 @dataclass(frozen=True)
+class PushCubeParameters:
+    """Typed goal for one cube-push episode.
+
+    ``object_id`` may select a configured movable cube. The target is either a
+    world-frame cube-centre position or a named target zone. Leaving both unset
+    asks reset() to sample a configured zone deterministically from ``seed``.
+    """
+
+    object_id: str | None = None
+    target_pose: tuple[float, float, float] | None = None
+    target_zone_id: str | None = None
+    approach_side: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.object_id is not None and not self.object_id:
+            raise ValueError("object_id must be a non-empty string.")
+        if self.target_pose is not None and self.target_zone_id is not None:
+            raise ValueError("target_pose and target_zone_id are mutually exclusive.")
+        if self.target_zone_id is not None and not self.target_zone_id:
+            raise ValueError("target_zone_id must be a non-empty string.")
+        if self.target_pose is not None:
+            pose = _finite_vector(self.target_pose, name="target_pose")
+            object.__setattr__(
+                self,
+                "target_pose",
+                tuple(float(value) for value in pose),
+            )
+        if self.approach_side is not None and not self.approach_side:
+            raise ValueError("approach_side must be a non-empty string.")
+
+
+@dataclass(frozen=True)
+class PushCubeConfig:
+    """Reset, geometry, and metric configuration for ``push_cube_to_target``."""
+
+    object_ids: tuple[str, ...] = ("push_cube",)
+    object_start_sites: tuple[str, ...] = (
+        "push_cube_start_left",
+        "push_cube_start_center",
+        "push_cube_start_right",
+    )
+    target_zone_sites: tuple[str, ...] = (
+        "push_target_left",
+        "push_target_center",
+        "push_target_right",
+    )
+    approach_sides: tuple[str, ...] = ("left", "right", "front", "back")
+    target_marker_body: str = "push_cube_target_marker"
+    target_marker_geom: str = "push_cube_target_geom"
+    base_target_body: str = "dexvision_hand_base_target"
+    target_radius_m: float = 0.035
+    success_dwell_steps: int = 5
+    max_episode_steps: int = 300
+    workspace_min: tuple[float, float, float] = (-0.18, -0.15, -0.05)
+    workspace_max: tuple[float, float, float] = (0.18, 0.15, 0.08)
+
+    def __post_init__(self) -> None:
+        for field_name, values in (
+            ("object_ids", self.object_ids),
+            ("object_start_sites", self.object_start_sites),
+            ("target_zone_sites", self.target_zone_sites),
+            ("approach_sides", self.approach_sides),
+        ):
+            if not values or any(not value for value in values):
+                raise ValueError(f"{field_name} must contain non-empty names.")
+            if len(set(values)) != len(values):
+                raise ValueError(f"{field_name} must not contain duplicates.")
+        if (
+            not self.target_marker_body
+            or not self.target_marker_geom
+            or not self.base_target_body
+        ):
+            raise ValueError("push-cube body and geom names must be non-empty.")
+        if not np.isfinite(self.target_radius_m) or self.target_radius_m <= 0.0:
+            raise ValueError("target_radius_m must be finite and positive.")
+        if self.success_dwell_steps <= 0:
+            raise ValueError("success_dwell_steps must be positive.")
+        if self.max_episode_steps <= 0:
+            raise ValueError("max_episode_steps must be positive.")
+        workspace_min = _finite_vector(self.workspace_min, name="workspace_min")
+        workspace_max = _finite_vector(self.workspace_max, name="workspace_max")
+        if np.any(workspace_min >= workspace_max):
+            raise ValueError("workspace_min must be strictly below workspace_max.")
+
+
+@dataclass(frozen=True)
 class TaskSpec:
     """Static contract for one resettable Level 2 MuJoCo task."""
 
@@ -327,6 +414,89 @@ class ButtonPressState:
         )
 
 
+@dataclass(frozen=True)
+class PushCubeState:
+    """Reconstructable cube, target, and terminal state for one timestep."""
+
+    object_id: str
+    object_index: int
+    target_source: str
+    target_index: int
+    approach_side: str | None
+    approach_side_index: int
+    object_position: np.ndarray
+    object_orientation: np.ndarray
+    object_linear_velocity: np.ndarray
+    object_angular_velocity: np.ndarray
+    target_position: np.ndarray
+    distance_to_target: float
+    target_radius: float
+    within_target: bool
+    dwell_steps: int
+    success: bool
+    failure_reason: str | None
+    step_count: int
+    initial_object_position: np.ndarray
+    initial_object_orientation: np.ndarray
+    initial_object_linear_velocity: np.ndarray
+    initial_object_angular_velocity: np.ndarray
+    initial_base_position: np.ndarray
+    initial_base_orientation: np.ndarray
+    initial_robot_qpos: np.ndarray
+    initial_robot_qvel: np.ndarray
+
+    def as_object_state(self) -> np.ndarray:
+        """Pack the current cube pose and free-joint velocity."""
+
+        return np.concatenate(
+            (
+                self.object_position,
+                self.object_orientation,
+                self.object_linear_velocity,
+                self.object_angular_velocity,
+            )
+        )
+
+    def as_task_state(self) -> np.ndarray:
+        """Pack success inputs, goal parameters, and deterministic initial state."""
+
+        return np.concatenate(
+            (
+                self.object_position,
+                self.target_position,
+                np.asarray(
+                    [self.distance_to_target, float(self.dwell_steps)],
+                    dtype=np.float64,
+                ),
+                self.object_orientation,
+                self.object_linear_velocity,
+                self.object_angular_velocity,
+                np.asarray(
+                    [
+                        self.target_radius,
+                        float(self.within_target),
+                        float(self.success),
+                        float(self.failure_reason is not None),
+                        float(self.step_count),
+                        float(self.object_index),
+                        float(self.target_index),
+                        float(self.approach_side is not None),
+                        float(self.approach_side_index),
+                    ],
+                    dtype=np.float64,
+                ),
+                self.initial_object_position,
+                self.initial_object_orientation,
+                self.initial_object_linear_velocity,
+                self.initial_object_angular_velocity,
+                self.initial_base_position,
+                self.initial_base_orientation,
+                self.initial_robot_qpos,
+                self.initial_robot_qvel,
+            )
+        )
+
+
 def reach_distance(
     touch_position: Sequence[float] | np.ndarray,
     target_position: Sequence[float] | np.ndarray,
@@ -424,6 +594,97 @@ def is_button_press_success(
     )
 
 
+def push_cube_distance(
+    object_position: Sequence[float] | np.ndarray,
+    target_position: Sequence[float] | np.ndarray,
+) -> float:
+    """Return planar cube-centre distance to a target in metres."""
+
+    object_vector = _finite_vector(object_position, name="object_position")
+    target_vector = _finite_vector(target_position, name="target_position")
+    return float(np.linalg.norm(object_vector[:2] - target_vector[:2]))
+
+
+def is_push_cube_success(
+    *,
+    distance_m: float,
+    dwell_steps: int,
+    distance_threshold_m: float,
+    required_dwell_steps: int,
+) -> bool:
+    """Recompute push-cube success from saved distance and dwell inputs."""
+
+    if not np.isfinite(distance_m) or distance_m < 0.0:
+        raise ValueError("distance_m must be finite and non-negative.")
+    if not np.isfinite(distance_threshold_m) or distance_threshold_m <= 0.0:
+        raise ValueError("distance_threshold_m must be finite and positive.")
+    if dwell_steps < 0:
+        raise ValueError("dwell_steps must be non-negative.")
+    if required_dwell_steps <= 0:
+        raise ValueError("required_dwell_steps must be positive.")
+    return (
+        distance_m <= distance_threshold_m
+        and dwell_steps >= required_dwell_steps
+    )
+
+
+def push_cube_failure_reason(
+    *,
+    object_position: Sequence[float] | np.ndarray,
+    step_count: int,
+    max_episode_steps: int,
+    workspace_min: Sequence[float] | np.ndarray,
+    workspace_max: Sequence[float] | np.ndarray,
+    success: bool = False,
+) -> str | None:
+    """Return a deterministic cube workspace or timeout failure."""
+
+    if success:
+        return None
+    position = _finite_vector(object_position, name="object_position")
+    minimum = _finite_vector(workspace_min, name="workspace_min")
+    maximum = _finite_vector(workspace_max, name="workspace_max")
+    if np.any(minimum >= maximum):
+        raise ValueError("workspace_min must be strictly below workspace_max.")
+    if step_count < 0 or max_episode_steps <= 0:
+        raise ValueError("step counts must be non-negative with a positive maximum.")
+    if np.any(position < minimum) or np.any(position > maximum):
+        return "object_workspace_bounds"
+    if step_count >= max_episode_steps:
+        return "timeout"
+    return None
+
+
+def configure_push_cube_visibility(env: MujocoEnv, *, visible: bool) -> None:
+    """Enable or isolate the push-cube fixture in the shared task scene."""
+
+    mujoco = env._mujoco
+    config = PushCubeConfig()
+    cube_geom_id = mujoco.mj_name2id(
+        env.model,
+        mujoco.mjtObj.mjOBJ_GEOM,
+        f"{config.object_ids[0]}_geom",
+    )
+    target_geom_id = mujoco.mj_name2id(
+        env.model,
+        mujoco.mjtObj.mjOBJ_GEOM,
+        config.target_marker_geom,
+    )
+    cube_body_id = mujoco.mj_name2id(
+        env.model,
+        mujoco.mjtObj.mjOBJ_BODY,
+        config.object_ids[0],
+    )
+    if cube_geom_id < 0 or target_geom_id < 0 or cube_body_id < 0:
+        raise TaskError("MuJoCo task scene is missing push-cube visual assets.")
+    env.model.geom_rgba[cube_geom_id, 3] = 1.0 if visible else 0.0
+    env.model.geom_contype[cube_geom_id] = 1 if visible else 0
+    env.model.geom_conaffinity[cube_geom_id] = 1 if visible else 0
+    env.model.geom_rgba[target_geom_id, 3] = 0.7 if visible else 0.0
+    env.model.body_gravcomp[cube_body_id] = 0.0 if visible else 1.0
+    mujoco.mj_forward(env.model, env.data)
+
+
 def configure_button_press_scene(env: MujocoEnv) -> None:
     """Hide and disable reach-touch fixtures in the shared button scene."""
 
@@ -453,6 +714,7 @@ def configure_button_press_scene(env: MujocoEnv) -> None:
     env.model.geom_rgba[geom_id, 3] = 0.0
     env.model.geom_contype[geom_id] = 0
     env.model.geom_conaffinity[geom_id] = 0
+    configure_push_cube_visibility(env, visible=False)
     mujoco.mj_forward(env.model, env.data)
 
 
@@ -513,6 +775,7 @@ class ReachTouchTargetTask:
         self.model_path = Path(model_path)
         self.config = config or ReachTouchTargetConfig()
         self.env = MujocoEnv(self.model_path)
+        configure_push_cube_visibility(self.env, visible=False)
         self._initial_robot_state: MujocoState | None = None
         self._initial_base_position: np.ndarray | None = None
         self._initial_base_orientation: np.ndarray | None = None
@@ -1044,6 +1307,380 @@ class ButtonPressTask:
             raise TaskError("button_press must be reset before use.")
 
 
+class PushCubeTask:
+    """Reset, step, and extract state for ``push_cube_to_target``."""
+
+    def __init__(
+        self,
+        model_path: str | Path = DEFAULT_TASK_BOARD_MODEL,
+        *,
+        config: PushCubeConfig | None = None,
+    ) -> None:
+        self.model_path = Path(model_path)
+        self.config = config or PushCubeConfig()
+        self.env = MujocoEnv(self.model_path)
+        configure_button_press_scene(self.env)
+        configure_push_cube_visibility(self.env, visible=True)
+        self._initial_robot_state: MujocoState | None = None
+        self._initial_base_position: np.ndarray | None = None
+        self._initial_base_orientation: np.ndarray | None = None
+        self._object_id: str | None = None
+        self._object_index = -1
+        self._target_source: str | None = None
+        self._target_index = -1
+        self._target_position: np.ndarray | None = None
+        self._approach_side: str | None = None
+        self._initial_object_position: np.ndarray | None = None
+        self._initial_object_orientation: np.ndarray | None = None
+        self._initial_object_linear_velocity: np.ndarray | None = None
+        self._initial_object_angular_velocity: np.ndarray | None = None
+        self._step_count = 0
+        self._dwell_steps = 0
+        self.spec = _build_push_cube_spec(self.env, self.config)
+
+    def reset(
+        self,
+        *,
+        seed: int = 0,
+        parameters: PushCubeParameters | None = None,
+    ) -> PushCubeState:
+        """Reset cube and target deterministically from the supplied seed."""
+
+        parameters = parameters or PushCubeParameters()
+        self.env.reset()
+        (
+            self._initial_base_position,
+            self._initial_base_orientation,
+        ) = self.env.get_mocap_pose(self.config.base_target_body)
+        rng = np.random.default_rng(seed)
+        self._object_id, self._object_index = self._resolve_object(parameters)
+        start_index = int(rng.integers(0, len(self.config.object_start_sites)))
+        start_position = self._site_position(
+            self.config.object_start_sites[start_index]
+        )
+        self._require_inside_workspace(start_position, name="object start position")
+        self._set_object_state(
+            position=start_position,
+            orientation=(1.0, 0.0, 0.0, 0.0),
+            linear_velocity=(0.0, 0.0, 0.0),
+            angular_velocity=(0.0, 0.0, 0.0),
+        )
+        (
+            self._target_source,
+            self._target_index,
+            self._target_position,
+        ) = self._resolve_target(parameters=parameters, rng=rng)
+        self._require_inside_workspace(self._target_position, name="target position")
+        self._move_target_marker(self._target_position)
+        self._approach_side = self._resolve_approach_side(parameters)
+        (
+            self._initial_object_position,
+            self._initial_object_orientation,
+            self._initial_object_linear_velocity,
+            self._initial_object_angular_velocity,
+        ) = self._object_state()
+        self._initial_robot_state = self.env.get_state()
+        self._step_count = 0
+        self._dwell_steps = 0
+        return self.get_state()
+
+    def step(
+        self,
+        action: Sequence[float] | np.ndarray | Mapping[str, float] | None = None,
+        *,
+        n_steps: int = 1,
+    ) -> PushCubeState:
+        """Advance MuJoCo and update the consecutive in-target dwell count."""
+
+        self._require_reset()
+        self.env.step(action, n_steps=n_steps)
+        self._step_count += 1
+        position, _, _, _ = self._object_state()
+        if (
+            push_cube_distance(position, self._target_position)
+            <= self.config.target_radius_m
+        ):
+            self._dwell_steps += 1
+        else:
+            self._dwell_steps = 0
+        return self._make_state()
+
+    def get_state(self) -> PushCubeState:
+        """Extract current cube, target, and terminal state without stepping."""
+
+        self._require_reset()
+        return self._make_state()
+
+    def object_state_vector(self) -> np.ndarray:
+        """Return current cube pose and velocity for episode logging."""
+
+        return self.get_state().as_object_state()
+
+    def task_state_vector(self) -> np.ndarray:
+        """Return current dense task state for future episode logging."""
+
+        return self.get_state().as_task_state()
+
+    def robot_state_vector(self) -> np.ndarray:
+        """Pack robot state in the executable Level 2 observation order."""
+
+        self._require_reset()
+        state = self.env.get_state()
+        base_position, base_orientation = self.env.get_mocap_pose(
+            self.config.base_target_body
+        )
+        return np.concatenate(
+            (state.qpos, state.qvel, state.ctrl, base_position, base_orientation)
+        )
+
+    def close(self) -> None:
+        """Release the underlying MuJoCo environment."""
+
+        self.env.close()
+
+    def __enter__(self) -> "PushCubeTask":
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self.close()
+
+    def _resolve_object(
+        self,
+        parameters: PushCubeParameters,
+    ) -> tuple[str, int]:
+        object_id = parameters.object_id or self.config.object_ids[0]
+        if object_id not in self.config.object_ids:
+            allowed = ", ".join(self.config.object_ids)
+            raise TaskError(
+                f"Unknown object_id '{object_id}'; expected one of: {allowed}."
+            )
+        return object_id, self.config.object_ids.index(object_id)
+
+    def _resolve_target(
+        self,
+        *,
+        parameters: PushCubeParameters,
+        rng: np.random.Generator,
+    ) -> tuple[str, int, np.ndarray]:
+        if parameters.target_pose is not None:
+            return (
+                "target_pose",
+                -1,
+                np.asarray(parameters.target_pose, dtype=np.float64),
+            )
+        if parameters.target_zone_id is not None:
+            if parameters.target_zone_id not in self.config.target_zone_sites:
+                allowed = ", ".join(self.config.target_zone_sites)
+                raise TaskError(
+                    f"Unknown target_zone_id '{parameters.target_zone_id}'; "
+                    f"expected one of: {allowed}."
+                )
+            index = self.config.target_zone_sites.index(parameters.target_zone_id)
+            return (
+                parameters.target_zone_id,
+                index,
+                self._site_position(parameters.target_zone_id),
+            )
+        index = int(rng.integers(0, len(self.config.target_zone_sites)))
+        site_name = self.config.target_zone_sites[index]
+        return site_name, index, self._site_position(site_name)
+
+    def _resolve_approach_side(
+        self,
+        parameters: PushCubeParameters,
+    ) -> str | None:
+        if parameters.approach_side is None:
+            return None
+        if parameters.approach_side not in self.config.approach_sides:
+            allowed = ", ".join(self.config.approach_sides)
+            raise TaskError(
+                f"Unknown approach_side '{parameters.approach_side}'; "
+                f"expected one of: {allowed}."
+            )
+        return parameters.approach_side
+
+    def _make_state(self) -> PushCubeState:
+        self._require_reset()
+        position, orientation, linear_velocity, angular_velocity = (
+            self._object_state()
+        )
+        distance = push_cube_distance(position, self._target_position)
+        within_target = distance <= self.config.target_radius_m
+        success = is_push_cube_success(
+            distance_m=distance,
+            dwell_steps=self._dwell_steps,
+            distance_threshold_m=self.config.target_radius_m,
+            required_dwell_steps=self.config.success_dwell_steps,
+        )
+        failure = push_cube_failure_reason(
+            object_position=position,
+            step_count=self._step_count,
+            max_episode_steps=self.config.max_episode_steps,
+            workspace_min=self.config.workspace_min,
+            workspace_max=self.config.workspace_max,
+            success=success,
+        )
+        initial = self._initial_robot_state
+        if initial is None:  # pragma: no cover - guarded by _require_reset.
+            raise TaskError("push_cube_to_target must be reset before extraction.")
+        return PushCubeState(
+            object_id=str(self._object_id),
+            object_index=self._object_index,
+            target_source=str(self._target_source),
+            target_index=self._target_index,
+            approach_side=self._approach_side,
+            approach_side_index=(
+                -1
+                if self._approach_side is None
+                else self.config.approach_sides.index(self._approach_side)
+            ),
+            object_position=position,
+            object_orientation=orientation,
+            object_linear_velocity=linear_velocity,
+            object_angular_velocity=angular_velocity,
+            target_position=np.asarray(
+                self._target_position, dtype=np.float64
+            ).copy(),
+            distance_to_target=distance,
+            target_radius=self.config.target_radius_m,
+            within_target=within_target,
+            dwell_steps=self._dwell_steps,
+            success=success,
+            failure_reason=failure,
+            step_count=self._step_count,
+            initial_object_position=np.asarray(
+                self._initial_object_position, dtype=np.float64
+            ).copy(),
+            initial_object_orientation=np.asarray(
+                self._initial_object_orientation, dtype=np.float64
+            ).copy(),
+            initial_object_linear_velocity=np.asarray(
+                self._initial_object_linear_velocity, dtype=np.float64
+            ).copy(),
+            initial_object_angular_velocity=np.asarray(
+                self._initial_object_angular_velocity, dtype=np.float64
+            ).copy(),
+            initial_base_position=np.asarray(
+                self._initial_base_position, dtype=np.float64
+            ).copy(),
+            initial_base_orientation=np.asarray(
+                self._initial_base_orientation, dtype=np.float64
+            ).copy(),
+            initial_robot_qpos=initial.qpos.copy(),
+            initial_robot_qvel=initial.qvel.copy(),
+        )
+
+    def _object_state(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        qpos_address, qvel_address = self._object_joint_addresses()
+        qpos = np.asarray(
+            self.env.data.qpos[qpos_address : qpos_address + 7],
+            dtype=np.float64,
+        )
+        qvel = np.asarray(
+            self.env.data.qvel[qvel_address : qvel_address + 6],
+            dtype=np.float64,
+        )
+        if not np.all(np.isfinite(qpos)) or not np.all(np.isfinite(qvel)):
+            raise TaskError(f"Object '{self._object_id}' has non-finite state.")
+        return (
+            qpos[:3].copy(),
+            qpos[3:7].copy(),
+            qvel[:3].copy(),
+            qvel[3:6].copy(),
+        )
+
+    def _set_object_state(
+        self,
+        *,
+        position: Sequence[float] | np.ndarray,
+        orientation: Sequence[float] | np.ndarray,
+        linear_velocity: Sequence[float] | np.ndarray,
+        angular_velocity: Sequence[float] | np.ndarray,
+    ) -> None:
+        qpos_address, qvel_address = self._object_joint_addresses()
+        position_vector = _finite_vector(position, name="object_position")
+        orientation_vector = np.asarray(orientation, dtype=np.float64)
+        linear_vector = _finite_vector(linear_velocity, name="linear_velocity")
+        angular_vector = _finite_vector(angular_velocity, name="angular_velocity")
+        if (
+            orientation_vector.shape != (4,)
+            or not np.all(np.isfinite(orientation_vector))
+            or np.linalg.norm(orientation_vector) <= 1e-12
+        ):
+            raise ValueError(
+                "object orientation must be a finite non-zero wxyz quaternion."
+            )
+        orientation_vector = orientation_vector / np.linalg.norm(orientation_vector)
+        self.env.data.qpos[qpos_address : qpos_address + 3] = position_vector
+        self.env.data.qpos[qpos_address + 3 : qpos_address + 7] = orientation_vector
+        self.env.data.qvel[qvel_address : qvel_address + 3] = linear_vector
+        self.env.data.qvel[qvel_address + 3 : qvel_address + 6] = angular_vector
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+
+    def _object_joint_addresses(self) -> tuple[int, int]:
+        joint_name = f"{self._object_id}_joint"
+        joint_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_JOINT,
+            joint_name,
+        )
+        if joint_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing object free joint '{joint_name}'."
+            )
+        if int(self.env.model.jnt_type[joint_id]) != int(
+            self.env._mujoco.mjtJoint.mjJNT_FREE
+        ):
+            raise TaskError(f"Object joint '{joint_name}' must be a free joint.")
+        return (
+            int(self.env.model.jnt_qposadr[joint_id]),
+            int(self.env.model.jnt_dofadr[joint_id]),
+        )
+
+    def _site_position(self, site_name: str) -> np.ndarray:
+        site_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_SITE,
+            site_name,
+        )
+        if site_id < 0:
+            raise TaskError(f"MuJoCo task scene is missing required site '{site_name}'.")
+        return np.asarray(self.env.data.site_xpos[site_id], dtype=np.float64).copy()
+
+    def _move_target_marker(self, target_position: np.ndarray) -> None:
+        self.env.set_mocap_pose(
+            self.config.target_marker_body,
+            position=target_position,
+            orientation_quat=(1.0, 0.0, 0.0, 0.0),
+        )
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+
+    def _require_inside_workspace(self, position: np.ndarray, *, name: str) -> None:
+        minimum = np.asarray(self.config.workspace_min, dtype=np.float64)
+        maximum = np.asarray(self.config.workspace_max, dtype=np.float64)
+        if np.any(position < minimum) or np.any(position > maximum):
+            raise TaskError(
+                f"{name} {position.tolist()} is outside configured workspace "
+                f"{minimum.tolist()} to {maximum.tolist()}."
+            )
+
+    def _require_reset(self) -> None:
+        if (
+            self._initial_robot_state is None
+            or self._initial_base_position is None
+            or self._initial_base_orientation is None
+            or self._object_id is None
+            or self._target_position is None
+            or self._initial_object_position is None
+            or self._initial_object_orientation is None
+            or self._initial_object_linear_velocity is None
+            or self._initial_object_angular_velocity is None
+        ):
+            raise TaskError("push_cube_to_target must be reset before use.")
+
+
 def _build_reach_touch_target_spec(
     env: MujocoEnv,
     config: ReachTouchTargetConfig,
@@ -1278,6 +1915,156 @@ def _build_button_press_spec(
                 "coordinate_frame": "button joint displacement",
             },
             "button_pressed": {"type": "boolean"},
+            "dwell_steps": {"type": "integer", "units": "control steps"},
+        },
+    )
+
+
+def _build_push_cube_spec(
+    env: MujocoEnv,
+    config: PushCubeConfig,
+) -> TaskSpec:
+    (
+        qpos_names,
+        qvel_names,
+        actuator_names,
+        finger_qpos_indices,
+        finger_qvel_indices,
+        finger_joint_names,
+    ) = _mujoco_observation_order(env)
+    action_schema = build_level1_action_schema(actuator_names)
+    task_state_dim = 47 + int(env.model.nq) + int(env.model.nv)
+    observation_schema = build_level2_observation_schema(
+        robot_qpos_dim=int(env.model.nq),
+        robot_qvel_dim=int(env.model.nv),
+        finger_target_dim=int(env.model.nu),
+        tracking_quality_dim=len(DEFAULT_TRACKING_QUALITY_NAMES),
+        robot_qpos_names=qpos_names,
+        robot_qvel_names=qvel_names,
+        actuator_names=actuator_names,
+        finger_joint_qpos_indices=finger_qpos_indices,
+        finger_joint_qvel_indices=finger_qvel_indices,
+        finger_joint_names=finger_joint_names,
+        tracking_quality_names=DEFAULT_TRACKING_QUALITY_NAMES,
+        object_state_dim=13,
+        task_state_dim=task_state_dim,
+        target_state_dim=7,
+        success_metric_dim=8,
+    )
+    observation_schema.validate()
+    action_schema.validate()
+    return TaskSpec(
+        task_id=PUSH_CUBE_TASK_ID,
+        skill_name=PUSH_CUBE_TASK_ID,
+        required_objects=config.object_ids + (config.target_marker_body,),
+        observation_schema=observation_schema,
+        action_schema=action_schema,
+        success_condition=(
+            "selected cube centre remains within "
+            f"{config.target_radius_m:.3f} m planar distance of the target for "
+            f"{config.success_dwell_steps} consecutive control steps"
+        ),
+        failure_conditions=(
+            "timeout",
+            "object_workspace_bounds",
+            "tracking_quality",
+        ),
+        max_episode_steps=config.max_episode_steps,
+        reset_config={
+            "object_ids": config.object_ids,
+            "object_start_sites": config.object_start_sites,
+            "target_zone_sites": config.target_zone_sites,
+            "target_radius_m": config.target_radius_m,
+            "success_dwell_steps": config.success_dwell_steps,
+            "deterministic_seed": True,
+            "initial_object_state_saved": True,
+            "initial_robot_state_saved": True,
+        },
+        parameter_type=PushCubeParameters,
+        parameter_schema={
+            "object_id": {
+                "type": "string",
+                "shape": (),
+                "named_id_source": config.object_ids,
+                "required": False,
+            },
+            "target_pose": {
+                "type": "float64",
+                "shape": (3,),
+                "units": "metres",
+                "coordinate_frame": "MuJoCo world cube centre",
+                "required": False,
+            },
+            "target_zone_id": {
+                "type": "string",
+                "shape": (),
+                "named_id_source": config.target_zone_sites,
+                "required": False,
+            },
+            "approach_side": {
+                "type": "string",
+                "shape": (),
+                "values": config.approach_sides,
+                "required": False,
+            },
+        },
+        state_fields=(
+            "object_id",
+            "object_index",
+            "object_position",
+            "object_orientation",
+            "object_linear_velocity",
+            "object_angular_velocity",
+            "target_source",
+            "target_index",
+            "target_position",
+            "target_radius",
+            "approach_side",
+            "distance_to_target",
+            "within_target",
+            "dwell_steps",
+            "success",
+            "failure_reason",
+            "step_count",
+            "initial_object_position",
+            "initial_object_orientation",
+            "initial_object_linear_velocity",
+            "initial_object_angular_velocity",
+            "initial_base_position",
+            "initial_base_orientation",
+            "initial_robot_qpos",
+            "initial_robot_qvel",
+        ),
+        success_metric_inputs=(
+            "object_position",
+            "target_position",
+            "distance_to_target",
+            "dwell_steps",
+        ),
+        terminal_state_schema={
+            "success": {"type": "boolean", "terminal": True},
+            "failure_reason": {
+                "type": "string_or_null",
+                "values": (
+                    "timeout",
+                    "object_workspace_bounds",
+                    "tracking_quality",
+                ),
+                "terminal": True,
+            },
+            "object_position": {
+                "type": "float64",
+                "shape": (3,),
+                "units": "metres",
+                "coordinate_frame": "MuJoCo world",
+            },
+            "object_linear_velocity": {
+                "type": "float64",
+                "shape": (3,),
+                "units": "metres/second",
+                "coordinate_frame": "MuJoCo free-joint velocity",
+            },
+            "distance_to_target": {"type": "float64", "units": "metres"},
             "dwell_steps": {"type": "integer", "units": "control steps"},
         },
     )

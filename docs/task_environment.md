@@ -465,6 +465,12 @@ procedural environments, and it tests contact without free object motion.
 Stage:
 Core manipulation skill after reaching and simple contact.
 
+Implementation status:
+Level 2.7F implements the deterministic MuJoCo cube/target reset, typed task
+parameters, object/task state extraction, and recomputable success metric.
+Recording, replay restoration, dataset relabeling/filtering/summary integration,
+and pilot demonstrations remain Level 2.7G work.
+
 Purpose:
 Record the first planar object manipulation task with a movable object and a
 fixed target zone.

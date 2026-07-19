@@ -168,14 +168,23 @@ then run the task-specific relabel, quality, and summary commands below. In
 every recording and replay, press the single bright green target button; the
 two dark gray buttons are non-targets.
 
-Future task commands remain TODO until their checkpoints are implemented:
+The Level 2.7F push-cube scene, task reset, state extraction, and success metric
+are implemented. Recording, task-specific replay restoration, dataset
+relabeling, quality/summary integration, and the five-demo pilot remain TODO
+for Level 2.7G. Do not run the placeholder command below until those paths are
+implemented and their synthetic/headless checks pass.
+
+Future recording commands remain TODO until their checkpoints are implemented:
 
 ```bash
 # TODO Level 2.7G
 mjpython -m dexvision.apps.record_demo \
   --task push_cube_to_target \
   --retargeter curl \
-  --output data/demos/raw/push_cube_to_target/2026-06-14_001 \
+  --object-id push_cube \
+  --target-zone-id push_target_left \
+  --approach-side left \
+  --output data/demos/raw/push_cube_to_target/YYYY-MM-DD_001 \
   --level1-13-full
 
 # TODO later/stretch Level 2 task support
@@ -360,7 +369,7 @@ Current `button_press` pilot status:
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
 | button_press | yes | yes, pilot | yes, 5/5 | yes, 5 pass | 5 pilot / 50 scale | no |
-| push_cube_to_target | no | TODO | no | no | 100 | no |
+| push_cube_to_target | yes | TODO Level 2.7G | no | no | 100 | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
 
@@ -375,7 +384,8 @@ Manipulation-task order and current completion:
 [x] 2. relabel/filter/summary gates proven on the reach pilot
 [x] 3. scale reach_touch_target and reserve held-out target positions
 [x] 4. button_press task and five-demo pilot through the same gates
-[ ] 5. push_cube_to_target task and five-demo pilot through the same gates
+[x] 5a. push_cube_to_target task schema/reset/state/success metric
+[ ] 5b. push_cube_to_target five-demo pilot through replay/relabel/quality/summary gates
 [ ] 6. scale only the task datasets whose pilots pass
 ```
 

@@ -329,6 +329,19 @@ and the active reach marker must be hidden; the active marker must also be
 non-colliding. Reach-touch task instances must retain their original fixtures.
 After reset, the selected button must be bright green and every non-target
 button dark gray. Button replay must restore the same saved target cue.
+push_cube_to_target parameters declare a configured object_id plus either a
+world-frame target_pose or named target_zone_id, with an optional approach_side.
+Cube start and target-zone selection must be deterministic for a fixed seed.
+The saved cube object state must include world-frame position and orientation
+plus free-joint linear and angular velocity.
+The saved cube task state must include object identity, target identity and
+position, target radius, optional approach side, planar object-to-target
+distance, dwell count, terminal state, and deterministic initial object/robot
+state.
+push_cube_to_target success must be recomputable from the saved object position,
+target position, planar distance, target radius, and consecutive dwell count.
+Level 2.7F task code must not record cube demonstrations, add dataset relabel
+dispatch for an unrecorded cube dataset, or add learning code.
 ```
 
 ---
@@ -539,6 +552,9 @@ For reach_touch_target, recompute consecutive qualifying contact frames from
 saved palm-contact flags and use the fixed task distance/dwell thresholds.
 For button_press, recompute success from saved press depth, target press depth,
 button/target pressed states, and dwell count.
+push_cube_to_target exposes a pure saved-state success predicate in
+`dexvision.sim.tasks`; dataset-level relabel dispatch remains deferred until the
+Level 2.7G pilot produces cube episodes.
 Button target depth/state must stay constant within an episode, and the saved
 button id plus dwell requirement must be present in task metadata.
 Preserve the operator label and recomputed label together in the audit report.

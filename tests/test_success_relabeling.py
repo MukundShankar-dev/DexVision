@@ -14,7 +14,11 @@ from dexvision.logging.relabel_success import (
     relabel_reach_touch_dataset,
     relabel_reach_touch_episode,
 )
-from dexvision.sim.tasks import is_button_press_success
+from dexvision.sim.tasks import (
+    is_button_press_success,
+    is_push_cube_success,
+    push_cube_distance,
+)
 
 
 def _write_episode(
@@ -232,3 +236,40 @@ def test_button_unpressed_state_target_recomputes_without_live_simulation() -> N
         dwell_steps=3,
         required_dwell_steps=3,
     )
+
+
+def test_push_cube_success_recomputes_from_saved_terminal_metrics() -> None:
+    object_position = np.asarray([0.08, 0.01, -0.015])
+    target_position = np.asarray([0.09, 0.0, -0.015])
+    saved_distance = push_cube_distance(object_position, target_position)
+
+    assert is_push_cube_success(
+        distance_m=saved_distance,
+        dwell_steps=5,
+        distance_threshold_m=0.035,
+        required_dwell_steps=5,
+    )
+    assert not is_push_cube_success(
+        distance_m=saved_distance,
+        dwell_steps=4,
+        distance_threshold_m=0.035,
+        required_dwell_steps=5,
+    )
+    assert not is_push_cube_success(
+        distance_m=0.04,
+        dwell_steps=5,
+        distance_threshold_m=0.035,
+        required_dwell_steps=5,
+    )
+
+
+def test_push_cube_distance_is_planar_and_rejects_non_finite_state() -> None:
+    assert push_cube_distance(
+        object_position=(0.0, 0.0, -0.015),
+        target_position=(0.03, 0.04, 0.50),
+    ) == pytest.approx(0.05)
+    with pytest.raises(ValueError, match="three finite"):
+        push_cube_distance(
+            object_position=(0.0, float("nan"), 0.0),
+            target_position=(0.0, 0.0, 0.0),
+        )

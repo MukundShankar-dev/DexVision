@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7E — Button-Press Pilot
+Level 2.7F — Push-Cube Task
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7F — Push-Cube Task
+Level 2.7G — Push-Cube Pilot
 
 ---
 
@@ -409,6 +409,18 @@ the replacement center episode pressed only its target button. Reach-touch
 fixtures remain hidden and non-colliding only for button recording/replay.
 Automated checks passed with 318 tests. No dataset scale-up, cube-push task, or
 learning work was added.
+
+Level 2.7F — Push-Cube Task did not require manual verification. The shared
+task-board scene now provides a free-joint cube, deterministic start and target
+selection, typed object/target/approach parameters, reconstructable current and
+initial object pose/velocity plus target and robot state, explicit terminal
+fields, and a recomputable planar distance-and-dwell success metric. Existing
+reach and button tasks isolate the cube fixture. No cube demonstrations,
+dataset relabel dispatch, or learning code was added. Automated checks passed
+on July 19, 2026 using `conda run -n dexvision pytest
+tests/test_task_specs.py tests/test_success_relabeling.py` with 37 passed,
+`conda run -n dexvision ruff check dexvision tests`, and `conda run -n
+dexvision pytest` with 328 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
