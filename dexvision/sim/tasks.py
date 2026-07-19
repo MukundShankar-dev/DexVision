@@ -19,6 +19,7 @@ from dexvision.sim.mujoco_env import MujocoEnv, MujocoState
 
 DEFAULT_TASK_BOARD_MODEL = Path("assets/mujoco/task_board_scene.xml")
 REACH_TOUCH_TARGET_TASK_ID = "reach_touch_target"
+BUTTON_PRESS_TASK_ID = "button_press"
 DEFAULT_TRACKING_QUALITY_NAMES = (
     "detected",
     "handedness",
@@ -106,6 +107,80 @@ class ReachTouchTargetConfig:
 
 
 @dataclass(frozen=True)
+class ButtonPressParameters:
+    """Typed goal for one button-press episode.
+
+    ``button_id`` may select a configured button explicitly. When it is omitted,
+    reset samples a button deterministically from ``seed``. A goal may provide
+    either an exact press-depth threshold or a boolean pressed-state target.
+    """
+
+    button_id: str | None = None
+    target_press_depth: float | None = None
+    pressed_state_target: bool | None = None
+    approach_pose: tuple[float, float, float] | None = None
+
+    def __post_init__(self) -> None:
+        if self.button_id is not None and not self.button_id:
+            raise ValueError("button_id must be a non-empty string.")
+        if (
+            self.target_press_depth is not None
+            and self.pressed_state_target is not None
+        ):
+            raise ValueError(
+                "target_press_depth and pressed_state_target are mutually exclusive."
+            )
+        if self.target_press_depth is not None:
+            depth = float(self.target_press_depth)
+            if not np.isfinite(depth) or depth <= 0.0:
+                raise ValueError("target_press_depth must be finite and positive.")
+            object.__setattr__(self, "target_press_depth", depth)
+        if self.pressed_state_target is not None and not isinstance(
+            self.pressed_state_target, bool
+        ):
+            raise ValueError("pressed_state_target must be a boolean.")
+        if self.approach_pose is not None:
+            pose = _finite_vector(self.approach_pose, name="approach_pose")
+            object.__setattr__(
+                self,
+                "approach_pose",
+                tuple(float(value) for value in pose),
+            )
+
+
+@dataclass(frozen=True)
+class ButtonPressConfig:
+    """Reset, geometry, and metric configuration for ``button_press``."""
+
+    button_ids: tuple[str, ...] = (
+        "button_left",
+        "button_center",
+        "button_right",
+    )
+    base_target_body: str = "dexvision_hand_base_target"
+    default_target_press_depth_m: float = 0.012
+    success_dwell_steps: int = 3
+    max_episode_steps: int = 240
+
+    def __post_init__(self) -> None:
+        if not self.button_ids or any(not name for name in self.button_ids):
+            raise ValueError("button_ids must contain non-empty MuJoCo body names.")
+        if len(set(self.button_ids)) != len(self.button_ids):
+            raise ValueError("button_ids must not contain duplicates.")
+        if not self.base_target_body:
+            raise ValueError("base_target_body must be non-empty.")
+        if (
+            not np.isfinite(self.default_target_press_depth_m)
+            or self.default_target_press_depth_m <= 0.0
+        ):
+            raise ValueError("default_target_press_depth_m must be finite and positive.")
+        if self.success_dwell_steps <= 0:
+            raise ValueError("success_dwell_steps must be positive.")
+        if self.max_episode_steps <= 0:
+            raise ValueError("max_episode_steps must be positive.")
+
+
+@dataclass(frozen=True)
 class TaskSpec:
     """Static contract for one resettable Level 2 MuJoCo task."""
 
@@ -118,10 +193,11 @@ class TaskSpec:
     failure_conditions: tuple[str, ...]
     max_episode_steps: int
     reset_config: dict[str, Any]
-    parameter_type: type[ReachTouchTargetParameters]
+    parameter_type: type[Any]
     parameter_schema: Mapping[str, Mapping[str, Any]]
     state_fields: tuple[str, ...]
     success_metric_inputs: tuple[str, ...]
+    terminal_state_schema: Mapping[str, Mapping[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -161,6 +237,72 @@ class ReachTouchTargetState:
                         float(self.failure_reason is not None),
                         float(self.step_count),
                         float(self.target_index),
+                    ],
+                    dtype=np.float64,
+                ),
+                self.initial_base_position,
+                self.initial_base_orientation,
+                self.initial_robot_qpos,
+                self.initial_robot_qvel,
+            )
+        )
+
+
+@dataclass(frozen=True)
+class ButtonPressState:
+    """Reconstructable button state and terminal metric inputs."""
+
+    button_id: str
+    button_index: int
+    button_position: np.ndarray
+    approach_pose: np.ndarray
+    approach_pose_present: bool
+    press_depth: float
+    target_press_depth: float
+    button_pressed: bool
+    target_pressed_state: bool
+    within_target: bool
+    dwell_steps: int
+    success: bool
+    failure_reason: str | None
+    step_count: int
+    initial_button_depth: float
+    initial_base_position: np.ndarray
+    initial_base_orientation: np.ndarray
+    initial_robot_qpos: np.ndarray
+    initial_robot_qvel: np.ndarray
+
+    def as_task_state(self) -> np.ndarray:
+        """Pack button metrics, goal parameters, and deterministic initial state."""
+
+        return np.concatenate(
+            (
+                np.asarray(
+                    [
+                        self.press_depth,
+                        self.target_press_depth,
+                        float(self.button_pressed),
+                        float(self.target_pressed_state),
+                        float(self.dwell_steps),
+                    ],
+                    dtype=np.float64,
+                ),
+                self.button_position,
+                np.asarray(
+                    [
+                        float(self.button_index),
+                        float(self.approach_pose_present),
+                    ],
+                    dtype=np.float64,
+                ),
+                self.approach_pose,
+                np.asarray(
+                    [
+                        float(self.within_target),
+                        float(self.success),
+                        float(self.failure_reason is not None),
+                        float(self.step_count),
+                        self.initial_button_depth,
                     ],
                     dtype=np.float64,
                 ),
@@ -236,6 +378,37 @@ def reach_touch_failure_reason(
     if step_count >= max_episode_steps:
         return "timeout"
     return None
+
+
+def is_button_press_success(
+    *,
+    press_depth_m: float,
+    target_press_depth_m: float,
+    button_pressed: bool,
+    target_pressed_state: bool,
+    dwell_steps: int,
+    required_dwell_steps: int,
+) -> bool:
+    """Recompute button success from saved press-depth and pressed-state inputs."""
+
+    if not np.isfinite(press_depth_m) or press_depth_m < 0.0:
+        raise ValueError("press_depth_m must be finite and non-negative.")
+    if not np.isfinite(target_press_depth_m) or target_press_depth_m <= 0.0:
+        raise ValueError("target_press_depth_m must be finite and positive.")
+    if dwell_steps < 0:
+        raise ValueError("dwell_steps must be non-negative.")
+    if required_dwell_steps <= 0:
+        raise ValueError("required_dwell_steps must be positive.")
+    depth_matches = (
+        press_depth_m >= target_press_depth_m
+        if target_pressed_state
+        else press_depth_m < target_press_depth_m
+    )
+    return (
+        depth_matches
+        and bool(button_pressed) is bool(target_pressed_state)
+        and dwell_steps >= required_dwell_steps
+    )
 
 
 class ReachTouchTargetTask:
@@ -500,6 +673,281 @@ class ReachTouchTargetTask:
             raise TaskError("reach_touch_target must be reset before use.")
 
 
+class ButtonPressTask:
+    """Reset, step, and extract state for ``button_press``."""
+
+    def __init__(
+        self,
+        model_path: str | Path = DEFAULT_TASK_BOARD_MODEL,
+        *,
+        config: ButtonPressConfig | None = None,
+    ) -> None:
+        self.model_path = Path(model_path)
+        self.config = config or ButtonPressConfig()
+        self.env = MujocoEnv(self.model_path)
+        self._initial_robot_state: MujocoState | None = None
+        self._initial_base_position: np.ndarray | None = None
+        self._initial_base_orientation: np.ndarray | None = None
+        self._button_id: str | None = None
+        self._button_index = -1
+        self._button_position: np.ndarray | None = None
+        self._approach_pose = np.zeros(3, dtype=np.float64)
+        self._approach_pose_present = False
+        self._target_press_depth = self.config.default_target_press_depth_m
+        self._target_pressed_state = True
+        self._initial_button_depth = 0.0
+        self._step_count = 0
+        self._dwell_steps = 0
+        self.spec = _build_button_press_spec(self.env, self.config)
+
+    def reset(
+        self,
+        *,
+        seed: int = 0,
+        parameters: ButtonPressParameters | None = None,
+    ) -> ButtonPressState:
+        """Reset deterministically and resolve the selected button goal."""
+
+        parameters = parameters or ButtonPressParameters()
+        initial = self.env.reset()
+        self._initial_robot_state = initial
+        (
+            self._initial_base_position,
+            self._initial_base_orientation,
+        ) = self.env.get_mocap_pose(self.config.base_target_body)
+        self._button_id, self._button_index = self._resolve_button(
+            parameters=parameters,
+            seed=seed,
+        )
+        self._button_position = self._site_position(
+            self._button_site_name(self._button_id)
+        )
+        self._approach_pose_present = parameters.approach_pose is not None
+        self._approach_pose = (
+            np.asarray(parameters.approach_pose, dtype=np.float64)
+            if parameters.approach_pose is not None
+            else np.zeros(3, dtype=np.float64)
+        )
+        self._target_press_depth = (
+            parameters.target_press_depth
+            if parameters.target_press_depth is not None
+            else self.config.default_target_press_depth_m
+        )
+        joint_min, joint_max = self._button_joint_range(self._button_id)
+        if self._target_press_depth < joint_min or self._target_press_depth > joint_max:
+            raise TaskError(
+                f"target_press_depth {self._target_press_depth:.6f} m is outside "
+                f"the selected button joint range [{joint_min:.6f}, "
+                f"{joint_max:.6f}] m."
+            )
+        self._target_pressed_state = (
+            parameters.pressed_state_target
+            if parameters.pressed_state_target is not None
+            else True
+        )
+        self._initial_button_depth = self._button_depth(self._button_id)
+        self._step_count = 0
+        self._dwell_steps = 0
+        return self.get_state()
+
+    def step(
+        self,
+        action: Sequence[float] | np.ndarray | Mapping[str, float] | None = None,
+        *,
+        n_steps: int = 1,
+    ) -> ButtonPressState:
+        """Advance MuJoCo and update the consecutive goal-state dwell count."""
+
+        self._require_reset()
+        self.env.step(action, n_steps=n_steps)
+        self._step_count += 1
+        press_depth = self._button_depth(str(self._button_id))
+        if self._goal_matches(press_depth):
+            self._dwell_steps += 1
+        else:
+            self._dwell_steps = 0
+        return self._make_state(press_depth=press_depth)
+
+    def get_state(self) -> ButtonPressState:
+        """Extract the current button/task state without advancing simulation."""
+
+        self._require_reset()
+        return self._make_state(
+            press_depth=self._button_depth(str(self._button_id))
+        )
+
+    def task_state_vector(self) -> np.ndarray:
+        """Return the current dense button task state for future logging."""
+
+        return self.get_state().as_task_state()
+
+    def robot_state_vector(self) -> np.ndarray:
+        """Pack robot state in the executable Level 2 observation order."""
+
+        self._require_reset()
+        state = self.env.get_state()
+        base_position, base_orientation = self.env.get_mocap_pose(
+            self.config.base_target_body
+        )
+        return np.concatenate(
+            (state.qpos, state.qvel, state.ctrl, base_position, base_orientation)
+        )
+
+    def close(self) -> None:
+        """Release the underlying MuJoCo environment."""
+
+        self.env.close()
+
+    def __enter__(self) -> "ButtonPressTask":
+        return self
+
+    def __exit__(self, *_exc: object) -> None:
+        self.close()
+
+    def _resolve_button(
+        self,
+        *,
+        parameters: ButtonPressParameters,
+        seed: int,
+    ) -> tuple[str, int]:
+        if parameters.button_id is not None:
+            if parameters.button_id not in self.config.button_ids:
+                allowed = ", ".join(self.config.button_ids)
+                raise TaskError(
+                    f"Unknown button_id '{parameters.button_id}'; "
+                    f"expected one of: {allowed}."
+                )
+            return parameters.button_id, self.config.button_ids.index(
+                parameters.button_id
+            )
+        rng = np.random.default_rng(seed)
+        index = int(rng.integers(0, len(self.config.button_ids)))
+        return self.config.button_ids[index], index
+
+    def _make_state(self, *, press_depth: float) -> ButtonPressState:
+        self._require_reset()
+        button_pressed = press_depth >= self._target_press_depth
+        within_target = (
+            button_pressed
+            if self._target_pressed_state
+            else not button_pressed
+        )
+        success = is_button_press_success(
+            press_depth_m=press_depth,
+            target_press_depth_m=self._target_press_depth,
+            button_pressed=button_pressed,
+            target_pressed_state=self._target_pressed_state,
+            dwell_steps=self._dwell_steps,
+            required_dwell_steps=self.config.success_dwell_steps,
+        )
+        failure = (
+            None
+            if success or self._step_count < self.config.max_episode_steps
+            else "timeout"
+        )
+        initial = self._initial_robot_state
+        if initial is None:  # pragma: no cover - guarded by _require_reset.
+            raise TaskError("button_press must be reset before state extraction.")
+        return ButtonPressState(
+            button_id=str(self._button_id),
+            button_index=self._button_index,
+            button_position=np.asarray(
+                self._button_position, dtype=np.float64
+            ).copy(),
+            approach_pose=self._approach_pose.copy(),
+            approach_pose_present=self._approach_pose_present,
+            press_depth=press_depth,
+            target_press_depth=self._target_press_depth,
+            button_pressed=button_pressed,
+            target_pressed_state=self._target_pressed_state,
+            within_target=within_target,
+            dwell_steps=self._dwell_steps,
+            success=success,
+            failure_reason=failure,
+            step_count=self._step_count,
+            initial_button_depth=self._initial_button_depth,
+            initial_base_position=np.asarray(
+                self._initial_base_position, dtype=np.float64
+            ).copy(),
+            initial_base_orientation=np.asarray(
+                self._initial_base_orientation, dtype=np.float64
+            ).copy(),
+            initial_robot_qpos=initial.qpos.copy(),
+            initial_robot_qvel=initial.qvel.copy(),
+        )
+
+    def _goal_matches(self, press_depth: float) -> bool:
+        button_pressed = press_depth >= self._target_press_depth
+        depth_matches = (
+            press_depth >= self._target_press_depth
+            if self._target_pressed_state
+            else press_depth < self._target_press_depth
+        )
+        return depth_matches and button_pressed == self._target_pressed_state
+
+    def _button_depth(self, button_id: str) -> float:
+        joint_name = self._button_joint_name(button_id)
+        joint_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_JOINT,
+            joint_name,
+        )
+        if joint_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing button joint '{joint_name}'."
+            )
+        qpos_address = int(self.env.model.jnt_qposadr[joint_id])
+        depth = float(self.env.data.qpos[qpos_address])
+        if not np.isfinite(depth):
+            raise TaskError(f"Button joint '{joint_name}' has non-finite state.")
+        return max(0.0, depth)
+
+    def _button_joint_range(self, button_id: str) -> tuple[float, float]:
+        joint_name = self._button_joint_name(button_id)
+        joint_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_JOINT,
+            joint_name,
+        )
+        if joint_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing button joint '{joint_name}'."
+            )
+        joint_range = np.asarray(
+            self.env.model.jnt_range[joint_id],
+            dtype=np.float64,
+        )
+        return float(joint_range[0]), float(joint_range[1])
+
+    def _site_position(self, site_name: str) -> np.ndarray:
+        site_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_SITE,
+            site_name,
+        )
+        if site_id < 0:
+            raise TaskError(f"MuJoCo task scene is missing required site '{site_name}'.")
+        return np.asarray(self.env.data.site_xpos[site_id], dtype=np.float64).copy()
+
+    @staticmethod
+    def _button_joint_name(button_id: str) -> str:
+        return f"{button_id}_joint"
+
+    @staticmethod
+    def _button_site_name(button_id: str) -> str:
+        return f"{button_id}_site"
+
+    def _require_reset(self) -> None:
+        if (
+            self._initial_robot_state is None
+            or self._button_id is None
+            or self._button_position is None
+            or self._initial_base_position is None
+            or self._initial_base_orientation is None
+        ):
+            raise TaskError("button_press must be reset before use.")
+
+
 def _build_reach_touch_target_spec(
     env: MujocoEnv,
     config: ReachTouchTargetConfig,
@@ -598,6 +1046,143 @@ def _build_reach_touch_target_spec(
             "distance_to_target",
             "palm_contact",
         ),
+        terminal_state_schema={
+            "success": {"type": "boolean", "terminal": True},
+            "failure_reason": {
+                "type": "string_or_null",
+                "values": ("timeout", "workspace_bounds", "tracking_quality"),
+                "terminal": True,
+            },
+            "distance_to_target": {"type": "float64", "units": "metres"},
+            "palm_contact": {"type": "boolean"},
+            "dwell_steps": {"type": "integer", "units": "control steps"},
+        },
+    )
+
+
+def _build_button_press_spec(
+    env: MujocoEnv,
+    config: ButtonPressConfig,
+) -> TaskSpec:
+    (
+        qpos_names,
+        qvel_names,
+        actuator_names,
+        finger_qpos_indices,
+        finger_qvel_indices,
+        finger_joint_names,
+    ) = _mujoco_observation_order(env)
+    action_schema = build_level1_action_schema(actuator_names)
+    task_state_dim = 25 + int(env.model.nq) + int(env.model.nv)
+    observation_schema = build_level2_observation_schema(
+        robot_qpos_dim=int(env.model.nq),
+        robot_qvel_dim=int(env.model.nv),
+        finger_target_dim=int(env.model.nu),
+        tracking_quality_dim=len(DEFAULT_TRACKING_QUALITY_NAMES),
+        robot_qpos_names=qpos_names,
+        robot_qvel_names=qvel_names,
+        actuator_names=actuator_names,
+        finger_joint_qpos_indices=finger_qpos_indices,
+        finger_joint_qvel_indices=finger_qvel_indices,
+        finger_joint_names=finger_joint_names,
+        tracking_quality_names=DEFAULT_TRACKING_QUALITY_NAMES,
+        task_state_dim=task_state_dim,
+        target_state_dim=13,
+        success_metric_dim=5,
+    )
+    observation_schema.validate()
+    action_schema.validate()
+    return TaskSpec(
+        task_id=BUTTON_PRESS_TASK_ID,
+        skill_name=BUTTON_PRESS_TASK_ID,
+        required_objects=config.button_ids,
+        observation_schema=observation_schema,
+        action_schema=action_schema,
+        success_condition=(
+            "selected button press depth reaches the resolved target and its "
+            f"pressed state matches for {config.success_dwell_steps} consecutive "
+            "control steps"
+        ),
+        failure_conditions=("timeout", "tracking_quality"),
+        max_episode_steps=config.max_episode_steps,
+        reset_config={
+            "button_ids": config.button_ids,
+            "default_target_press_depth_m": config.default_target_press_depth_m,
+            "deterministic_seed": True,
+            "initial_button_state_saved": True,
+            "initial_robot_state_saved": True,
+        },
+        parameter_type=ButtonPressParameters,
+        parameter_schema={
+            "button_id": {
+                "type": "string",
+                "shape": (),
+                "named_id_source": config.button_ids,
+                "required": False,
+            },
+            "target_press_depth": {
+                "type": "float64",
+                "shape": (),
+                "units": "metres",
+                "coordinate_frame": "button joint displacement",
+                "required": False,
+            },
+            "pressed_state_target": {
+                "type": "boolean",
+                "shape": (),
+                "required": False,
+            },
+            "approach_pose": {
+                "type": "float64",
+                "shape": (3,),
+                "units": "metres",
+                "coordinate_frame": "MuJoCo world",
+                "required": False,
+            },
+        },
+        state_fields=(
+            "button_id",
+            "button_index",
+            "button_position",
+            "approach_pose",
+            "approach_pose_present",
+            "press_depth",
+            "target_press_depth",
+            "button_pressed",
+            "target_pressed_state",
+            "within_target",
+            "dwell_steps",
+            "success",
+            "failure_reason",
+            "step_count",
+            "initial_button_depth",
+            "initial_base_position",
+            "initial_base_orientation",
+            "initial_robot_qpos",
+            "initial_robot_qvel",
+        ),
+        success_metric_inputs=(
+            "press_depth",
+            "target_press_depth",
+            "button_pressed",
+            "target_pressed_state",
+            "dwell_steps",
+        ),
+        terminal_state_schema={
+            "success": {"type": "boolean", "terminal": True},
+            "failure_reason": {
+                "type": "string_or_null",
+                "values": ("timeout", "tracking_quality"),
+                "terminal": True,
+            },
+            "press_depth": {
+                "type": "float64",
+                "units": "metres",
+                "coordinate_frame": "button joint displacement",
+            },
+            "button_pressed": {"type": "boolean"},
+            "dwell_steps": {"type": "integer", "units": "control steps"},
+        },
     )
 
 

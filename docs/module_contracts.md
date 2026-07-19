@@ -295,6 +295,11 @@ class TaskSpec:
     failure_conditions: tuple[str, ...]
     max_episode_steps: int
     reset_config: dict
+    parameter_type: type
+    parameter_schema: Mapping[str, Mapping[str, Any]]
+    state_fields: tuple[str, ...]
+    success_metric_inputs: tuple[str, ...]
+    terminal_state_schema: Mapping[str, Mapping[str, Any]]
 ```
 
 Rules:
@@ -309,6 +314,16 @@ and the collidable active target marker for the configured dwell duration.
 The saved task state must include the palm_contact flag, closest contact
 position, target position, contact-to-target distance, and dwell count so
 success can be recomputed later.
+button_press parameters declare a configured button_id plus either a press-depth
+threshold or pressed-state target, with an optional world-frame approach pose.
+Button reset selection must be deterministic for a fixed seed.
+The saved button task state must include button identity and position, current
+and target press depth, current and target pressed state, dwell count, optional
+approach pose, terminal state, and deterministic initial robot/button state.
+button_press success must be recomputable from the saved press depth, target
+depth, current/target pressed states, and consecutive dwell count.
+Button task code must not record demonstrations or add cube-push/learning work
+in Level 2.7D.
 ```
 
 ---

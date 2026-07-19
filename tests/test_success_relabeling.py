@@ -14,6 +14,7 @@ from dexvision.logging.relabel_success import (
     relabel_reach_touch_dataset,
     relabel_reach_touch_episode,
 )
+from dexvision.sim.tasks import is_button_press_success
 
 
 def _write_episode(
@@ -198,3 +199,36 @@ def test_only_reach_touch_task_is_supported(tmp_path: Path) -> None:
 
     with pytest.raises(SuccessRelabelError, match="only 'reach_touch_target'"):
         relabel_reach_touch_episode(episode)
+
+
+def test_button_success_recomputes_from_saved_terminal_metrics() -> None:
+    saved_success_metrics = {
+        "press_depth_m": 0.013,
+        "target_press_depth_m": 0.012,
+        "button_pressed": True,
+        "target_pressed_state": True,
+        "dwell_steps": 3,
+        "required_dwell_steps": 3,
+    }
+
+    assert is_button_press_success(**saved_success_metrics)
+    assert not is_button_press_success(
+        **{**saved_success_metrics, "press_depth_m": 0.011}
+    )
+    assert not is_button_press_success(
+        **{**saved_success_metrics, "dwell_steps": 2}
+    )
+    assert not is_button_press_success(
+        **{**saved_success_metrics, "button_pressed": False}
+    )
+
+
+def test_button_unpressed_state_target_recomputes_without_live_simulation() -> None:
+    assert is_button_press_success(
+        press_depth_m=0.001,
+        target_press_depth_m=0.012,
+        button_pressed=False,
+        target_pressed_state=False,
+        dwell_steps=3,
+        required_dwell_steps=3,
+    )

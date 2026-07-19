@@ -8,10 +8,15 @@ import numpy as np
 import pytest
 
 from dexvision.sim.tasks import (
+    BUTTON_PRESS_TASK_ID,
     REACH_TOUCH_TARGET_TASK_ID,
+    ButtonPressConfig,
+    ButtonPressParameters,
+    ButtonPressTask,
     ReachTouchTargetConfig,
     ReachTouchTargetParameters,
     ReachTouchTargetTask,
+    TaskError,
     is_reach_touch_success,
     reach_distance,
     reach_touch_failure_reason,
@@ -223,3 +228,188 @@ def test_check_task_progress_command_runs_headlessly() -> None:
     assert "DexVision task check" in result.stdout
     assert "Task board scene load and deterministic reset: PASS" in result.stdout
     assert "Viewer: off" in result.stdout
+
+
+def test_task_board_scene_loads_with_button_fixtures() -> None:
+    pytest.importorskip("mujoco")
+
+    with ButtonPressTask(MODEL_PATH) as task:
+        state = task.reset(seed=3)
+
+    assert state.button_id in task.config.button_ids
+    assert state.press_depth == pytest.approx(0.0)
+    assert np.all(np.isfinite(state.as_task_state()))
+    for button_id in task.config.button_ids:
+        joint_id = task.env._mujoco.mj_name2id(
+            task.env.model,
+            task.env._mujoco.mjtObj.mjOBJ_JOINT,
+            f"{button_id}_joint",
+        )
+        site_id = task.env._mujoco.mj_name2id(
+            task.env.model,
+            task.env._mujoco.mjtObj.mjOBJ_SITE,
+            f"{button_id}_site",
+        )
+        assert joint_id >= 0
+        assert site_id >= 0
+
+
+def test_button_spec_declares_parameter_and_terminal_state_schemas() -> None:
+    pytest.importorskip("mujoco")
+
+    with ButtonPressTask(MODEL_PATH) as task:
+        spec = task.spec
+
+    assert spec.task_id == BUTTON_PRESS_TASK_ID
+    assert spec.skill_name == BUTTON_PRESS_TASK_ID
+    assert spec.required_objects == task.config.button_ids
+    assert spec.parameter_type is ButtonPressParameters
+    assert spec.parameter_schema["button_id"]["named_id_source"] == (
+        "button_left",
+        "button_center",
+        "button_right",
+    )
+    assert spec.parameter_schema["target_press_depth"]["units"] == "metres"
+    assert spec.parameter_schema["pressed_state_target"]["type"] == "boolean"
+    assert spec.parameter_schema["approach_pose"]["shape"] == (3,)
+    assert spec.success_metric_inputs == (
+        "press_depth",
+        "target_press_depth",
+        "button_pressed",
+        "target_pressed_state",
+        "dwell_steps",
+    )
+    assert spec.terminal_state_schema["success"]["terminal"] is True
+    assert spec.terminal_state_schema["press_depth"]["units"] == "metres"
+    assert "failure_reason" in spec.terminal_state_schema
+    spec.action_schema.validate()
+    spec.observation_schema.validate()
+
+
+def test_button_reset_is_deterministic_and_saves_goal_and_initial_state() -> None:
+    pytest.importorskip("mujoco")
+
+    parameters = ButtonPressParameters(
+        target_press_depth=0.01,
+        approach_pose=(0.10, -0.02, 0.40),
+    )
+    with ButtonPressTask(MODEL_PATH) as task:
+        first = task.reset(seed=23, parameters=parameters)
+        second = task.reset(seed=23, parameters=parameters)
+        vector = second.as_task_state()
+
+    assert first.button_id == second.button_id
+    assert first.button_index == second.button_index
+    assert first.button_position == pytest.approx(second.button_position)
+    assert first.initial_robot_qpos == pytest.approx(second.initial_robot_qpos)
+    assert first.initial_robot_qvel == pytest.approx(second.initial_robot_qvel)
+    assert second.target_press_depth == pytest.approx(0.01)
+    assert second.target_pressed_state is True
+    assert second.approach_pose_present is True
+    assert second.approach_pose == pytest.approx([0.10, -0.02, 0.40])
+    assert second.initial_button_depth == pytest.approx(0.0)
+    assert vector.shape == task.spec.observation_schema.shapes["task_state"]
+    assert vector.shape == (25 + task.env.model.nq + task.env.model.nv,)
+
+
+def test_button_reset_accepts_named_button_and_pressed_state_target() -> None:
+    pytest.importorskip("mujoco")
+
+    with ButtonPressTask(MODEL_PATH) as task:
+        state = task.reset(
+            seed=0,
+            parameters=ButtonPressParameters(
+                button_id="button_center",
+                pressed_state_target=True,
+            ),
+        )
+
+    assert state.button_id == "button_center"
+    assert state.button_index == 1
+    assert state.target_pressed_state is True
+    assert state.target_press_depth == pytest.approx(
+        ButtonPressConfig().default_target_press_depth_m
+    )
+
+
+def test_button_parameters_reject_ambiguous_or_invalid_goals() -> None:
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        ButtonPressParameters(
+            target_press_depth=0.01,
+            pressed_state_target=True,
+        )
+    with pytest.raises(ValueError, match="finite and positive"):
+        ButtonPressParameters(target_press_depth=0.0)
+    with pytest.raises(ValueError, match="three finite"):
+        ButtonPressParameters(approach_pose=(0.0, float("nan"), 0.4))
+
+
+def test_button_reset_rejects_press_depth_outside_joint_range() -> None:
+    pytest.importorskip("mujoco")
+
+    with ButtonPressTask(MODEL_PATH) as task:
+        with pytest.raises(TaskError, match="outside the selected button joint range"):
+            task.reset(
+                parameters=ButtonPressParameters(target_press_depth=0.021)
+            )
+
+
+def test_button_state_extracts_press_depth_and_matches_declared_widths() -> None:
+    mujoco = pytest.importorskip("mujoco")
+
+    with ButtonPressTask(MODEL_PATH) as task:
+        task.reset(
+            parameters=ButtonPressParameters(
+                button_id="button_left",
+                target_press_depth=0.01,
+            )
+        )
+        joint_id = mujoco.mj_name2id(
+            task.env.model,
+            mujoco.mjtObj.mjOBJ_JOINT,
+            "button_left_joint",
+        )
+        qpos_address = int(task.env.model.jnt_qposadr[joint_id])
+        qvel_address = int(task.env.model.jnt_dofadr[joint_id])
+        task.env.data.qpos[qpos_address] = 0.011
+        mujoco.mj_forward(task.env.model, task.env.data)
+        state = task.get_state()
+        task_state = task.task_state_vector()
+        robot_state = task.robot_state_vector()
+        robot_width = max(
+            layout.maximum_column
+            for layout in task.spec.observation_schema.layouts.values()
+            if layout.source_array == "robot_states"
+        )
+        terminal = state
+        for _ in range(task.config.success_dwell_steps):
+            task.env.data.qpos[qpos_address] = 0.02
+            task.env.data.qvel[qvel_address] = 0.0
+            terminal = task.step(n_steps=1)
+
+    assert state.press_depth == pytest.approx(0.011)
+    assert state.button_pressed is True
+    assert state.within_target is True
+    assert state.dwell_steps == 0
+    assert state.success is False
+    assert task_state[0] == pytest.approx(0.011)
+    assert task_state.shape == task.spec.observation_schema.shapes["task_state"]
+    assert robot_state.shape == (robot_width,)
+    assert terminal.dwell_steps == task.config.success_dwell_steps
+    assert terminal.success is True
+    assert terminal.failure_reason is None
+
+
+def test_button_terminal_state_reports_timeout_without_success() -> None:
+    pytest.importorskip("mujoco")
+
+    config = ButtonPressConfig(max_episode_steps=1)
+    with ButtonPressTask(MODEL_PATH, config=config) as task:
+        task.reset(
+            parameters=ButtonPressParameters(button_id="button_center")
+        )
+        terminal = task.step(n_steps=1)
+
+    assert terminal.success is False
+    assert terminal.failure_reason == "timeout"
+    assert terminal.step_count == 1

@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7C — Scale Reach-Touch Dataset
+Level 2.7D — Button-Press Task
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7D — Button-Press Task
+Level 2.7E — Button-Press Pilot
 
 ---
 
@@ -386,6 +386,17 @@ data/demos/raw/reach_touch_target`, `conda run -n dexvision python -m
 dexvision.apps.summarize_demos --dataset data/demos`, `conda run -n dexvision
 ruff check dexvision tests`, and `conda run -n dexvision pytest` with 303
 passed.
+
+Level 2.7D — Button-Press Task did not require manual verification. The shared
+task-board scene now contains three passive, bounded spring-return buttons, and
+`button_press` provides typed button/depth/pressed-state/approach parameters,
+seeded deterministic reset, reconstructable task and initial state, explicit
+terminal-state fields, and recomputable press-depth-and-dwell success metrics.
+No button demonstrations, cube-push task, or learning code was added.
+Automated checks passed on July 18, 2026 using `conda run -n dexvision pytest
+tests/test_task_specs.py tests/test_success_relabeling.py` with 27 passed,
+`conda run -n dexvision ruff check dexvision tests`, the existing reach-touch
+headless smoke check, and `conda run -n dexvision pytest` with 313 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

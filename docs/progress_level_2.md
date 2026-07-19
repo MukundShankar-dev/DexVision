@@ -1120,13 +1120,24 @@ optional approach pose
 ### Pass Criteria
 
 ```text
-[ ] Button task reset is deterministic
-[ ] Button state and press-depth metric are saved
-[ ] Success can be recomputed
-[ ] Parameter and terminal-state schemas are declared
-[ ] Synthetic success/failure tests pass
-[ ] No cube-push or learning work is added
+[x] Button task reset is deterministic
+[x] Button state and press-depth metric are saved
+[x] Success can be recomputed
+[x] Parameter and terminal-state schemas are declared
+[x] Synthetic success/failure tests pass
+[x] No cube-push or learning work is added
 ```
+
+The task board now contains three passive spring-return buttons with bounded
+slide joints. `ButtonPressTask` supports seeded button selection, explicit
+button ids, press-depth or pressed-state goals, and an optional approach pose.
+Its dense task state preserves the selected button, current/target press
+metrics, dwell and terminal state, approach goal, and deterministic initial
+button/robot state. Automated checks passed on July 18, 2026 using
+`conda run -n dexvision pytest tests/test_task_specs.py
+tests/test_success_relabeling.py` with 27 passed, `conda run -n dexvision ruff
+check dexvision tests`, the existing reach-touch headless smoke check, and
+`conda run -n dexvision pytest` with 313 passed.
 
 ### Codex Prompt
 
