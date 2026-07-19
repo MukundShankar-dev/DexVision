@@ -340,13 +340,26 @@ Current `reach_touch_target` readiness:
   `reach_eval_center_right = [0.14, 0.03, 0.50]` metres
 - dataset summary result: `level3_ready: true`
 
+Current `button_press` pilot status:
+
+- task-board scene and task-specific recorder are implemented
+- five retained pilot episodes cover left, center, and right buttons
+- all five episodes validate and complete headless replay
+- all five recompute as successful with zero label disagreements
+- all five pass the Level 2.7 quality filters
+- the selected target is bright green and non-target buttons are dark gray
+- target-isolation review confirmed the selected button was the primary press
+  in every retained episode
+- dataset scale-up and held-out evaluation states remain pending, so
+  `button_press` is not yet Level 3-ready
+
 ## J. Level 2 Completion Tracker
 
 | Task | Scene implemented | Record command | Replay works | Quality filter works | Clean demos target | Ready for Level 3 |
 |---|---|---|---|---|---:|---|
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
-| button_press | no | TODO | no | no | 50 | no |
+| button_press | yes | yes, pilot | yes, 5/5 | yes, 5 pass | 5 pilot / 50 scale | no |
 | push_cube_to_target | no | TODO | no | no | 100 | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
@@ -361,7 +374,7 @@ Manipulation-task order and current completion:
 [x] 1. reach_touch_target task and five-demo pilot
 [x] 2. relabel/filter/summary gates proven on the reach pilot
 [x] 3. scale reach_touch_target and reserve held-out target positions
-[ ] 4. button_press task and five-demo pilot through the same gates
+[x] 4. button_press task and five-demo pilot through the same gates
 [ ] 5. push_cube_to_target task and five-demo pilot through the same gates
 [ ] 6. scale only the task datasets whose pilots pass
 ```
