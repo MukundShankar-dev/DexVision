@@ -1,4 +1,4 @@
-"""Recompute success labels for saved reach-touch demonstrations."""
+"""Recompute success labels for saved Level 2 task demonstrations."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 from dexvision.logging.relabel_success import (
     DEFAULT_REPORT_NAME,
     SuccessRelabelError,
-    relabel_reach_touch_dataset,
+    relabel_demo_dataset,
     save_relabel_report,
 )
 
@@ -17,14 +17,14 @@ from dexvision.logging.relabel_success import (
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Recompute reach_touch_target success from saved task-state metric inputs."
+            "Recompute supported Level 2 task success from saved metric inputs."
         )
     )
     parser.add_argument(
         "--dataset",
         type=Path,
         required=True,
-        help="Reach-touch dataset directory containing saved episode directories.",
+        help="Single-task dataset directory containing saved episode directories.",
     )
     parser.add_argument(
         "--report",
@@ -42,12 +42,12 @@ def run_relabeling(args: argparse.Namespace) -> int:
     """Relabel the requested dataset and save its audit report."""
 
     report_path = args.report or args.dataset / DEFAULT_REPORT_NAME
-    print("DexVision Level 2 reach-touch success relabeling")
+    print("DexVision Level 2 task success relabeling")
     print(f"Dataset: {args.dataset}")
     print(f"Report: {report_path}")
     print("Raw episodes: immutable")
 
-    report = relabel_reach_touch_dataset(args.dataset)
+    report = relabel_demo_dataset(args.dataset)
     saved_path = save_relabel_report(report, report_path)
     print(
         "Relabeling complete: "

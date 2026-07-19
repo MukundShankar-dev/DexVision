@@ -151,16 +151,26 @@ python -m dexvision.apps.select_reach_target --run
 This command balances the clean-success distribution, launches the recorder,
 and admits only quality-passed successful episodes into `raw/`.
 
-Future task commands remain TODO until their checkpoints are implemented:
+Button-press pilot recording is implemented for Level 2.7E:
 
 ```bash
-# TODO Level 2.7E
 mjpython -m dexvision.apps.record_demo \
   --task button_press \
   --retargeter curl \
-  --output data/demos/raw/button_press/2026-06-14_001 \
+  --button-id button_left \
+  --target-press-depth 0.010 \
+  --output data/demos/raw/button_press/2026-07-18_001 \
   --level1-13-full
+```
 
+Collect exactly five pilot attempts across all three configured button ids,
+then run the task-specific relabel, quality, and summary commands below. In
+every recording and replay, press the single bright green target button; the
+two dark gray buttons are non-targets.
+
+Future task commands remain TODO until their checkpoints are implemented:
+
+```bash
 # TODO Level 2.7G
 mjpython -m dexvision.apps.record_demo \
   --task push_cube_to_target \
@@ -267,18 +277,24 @@ mjpython -m dexvision.apps.replay_demo --demo <episode_path>
 ```
 
 Replay loading validates the saved schema and required arrays before applying
-actions. Success relabeling is implemented for reach-touch:
+actions. Success relabeling is implemented for reach-touch and button-press:
 
 ```bash
 python -m dexvision.apps.relabel_demos \
   --dataset data/demos/raw/reach_touch_target
+
+python -m dexvision.apps.relabel_demos \
+  --dataset data/demos/raw/button_press
 ```
 
-Quality filtering is implemented for reach-touch:
+Quality filtering is implemented for reach-touch and button-press:
 
 ```bash
 python -m dexvision.apps.filter_demos \
   --dataset data/demos/raw/reach_touch_target
+
+python -m dexvision.apps.filter_demos \
+  --dataset data/demos/raw/button_press
 ```
 
 Dataset summaries and Level 3 readiness evaluation are implemented:

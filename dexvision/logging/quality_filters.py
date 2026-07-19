@@ -10,8 +10,10 @@ from typing import Any
 import numpy as np
 
 from dexvision.logging.relabel_success import (
+    BUTTON_PRESS_TASK_ID,
     REACH_TOUCH_TARGET_TASK_ID,
     SuccessRelabelError,
+    relabel_button_press_episode,
     relabel_reach_touch_episode,
 )
 
@@ -116,7 +118,7 @@ def evaluate_episode_quality(
     *,
     thresholds: QualityThresholds | None = None,
 ) -> EpisodeQualityResult:
-    """Evaluate one saved reach-touch pilot episode without modifying it."""
+    """Evaluate one saved supported pilot episode without modifying it."""
 
     limits = thresholds or QualityThresholds()
     limits.validate()
@@ -124,10 +126,11 @@ def evaluate_episode_quality(
     metadata = _load_metadata(path)
     skill_name = _required_string(metadata, "skill_name", path=path)
     task_id = _required_string(metadata, "task_id", path=path)
-    if task_id != REACH_TOUCH_TARGET_TASK_ID:
+    if task_id not in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID}:
         raise QualityFilterError(
             f"{path / 'metadata.json'} has task_id={task_id!r}; Level 2.7 quality "
-            f"filtering supports only {REACH_TOUCH_TARGET_TASK_ID!r} pilot demos."
+            "filtering supports only "
+            f"{REACH_TOUCH_TARGET_TASK_ID!r} and {BUTTON_PRESS_TASK_ID!r} pilot demos."
         )
 
     tracking = _load_required_array(path, "tracking_quality.npy")
@@ -181,7 +184,10 @@ def evaluate_episode_quality(
         path=path,
     )
     try:
-        recomputed_success = relabel_reach_touch_episode(path).recomputed_success
+        if task_id == REACH_TOUCH_TARGET_TASK_ID:
+            recomputed_success = relabel_reach_touch_episode(path).recomputed_success
+        else:
+            recomputed_success = relabel_button_press_episode(path).recomputed_success
     except SuccessRelabelError as exc:
         raise QualityFilterError(f"Could not recompute task success for {path}: {exc}") from exc
 

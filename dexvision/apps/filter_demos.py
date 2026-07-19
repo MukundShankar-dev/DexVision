@@ -18,13 +18,13 @@ from dexvision.logging.quality_filters import (
 def build_parser() -> argparse.ArgumentParser:
     defaults = QualityThresholds()
     parser = argparse.ArgumentParser(
-        description="Flag low-quality saved reach_touch_target pilot demonstrations."
+        description="Flag low-quality saved supported Level 2 pilot demonstrations."
     )
     parser.add_argument(
         "--dataset",
         type=Path,
         required=True,
-        help="Reach-touch dataset directory containing saved episode directories.",
+        help="Single-task dataset directory containing saved episode directories.",
     )
     parser.add_argument(
         "--report",

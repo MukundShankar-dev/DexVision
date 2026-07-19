@@ -56,8 +56,13 @@ from dexvision.sim.hand_base_control import (
 )
 from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
 from dexvision.sim.tasks import (
+    BUTTON_PRESS_TASK_ID,
     DEFAULT_TASK_BOARD_MODEL,
     REACH_TOUCH_TARGET_TASK_ID,
+    ButtonPressConfig,
+    ButtonPressParameters,
+    ButtonPressState,
+    ButtonPressTask,
     ReachTouchTargetConfig,
     ReachTouchTargetParameters,
     ReachTouchTargetState,
@@ -106,6 +111,10 @@ FREE_SPACE_GESTURE_INSTRUCTIONS = {
     "wave": "Use an open palm and wave left/right or up/down while staying in frame.",
 }
 REACH_TOUCH_TARGET_SITES = ReachTouchTargetConfig().target_sites
+BUTTON_PRESS_IDS = ButtonPressConfig().button_ids
+
+TaskEpisodeState = ReachTouchTargetState | ButtonPressState
+TaskEpisode = ReachTouchTargetTask | ButtonPressTask
 
 
 @dataclass(frozen=True)
@@ -155,6 +164,32 @@ def build_parser() -> argparse.ArgumentParser:
             "Configured target site for reach_touch_target. If omitted, --task-seed "
             "selects one deterministically."
         ),
+    )
+    parser.add_argument(
+        "--button-id",
+        choices=BUTTON_PRESS_IDS,
+        default=None,
+        help=(
+            "Configured button for button_press. If omitted, --task-seed selects "
+            "one deterministically."
+        ),
+    )
+    parser.add_argument(
+        "--target-press-depth",
+        type=float,
+        default=None,
+        help=(
+            "Button joint displacement in metres required for button_press success. "
+            "Defaults to the task's configured depth."
+        ),
+    )
+    parser.add_argument(
+        "--approach-pose",
+        type=float,
+        nargs=3,
+        metavar=("X", "Y", "Z"),
+        default=None,
+        help="Optional button_press world-frame approach position in metres.",
     )
     parser.add_argument(
         "--task-seed",
@@ -452,6 +487,21 @@ def run_record_demo(args: argparse.Namespace) -> int:
             "You will be asked for the operator success/failure label unless "
             "--success or --failure was supplied."
         )
+    elif args.task == BUTTON_PRESS_TASK_ID:
+        selected_button = args.button_id or (
+            f"deterministic sample from seed {args.task_seed}"
+        )
+        target_depth = (
+            f"{args.target_press_depth:.4f} m"
+            if args.target_press_depth is not None
+            else "task default"
+        )
+        print(f"Button-press target: {selected_button}, depth={target_depth}")
+        print(
+            "Pilot guide: calibrate with c, press only the bright green button "
+            "until the task reports success, then provide the operator label. "
+            "Non-target buttons are dark gray."
+        )
 
     if args.synthetic:
         return _run_synthetic_recording(
@@ -630,6 +680,8 @@ def _run_live_recording(
             )
             reach_touch_task: ReachTouchTargetTask | None = None
             reach_touch_initial_state: ReachTouchTargetState | None = None
+            button_press_task: ButtonPressTask | None = None
+            button_press_initial_state: ButtonPressState | None = None
             if args.task == REACH_TOUCH_TARGET_TASK_ID:
                 reach_touch_task = stack.enter_context(ReachTouchTargetTask(model_path))
                 reach_touch_initial_state = reach_touch_task.reset(
@@ -652,10 +704,50 @@ def _run_live_recording(
                     f"{reach_touch_initial_state.target_source} at "
                     f"{reach_touch_initial_state.target_position.tolist()}"
                 )
+            elif args.task == BUTTON_PRESS_TASK_ID:
+                button_press_task = stack.enter_context(ButtonPressTask(model_path))
+                button_press_initial_state = button_press_task.reset(
+                    seed=args.task_seed,
+                    parameters=ButtonPressParameters(
+                        button_id=args.button_id,
+                        target_press_depth=args.target_press_depth,
+                        approach_pose=(
+                            tuple(args.approach_pose)
+                            if args.approach_pose is not None
+                            else None
+                        ),
+                    ),
+                )
+                env = button_press_task.env
+                expected_targets = tuple(
+                    button_press_task.spec.action_schema.representation_notes[
+                        "finger_target_names"
+                    ]
+                )
+                if target_names != expected_targets:
+                    raise DemoLoggerError(
+                        "retargeter targets do not match the button task-board "
+                        f"actuators: retargeter={target_names}, task={expected_targets}."
+                    )
+                print(
+                    "Resolved button target: "
+                    f"{button_press_initial_state.button_id} at "
+                    f"{button_press_initial_state.button_position.tolist()}, "
+                    f"depth={button_press_initial_state.target_press_depth:.4f} m"
+                )
+                print("Visual target cue: press only the bright green button.")
             else:
                 env = stack.enter_context(MujocoEnv(model_path))
                 env.reset()
 
+            active_task: TaskEpisode | None = (
+                reach_touch_task if reach_touch_task is not None else button_press_task
+            )
+            initial_task_state: TaskEpisodeState | None = (
+                reach_touch_initial_state
+                if reach_touch_initial_state is not None
+                else button_press_initial_state
+            )
             base_controller = (
                 HandBaseMocapController(env, base_config) if base_config.enabled else None
             )
@@ -698,14 +790,26 @@ def _run_live_recording(
                 finger_joint_qvel_indices=finger_qvel_indices,
                 finger_joint_names=finger_joint_names,
                 tracking_quality_names=TRACKING_QUALITY_FIELDS,
-                object_state_dim=3 if reach_touch_initial_state is not None else None,
-                task_state_dim=(
-                    reach_touch_initial_state.as_task_state().size
+                object_state_dim=(
+                    3
                     if reach_touch_initial_state is not None
+                    else 4 if button_press_initial_state is not None else None
+                ),
+                task_state_dim=(
+                    initial_task_state.as_task_state().size
+                    if initial_task_state is not None
                     else None
                 ),
-                target_state_dim=3 if reach_touch_initial_state is not None else None,
-                success_metric_dim=8 if reach_touch_initial_state is not None else None,
+                target_state_dim=(
+                    3
+                    if reach_touch_initial_state is not None
+                    else 13 if button_press_initial_state is not None else None
+                ),
+                success_metric_dim=(
+                    8
+                    if reach_touch_initial_state is not None
+                    else 5 if button_press_initial_state is not None else None
+                ),
             )
             logger = DemoLogger(
                 args.output,
@@ -724,6 +828,8 @@ def _run_live_recording(
                     synthetic=False,
                     reach_touch_task=reach_touch_task,
                     reach_touch_initial_state=reach_touch_initial_state,
+                    button_press_task=button_press_task,
+                    button_press_initial_state=button_press_initial_state,
                 )
             )
             try:
@@ -740,7 +846,7 @@ def _run_live_recording(
                     base_smoother=base_smoother,
                     logger=logger,
                     preview=preview,
-                    reach_touch_task=reach_touch_task,
+                    task=active_task,
                 )
             except KeyboardInterrupt:
                 if logger.step_count == 0:
@@ -775,6 +881,19 @@ def _run_live_recording(
                 )
                 if args.success is None and preview is not None:
                     preview.close()
+            elif button_press_task is not None:
+                final_task_state = button_press_task.get_state()
+                print(
+                    "Button-press terminal state: "
+                    f"button={final_task_state.button_id} "
+                    f"depth={final_task_state.press_depth:.4f}m "
+                    f"target={final_task_state.target_press_depth:.4f}m "
+                    f"dwell={final_task_state.dwell_steps} "
+                    f"computed_success={final_task_state.success} "
+                    f"failure={final_task_state.failure_reason or 'none'}"
+                )
+                if args.success is None and preview is not None:
+                    preview.close()
             operator_success = _resolve_operator_success_label(args)
             episode = logger.close(success=operator_success)
             print(f"Saved demo with {episode.timestamps.shape[0]} frames: {args.output}")
@@ -798,7 +917,7 @@ def _record_live_with_optional_viewer(
     base_smoother: HandBaseTargetSmoother | None,
     logger: DemoLogger,
     preview: "RecordingPreview | None",
-    reach_touch_task: ReachTouchTargetTask | None = None,
+    task: TaskEpisode | None = None,
 ) -> RecordingSummary:
     if not args.viewer:
         return _record_live_loop(
@@ -814,7 +933,7 @@ def _record_live_with_optional_viewer(
             base_smoother=base_smoother,
             logger=logger,
             preview=preview,
-            reach_touch_task=reach_touch_task,
+            task=task,
             viewer_handle=None,
         )
 
@@ -839,7 +958,7 @@ def _record_live_with_optional_viewer(
                 base_smoother=base_smoother,
                 logger=logger,
                 preview=preview,
-                reach_touch_task=reach_touch_task,
+                task=task,
                 viewer_handle=viewer_handle,
             )
     except Exception as exc:  # pragma: no cover - requires desktop GUI to exercise.
@@ -860,7 +979,7 @@ def _record_live_loop(
     base_smoother: HandBaseTargetSmoother | None,
     logger: DemoLogger,
     preview: "RecordingPreview | None" = None,
-    reach_touch_task: ReachTouchTargetTask | None = None,
+    task: TaskEpisode | None = None,
     viewer_handle: object | None = None,
 ) -> RecordingSummary:
     start_time = time.monotonic()
@@ -936,9 +1055,9 @@ def _record_live_loop(
             auto_base_calibrated = False
         elif "calibrate_base" in applied_base_commands and base_status is not None:
             auto_base_calibrated = bool(base_status.neutral_captured)
-        task_step_state: ReachTouchTargetState | None = None
-        if reach_touch_task is not None and recording_started:
-            task_step_state = reach_touch_task.step(n_steps=args.sim_steps_per_frame)
+        task_step_state: TaskEpisodeState | None = None
+        if task is not None and recording_started:
+            task_step_state = task.step(n_steps=args.sim_steps_per_frame)
             state = env.get_state()
         else:
             state = env.step(n_steps=args.sim_steps_per_frame)
@@ -990,8 +1109,12 @@ def _record_live_loop(
                     ),
                     object_state=(
                         task_step_state.target_position
-                        if task_step_state is not None
-                        else None
+                        if isinstance(task_step_state, ReachTouchTargetState)
+                        else (
+                            task_step_state.as_object_state()
+                            if isinstance(task_step_state, ButtonPressState)
+                            else None
+                        )
                     ),
                 )
             )
@@ -1009,7 +1132,7 @@ def _record_live_loop(
                 f"detected={tracking_result.detected} "
                 f"confidence={raw_features.confidence:.2f} "
                 f"{_format_recording_status(recording_started=True, recorded_frames=recorded_frame_index, gesture_label=args.gesture_label)} "
-                f"{_format_reach_touch_status(task_step_state)} "
+                f"{_format_task_status(task_step_state)} "
                 f"{run_level1_teleop._format_control_summary(smoothed_features)} "
                 f"{format_hand_base_status(base_status)} "
                 f"sim_t={state.time:.3f}s"
@@ -1057,7 +1180,7 @@ def _record_live_loop(
             terminal_label = (
                 "success" if task_step_state.success else task_step_state.failure_reason
             )
-            print(f"Reach-touch task reached terminal state: {terminal_label}.")
+            print(f"{args.task} reached terminal state: {terminal_label}.")
             break
 
     return RecordingSummary(
@@ -1139,14 +1262,20 @@ def _format_recording_status(
     return f"recording=armed press-c-to-calibrate gesture={label}"
 
 
-def _format_reach_touch_status(
-    state: ReachTouchTargetState | None,
-) -> str:
+def _format_task_status(state: TaskEpisodeState | None) -> str:
     if state is None:
         return ""
+    if isinstance(state, ReachTouchTargetState):
+        return (
+            f"palm_contact={'yes' if state.palm_contact else 'no'} "
+            f"distance={state.distance_to_target:.3f}m "
+            f"dwell={state.dwell_steps}"
+        )
     return (
-        f"palm_contact={'yes' if state.palm_contact else 'no'} "
-        f"distance={state.distance_to_target:.3f}m "
+        f"button={state.button_id} "
+        "target_color=bright-green "
+        f"press_depth={state.press_depth:.4f}m/"
+        f"{state.target_press_depth:.4f}m "
         f"dwell={state.dwell_steps}"
     )
 
@@ -1187,7 +1316,7 @@ class RecordingPreview:
         recording_started: bool,
         recorded_frames: int,
         gesture_label: str | None,
-        task_state: ReachTouchTargetState | None = None,
+        task_state: TaskEpisodeState | None = None,
     ) -> RecordingPreviewEvent:
         """Send one preview frame and return queued keyboard commands."""
 
@@ -1217,7 +1346,7 @@ class RecordingPreview:
                     + " | "
                     + format_hand_base_status(base_status)
                     + (
-                        " | " + _format_reach_touch_status(task_state)
+                        " | " + _format_task_status(task_state)
                         if task_state is not None
                         else ""
                     )
@@ -1426,16 +1555,23 @@ def _metadata(
     synthetic: bool,
     reach_touch_task: ReachTouchTargetTask | None = None,
     reach_touch_initial_state: ReachTouchTargetState | None = None,
+    button_press_task: ButtonPressTask | None = None,
+    button_press_initial_state: ButtonPressState | None = None,
 ) -> dict[str, Any]:
-    task_config = (
-        _reach_touch_task_config(
+    if reach_touch_task is not None and reach_touch_initial_state is not None:
+        task_config = _reach_touch_task_config(
             args=args,
             task=reach_touch_task,
             initial_state=reach_touch_initial_state,
         )
-        if reach_touch_task is not None and reach_touch_initial_state is not None
-        else _default_task_config(args.task)
-    )
+    elif button_press_task is not None and button_press_initial_state is not None:
+        task_config = _button_press_task_config(
+            args=args,
+            task=button_press_task,
+            initial_state=button_press_initial_state,
+        )
+    else:
+        task_config = _default_task_config(args.task)
     metadata: dict[str, Any] = {
         "skill_name": args.skill_name or args.task,
         "task_name": args.task_name or _default_task_name(args.task),
@@ -1540,14 +1676,64 @@ def _reach_touch_task_config(
     }
 
 
+def _button_press_task_config(
+    *,
+    args: argparse.Namespace,
+    task: ButtonPressTask,
+    initial_state: ButtonPressState,
+) -> dict[str, Any]:
+    """Return reconstructable button reset, goal, and metric metadata."""
+
+    return {
+        "required_objects": task.spec.required_objects,
+        "requires_task_state": True,
+        "requires_success_metric_inputs": True,
+        "required_observation_fields": (
+            "task_state",
+            "target_state",
+            "success_metric_inputs",
+        ),
+        "task_state_fields": task.spec.state_fields,
+        "success_metric_inputs": task.spec.success_metric_inputs,
+        "success_condition": task.spec.success_condition,
+        "failure_conditions": task.spec.failure_conditions,
+        "max_episode_steps": task.spec.max_episode_steps,
+        "success_dwell_steps": task.config.success_dwell_steps,
+        "reset_seed": int(args.task_seed),
+        "requested_button_id": args.button_id,
+        "resolved_button_id": initial_state.button_id,
+        "button_index": int(initial_state.button_index),
+        "button_position": initial_state.button_position,
+        "button_position_units": "metres",
+        "button_position_frame": "MuJoCo world",
+        "target_press_depth": initial_state.target_press_depth,
+        "target_press_depth_units": "metres",
+        "target_pressed_state": initial_state.target_pressed_state,
+        "target_visual_cue": "bright_green",
+        "non_target_visual_cue": "dark_gray",
+        "approach_pose": (
+            initial_state.approach_pose
+            if initial_state.approach_pose_present
+            else None
+        ),
+        "approach_pose_frame": "MuJoCo world",
+        "initial_button_depth": initial_state.initial_button_depth,
+        "initial_base_position": initial_state.initial_base_position,
+        "initial_base_orientation": initial_state.initial_base_orientation,
+        "initial_robot_qpos": initial_state.initial_robot_qpos,
+        "initial_robot_qvel": initial_state.initial_robot_qvel,
+        "operator_label": "metadata.success; supplied after the single task attempt",
+    }
+
+
 def _resolve_recording_model_path(
     *,
     args: argparse.Namespace,
     raw_config: Mapping[str, Any],
 ) -> Path:
-    """Select the task-board scene for reach-touch unless explicitly overridden."""
+    """Select the task-board scene for implemented task pilots."""
 
-    if args.task == REACH_TOUCH_TARGET_TASK_ID and args.model is None:
+    if args.task in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID} and args.model is None:
         return DEFAULT_TASK_BOARD_MODEL
     return run_level1_teleop.resolve_mujoco_model_path(
         raw_config,
@@ -1561,15 +1747,21 @@ def _resolve_operator_success_label(
     *,
     input_fn: Callable[[str], str] = input,
 ) -> bool | None:
-    """Return the saved operator label, prompting only for a live reach-touch attempt."""
+    """Return the saved operator label, prompting for live task attempts."""
 
-    if args.task != REACH_TOUCH_TARGET_TASK_ID or args.success is not None:
+    if (
+        args.task not in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID}
+        or args.success is not None
+    ):
         return args.success
+    task_label = args.task.replace("_", "-")
     try:
-        response = input_fn("Operator label — did this reach-touch attempt succeed? [y/n]: ")
+        response = input_fn(
+            f"Operator label — did this {task_label} attempt succeed? [y/n]: "
+        )
     except EOFError as exc:
         raise DemoLoggerError(
-            "reach_touch_target requires an operator label. Rerun with "
+            f"{args.task} requires an operator label. Rerun with "
             "--success or --failure when interactive input is unavailable."
         ) from exc
     normalized = response.strip().lower()
@@ -1625,9 +1817,19 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
         raise ValueError("--gesture-label is only supported with --task free_space_gesture.")
     if args.target_site is not None and args.task != REACH_TOUCH_TARGET_TASK_ID:
         raise ValueError("--target-site is only supported with --task reach_touch_target.")
-    if args.task == REACH_TOUCH_TARGET_TASK_ID and args.synthetic:
+    if args.button_id is not None and args.task != BUTTON_PRESS_TASK_ID:
+        raise ValueError("--button-id is only supported with --task button_press.")
+    if args.target_press_depth is not None and args.task != BUTTON_PRESS_TASK_ID:
         raise ValueError(
-            "--synthetic is not supported for reach_touch_target because pilot "
+            "--target-press-depth is only supported with --task button_press."
+        )
+    if args.approach_pose is not None and args.task != BUTTON_PRESS_TASK_ID:
+        raise ValueError("--approach-pose is only supported with --task button_press.")
+    if args.target_press_depth is not None and args.target_press_depth <= 0.0:
+        raise ValueError("--target-press-depth must be positive.")
+    if args.task in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID} and args.synthetic:
+        raise ValueError(
+            f"--synthetic is not supported for {args.task} because pilot "
             "episodes must contain live task state and one operator-reviewed attempt."
         )
     if args.start_on_calibration is None:
@@ -1749,6 +1951,12 @@ def _ensure_mujoco_viewer_can_launch(args: argparse.Namespace) -> None:
         command.extend(["--gesture-label", args.gesture_label])
     if args.target_site is not None:
         command.extend(["--target-site", args.target_site])
+    if args.button_id is not None:
+        command.extend(["--button-id", args.button_id])
+    if args.target_press_depth is not None:
+        command.extend(["--target-press-depth", str(args.target_press_depth)])
+    if args.approach_pose is not None:
+        command.extend(["--approach-pose", *(str(value) for value in args.approach_pose)])
     if args.task_seed != 0:
         command.extend(["--task-seed", str(args.task_seed)])
     if args.success is True:

@@ -1158,12 +1158,22 @@ replay, relabel, quality, and summary pipeline.
 ### Pass Criteria
 
 ```text
-[ ] Five pilot demos cover the configured button parameters
-[ ] Every pilot validates and replays
-[ ] Recomputed success labels are available
-[ ] Pilot quality report and summary are produced
-[ ] No dataset scale-up, cube-push task, or learning work is added
+[x] Five pilot demos cover the configured button parameters
+[x] Every pilot validates and replays
+[x] Recomputed success labels are available
+[x] Pilot quality report and summary are produced
+[x] No dataset scale-up, cube-push task, or learning work is added
 ```
+
+The completed pilot contains five operator-verified, schema-valid episodes
+covering left, center, and right buttons plus target press depths from 0.010 to
+0.014 metres. All five completed headless replay, recomputed as successful,
+passed the Level 2.7 quality filters, and had zero operator/recomputed label
+disagreements. The selected button is always bright green while both
+non-targets are dark gray; reach-touch fixtures are hidden and non-colliding
+only during button recording/replay. A target-isolation audit confirmed that
+the selected button was the primary press in every retained episode. No dataset
+scale-up, cube-push task, or learning work was added.
 
 ### Codex Prompt
 

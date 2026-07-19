@@ -20,6 +20,9 @@ from dexvision.sim.mujoco_env import MujocoEnv, MujocoState
 DEFAULT_TASK_BOARD_MODEL = Path("assets/mujoco/task_board_scene.xml")
 REACH_TOUCH_TARGET_TASK_ID = "reach_touch_target"
 BUTTON_PRESS_TASK_ID = "button_press"
+ACTIVE_REACH_TARGET_GEOM = "active_reach_target"
+BUTTON_TARGET_RGBA = (0.1, 1.0, 0.2, 1.0)
+BUTTON_NON_TARGET_RGBA = (0.22, 0.22, 0.22, 1.0)
 DEFAULT_TRACKING_QUALITY_NAMES = (
     "detected",
     "handedness",
@@ -272,6 +275,16 @@ class ButtonPressState:
     initial_robot_qpos: np.ndarray
     initial_robot_qvel: np.ndarray
 
+    def as_object_state(self) -> np.ndarray:
+        """Pack current button depth and world position for episode logging."""
+
+        return np.concatenate(
+            (
+                np.asarray([self.press_depth], dtype=np.float64),
+                self.button_position,
+            )
+        )
+
     def as_task_state(self) -> np.ndarray:
         """Pack button metrics, goal parameters, and deterministic initial state."""
 
@@ -409,6 +422,83 @@ def is_button_press_success(
         and bool(button_pressed) is bool(target_pressed_state)
         and dwell_steps >= required_dwell_steps
     )
+
+
+def configure_button_press_scene(env: MujocoEnv) -> None:
+    """Hide and disable reach-touch fixtures in the shared button scene."""
+
+    mujoco = env._mujoco
+    for site_name in ReachTouchTargetConfig().target_sites:
+        site_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_SITE,
+            site_name,
+        )
+        if site_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing reach fixture site '{site_name}'."
+            )
+        env.model.site_rgba[site_id, 3] = 0.0
+
+    geom_id = mujoco.mj_name2id(
+        env.model,
+        mujoco.mjtObj.mjOBJ_GEOM,
+        ACTIVE_REACH_TARGET_GEOM,
+    )
+    if geom_id < 0:
+        raise TaskError(
+            f"MuJoCo task scene is missing reach fixture geom "
+            f"'{ACTIVE_REACH_TARGET_GEOM}'."
+        )
+    env.model.geom_rgba[geom_id, 3] = 0.0
+    env.model.geom_contype[geom_id] = 0
+    env.model.geom_conaffinity[geom_id] = 0
+    mujoco.mj_forward(env.model, env.data)
+
+
+def color_button_press_target(
+    env: MujocoEnv,
+    button_id: str,
+    *,
+    button_ids: Sequence[str] = ButtonPressConfig().button_ids,
+) -> None:
+    """Color the selected button bright green and all other buttons gray."""
+
+    if button_id not in button_ids:
+        raise TaskError(
+            f"Unknown button target '{button_id}'; expected one of: "
+            f"{', '.join(button_ids)}."
+        )
+    mujoco = env._mujoco
+    for candidate_id in button_ids:
+        rgba = (
+            BUTTON_TARGET_RGBA
+            if candidate_id == button_id
+            else BUTTON_NON_TARGET_RGBA
+        )
+        geom_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_GEOM,
+            f"{candidate_id}_geom",
+        )
+        site_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_SITE,
+            f"{candidate_id}_site",
+        )
+        material_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_MATERIAL,
+            f"{candidate_id}_material",
+        )
+        if geom_id < 0 or site_id < 0 or material_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing visual assets for '{candidate_id}'."
+            )
+        env.model.geom_rgba[geom_id] = rgba
+        env.model.site_rgba[site_id] = rgba
+        env.model.mat_rgba[material_id] = rgba
+    mujoco.mj_forward(env.model, env.data)
 
 
 class ReachTouchTargetTask:
@@ -685,6 +775,7 @@ class ButtonPressTask:
         self.model_path = Path(model_path)
         self.config = config or ButtonPressConfig()
         self.env = MujocoEnv(self.model_path)
+        configure_button_press_scene(self.env)
         self._initial_robot_state: MujocoState | None = None
         self._initial_base_position: np.ndarray | None = None
         self._initial_base_orientation: np.ndarray | None = None
@@ -718,6 +809,11 @@ class ButtonPressTask:
         self._button_id, self._button_index = self._resolve_button(
             parameters=parameters,
             seed=seed,
+        )
+        color_button_press_target(
+            self.env,
+            self._button_id,
+            button_ids=self.config.button_ids,
         )
         self._button_position = self._site_position(
             self._button_site_name(self._button_id)
@@ -1086,6 +1182,7 @@ def _build_button_press_spec(
         finger_joint_qvel_indices=finger_qvel_indices,
         finger_joint_names=finger_joint_names,
         tracking_quality_names=DEFAULT_TRACKING_QUALITY_NAMES,
+        object_state_dim=4,
         task_state_dim=task_state_dim,
         target_state_dim=13,
         success_metric_dim=5,

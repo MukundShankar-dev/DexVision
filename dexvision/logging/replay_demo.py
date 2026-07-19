@@ -19,6 +19,11 @@ from dexvision.logging.dataset_schema import (
     validate_demo,
 )
 from dexvision.logging.demo_logger import DemoLoggerError, load_logged_demo
+from dexvision.sim.tasks import (
+    BUTTON_PRESS_TASK_ID,
+    color_button_press_target,
+    configure_button_press_scene,
+)
 
 
 DEFAULT_MOCAP_BODY_NAME = "dexvision_hand_base_target"
@@ -425,6 +430,24 @@ def _restore_task_replay_state(
     """Restore task objects that are not part of the recorded action vector."""
 
     metadata = loaded_demo.episode.metadata
+    if metadata.get("task_id") == BUTTON_PRESS_TASK_ID:
+        configure_button_press_scene(env)  # type: ignore[arg-type]
+        task_config = _mapping_value(
+            metadata,
+            "task_config",
+            message="button_press metadata is missing task_config.",
+        )
+        button_id = task_config.get("resolved_button_id")
+        if not isinstance(button_id, str) or not button_id:
+            raise DemoReplayError(
+                "button_press metadata task_config.resolved_button_id "
+                "must be a non-empty string."
+            )
+        color_button_press_target(  # type: ignore[arg-type]
+            env,
+            button_id,
+        )
+        return
     if metadata.get("task_id") != REACH_TOUCH_TARGET_TASK_ID:
         return
 
