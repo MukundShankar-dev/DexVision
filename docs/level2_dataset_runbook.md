@@ -468,8 +468,7 @@ Current `push_cube_to_target` pilot status:
 - redundant left episodes `2026-09-02_001` and `2026-09-02_004` were deleted
   at the operator's request; regenerated reports contain three retained clean
   left-lane successes
-- the manually confirmed three-zone five-episode pilot is still required
-  before Level 2.7G can be marked complete
+- the three-zone five-episode pilot has now received manual replay confirmation
 - replacement episodes `2026-09-02_006` (centre) and `2026-09-02_007` (right)
   pass headless replay, labels, quality gates, and rendered-frame inspection
 - the retained pilot is exactly five clean successes with target coverage
@@ -477,8 +476,10 @@ Current `push_cube_to_target` pilot status:
 - replay now uses the saved recording simulation cadence by default; this is
   required to reproduce the push contact dynamics, while legacy recordings
   without saved cadence retain the one-step fallback
-- final viewer replay confirmation is the only remaining Level 2.7G gate
-- dataset scale-up remains out of scope until that manual pilot gate passes
+- on September 2, 2026, the user confirmed all five viewer replays showed the
+  correct saved cube start, target marker, clean planar push, and intended
+  final target behavior; Level 2.7G is complete
+- dataset scale-up was not started as part of Level 2.7G
 
 ## J. Level 2 Completion Tracker
 
@@ -487,7 +488,7 @@ Current `push_cube_to_target` pilot status:
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
 | button_press | yes | yes, pilot | yes, 5/5 | yes, 5 pass | 5 pilot / 50 scale | no |
-| push_cube_to_target | yes | yes, 5/5 pilot | yes, 5/5 | yes, 5 pass | 5/5 pilot, manual replay pending / 100 scale | no |
+| push_cube_to_target | yes | yes, 5/5 pilot | yes, 5/5 manually confirmed | yes, 5 pass | 5/5 pilot / 100 scale | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
 

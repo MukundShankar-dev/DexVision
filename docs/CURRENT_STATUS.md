@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7F — Push-Cube Task
+Level 2.7G — Push-Cube Pilot
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7G — Push-Cube Pilot
+Level 2.7H — Scale Button-Press Dataset
 
 ---
 
@@ -422,7 +422,7 @@ tests/test_task_specs.py tests/test_success_relabeling.py` with 37 passed,
 `conda run -n dexvision ruff check dexvision tests`, and `conda run -n
 dexvision pytest` with 328 passed.
 
-Level 2.7G — Push-Cube Pilot remains the next target and is not complete.
+Level 2.7G — Push-Cube Pilot is complete.
 Recorder, saved cube/object state, semantic replay restoration, planar
 distance-and-dwell relabeling, quality filtering, and summary integration have
 automated coverage. Checks passed on July 19, 2026 using the checkpoint-focused
@@ -551,8 +551,10 @@ now automatically uses the saved cadence, retains an explicit override, and
 falls back to one step for legacy demos. The focused checkpoint suite passes
 with 57 tests, Ruff passes, and the full suite passes with 350 tests.
 The exactly-five pilot, three-zone coverage, and pipeline-report requirements
-are now satisfied. User-confirmed viewer replay is still required before
-updating Last Completed Checkpoint or advancing Next Target Checkpoint.
+are satisfied. On September 2, 2026, the user manually replayed all five
+retained episodes and confirmed that their saved cube starts, target markers,
+planar pushes, and final target behavior looked correct. Level 2.7G is complete.
+Level 2.7H is the next target but has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

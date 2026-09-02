@@ -1333,7 +1333,7 @@ conda run -n dexvision python -m dexvision.apps.summarize_demos \
 [x] Raw episodes preserve full actions plus cube pose/velocity and target state
 [x] All three configured target zones are represented
 [x] Operator and recomputed labels are retained for audit
-[ ] User confirms viewer replay shows the intended cube push into its saved target
+[x] User confirms viewer replay shows the intended cube push into its saved target
 [x] No dataset scale-up or learning work is added
 ```
 
@@ -1486,17 +1486,11 @@ successes. Verification also exposed that the replay CLI's one-step default
 did not reproduce recordings made at 17 MuJoCo steps per frame. Replay now
 uses saved `recording.sim_steps_per_frame` by default, supports an explicit
 override, and falls back to one step for legacy data. Focused tests pass with
-57 tests, Ruff passes, and the full suite passes with 350 tests. Only the
-user-confirmed viewer replay gate remains open.
-All automated and dataset pass criteria are checked. The manual viewer replay
-criterion remains unchecked until the user explicitly confirms it.
-
-Manual verification is required. Do not mark Level 2.7G complete until the user
-confirms that all five viewer replays show the cube starting from the saved
-pose, moving into the saved target zone, and ending with the intended skill
-behavior. A replay with the wrong cube start, wrong target marker, missing cube
-motion, or visibly unrelated action is a failure and must be fixed or
-re-recorded.
+57 tests, Ruff passes, and the full suite passes with 350 tests. On September
+2, 2026, the user manually replayed all five retained episodes and confirmed
+that each showed the correct saved cube start and target marker, a clean planar
+push, and the intended final target behavior. Every Level 2.7G pass criterion
+is satisfied and the checkpoint is complete. Level 2.7H has not been started.
 
 ### Codex Prompt
 
