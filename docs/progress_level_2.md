@@ -1326,16 +1326,170 @@ conda run -n dexvision python -m dexvision.apps.summarize_demos \
 ### Pass Criteria
 
 ```text
-[ ] Five pilot demos cover configured object/target parameters
-[ ] Every pilot validates and replays
-[ ] Recomputed success labels are available
-[ ] Pilot quality report and summary are produced
-[ ] Raw episodes preserve full actions plus cube pose/velocity and target state
-[ ] All three configured target zones are represented
-[ ] Operator and recomputed labels are retained for audit
+[x] Five pilot demos cover configured object/target parameters
+[x] Every pilot validates and replays
+[x] Recomputed success labels are available
+[x] Pilot quality report and summary are produced
+[x] Raw episodes preserve full actions plus cube pose/velocity and target state
+[x] All three configured target zones are represented
+[x] Operator and recomputed labels are retained for audit
 [ ] User confirms viewer replay shows the intended cube push into its saved target
-[ ] No dataset scale-up or learning work is added
+[x] No dataset scale-up or learning work is added
 ```
+
+The minimum recorder, semantic replay, relabel, quality-filter, and summary
+integration is implemented. Automated checks passed on July 19, 2026 using
+`conda run -n dexvision pytest tests/test_push_cube_recording.py
+tests/test_task_specs.py
+tests/test_replay_loader.py tests/test_success_relabeling.py
+tests/test_quality_filters.py tests/test_dataset_summary.py` with 74 passed,
+`conda run -n dexvision ruff check dexvision tests`, and
+`conda run -n dexvision pytest` with 342 passed after the cube-scene usability
+correction. The vertical wall and unrelated fixtures are now hidden, the hand
+free joint and mocap target reset together immediately behind the cube, and
+live recording ignores the nominal task timeout. The
+operator-authorized unusable `2026-07-19_001` trials were inspected and
+deleted. The replacement trial had 100% detected frames and 0.956 mean tracking
+confidence, but only 5.6 cm forward/depth command range over 31.7 seconds and
+pushed the cube away from the target. Cube-specific translation/depth gains,
+smoothing response, deadband, and the bounded per-frame step were tuned from
+that evidence. A later `2026-07-19_002` attempt still felt delayed even though
+its command trajectory was responsive. Its physical hand base trailed the
+commanded mocap target by 3.3 cm on average and 7.4 cm at the 95th percentile
+because the generic 2-step loop advanced only 0.004 seconds of simulation per
+roughly 0.033-second camera frame. Cube recording now uses at least 17 MuJoCo
+steps per frame at 30 Hz, records the effective step count, and a headless
+regression check reduces final follow error from about 2.5 cm to 2 mm. The
+inspected failed attempt was deleted under the operator's authorization.
+A post-cadence `2026-07-19_002` attempt confirmed responsive 17-step control,
+but the horizontal simulated palm conflicted with the operator's upright real
+palm and made height versus push direction difficult to interpret. The cube
+moved 27 cm and rose more than 10 cm, indicating an abrupt scoop rather than
+residual input latency. The hand now starts palm-up vertically, the neutral
+position is moved slightly farther behind the cube to preserve a stable reset,
+and position/depth/orientation smoothing and the per-frame step cap are
+moderately damped. A headless reset-and-push regression keeps reset cube drift
+below 2 mm and moves the cube more than 5 cm with less than 2 cm of vertical
+lift. The inspected failed attempt was deleted under the operator's standing
+authorization.
+A subsequent 410-frame `2026-07-19_002` trial had 100% hand detection, 0.949
+mean tracking confidence, and only 2.3 mm mean physical follow error, ruling
+out sluggish simulation as the remaining cause. The operator clarified that
+the real palm faces the webcam. Although the simulated palm was vertical, its
+fingers—not its palm normal—pointed along the push axis. The cube moved 13.3 cm
+backward and never became closer to the target. Cube reset now places a
+camera-facing, fingers-up palm behind the cube, webcam-relative depth motion
+maps along the palm normal, and the live viewer starts from a clear
+three-quarter angle. Forearm/wrist collisions below the tabletop are disabled
+for this pose while palm/finger collisions remain active. A headless regression
+keeps reset drift below 2 mm and moves the cube about 18 cm along the table with
+less than 1 mm vertical disturbance. The focused suite now passes 76 tests.
+Ruff passes and the full suite passes 344 tests. The inspected failed trial was
+deleted under the operator's standing authorization.
+A further 418-frame `2026-07-19_002` trial exposed two concrete orientation
+bugs. The reset quaternion presented the back of the robot hand toward the
+cube, and the Level 1.13 full-control preset had re-enabled live base
+orientation after task setup. The commanded quaternion then traversed nearly
+its full component ranges: rendered frames showed the hand rotate out of view
+after about 1.2 seconds and later reappear sideways across the table. Cube mode
+now uses the model's actual palm-facing identity reset quaternion and forcibly
+disables live base orientation after applying the full-control preset.
+Translation, webcam-relative depth, and finger articulation remain active.
+The saved effective teleop config now records the resolved base/orientation/
+depth enable flags. A headless fixed-orientation push moves the cube about
+21 cm along the table with less than 1 mm vertical displacement, and the
+focused suite passes 76 tests.
+A subsequent 756-frame `2026-07-19_002` trial kept the commanded quaternion
+fixed, but exposed task-geometry clipping. The visible forearm/wrist crossed
+the tabletop at reset, and image up/down spanned 15 cm of commanded height.
+At the lower/forward workspace limits, table contact deflected the physical
+hand despite the fixed mocap quaternion, producing 3.6 cm mean and 11.6 cm p95
+follow error, sideways poses, and cube lift. Cube mode now hides and disables
+the below-table forearm/wrist support geometry, fixes robot height at the
+stable push plane, reduces depth gain and forward/lateral bounds, and ignores
+real-hand up/down. Explicit named target zones select the matching lateral
+cube-start lane so the pilot is a straight planar push. A headless bounded push
+ends 8.6 mm from target centre with 0.02 mm vertical drift, fixed orientation,
+and 2.2 mm base-follow error. The focused suite passes 76 tests.
+A September 2, 2026 audit of `2026-07-19_004` found a clean 127-frame planar
+push: 100% hand detection, 0.958 mean tracking confidence, 1.4 mm mean base
+follow error, fixed orientation, 1.1 mm maximum cube lift, and no visual
+clipping in rendered start/contact/final frames. The cube finished 2.72 cm from
+target centre and satisfied the required five-frame dwell. Headless replay,
+relabeling, and all quality gates pass. The episode is retained as immutable
+diagnostic/reference data, but its operator label is null because push-cube was
+accidentally omitted from the shared operator-label prompt, so it does not
+count toward the five accepted pilots. The prompt now includes push-cube, and
+the quality filter correctly excludes intentionally fixed workspace axes from
+limit-hit accounting. Focused checks pass with 79 tests, Ruff passes, and the
+full suite passes with 347 tests.
+A second September 2 attempt, `2026-09-02_001`, is a labeled and recomputed
+success with no label disagreement. It has 100% detection, 0.964 mean tracking
+confidence, 1.15 mm mean base-follow error, fixed orientation, 0.72 mm cube
+lift, a 2.58 cm final target distance, and clean rendered start/contact/final
+frames. Headless replay and relabeling pass. It nevertheless fails the quality
+gate because its lateral command remained at the left workspace bound for 48
+of 147 frames (32.7%, versus the 10% maximum). The episode is retained as raw
+diagnostic data but does not count toward the five accepted pilots. The lateral
+workspace is now centered on the selected target/start lane with 7 cm of
+steering margin on either side; fixed height, fixed orientation, and bounded
+forward motion are unchanged. Focused checks continue to pass with 79 tests.
+A third retained attempt, `2026-09-02_002`, is again visually clean and has an
+operator/recomputed success agreement, headless replay, 100% detection, 0.960
+mean tracking confidence, 1.09 mm mean follow error, fixed orientation, 0.60 mm
+cube lift, and a 2.49 cm final target distance. It narrowly fails only the
+workspace gate because 12.8% of its 242 frames saturated the lateral boundary,
+above the 10% maximum. Because each named start and target are already
+lane-aligned, lateral input now remains fixed at that lane along with height
+and orientation; only palm-normal depth motion drives the pilot. The episode
+is retained as labeled diagnostic data but does not count among the five
+accepted pilots. Focused checks pass with 79 tests.
+`2026-09-02_003` is the first accepted pilot and covers `push_target_left`.
+It contains 97 frames with an affirmative operator label, recomputed success,
+zero disagreement, headless replay, and a quality pass. Tracking was present
+for 100% of frames at 0.956 mean confidence; mean base-follow error was 1.44
+mm, orientation/lateral position/height remained fixed, maximum cube lift was
+0.59 mm, and final planar target distance was 2.76 cm with the required
+five-frame dwell. Rendered reset/contact/final frames showed no clipping or
+uncontrolled motion. After this acceptance, the operator-authorized diagnostic
+episodes `2026-07-19_004`, `2026-09-02_001`, and `2026-09-02_002` were deleted
+and reports regenerated. The dataset summary now dispatches target
+distribution and clean-success aggregation for push-cube, reporting exactly
+one episode and one clean success for the left lane. Four more accepted pilots
+covering centre and right as well as left are still required. Focused checks
+pass with 79 tests.
+Four additional September 2 recordings (`2026-09-02_001`,
+`2026-09-02_002`, `2026-09-02_004`, and `2026-09-02_005`) also pass headless
+replay, operator/recomputed label agreement, every automated quality gate, and
+rendered-frame inspection. Across the five current episodes, hand detection is
+100%, mean confidence is 0.956-0.977, mean base-follow error is 1.44-2.33 mm,
+maximum cube lift is 0.35-0.74 mm, and final planar target distance is
+2.09-2.76 cm. The regenerated reports contain five successes, zero label
+disagreements, five quality passes, and five clean successes. All five target
+`push_target_left`, though, so the three-zone coverage requirement remains
+open. Keep `2026-09-02_002`, `2026-09-02_003`, and `2026-09-02_005`; record a
+centre and a right replacement; then remove redundant left-lane episodes
+`2026-09-02_001` and `2026-09-02_004` so the final pilot contains exactly five
+episodes. The operator subsequently authorized deletion of those two redundant
+episodes. Reports were regenerated and now contain three retained successes,
+zero disagreements, three quality passes, and three clean successes, all for
+the left lane.
+Replacement episodes `2026-09-02_006` and `2026-09-02_007` cover the centre
+and right lanes. Both pass schema validation, headless semantic replay,
+operator/recomputed label agreement, every quality gate, and rendered
+start/middle/final inspection. Their mean tracking confidence is 0.954 and
+0.933, mean base-follow error is 1.32 and 2.22 mm, maximum cube lift is 0.63
+and 0.48 mm, and final target distance is 2.56 and 2.70 cm. The retained pilot
+is now exactly five episodes with left=3, centre=1, right=1; reports contain
+five successes, zero disagreements, five quality passes, and five clean
+successes. Verification also exposed that the replay CLI's one-step default
+did not reproduce recordings made at 17 MuJoCo steps per frame. Replay now
+uses saved `recording.sim_steps_per_frame` by default, supports an explicit
+override, and falls back to one step for legacy data. Focused tests pass with
+57 tests, Ruff passes, and the full suite passes with 350 tests. Only the
+user-confirmed viewer replay gate remains open.
+All automated and dataset pass criteria are checked. The manual viewer replay
+criterion remains unchecked until the user explicitly confirms it.
 
 Manual verification is required. Do not mark Level 2.7G complete until the user
 confirms that all five viewer replays show the cube starting from the saved

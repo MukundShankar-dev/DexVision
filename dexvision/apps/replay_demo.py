@@ -19,7 +19,7 @@ from dexvision.sim.mujoco_env import MujocoEnv, MujocoError
 
 
 DEFAULT_SPEED = 1.0
-DEFAULT_SIM_STEPS_PER_ACTION = 1
+DEFAULT_LEGACY_SIM_STEPS_PER_ACTION = 1
 DEFAULT_PRINT_INTERVAL = 30
 DEFAULT_VIEWER_SLEEP = 0.0
 
@@ -62,8 +62,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--sim-steps-per-action",
         type=int,
-        default=DEFAULT_SIM_STEPS_PER_ACTION,
-        help="MuJoCo integration steps to run for each recorded action row.",
+        default=None,
+        help=(
+            "MuJoCo integration steps to run for each recorded action row. "
+            "Defaults to the saved recording cadence, or 1 for legacy demos."
+        ),
     )
     parser.add_argument(
         "--max-steps",
@@ -95,6 +98,10 @@ def run_replay_demo(args: argparse.Namespace) -> int:
         model_override=args.model,
         mocap_body_override=args.mocap_body,
     )
+    sim_steps_per_action = _resolve_sim_steps_per_action(
+        loaded,
+        args.sim_steps_per_action,
+    )
 
     print("DexVision Level 2 demo replay")
     print(f"Demo: {loaded.demo_dir}")
@@ -107,6 +114,7 @@ def run_replay_demo(args: argparse.Namespace) -> int:
     print(f"Finger targets: {', '.join(loaded.finger_target_names)}")
     print(f"Mode: {'headless' if args.headless else 'viewer'}")
     print(f"Speed: {args.speed:g}x")
+    print(f"Simulation steps/action: {sim_steps_per_action}")
 
     with MujocoEnv(loaded.model_path) as env:
         if args.headless:
@@ -114,12 +122,17 @@ def run_replay_demo(args: argparse.Namespace) -> int:
                 loaded,
                 env,
                 speed=args.speed,
-                sim_steps_per_action=args.sim_steps_per_action,
+                sim_steps_per_action=sim_steps_per_action,
                 max_steps=args.max_steps,
                 print_interval=args.print_interval,
             )
         else:
-            result = _run_replay_with_viewer(loaded, env, args=args)
+            result = _run_replay_with_viewer(
+                loaded,
+                env,
+                args=args,
+                sim_steps_per_action=sim_steps_per_action,
+            )
 
     status = "stopped early" if result.stopped_early else "complete"
     print(
@@ -156,6 +169,7 @@ def _run_replay_with_viewer(
     env: MujocoEnv,
     *,
     args: argparse.Namespace,
+    sim_steps_per_action: int,
 ) -> object:
     _ensure_viewer_can_launch(args)
     try:
@@ -175,7 +189,7 @@ def _run_replay_with_viewer(
                 loaded,
                 env,
                 speed=args.speed,
-                sim_steps_per_action=args.sim_steps_per_action,
+                sim_steps_per_action=sim_steps_per_action,
                 max_steps=args.max_steps,
                 viewer_sync=sync_viewer,
                 should_stop=lambda: _viewer_was_closed(viewer_handle),
@@ -202,7 +216,7 @@ def _progress_printer(print_interval: int):
 def _validate_args(args: argparse.Namespace) -> None:
     if args.speed <= 0.0:
         raise ValueError("speed must be positive.")
-    if args.sim_steps_per_action <= 0:
+    if args.sim_steps_per_action is not None and args.sim_steps_per_action <= 0:
         raise ValueError("sim_steps_per_action must be positive.")
     if args.max_steps is not None and args.max_steps <= 0:
         raise ValueError("max_steps must be positive when provided.")
@@ -242,9 +256,11 @@ def _format_mjpython_command(args: argparse.Namespace) -> str:
         str(args.demo),
         "--speed",
         str(args.speed),
-        "--sim-steps-per-action",
-        str(args.sim_steps_per_action),
     ]
+    if args.sim_steps_per_action is not None:
+        command.extend(
+            ["--sim-steps-per-action", str(args.sim_steps_per_action)]
+        )
     if args.model is not None:
         command.extend(["--model", str(args.model)])
     if args.mocap_body is not None:
@@ -254,6 +270,25 @@ def _format_mjpython_command(args: argparse.Namespace) -> str:
     if args.viewer_sleep != DEFAULT_VIEWER_SLEEP:
         command.extend(["--viewer-sleep", str(args.viewer_sleep)])
     return " ".join(shlex.quote(part) for part in command)
+
+
+def _resolve_sim_steps_per_action(
+    loaded: LoadedReplayDemo,
+    override: int | None,
+) -> int:
+    """Use an explicit replay cadence or the cadence saved by the recorder."""
+
+    if override is not None:
+        return override
+    recording = loaded.episode.metadata.get("recording")
+    if not isinstance(recording, dict) or "sim_steps_per_frame" not in recording:
+        return DEFAULT_LEGACY_SIM_STEPS_PER_ACTION
+    saved_steps = recording["sim_steps_per_frame"]
+    if isinstance(saved_steps, bool) or not isinstance(saved_steps, int) or saved_steps <= 0:
+        raise DemoReplayError(
+            "metadata recording.sim_steps_per_frame must be a positive integer."
+        )
+    return saved_steps
 
 
 def _viewer_was_closed(viewer_handle: object) -> bool:

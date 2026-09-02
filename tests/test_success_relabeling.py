@@ -9,8 +9,11 @@ import pytest
 from dexvision.apps import relabel_demos
 from dexvision.logging.relabel_success import (
     DEFAULT_REPORT_NAME,
+    PUSH_CUBE_RELABEL_REPORT_VERSION,
     RELABEL_REPORT_VERSION,
     SuccessRelabelError,
+    relabel_demo_dataset,
+    relabel_push_cube_episode,
     relabel_reach_touch_dataset,
     relabel_reach_touch_episode,
 )
@@ -71,6 +74,58 @@ def _write_episode(
             )
         )
     np.save(episode / "task_states.npy", np.stack(rows))
+    return episode
+
+
+def _write_push_cube_episode(
+    dataset: Path,
+    name: str,
+    *,
+    distances: tuple[float, ...] = (0.08, 0.03, 0.02, 0.01, 0.02, 0.03),
+    operator_success: bool | None = True,
+) -> Path:
+    episode = dataset / name
+    episode.mkdir(parents=True)
+    target = np.asarray([0.08, 0.0, -0.015], dtype=np.float64)
+    metadata = {
+        "episode_id": f"push-{name}",
+        "task_id": "push_cube_to_target",
+        "success": operator_success,
+        "task_config": {
+            "success_metric_inputs": [
+                "object_position",
+                "target_position",
+                "distance_to_target",
+                "dwell_steps",
+            ],
+            "success_dwell_steps": 5,
+            "target_radius": 0.035,
+            "resolved_object_id": "push_cube",
+            "resolved_target_source": "push_target_center",
+        },
+    }
+    (episode / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+
+    task_rows = []
+    object_rows = []
+    dwell = 0
+    for distance in distances:
+        object_position = target + np.asarray([distance, 0.0, 0.0])
+        dwell = dwell + 1 if distance <= 0.035 else 0
+        task_rows.append(
+            np.concatenate((object_position, target, [distance, float(dwell)]))
+        )
+        object_rows.append(
+            np.concatenate(
+                (
+                    object_position,
+                    [1.0, 0.0, 0.0, 0.0],
+                    np.zeros(6, dtype=np.float64),
+                )
+            )
+        )
+    np.save(episode / "task_states.npy", np.stack(task_rows))
+    np.save(episode / "object_states.npy", np.stack(object_rows))
     return episode
 
 
@@ -273,3 +328,54 @@ def test_push_cube_distance_is_planar_and_rejects_non_finite_state() -> None:
             object_position=(0.0, float("nan"), 0.0),
             target_position=(0.0, 0.0, 0.0),
         )
+
+
+def test_push_cube_episode_relabels_distance_dwell_and_operator_label(
+    tmp_path: Path,
+) -> None:
+    episode = _write_push_cube_episode(tmp_path, "success")
+
+    result = relabel_push_cube_episode(episode)
+
+    assert result.recomputed_success is True
+    assert result.operator_success is True
+    assert result.labels_agree is True
+    assert result.first_success_frame == 5
+    assert result.max_consecutive_goal_frames == 5
+    assert result.resolved_target_source == "push_target_center"
+
+
+def test_push_cube_dataset_dispatch_preserves_raw_episode(tmp_path: Path) -> None:
+    episode = _write_push_cube_episode(tmp_path, "episode-001")
+    metadata_before = (episode / "metadata.json").read_bytes()
+    object_states_before = (episode / "object_states.npy").read_bytes()
+
+    report = relabel_demo_dataset(tmp_path)
+
+    assert report.version == PUSH_CUBE_RELABEL_REPORT_VERSION
+    assert report.task_id == "push_cube_to_target"
+    assert report.episode_count == 1
+    assert report.recomputed_success_count == 1
+    assert report.raw_episodes_modified is False
+    assert (episode / "metadata.json").read_bytes() == metadata_before
+    assert (episode / "object_states.npy").read_bytes() == object_states_before
+
+
+def test_push_cube_relabel_rejects_inconsistent_saved_distance(
+    tmp_path: Path,
+) -> None:
+    episode = _write_push_cube_episode(tmp_path, "bad-distance")
+    task_states = np.load(episode / "task_states.npy")
+    task_states[0, 6] += 0.01
+    np.save(episode / "task_states.npy", task_states)
+
+    with pytest.raises(SuccessRelabelError, match="inconsistent distance_to_target"):
+        relabel_push_cube_episode(episode)
+
+
+def test_push_cube_relabel_requires_pose_velocity_array(tmp_path: Path) -> None:
+    episode = _write_push_cube_episode(tmp_path, "missing-object-state")
+    (episode / "object_states.npy").unlink()
+
+    with pytest.raises(SuccessRelabelError, match="Missing cube pose/velocity"):
+        relabel_push_cube_episode(episode)

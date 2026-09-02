@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 import time
+from copy import deepcopy
 from collections.abc import Mapping
 from contextlib import ExitStack
 from dataclasses import dataclass, replace
@@ -51,6 +53,7 @@ from dexvision.sim.hand_base_control import (
     HandBaseMocapController,
     HandBaseControlConfig,
     HandBaseControlStatus,
+    WorkspaceLimits,
     format_hand_base_status,
     hand_base_config_from_teleop_config,
 )
@@ -58,11 +61,16 @@ from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
 from dexvision.sim.tasks import (
     BUTTON_PRESS_TASK_ID,
     DEFAULT_TASK_BOARD_MODEL,
+    PUSH_CUBE_TASK_ID,
     REACH_TOUCH_TARGET_TASK_ID,
     ButtonPressConfig,
     ButtonPressParameters,
     ButtonPressState,
     ButtonPressTask,
+    PushCubeConfig,
+    PushCubeParameters,
+    PushCubeState,
+    PushCubeTask,
     ReachTouchTargetConfig,
     ReachTouchTargetParameters,
     ReachTouchTargetState,
@@ -112,9 +120,12 @@ FREE_SPACE_GESTURE_INSTRUCTIONS = {
 }
 REACH_TOUCH_TARGET_SITES = ReachTouchTargetConfig().target_sites
 BUTTON_PRESS_IDS = ButtonPressConfig().button_ids
+PUSH_CUBE_OBJECT_IDS = PushCubeConfig().object_ids
+PUSH_CUBE_TARGET_ZONES = PushCubeConfig().target_zone_sites
+PUSH_CUBE_APPROACH_SIDES = PushCubeConfig().approach_sides
 
-TaskEpisodeState = ReachTouchTargetState | ButtonPressState
-TaskEpisode = ReachTouchTargetTask | ButtonPressTask
+TaskEpisodeState = ReachTouchTargetState | ButtonPressState | PushCubeState
+TaskEpisode = ReachTouchTargetTask | ButtonPressTask | PushCubeTask
 
 
 @dataclass(frozen=True)
@@ -190,6 +201,36 @@ def build_parser() -> argparse.ArgumentParser:
         metavar=("X", "Y", "Z"),
         default=None,
         help="Optional button_press world-frame approach position in metres.",
+    )
+    parser.add_argument(
+        "--object-id",
+        choices=PUSH_CUBE_OBJECT_IDS,
+        default=None,
+        help="Movable object id for push_cube_to_target.",
+    )
+    target_group = parser.add_mutually_exclusive_group()
+    target_group.add_argument(
+        "--target-zone-id",
+        choices=PUSH_CUBE_TARGET_ZONES,
+        default=None,
+        help=(
+            "Configured target zone for push_cube_to_target. If omitted with "
+            "--target-pose, --task-seed selects one deterministically."
+        ),
+    )
+    target_group.add_argument(
+        "--target-pose",
+        type=float,
+        nargs=3,
+        metavar=("X", "Y", "Z"),
+        default=None,
+        help="Custom push-cube target centre in MuJoCo world-frame metres.",
+    )
+    parser.add_argument(
+        "--approach-side",
+        choices=PUSH_CUBE_APPROACH_SIDES,
+        default=None,
+        help="Optional push_cube_to_target approach side.",
     )
     parser.add_argument(
         "--task-seed",
@@ -502,6 +543,22 @@ def run_record_demo(args: argparse.Namespace) -> int:
             "until the task reports success, then provide the operator label. "
             "Non-target buttons are dark gray."
         )
+    elif args.task == PUSH_CUBE_TASK_ID:
+        selected_target = args.target_zone_id or (
+            args.target_pose
+            if args.target_pose is not None
+            else f"deterministic sample from seed {args.task_seed}"
+        )
+        print(f"Push-cube target: {selected_target}")
+        print(
+            "Pilot guide: the orange cube starts directly in front of the "
+            "vertical palm. Face your real palm toward the camera with fingers "
+            "up when pressing c, then move the palm toward the camera to push "
+            "the cube "
+            "into the green floor target, and press q when finished. There is "
+            "no recording timeout. Real-hand up/down is intentionally ignored "
+            "to keep the push planar."
+        )
 
     if args.synthetic:
         return _run_synthetic_recording(
@@ -625,6 +682,7 @@ def _run_live_recording(
     episode_id: str,
 ) -> int:
     base_config = _base_config(raw_config, args=args)
+    effective_raw_config: Mapping[str, Any] = raw_config
     print(f"Camera: id={args.camera_id}, width={args.width}, height={args.height}")
     print(f"Hand tracker model: {args.hand_landmarker_model or DEFAULT_HAND_LANDMARKER_MODEL}")
     print(f"MuJoCo model: {model_path}")
@@ -682,6 +740,8 @@ def _run_live_recording(
             reach_touch_initial_state: ReachTouchTargetState | None = None
             button_press_task: ButtonPressTask | None = None
             button_press_initial_state: ButtonPressState | None = None
+            push_cube_task: PushCubeTask | None = None
+            push_cube_initial_state: PushCubeState | None = None
             if args.task == REACH_TOUCH_TARGET_TASK_ID:
                 reach_touch_task = stack.enter_context(ReachTouchTargetTask(model_path))
                 reach_touch_initial_state = reach_touch_task.reset(
@@ -736,17 +796,92 @@ def _run_live_recording(
                     f"depth={button_press_initial_state.target_press_depth:.4f} m"
                 )
                 print("Visual target cue: press only the bright green button.")
+            elif args.task == PUSH_CUBE_TASK_ID:
+                push_cube_task = stack.enter_context(
+                    PushCubeTask(model_path, enforce_timeout=False)
+                )
+                push_cube_initial_state = push_cube_task.reset(
+                    seed=args.task_seed,
+                    parameters=PushCubeParameters(
+                        object_id=args.object_id,
+                        target_pose=(
+                            tuple(args.target_pose)
+                            if args.target_pose is not None
+                            else None
+                        ),
+                        target_zone_id=args.target_zone_id,
+                        approach_side=args.approach_side,
+                    ),
+                )
+                env = push_cube_task.env
+                minimum_sim_steps = _minimum_realtime_sim_steps(
+                    simulation_timestep=float(env.model.opt.timestep),
+                    control_rate_hz=float(args.control_rate_hz),
+                )
+                if args.sim_steps_per_frame < minimum_sim_steps:
+                    print(
+                        "Push-cube real-time simulation override: "
+                        f"{args.sim_steps_per_frame} -> {minimum_sim_steps} "
+                        "MuJoCo steps per camera frame."
+                    )
+                    args.sim_steps_per_frame = minimum_sim_steps
+                base_config = _push_cube_base_config(
+                    base_config,
+                    initial_state=push_cube_initial_state,
+                )
+                effective_raw_config = _teleop_config_with_effective_base(
+                    raw_config,
+                    base_config=base_config,
+                    neutral_orientation=(
+                        push_cube_initial_state.initial_base_orientation
+                    ),
+                )
+                expected_targets = tuple(
+                    push_cube_task.spec.action_schema.representation_notes[
+                        "finger_target_names"
+                    ]
+                )
+                if target_names != expected_targets:
+                    raise DemoLoggerError(
+                        "retargeter targets do not match the push-cube task-board "
+                        f"actuators: retargeter={target_names}, task={expected_targets}."
+                    )
+                print(
+                    "Resolved push-cube task: "
+                    f"object={push_cube_initial_state.object_id} "
+                    f"start={push_cube_initial_state.initial_object_position.tolist()} "
+                    f"target={push_cube_initial_state.target_source} at "
+                    f"{push_cube_initial_state.target_position.tolist()} "
+                    f"radius={push_cube_initial_state.target_radius:.3f}m"
+                )
+                print("Visual target cue: push the cube into the green target zone.")
+                print(
+                    "Push-cube hand neutral: "
+                    f"base={push_cube_initial_state.initial_base_position.tolist()} "
+                    "(camera-facing vertical palm, fingers up, behind the cube)."
+                )
+                print("Recording timeout: off; press q when the attempt is finished.")
             else:
                 env = stack.enter_context(MujocoEnv(model_path))
                 env.reset()
 
             active_task: TaskEpisode | None = (
-                reach_touch_task if reach_touch_task is not None else button_press_task
+                reach_touch_task
+                if reach_touch_task is not None
+                else (
+                    button_press_task
+                    if button_press_task is not None
+                    else push_cube_task
+                )
             )
             initial_task_state: TaskEpisodeState | None = (
                 reach_touch_initial_state
                 if reach_touch_initial_state is not None
-                else button_press_initial_state
+                else (
+                    button_press_initial_state
+                    if button_press_initial_state is not None
+                    else push_cube_initial_state
+                )
             )
             base_controller = (
                 HandBaseMocapController(env, base_config) if base_config.enabled else None
@@ -793,7 +928,11 @@ def _run_live_recording(
                 object_state_dim=(
                     3
                     if reach_touch_initial_state is not None
-                    else 4 if button_press_initial_state is not None else None
+                    else (
+                        4
+                        if button_press_initial_state is not None
+                        else 13 if push_cube_initial_state is not None else None
+                    )
                 ),
                 task_state_dim=(
                     initial_task_state.as_task_state().size
@@ -803,12 +942,20 @@ def _run_live_recording(
                 target_state_dim=(
                     3
                     if reach_touch_initial_state is not None
-                    else 13 if button_press_initial_state is not None else None
+                    else (
+                        13
+                        if button_press_initial_state is not None
+                        else 7 if push_cube_initial_state is not None else None
+                    )
                 ),
                 success_metric_dim=(
                     8
                     if reach_touch_initial_state is not None
-                    else 5 if button_press_initial_state is not None else None
+                    else (
+                        5
+                        if button_press_initial_state is not None
+                        else 8 if push_cube_initial_state is not None else None
+                    )
                 ),
             )
             logger = DemoLogger(
@@ -821,7 +968,7 @@ def _run_live_recording(
                 _metadata(
                     args=args,
                     episode_id=episode_id,
-                    raw_config=raw_config,
+                    raw_config=effective_raw_config,
                     model_path=model_path,
                     target_names=target_names,
                     observation_schema=observation_schema,
@@ -830,6 +977,8 @@ def _run_live_recording(
                     reach_touch_initial_state=reach_touch_initial_state,
                     button_press_task=button_press_task,
                     button_press_initial_state=button_press_initial_state,
+                    push_cube_task=push_cube_task,
+                    push_cube_initial_state=push_cube_initial_state,
                 )
             )
             try:
@@ -894,6 +1043,19 @@ def _run_live_recording(
                 )
                 if args.success is None and preview is not None:
                     preview.close()
+            elif push_cube_task is not None:
+                final_task_state = push_cube_task.get_state()
+                print(
+                    "Push-cube terminal state: "
+                    f"object={final_task_state.object_id} "
+                    f"target={final_task_state.target_source} "
+                    f"distance={final_task_state.distance_to_target:.4f}m "
+                    f"dwell={final_task_state.dwell_steps} "
+                    f"computed_success={final_task_state.success} "
+                    f"failure={final_task_state.failure_reason or 'none'}"
+                )
+                if args.success is None and preview is not None:
+                    preview.close()
             operator_success = _resolve_operator_success_label(args)
             episode = logger.close(success=operator_success)
             print(f"Saved demo with {episode.timestamps.shape[0]} frames: {args.output}")
@@ -945,6 +1107,8 @@ def _record_live_with_optional_viewer(
 
     try:
         with viewer.launch_passive(env.model, env.data) as viewer_handle:
+            if isinstance(task, PushCubeTask):
+                _configure_push_cube_viewer(viewer_handle)
             return _record_live_loop(
                 args=args,
                 env=env,
@@ -1112,7 +1276,10 @@ def _record_live_loop(
                         if isinstance(task_step_state, ReachTouchTargetState)
                         else (
                             task_step_state.as_object_state()
-                            if isinstance(task_step_state, ButtonPressState)
+                            if isinstance(
+                                task_step_state,
+                                (ButtonPressState, PushCubeState),
+                            )
                             else None
                         )
                     ),
@@ -1174,8 +1341,8 @@ def _record_live_loop(
                 time.sleep(args.viewer_sleep)
             if _viewer_was_closed(viewer_handle):
                 break
-        if task_step_state is not None and (
-            task_step_state.success or task_step_state.failure_reason is not None
+        if task_step_state is not None and _task_should_stop_recording(
+            task_step_state
         ):
             terminal_label = (
                 "success" if task_step_state.success else task_step_state.failure_reason
@@ -1187,6 +1354,18 @@ def _record_live_loop(
         frames=recorded_frame_index,
         detected_frames=detected_frames,
         stopped_by_preview=stopped_by_preview,
+    )
+
+
+def _task_should_stop_recording(state: TaskEpisodeState) -> bool:
+    """Stop on success or safety failure, but never on a task timeout."""
+
+    return bool(
+        state.success
+        or (
+            state.failure_reason is not None
+            and state.failure_reason != "timeout"
+        )
     )
 
 
@@ -1271,11 +1450,19 @@ def _format_task_status(state: TaskEpisodeState | None) -> str:
             f"distance={state.distance_to_target:.3f}m "
             f"dwell={state.dwell_steps}"
         )
+    if isinstance(state, ButtonPressState):
+        return (
+            f"button={state.button_id} "
+            "target_color=bright-green "
+            f"press_depth={state.press_depth:.4f}m/"
+            f"{state.target_press_depth:.4f}m "
+            f"dwell={state.dwell_steps}"
+        )
     return (
-        f"button={state.button_id} "
-        "target_color=bright-green "
-        f"press_depth={state.press_depth:.4f}m/"
-        f"{state.target_press_depth:.4f}m "
+        f"cube={state.object_id} "
+        f"target={state.target_source} "
+        f"distance={state.distance_to_target:.3f}m/"
+        f"{state.target_radius:.3f}m "
         f"dwell={state.dwell_steps}"
     )
 
@@ -1557,6 +1744,8 @@ def _metadata(
     reach_touch_initial_state: ReachTouchTargetState | None = None,
     button_press_task: ButtonPressTask | None = None,
     button_press_initial_state: ButtonPressState | None = None,
+    push_cube_task: PushCubeTask | None = None,
+    push_cube_initial_state: PushCubeState | None = None,
 ) -> dict[str, Any]:
     if reach_touch_task is not None and reach_touch_initial_state is not None:
         task_config = _reach_touch_task_config(
@@ -1569,6 +1758,12 @@ def _metadata(
             args=args,
             task=button_press_task,
             initial_state=button_press_initial_state,
+        )
+    elif push_cube_task is not None and push_cube_initial_state is not None:
+        task_config = _push_cube_task_config(
+            args=args,
+            task=push_cube_task,
+            initial_state=push_cube_initial_state,
         )
     else:
         task_config = _default_task_config(args.task)
@@ -1612,6 +1807,7 @@ def _metadata(
             "save_landmarks": bool(args.save_landmarks),
             "max_frames": int(args.max_frames),
             "duration_seconds": float(args.duration_seconds),
+            "sim_steps_per_frame": int(args.sim_steps_per_frame),
             "observation_fields": observation_schema.fields,
         },
     }
@@ -1726,6 +1922,148 @@ def _button_press_task_config(
     }
 
 
+def _push_cube_task_config(
+    *,
+    args: argparse.Namespace,
+    task: PushCubeTask,
+    initial_state: PushCubeState,
+) -> dict[str, Any]:
+    """Return reconstructable cube reset, goal, and metric metadata."""
+
+    return {
+        "required_objects": task.spec.required_objects,
+        "requires_task_state": True,
+        "requires_success_metric_inputs": True,
+        "required_observation_fields": (
+            "object_state",
+            "task_state",
+            "target_state",
+            "success_metric_inputs",
+        ),
+        "task_state_fields": task.spec.state_fields,
+        "success_metric_inputs": task.spec.success_metric_inputs,
+        "success_condition": task.spec.success_condition,
+        "failure_conditions": task.spec.failure_conditions,
+        "max_episode_steps": task.spec.max_episode_steps,
+        "recording_timeout_enabled": task.enforce_timeout,
+        "success_dwell_steps": task.config.success_dwell_steps,
+        "reset_seed": int(args.task_seed),
+        "requested_object_id": args.object_id,
+        "resolved_object_id": initial_state.object_id,
+        "object_index": int(initial_state.object_index),
+        "requested_target_zone_id": args.target_zone_id,
+        "requested_target_pose": args.target_pose,
+        "resolved_target_source": initial_state.target_source,
+        "target_index": int(initial_state.target_index),
+        "target_marker_body": task.config.target_marker_body,
+        "base_free_joint": task.config.base_free_joint,
+        "target_position": initial_state.target_position,
+        "target_position_units": "metres",
+        "target_position_frame": "MuJoCo world cube centre",
+        "target_radius": initial_state.target_radius,
+        "target_radius_units": "metres planar distance",
+        "requested_approach_side": args.approach_side,
+        "resolved_approach_side": initial_state.approach_side,
+        "initial_object_position": initial_state.initial_object_position,
+        "initial_object_orientation": initial_state.initial_object_orientation,
+        "initial_object_linear_velocity": initial_state.initial_object_linear_velocity,
+        "initial_object_angular_velocity": initial_state.initial_object_angular_velocity,
+        "initial_base_position": initial_state.initial_base_position,
+        "initial_base_orientation": initial_state.initial_base_orientation,
+        "initial_robot_qpos": initial_state.initial_robot_qpos,
+        "initial_robot_qvel": initial_state.initial_robot_qvel,
+        "operator_label": "metadata.success; supplied after the single task attempt",
+    }
+
+
+def _push_cube_base_config(
+    config: HandBaseControlConfig,
+    *,
+    initial_state: PushCubeState,
+) -> HandBaseControlConfig:
+    """Align camera-facing palm depth motion with the cube push direction."""
+
+    neutral = np.asarray(initial_state.initial_base_position, dtype=np.float64)
+    return replace(
+        config,
+        enable_base_orientation=False,
+        base_fixed_z=float(neutral[2]),
+        position_offset=np.asarray([neutral[0], neutral[1], 0.0], dtype=np.float64),
+        base_position_scale_x=0.0,
+        base_position_scale_y=0.0,
+        base_smoothing_alpha=0.40,
+        depth_scale=0.35,
+        depth_smoothing_alpha=0.40,
+        depth_deadband=0.01,
+        depth_min=-0.22,
+        depth_max=0.04,
+        orientation_smoothing_alpha=0.50,
+        orientation_deadband_deg=0.25,
+        max_position_step=0.02,
+        workspace_limits=WorkspaceLimits(
+            minimum=np.asarray([-0.22, neutral[1], -0.24], dtype=np.float64),
+            maximum=np.asarray([0.04, neutral[1], -0.24], dtype=np.float64),
+        ),
+    )
+
+
+def _minimum_realtime_sim_steps(
+    *,
+    simulation_timestep: float,
+    control_rate_hz: float,
+) -> int:
+    """Return enough MuJoCo steps to cover one nominal control period."""
+
+    if not np.isfinite(simulation_timestep) or simulation_timestep <= 0.0:
+        raise ValueError("simulation_timestep must be finite and positive.")
+    if not np.isfinite(control_rate_hz) or control_rate_hz <= 0.0:
+        raise ValueError("control_rate_hz must be finite and positive.")
+    return max(1, math.ceil((1.0 / control_rate_hz) / simulation_timestep))
+
+
+def _teleop_config_with_effective_base(
+    raw_config: Mapping[str, Any],
+    *,
+    base_config: HandBaseControlConfig,
+    neutral_orientation: np.ndarray,
+) -> dict[str, Any]:
+    """Snapshot task-specific base overrides used by recording and quality checks."""
+
+    snapshot = deepcopy(dict(raw_config))
+    raw_base = snapshot.get("base_control")
+    base_payload = dict(raw_base) if isinstance(raw_base, Mapping) else {}
+    base_payload.update(
+        {
+            "enable_base_control": base_config.enabled,
+            "enable_base_orientation": base_config.enable_base_orientation,
+            "enable_depth_control": base_config.enable_depth_control,
+            "base_fixed_z": base_config.base_fixed_z,
+            "position_offset": base_config.position_offset,
+            "base_position_scale_x": base_config.base_position_scale_x,
+            "base_position_scale_y": base_config.base_position_scale_y,
+            "base_smoothing_alpha": base_config.base_smoothing_alpha,
+            "depth_scale": base_config.depth_scale,
+            "depth_smoothing_alpha": base_config.depth_smoothing_alpha,
+            "depth_deadband": base_config.depth_deadband,
+            "depth_min": base_config.depth_min,
+            "depth_max": base_config.depth_max,
+            "orientation_smoothing_alpha": (
+                base_config.orientation_smoothing_alpha
+            ),
+            "orientation_deadband_deg": base_config.orientation_deadband_deg,
+            "max_position_step": base_config.max_position_step,
+            "workspace_limits": {
+                "min": base_config.workspace_limits.minimum,
+                "max": base_config.workspace_limits.maximum,
+            },
+            "neutral_mocap_orientation": neutral_orientation,
+            "task_override": PUSH_CUBE_TASK_ID,
+        }
+    )
+    snapshot["base_control"] = base_payload
+    return snapshot
+
+
 def _resolve_recording_model_path(
     *,
     args: argparse.Namespace,
@@ -1733,7 +2071,11 @@ def _resolve_recording_model_path(
 ) -> Path:
     """Select the task-board scene for implemented task pilots."""
 
-    if args.task in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID} and args.model is None:
+    if args.task in {
+        REACH_TOUCH_TARGET_TASK_ID,
+        BUTTON_PRESS_TASK_ID,
+        PUSH_CUBE_TASK_ID,
+    } and args.model is None:
         return DEFAULT_TASK_BOARD_MODEL
     return run_level1_teleop.resolve_mujoco_model_path(
         raw_config,
@@ -1750,7 +2092,12 @@ def _resolve_operator_success_label(
     """Return the saved operator label, prompting for live task attempts."""
 
     if (
-        args.task not in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID}
+        args.task
+        not in {
+            REACH_TOUCH_TARGET_TASK_ID,
+            BUTTON_PRESS_TASK_ID,
+            PUSH_CUBE_TASK_ID,
+        }
         or args.success is not None
     ):
         return args.success
@@ -1825,9 +2172,25 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
         )
     if args.approach_pose is not None and args.task != BUTTON_PRESS_TASK_ID:
         raise ValueError("--approach-pose is only supported with --task button_press.")
+    if args.object_id is not None and args.task != PUSH_CUBE_TASK_ID:
+        raise ValueError("--object-id is only supported with --task push_cube_to_target.")
+    if args.target_zone_id is not None and args.task != PUSH_CUBE_TASK_ID:
+        raise ValueError(
+            "--target-zone-id is only supported with --task push_cube_to_target."
+        )
+    if args.target_pose is not None and args.task != PUSH_CUBE_TASK_ID:
+        raise ValueError("--target-pose is only supported with --task push_cube_to_target.")
+    if args.approach_side is not None and args.task != PUSH_CUBE_TASK_ID:
+        raise ValueError(
+            "--approach-side is only supported with --task push_cube_to_target."
+        )
     if args.target_press_depth is not None and args.target_press_depth <= 0.0:
         raise ValueError("--target-press-depth must be positive.")
-    if args.task in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID} and args.synthetic:
+    if args.task in {
+        REACH_TOUCH_TARGET_TASK_ID,
+        BUTTON_PRESS_TASK_ID,
+        PUSH_CUBE_TASK_ID,
+    } and args.synthetic:
         raise ValueError(
             f"--synthetic is not supported for {args.task} because pilot "
             "episodes must contain live task state and one operator-reviewed attempt."
@@ -1975,6 +2338,18 @@ def _viewer_was_closed(viewer_handle: object) -> bool:
     if not callable(is_running):
         return False
     return not bool(is_running())
+
+
+def _configure_push_cube_viewer(viewer_handle: object) -> None:
+    """Frame the upright palm, cube, and target from a clear three-quarter view."""
+
+    camera = getattr(viewer_handle, "cam", None)
+    if camera is None:
+        return
+    camera.lookat[:] = np.asarray([-0.02, 0.01, 0.03], dtype=np.float64)
+    camera.distance = 0.62
+    camera.azimuth = 35.0
+    camera.elevation = -25.0
 
 
 def _default_episode_id(task_id: str) -> str:

@@ -168,16 +168,43 @@ then run the task-specific relabel, quality, and summary commands below. In
 every recording and replay, press the single bright green target button; the
 two dark gray buttons are non-targets.
 
-The Level 2.7F push-cube scene, task reset, state extraction, and success metric
-are implemented. Recording, task-specific replay restoration, dataset
-relabeling, quality/summary integration, and the five-demo pilot remain TODO
-for Level 2.7G. Do not run the placeholder command below until those paths are
-implemented and their synthetic/headless checks pass.
+The Level 2.7G push-cube recorder, semantic replay restoration, dataset
+relabeling, quality filtering, and summary integration are implemented. After
+the listed synthetic/headless checks pass, collect exactly five pilot episodes
+covering all three configured target zones. Use the actual date and unique
+attempt numbers, preserve every raw episode, and manually inspect all five
+viewer replays before marking the checkpoint complete.
 
-Future recording commands remain TODO until their checkpoints are implemented:
+In cube mode, the vertical reach/button wall and unrelated fixtures are hidden.
+The Shadow Hand starts behind the orange cube with its palm facing the cube and
+its fingers up. Face the real palm toward the webcam with fingers up when
+pressing `c`. Moving the real palm toward the webcam then moves the simulated
+palm along its normal toward the cube. Image left/right and up/down are
+intentionally ignored, preventing sideways saturation and table penetration.
+Named targets start the cube in the same lateral lane, so a straight
+palm-normal push is sufficient. The MuJoCo viewer starts from a
+three-quarter angle showing the palm, cube, and target together. Press `q` when
+the attempt is finished. Do not grasp or lift the cube. Cube recording has no
+task timeout; only success, a workspace safety failure, or `q` ends the
+attempt.
+After the attempt, answer the terminal's operator success prompt with `y` or
+`n`. An episode without this operator label may remain as immutable diagnostic
+data but does not count toward the five accepted pilots.
+The simulated wrist orientation is intentionally fixed in cube mode. Rotating
+the real wrist must not rotate or flip the robot hand; only translation, depth,
+and finger articulation are controlled live.
+Cube-mode controls use a responsive task-specific profile with moderate
+planar-position/depth smoothing plus a bounded position step and workspace.
+This keeps deliberate real-hand motion visible while preventing table
+penetration and abrupt motion that can scoop or launch the cube.
+Cube recording also overrides the generic 2-step simulation cadence with
+real-time stepping. At the current 30 Hz control rate and 0.002-second MuJoCo
+timestep, it runs 17 simulation steps per camera frame so the physical hand
+tracks the commanded mocap pose without a delayed trailing motion.
+
+Push-cube pilot command:
 
 ```bash
-# TODO Level 2.7G
 mjpython -m dexvision.apps.record_demo \
   --task push_cube_to_target \
   --retargeter curl \
@@ -186,7 +213,11 @@ mjpython -m dexvision.apps.record_demo \
   --approach-side left \
   --output data/demos/raw/push_cube_to_target/YYYY-MM-DD_001 \
   --level1-13-full
+```
 
+Future recording commands remain TODO until their checkpoints are implemented:
+
+```bash
 # TODO later/stretch Level 2 task support
 mjpython -m dexvision.apps.record_demo \
   --task rotate_dial \
@@ -286,7 +317,9 @@ mjpython -m dexvision.apps.replay_demo --demo <episode_path>
 ```
 
 Replay loading validates the saved schema and required arrays before applying
-actions. Success relabeling is implemented for reach-touch and button-press:
+actions. Push-cube replay also restores the recorded cube start pose/velocity
+and target marker. Success relabeling is implemented for reach-touch,
+button-press, and push-cube:
 
 ```bash
 python -m dexvision.apps.relabel_demos \
@@ -294,9 +327,12 @@ python -m dexvision.apps.relabel_demos \
 
 python -m dexvision.apps.relabel_demos \
   --dataset data/demos/raw/button_press
+
+python -m dexvision.apps.relabel_demos \
+  --dataset data/demos/raw/push_cube_to_target
 ```
 
-Quality filtering is implemented for reach-touch and button-press:
+Quality filtering is implemented for reach-touch, button-press, and push-cube:
 
 ```bash
 python -m dexvision.apps.filter_demos \
@@ -304,6 +340,9 @@ python -m dexvision.apps.filter_demos \
 
 python -m dexvision.apps.filter_demos \
   --dataset data/demos/raw/button_press
+
+python -m dexvision.apps.filter_demos \
+  --dataset data/demos/raw/push_cube_to_target
 ```
 
 Dataset summaries and Level 3 readiness evaluation are implemented:
@@ -362,6 +401,85 @@ Current `button_press` pilot status:
 - dataset scale-up and held-out evaluation states remain pending, so
   `button_press` is not yet Level 3-ready
 
+Current `push_cube_to_target` pilot status:
+
+- task-board scene and task-specific recorder are implemented
+- replay restores the saved cube start pose/velocity and target marker
+- planar distance-and-dwell relabeling, quality filtering, and summary dispatch
+  have automated coverage
+- cube mode hides the reach/button wall and starts a camera-facing, fingers-up
+  palm directly behind the cube
+- webcam-relative depth motion maps to the simulated palm normal, and a
+  three-quarter viewer angle keeps the palm, cube, and target visible together
+- recording has no nominal task timeout; the operator may take as long as
+  needed and press `q` when finished
+- the confusing `2026-07-19_001` trial was inspected, confirmed to contain no
+  cube motion, and deleted at the operator's request
+- a replacement tuning trial had excellent tracking and contacted the cube,
+  but recorded base motion was too weak and pushed the cube away from the goal;
+  it was inspected, deleted under the same operator authorization, and used to
+  tune a more responsive cube-control profile
+- the next inspected trial showed the remaining delay came from advancing only
+  0.004 seconds of simulation per roughly 0.033-second camera frame; cube mode
+  now advances a full nominal control period and the failed trial was deleted
+- a later trial confirmed low physical follow error but exposed that the palm
+  was edge-on to the push direction; the cube moved backward, so the reset pose
+  and depth workspace were changed to a palm-normal push with fingers up
+- the next trial exposed a reversed palm-facing quaternion plus the full-control
+  preset re-enabling live wrist rotation; rendered frames showed the back of the
+  hand at reset, the robot leaving view, and then lying sideways on the table
+- cube mode now uses the actual palm-facing reset and forcibly locks robot wrist
+  orientation while preserving translation, depth, and finger control
+- the following trial showed visible forearm/wrist clipping through the table
+  and table contact rotating the physical hand when image up/down drove the
+  target below the surface
+- cube mode now hides the below-table support bodies, fixes hand height, limits
+  forward/lateral travel, and aligns named cube starts with their target lane
+- `2026-07-19_004` is retained as a successful diagnostic/reference episode:
+  it replays headlessly, recomputes success with five in-target frames, and
+  passes every quality filter, but its legacy null operator label means it does
+  not count toward the five accepted pilots
+- push-cube recording now requires the same explicit operator label as the
+  earlier manipulation pilots, and fixed-height axes are supported by quality
+  filtering
+- `2026-09-02_001` is retained as labeled diagnostic data: its clean rendered
+  motion, operator/recomputed success agreement, and headless replay pass, but
+  48 of 147 frames sat on the left workspace boundary, so it fails the quality
+  gate and does not count toward the five accepted pilots
+- lateral bounds are now centered on each named target lane with 7 cm of
+  steering margin per side; fixed height/orientation safeguards are unchanged
+- `2026-09-02_002` is also retained as labeled diagnostic data: motion, replay,
+  labels, tracking, and target dwell pass, but 12.8% of frames still saturated
+  the lateral boundary and therefore exceeded the 10% quality limit
+- because every named start is aligned with its target, lateral control is now
+  fixed to the selected lane; the pilot is a single palm-normal forward push
+- `2026-09-02_003` is accepted as pilot 1/5 for `push_target_left`: operator and
+  recomputed labels agree, headless replay and all quality filters pass, and
+  rendered start/contact/final frames show a clean clipping-free planar push
+- after that acceptance, diagnostic episodes `2026-07-19_004`,
+  `2026-09-02_001`, and `2026-09-02_002` were deleted at the operator's request
+- the summary now reports push-cube target distribution and one clean success
+- four more September 2 recordings pass replay, label agreement, quality, and
+  visual inspection; the current five-episode set has five clean successes
+- all five current recordings target `push_target_left`, so the required
+  centre/right coverage is still missing; retain `2026-09-02_002`,
+  `2026-09-02_003`, and `2026-09-02_005`, record one centre and one right
+  replacement
+- redundant left episodes `2026-09-02_001` and `2026-09-02_004` were deleted
+  at the operator's request; regenerated reports contain three retained clean
+  left-lane successes
+- the manually confirmed three-zone five-episode pilot is still required
+  before Level 2.7G can be marked complete
+- replacement episodes `2026-09-02_006` (centre) and `2026-09-02_007` (right)
+  pass headless replay, labels, quality gates, and rendered-frame inspection
+- the retained pilot is exactly five clean successes with target coverage
+  left=3, centre=1, right=1 and zero label disagreements
+- replay now uses the saved recording simulation cadence by default; this is
+  required to reproduce the push contact dynamics, while legacy recordings
+  without saved cadence retain the one-step fallback
+- final viewer replay confirmation is the only remaining Level 2.7G gate
+- dataset scale-up remains out of scope until that manual pilot gate passes
+
 ## J. Level 2 Completion Tracker
 
 | Task | Scene implemented | Record command | Replay works | Quality filter works | Clean demos target | Ready for Level 3 |
@@ -369,7 +487,7 @@ Current `button_press` pilot status:
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
 | button_press | yes | yes, pilot | yes, 5/5 | yes, 5 pass | 5 pilot / 50 scale | no |
-| push_cube_to_target | yes | TODO Level 2.7G | no | no | 100 | no |
+| push_cube_to_target | yes | yes, 5/5 pilot | yes, 5/5 | yes, 5 pass | 5/5 pilot, manual replay pending / 100 scale | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
 

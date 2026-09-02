@@ -29,6 +29,7 @@ def _write_episode(
     workspace_limit_hits: bool = False,
     task_success: bool = True,
     skill_name: str = "reach_touch_target",
+    task_id: str = "reach_touch_target",
 ) -> Path:
     episode = dataset / name
     episode.mkdir(parents=True)
@@ -37,7 +38,7 @@ def _write_episode(
     metadata = {
         "episode_id": f"episode-{name}",
         "skill_name": skill_name,
-        "task_id": "reach_touch_target",
+        "task_id": task_id,
         "success": task_success,
         "tracking_quality_fields": [
             "detected",
@@ -69,15 +70,30 @@ def _write_episode(
                 "fingers": {},
             },
         },
-        "task_config": {
+        "task_config": {},
+    }
+    if task_id == "push_cube_to_target":
+        metadata["task_config"] = {
+            "success_metric_inputs": [
+                "object_position",
+                "target_position",
+                "distance_to_target",
+                "dwell_steps",
+            ],
+            "success_dwell_steps": 5,
+            "target_radius": 0.035,
+            "resolved_object_id": "push_cube",
+            "resolved_target_source": "push_target_center",
+        }
+    else:
+        metadata["task_config"] = {
             "success_metric_inputs": [
                 "target_position",
                 "touch_position",
                 "distance_to_target",
                 "palm_contact",
             ]
-        },
-    }
+        }
     (episode / "metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
 
     tracking = np.tile(
@@ -108,12 +124,32 @@ def _write_episode(
         actions[:, 0] = 0.2
     np.save(episode / "actions.npy", actions)
 
-    target = np.asarray([0.1, 0.0, 0.5], dtype=np.float64)
-    touch = target + np.asarray([0.01 if task_success else 0.05, 0.0, 0.0])
-    distance = float(np.linalg.norm(touch - target))
-    contact = 1.0 if task_success else 0.0
-    task_row = np.concatenate((target, touch, [distance, contact]))
-    np.save(episode / "task_states.npy", np.tile(task_row, (frame_count, 1)))
+    if task_id == "push_cube_to_target":
+        target = np.asarray([0.1, 0.0, -0.015], dtype=np.float64)
+        distance = 0.01 if task_success else 0.05
+        cube = target + np.asarray([distance, 0.0, 0.0])
+        dwell = np.arange(1, frame_count + 1) if task_success else np.zeros(frame_count)
+        task_states = np.stack(
+            [
+                np.concatenate((cube, target, [distance, float(dwell[index])]))
+                for index in range(frame_count)
+            ]
+        )
+        object_row = np.concatenate(
+            (cube, [1.0, 0.0, 0.0, 0.0], np.zeros(6, dtype=np.float64))
+        )
+        np.save(
+            episode / "object_states.npy",
+            np.tile(object_row, (frame_count, 1)),
+        )
+        np.save(episode / "task_states.npy", task_states)
+    else:
+        target = np.asarray([0.1, 0.0, 0.5], dtype=np.float64)
+        touch = target + np.asarray([0.01 if task_success else 0.05, 0.0, 0.0])
+        distance = float(np.linalg.norm(touch - target))
+        contact = 1.0 if task_success else 0.0
+        task_row = np.concatenate((target, touch, [distance, contact]))
+        np.save(episode / "task_states.npy", np.tile(task_row, (frame_count, 1)))
     return episode
 
 
@@ -175,6 +211,27 @@ def test_joint_and_workspace_limit_hits_fail(tmp_path: Path) -> None:
     assert "workspace_limit_hits" in result.failed_filters
 
 
+def test_fixed_workspace_axis_is_not_treated_as_a_limit_hit(tmp_path: Path) -> None:
+    episode = _write_episode(
+        tmp_path,
+        "fixed-height",
+        skill_name="push_cube_to_target",
+        task_id="push_cube_to_target",
+    )
+    metadata_path = episode / "metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["teleop_config"]["base_control"]["workspace_limits"] = {
+        "min": [-0.22, -0.10, 0.16],
+        "max": [0.22, 0.10, 0.16],
+    }
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    result = evaluate_episode_quality(episode)
+
+    assert result.passed is True
+    assert result.metrics["workspace_limit_hit_fraction"] == 0.0
+
+
 def test_failed_task_demo_is_flagged(tmp_path: Path) -> None:
     episode = _write_episode(tmp_path, "failed-task", task_success=False)
 
@@ -227,3 +284,18 @@ def test_thresholds_are_configurable(tmp_path: Path) -> None:
     assert report.threshold_version == QUALITY_THRESHOLDS_VERSION
     assert report.thresholds["max_feature_jitter_p95"] == 3.0
     assert report.episodes[0].passed is True
+
+
+def test_push_cube_demo_dispatches_through_quality_filters(tmp_path: Path) -> None:
+    episode = _write_episode(
+        tmp_path,
+        "push-cube",
+        skill_name="push_cube_to_target",
+        task_id="push_cube_to_target",
+    )
+
+    result = evaluate_episode_quality(episode)
+
+    assert result.task_id == "push_cube_to_target"
+    assert result.passed is True
+    assert result.metrics["recomputed_task_success"] is True

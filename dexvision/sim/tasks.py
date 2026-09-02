@@ -235,6 +235,15 @@ class PushCubeConfig:
     target_marker_body: str = "push_cube_target_marker"
     target_marker_geom: str = "push_cube_target_geom"
     base_target_body: str = "dexvision_hand_base_target"
+    base_free_joint: str = "rh_base_freejoint"
+    initial_base_x: float = -0.18
+    initial_base_z: float = -0.24
+    initial_base_orientation: tuple[float, float, float, float] = (
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+    )
     target_radius_m: float = 0.035
     success_dwell_steps: int = 5
     max_episode_steps: int = 300
@@ -256,8 +265,26 @@ class PushCubeConfig:
             not self.target_marker_body
             or not self.target_marker_geom
             or not self.base_target_body
+            or not self.base_free_joint
         ):
             raise ValueError("push-cube body and geom names must be non-empty.")
+        if not np.isfinite(self.initial_base_x) or not np.isfinite(
+            self.initial_base_z
+        ):
+            raise ValueError("push-cube initial base position must be finite.")
+        initial_orientation = np.asarray(
+            self.initial_base_orientation,
+            dtype=np.float64,
+        )
+        if (
+            initial_orientation.shape != (4,)
+            or not np.all(np.isfinite(initial_orientation))
+            or np.linalg.norm(initial_orientation) <= 1e-12
+        ):
+            raise ValueError(
+                "push-cube initial base orientation must be a finite non-zero "
+                "wxyz quaternion."
+            )
         if not np.isfinite(self.target_radius_m) or self.target_radius_m <= 0.0:
             raise ValueError("target_radius_m must be finite and positive.")
         if self.success_dwell_steps <= 0:
@@ -682,6 +709,66 @@ def configure_push_cube_visibility(env: MujocoEnv, *, visible: bool) -> None:
     env.model.geom_conaffinity[cube_geom_id] = 1 if visible else 0
     env.model.geom_rgba[target_geom_id, 3] = 0.7 if visible else 0.0
     env.model.body_gravcomp[cube_body_id] = 0.0 if visible else 1.0
+    mujoco.mj_forward(env.model, env.data)
+
+
+def configure_push_cube_scene(env: MujocoEnv) -> None:
+    """Show only the horizontal cube-push workspace and its target cue."""
+
+    configure_button_press_scene(env)
+    mujoco = env._mujoco
+    hidden_geom_names = ["task_board"]
+    hidden_site_names: list[str] = []
+    for button_id in ButtonPressConfig().button_ids:
+        hidden_geom_names.append(f"{button_id}_geom")
+        hidden_site_names.append(f"{button_id}_site")
+
+    for geom_name in hidden_geom_names:
+        geom_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_GEOM,
+            geom_name,
+        )
+        if geom_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing cube-mode fixture '{geom_name}'."
+            )
+        env.model.geom_rgba[geom_id, 3] = 0.0
+        env.model.geom_contype[geom_id] = 0
+        env.model.geom_conaffinity[geom_id] = 0
+
+    for site_name in hidden_site_names:
+        site_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_SITE,
+            site_name,
+        )
+        if site_id < 0:
+            raise TaskError(
+                f"MuJoCo task scene is missing cube-mode fixture '{site_name}'."
+            )
+        env.model.site_rgba[site_id, 3] = 0.0
+
+    # The fingers-up, camera-facing push pose places the forearm and wrist below
+    # the tabletop. Hide and disable those support bodies so they do not appear
+    # to clip through the table or prevent the palm from following its mocap
+    # target. Palm and finger geometry remains visible and collision-enabled.
+    for body_name in ("rh_forearm", "rh_wrist"):
+        body_id = mujoco.mj_name2id(
+            env.model,
+            mujoco.mjtObj.mjOBJ_BODY,
+            body_name,
+        )
+        if body_id < 0:
+            raise TaskError(
+                f"MuJoCo hand model is missing cube-mode body '{body_name}'."
+            )
+        geom_ids = np.flatnonzero(env.model.geom_bodyid == body_id)
+        env.model.geom_contype[geom_ids] = 0
+        env.model.geom_conaffinity[geom_ids] = 0
+        env.model.geom_rgba[geom_ids, 3] = 0.0
+
+    configure_push_cube_visibility(env, visible=True)
     mujoco.mj_forward(env.model, env.data)
 
 
@@ -1315,12 +1402,13 @@ class PushCubeTask:
         model_path: str | Path = DEFAULT_TASK_BOARD_MODEL,
         *,
         config: PushCubeConfig | None = None,
+        enforce_timeout: bool = True,
     ) -> None:
         self.model_path = Path(model_path)
         self.config = config or PushCubeConfig()
+        self.enforce_timeout = bool(enforce_timeout)
         self.env = MujocoEnv(self.model_path)
-        configure_button_press_scene(self.env)
-        configure_push_cube_visibility(self.env, visible=True)
+        configure_push_cube_scene(self.env)
         self._initial_robot_state: MujocoState | None = None
         self._initial_base_position: np.ndarray | None = None
         self._initial_base_orientation: np.ndarray | None = None
@@ -1348,13 +1436,16 @@ class PushCubeTask:
 
         parameters = parameters or PushCubeParameters()
         self.env.reset()
-        (
-            self._initial_base_position,
-            self._initial_base_orientation,
-        ) = self.env.get_mocap_pose(self.config.base_target_body)
         rng = np.random.default_rng(seed)
         self._object_id, self._object_index = self._resolve_object(parameters)
-        start_index = int(rng.integers(0, len(self.config.object_start_sites)))
+        if parameters.target_zone_id is not None:
+            # Named pilot targets use the matching lateral start lane so the
+            # first task is a clear planar push rather than a diagonal recovery.
+            start_index = self.config.target_zone_sites.index(
+                parameters.target_zone_id
+            )
+        else:
+            start_index = int(rng.integers(0, len(self.config.object_start_sites)))
         start_position = self._site_position(
             self.config.object_start_sites[start_index]
         )
@@ -1365,6 +1456,50 @@ class PushCubeTask:
             linear_velocity=(0.0, 0.0, 0.0),
             angular_velocity=(0.0, 0.0, 0.0),
         )
+        initial_base_position = np.asarray(
+            [
+                self.config.initial_base_x,
+                start_position[1],
+                self.config.initial_base_z,
+            ],
+            dtype=np.float64,
+        )
+        initial_base_orientation = np.asarray(
+            self.config.initial_base_orientation,
+            dtype=np.float64,
+        )
+        initial_base_orientation /= np.linalg.norm(initial_base_orientation)
+        self.env.set_mocap_pose(
+            self.config.base_target_body,
+            position=initial_base_position,
+            orientation_quat=initial_base_orientation,
+        )
+        base_joint_id = self.env._mujoco.mj_name2id(
+            self.env.model,
+            self.env._mujoco.mjtObj.mjOBJ_JOINT,
+            self.config.base_free_joint,
+        )
+        if base_joint_id < 0 or int(
+            self.env.model.jnt_type[base_joint_id]
+        ) != int(self.env._mujoco.mjtJoint.mjJNT_FREE):
+            raise TaskError(
+                "push-cube scene requires free joint "
+                f"'{self.config.base_free_joint}' for aligned hand reset."
+            )
+        base_qpos_address = int(self.env.model.jnt_qposadr[base_joint_id])
+        base_qvel_address = int(self.env.model.jnt_dofadr[base_joint_id])
+        self.env.data.qpos[base_qpos_address : base_qpos_address + 3] = (
+            initial_base_position
+        )
+        self.env.data.qpos[base_qpos_address + 3 : base_qpos_address + 7] = (
+            initial_base_orientation
+        )
+        self.env.data.qvel[base_qvel_address : base_qvel_address + 6] = 0.0
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+        (
+            self._initial_base_position,
+            self._initial_base_orientation,
+        ) = self.env.get_mocap_pose(self.config.base_target_body)
         (
             self._target_source,
             self._target_index,
@@ -1520,6 +1655,8 @@ class PushCubeTask:
             workspace_max=self.config.workspace_max,
             success=success,
         )
+        if failure == "timeout" and not self.enforce_timeout:
+            failure = None
         initial = self._initial_robot_state
         if initial is None:  # pragma: no cover - guarded by _require_reset.
             raise TaskError("push_cube_to_target must be reset before extraction.")

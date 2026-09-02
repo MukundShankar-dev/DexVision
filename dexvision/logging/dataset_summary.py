@@ -21,6 +21,7 @@ DEFAULT_CSV_NAME = "dataset_summary.csv"
 DEFAULT_REPORT_DIRECTORY = Path("reports") / "summaries"
 DEFAULT_REACH_TOUCH_CONFIG = Path("configs/reach_touch_dataset.yaml")
 REACH_TOUCH_TASK_ID = "reach_touch_target"
+PUSH_CUBE_TASK_ID = "push_cube_to_target"
 
 
 class DatasetSummaryError(RuntimeError):
@@ -434,7 +435,7 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
     observation_version = _schema_version(metadata, "observation_schema", path=path)
     target_source: str | None = None
     target_position: tuple[float, float, float] | None = None
-    if task_id == REACH_TOUCH_TASK_ID:
+    if task_id in {REACH_TOUCH_TASK_ID, PUSH_CUBE_TASK_ID}:
         task_config = metadata.get("task_config")
         if not isinstance(task_config, dict):
             raise DatasetSummaryError(
@@ -619,7 +620,7 @@ def _summarize_target_distribution(
     relabel_results: tuple[_RelabelResult | None, ...],
     config: ReachTouchDatasetConfig | None,
 ) -> tuple[TargetPositionSummary, ...]:
-    if episodes[0].task_id != REACH_TOUCH_TASK_ID:
+    if episodes[0].task_id not in {REACH_TOUCH_TASK_ID, PUSH_CUBE_TASK_ID}:
         return ()
 
     observed_positions: dict[str, tuple[float, float, float]] = {}
@@ -632,7 +633,7 @@ def _summarize_target_distribution(
     ):
         if episode.target_source is None or episode.target_position is None:
             raise DatasetSummaryError(
-                f"{episode.path} is missing its reach-touch target identity."
+                f"{episode.path} is missing its task target identity."
             )
         previous_position = observed_positions.setdefault(
             episode.target_source,

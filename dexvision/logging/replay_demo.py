@@ -21,14 +21,17 @@ from dexvision.logging.dataset_schema import (
 from dexvision.logging.demo_logger import DemoLoggerError, load_logged_demo
 from dexvision.sim.tasks import (
     BUTTON_PRESS_TASK_ID,
+    PUSH_CUBE_TASK_ID,
     color_button_press_target,
     configure_button_press_scene,
+    configure_push_cube_scene,
 )
 
 
 DEFAULT_MOCAP_BODY_NAME = "dexvision_hand_base_target"
 REACH_TOUCH_TARGET_TASK_ID = "reach_touch_target"
 DEFAULT_REACH_TOUCH_TARGET_MARKER_BODY = "reach_target_marker"
+DEFAULT_PUSH_CUBE_TARGET_MARKER_BODY = "push_cube_target_marker"
 
 
 class DemoReplayError(RuntimeError):
@@ -448,6 +451,9 @@ def _restore_task_replay_state(
             button_id,
         )
         return
+    if metadata.get("task_id") == PUSH_CUBE_TASK_ID:
+        _restore_push_cube_replay_state(loaded_demo, env)
+        return
     if metadata.get("task_id") != REACH_TOUCH_TARGET_TASK_ID:
         return
 
@@ -476,6 +482,160 @@ def _restore_task_replay_state(
         position=target_position,
         orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
     )
+
+
+def _restore_push_cube_replay_state(
+    loaded_demo: LoadedReplayDemo,
+    env: ReplayEnv,
+) -> None:
+    """Restore the saved cube start pose/velocity and target marker."""
+
+    task_config = _mapping_value(
+        loaded_demo.episode.metadata,
+        "task_config",
+        message="push_cube_to_target metadata is missing task_config.",
+    )
+    object_id = task_config.get("resolved_object_id")
+    if not isinstance(object_id, str) or not object_id:
+        raise DemoReplayError(
+            "push_cube_to_target metadata task_config.resolved_object_id "
+            "must be a non-empty string."
+        )
+    initial_position = _finite_vector(
+        task_config.get("initial_object_position"),
+        size=3,
+        field_name="task_config.initial_object_position",
+    )
+    initial_orientation = _normalized_quaternion(
+        _finite_vector(
+            task_config.get("initial_object_orientation"),
+            size=4,
+            field_name="task_config.initial_object_orientation",
+        )
+    )
+    initial_linear_velocity = _finite_vector(
+        task_config.get("initial_object_linear_velocity"),
+        size=3,
+        field_name="task_config.initial_object_linear_velocity",
+    )
+    initial_angular_velocity = _finite_vector(
+        task_config.get("initial_object_angular_velocity"),
+        size=3,
+        field_name="task_config.initial_object_angular_velocity",
+    )
+    target_position = _finite_vector(
+        task_config.get("target_position"),
+        size=3,
+        field_name="task_config.target_position",
+    )
+    initial_base_position = _finite_vector(
+        task_config.get("initial_base_position"),
+        size=3,
+        field_name="task_config.initial_base_position",
+    )
+    initial_base_orientation = _normalized_quaternion(
+        _finite_vector(
+            task_config.get("initial_base_orientation"),
+            size=4,
+            field_name="task_config.initial_base_orientation",
+        )
+    )
+    base_free_joint = task_config.get("base_free_joint", "rh_base_freejoint")
+    if not isinstance(base_free_joint, str) or not base_free_joint:
+        raise DemoReplayError(
+            "push_cube_to_target metadata task_config.base_free_joint "
+            "must be a non-empty string."
+        )
+    marker_body = task_config.get(
+        "target_marker_body",
+        DEFAULT_PUSH_CUBE_TARGET_MARKER_BODY,
+    )
+    if not isinstance(marker_body, str) or not marker_body:
+        raise DemoReplayError(
+            "push_cube_to_target metadata task_config.target_marker_body "
+            "must be a non-empty string."
+        )
+
+    configure_push_cube_scene(env)  # type: ignore[arg-type]
+    env.set_mocap_pose(
+        loaded_demo.mocap_body_name,
+        position=initial_base_position,
+        orientation_quat=initial_base_orientation,
+    )
+    _set_free_joint_state(
+        env,
+        joint_name=base_free_joint,
+        position=initial_base_position,
+        orientation=initial_base_orientation,
+        linear_velocity=np.zeros(3, dtype=np.float64),
+        angular_velocity=np.zeros(3, dtype=np.float64),
+    )
+    _set_free_joint_state(
+        env,
+        joint_name=f"{object_id}_joint",
+        position=initial_position,
+        orientation=initial_orientation,
+        linear_velocity=initial_linear_velocity,
+        angular_velocity=initial_angular_velocity,
+    )
+    env.set_mocap_pose(
+        marker_body,
+        position=target_position,
+        orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
+    )
+    _forward_env(env)
+
+
+def _set_free_joint_state(
+    env: ReplayEnv,
+    *,
+    joint_name: str,
+    position: np.ndarray,
+    orientation: np.ndarray,
+    linear_velocity: np.ndarray,
+    angular_velocity: np.ndarray,
+) -> None:
+    """Set one MuJoCo free joint through the replay environment."""
+
+    model = getattr(env, "model", None)
+    data = getattr(env, "data", None)
+    mujoco_module = getattr(env, "_mujoco", None)
+    if model is None or data is None or mujoco_module is None:
+        raise DemoReplayError(
+            "push_cube_to_target semantic replay requires a MuJoCo environment "
+            "with model, data, and _mujoco attributes."
+        )
+    joint_id = mujoco_module.mj_name2id(
+        model,
+        mujoco_module.mjtObj.mjOBJ_JOINT,
+        joint_name,
+    )
+    if joint_id < 0:
+        raise DemoReplayError(
+            f"push_cube_to_target replay model is missing free joint {joint_name!r}."
+        )
+    if int(model.jnt_type[joint_id]) != int(mujoco_module.mjtJoint.mjJNT_FREE):
+        raise DemoReplayError(
+            f"push_cube_to_target replay joint {joint_name!r} must be a free joint."
+        )
+    qpos_address = int(model.jnt_qposadr[joint_id])
+    qvel_address = int(model.jnt_dofadr[joint_id])
+    data.qpos[qpos_address : qpos_address + 3] = position
+    data.qpos[qpos_address + 3 : qpos_address + 7] = orientation
+    data.qvel[qvel_address : qvel_address + 3] = linear_velocity
+    data.qvel[qvel_address + 3 : qvel_address + 6] = angular_velocity
+
+
+def _forward_env(env: ReplayEnv) -> None:
+    model = getattr(env, "model", None)
+    data = getattr(env, "data", None)
+    mujoco_module = getattr(env, "_mujoco", None)
+    if model is None or data is None or mujoco_module is None:
+        raise DemoReplayError(
+            "semantic replay requires a MuJoCo environment with model, data, "
+            "and _mujoco attributes."
+        )
+    mujoco_module.mj_forward(model, data)
 
 
 def _model_path_from_metadata(
@@ -609,6 +769,21 @@ def _normalized_quaternion(value: np.ndarray) -> np.ndarray:
     if norm <= 0.0 or not np.isfinite(norm):
         raise DemoReplayError("base orientation quaternion must be finite and nonzero.")
     return quat / norm
+
+
+def _finite_vector(
+    value: object,
+    *,
+    size: int,
+    field_name: str,
+) -> np.ndarray:
+    vector = np.asarray(value, dtype=np.float64)
+    if vector.shape != (size,) or not np.all(np.isfinite(vector)):
+        raise DemoReplayError(
+            f"push_cube_to_target metadata {field_name} must contain "
+            f"{size} finite values."
+        )
+    return vector
 
 
 def _state_time(state: object) -> float | None:

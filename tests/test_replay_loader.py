@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from dexvision.apps import replay_demo as replay_app
+from dexvision.logging import replay_demo as replay_module
 from dexvision.logging.demo_logger import (
     DemoLogger,
     DemoStepData,
@@ -20,6 +21,8 @@ from dexvision.logging.replay_demo import (
     load_replay_demo,
     replay_loaded_demo,
 )
+from dexvision.sim.mujoco_env import MujocoEnv
+from dexvision.sim.tasks import DEFAULT_TASK_BOARD_MODEL, PushCubeTask
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -222,7 +225,35 @@ def test_replay_demo_parser_accepts_progress_command() -> None:
     assert args.demo == Path("data/demos/raw/free_space_gesture/2026-06-14_001")
     assert args.headless is True
     assert args.speed == pytest.approx(0.5)
-    assert args.sim_steps_per_action == 1
+    assert args.sim_steps_per_action is None
+
+
+def test_replay_demo_uses_saved_recording_cadence_by_default() -> None:
+    loaded = SimpleNamespace(
+        episode=SimpleNamespace(
+            metadata={"recording": {"sim_steps_per_frame": 17}}
+        )
+    )
+
+    assert replay_app._resolve_sim_steps_per_action(loaded, None) == 17
+    assert replay_app._resolve_sim_steps_per_action(loaded, 3) == 3
+
+
+def test_replay_demo_uses_one_step_for_legacy_recordings() -> None:
+    loaded = SimpleNamespace(episode=SimpleNamespace(metadata={}))
+
+    assert replay_app._resolve_sim_steps_per_action(loaded, None) == 1
+
+
+def test_replay_demo_rejects_invalid_saved_recording_cadence() -> None:
+    loaded = SimpleNamespace(
+        episode=SimpleNamespace(
+            metadata={"recording": {"sim_steps_per_frame": 0}}
+        )
+    )
+
+    with pytest.raises(DemoReplayError, match="sim_steps_per_frame"):
+        replay_app._resolve_sim_steps_per_action(loaded, None)
 
 
 def test_replay_demo_headless_smoke_runs_with_mujoco(tmp_path: Path) -> None:
@@ -242,3 +273,87 @@ def test_replay_demo_headless_smoke_runs_with_mujoco(tmp_path: Path) -> None:
     )
 
     assert result == 0
+
+
+def test_push_cube_semantic_replay_restores_saved_start_and_target() -> None:
+    pytest.importorskip("mujoco")
+    with PushCubeTask(DEFAULT_TASK_BOARD_MODEL) as task:
+        initial = task.reset(seed=4)
+        metadata = {
+            "task_id": "push_cube_to_target",
+            "task_config": {
+                "resolved_object_id": initial.object_id,
+                "initial_object_position": [0.071, -0.019, -0.015],
+                "initial_object_orientation": [1.0, 0.0, 0.0, 0.0],
+                "initial_object_linear_velocity": [0.0, 0.0, 0.0],
+                "initial_object_angular_velocity": [0.0, 0.0, 0.0],
+                "initial_base_position": [-0.52, 0.07, 0.02],
+                "initial_base_orientation": [
+                    0.7071067811865476,
+                    0.0,
+                    0.7071067811865476,
+                    0.0,
+                ],
+                "base_free_joint": "rh_base_freejoint",
+                "target_position": [-0.082, 0.041, -0.015],
+                "target_marker_body": task.config.target_marker_body,
+            },
+        }
+
+    loaded = SimpleNamespace(
+        episode=SimpleNamespace(metadata=metadata),
+        mocap_body_name="dexvision_hand_base_target",
+    )
+    with MujocoEnv(DEFAULT_TASK_BOARD_MODEL) as env:
+        env.reset()
+        replay_module._restore_task_replay_state(loaded, env)
+        joint_id = env._mujoco.mj_name2id(
+            env.model,
+            env._mujoco.mjtObj.mjOBJ_JOINT,
+            "push_cube_joint",
+        )
+        qpos_address = int(env.model.jnt_qposadr[joint_id])
+        base_joint_id = env._mujoco.mj_name2id(
+            env.model,
+            env._mujoco.mjtObj.mjOBJ_JOINT,
+            "rh_base_freejoint",
+        )
+        base_qpos_address = int(env.model.jnt_qposadr[base_joint_id])
+        marker_position, _ = env.get_mocap_pose("push_cube_target_marker")
+
+        assert env.data.qpos[qpos_address : qpos_address + 3] == pytest.approx(
+            [0.071, -0.019, -0.015]
+        )
+        assert env.data.qpos[
+            base_qpos_address : base_qpos_address + 3
+        ] == pytest.approx([-0.52, 0.07, 0.02])
+        assert marker_position == pytest.approx([-0.082, 0.041, -0.015])
+
+
+def test_push_cube_semantic_replay_rejects_malformed_start_state() -> None:
+    loaded = SimpleNamespace(
+        episode=SimpleNamespace(
+            metadata={
+                "task_id": "push_cube_to_target",
+                "task_config": {
+                    "resolved_object_id": "push_cube",
+                    "initial_object_position": [0.0, 0.0],
+                    "initial_object_orientation": [1.0, 0.0, 0.0, 0.0],
+                    "initial_object_linear_velocity": [0.0, 0.0, 0.0],
+                    "initial_object_angular_velocity": [0.0, 0.0, 0.0],
+                    "initial_base_position": [-0.52, 0.0, 0.02],
+                    "initial_base_orientation": [
+                        0.7071067811865476,
+                        0.0,
+                        0.7071067811865476,
+                        0.0,
+                    ],
+                    "target_position": [0.0, 0.0, -0.015],
+                },
+            }
+        ),
+        mocap_body_name="dexvision_hand_base_target",
+    )
+
+    with pytest.raises(DemoReplayError, match="initial_object_position"):
+        replay_module._restore_task_replay_state(loaded, FakeReplayEnv())

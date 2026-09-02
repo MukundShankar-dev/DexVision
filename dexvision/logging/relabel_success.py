@@ -11,14 +11,18 @@ import numpy as np
 
 from dexvision.sim.tasks import (
     BUTTON_PRESS_TASK_ID,
+    PUSH_CUBE_TASK_ID,
     REACH_TOUCH_TARGET_TASK_ID,
     ReachTouchTargetConfig,
     is_button_press_success,
+    is_push_cube_success,
+    push_cube_distance,
 )
 
 
 RELABEL_REPORT_VERSION = "level2/reach-touch-success-v1"
 BUTTON_PRESS_RELABEL_REPORT_VERSION = "level2/button-press-success-v1"
+PUSH_CUBE_RELABEL_REPORT_VERSION = "level2/push-cube-success-v1"
 DEFAULT_REPORT_NAME = "relabel_report.json"
 REQUIRED_METRIC_INPUTS = (
     "target_position",
@@ -45,6 +49,18 @@ BUTTON_TARGET_DEPTH_COLUMN = 1
 BUTTON_PRESSED_COLUMN = 2
 BUTTON_TARGET_PRESSED_COLUMN = 3
 BUTTON_DWELL_COLUMN = 4
+PUSH_CUBE_REQUIRED_METRIC_INPUTS = (
+    "object_position",
+    "target_position",
+    "distance_to_target",
+    "dwell_steps",
+)
+PUSH_CUBE_OBJECT_POSITION_COLUMNS = slice(0, 3)
+PUSH_CUBE_TARGET_POSITION_COLUMNS = slice(3, 6)
+PUSH_CUBE_DISTANCE_COLUMN = 6
+PUSH_CUBE_DWELL_COLUMN = 7
+PUSH_CUBE_REQUIRED_TASK_STATE_WIDTH = 8
+PUSH_CUBE_OBJECT_STATE_WIDTH = 13
 
 
 class SuccessRelabelError(RuntimeError):
@@ -120,6 +136,46 @@ class ButtonPressRelabelReport:
     label_disagreement_count: int
     raw_episodes_modified: bool
     episodes: tuple[ButtonPressEpisodeRelabelResult, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable representation."""
+
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class PushCubeEpisodeRelabelResult:
+    """Operator and recomputed labels for one cube-push episode."""
+
+    episode_directory: str
+    episode_id: str
+    task_id: str
+    operator_success: bool | None
+    recomputed_success: bool
+    labels_agree: bool | None
+    frame_count: int
+    first_success_frame: int | None
+    max_consecutive_goal_frames: int
+    resolved_object_id: str
+    resolved_target_source: str
+    target_radius_m: float
+
+
+@dataclass(frozen=True)
+class PushCubeRelabelReport:
+    """Dataset-level audit report for cube-push relabeling."""
+
+    version: str
+    task_id: str
+    dataset: str
+    target_radius_m: float
+    required_dwell_frames: int
+    episode_count: int
+    recomputed_success_count: int
+    operator_success_count: int
+    label_disagreement_count: int
+    raw_episodes_modified: bool
+    episodes: tuple[PushCubeEpisodeRelabelResult, ...]
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable representation."""
@@ -368,9 +424,190 @@ def relabel_button_press_dataset(
     )
 
 
+def relabel_push_cube_episode(
+    episode_dir: str | Path,
+) -> PushCubeEpisodeRelabelResult:
+    """Recompute one cube-push label from saved planar distance and dwell."""
+
+    path = Path(episode_dir)
+    metadata = _load_metadata(path)
+    task_config = _validate_push_cube_metadata(metadata, path=path)
+    required_dwell = _positive_integer_config(
+        task_config,
+        "success_dwell_steps",
+        path=path,
+    )
+    target_radius = _positive_float_config(
+        task_config,
+        "target_radius",
+        path=path,
+    )
+    task_states = _load_task_states(
+        path,
+        required_width=PUSH_CUBE_REQUIRED_TASK_STATE_WIDTH,
+    )
+    metrics = task_states[:, :PUSH_CUBE_REQUIRED_TASK_STATE_WIDTH]
+    _validate_push_cube_metric_inputs(metrics, path=path)
+    object_states = _load_object_states(path)
+    if object_states.shape[0] != task_states.shape[0]:
+        raise SuccessRelabelError(
+            f"{path / 'object_states.npy'} frame count {object_states.shape[0]} "
+            f"does not match task_states.npy frame count {task_states.shape[0]}."
+        )
+    if not np.allclose(
+        object_states[:, :3],
+        metrics[:, PUSH_CUBE_OBJECT_POSITION_COLUMNS],
+        rtol=0.0,
+        atol=DISTANCE_TOLERANCE_M,
+    ):
+        raise SuccessRelabelError(
+            f"{path / 'object_states.npy'} cube positions are inconsistent with "
+            "task_states.npy object_position values."
+        )
+
+    object_positions = metrics[:, PUSH_CUBE_OBJECT_POSITION_COLUMNS]
+    target_positions = metrics[:, PUSH_CUBE_TARGET_POSITION_COLUMNS]
+    if not np.allclose(
+        target_positions,
+        target_positions[0],
+        rtol=0.0,
+        atol=1e-12,
+    ):
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} target_position must stay constant."
+        )
+    recomputed_distances = np.asarray(
+        [
+            push_cube_distance(object_position, target_position)
+            for object_position, target_position in zip(
+                object_positions,
+                target_positions,
+                strict=True,
+            )
+        ],
+        dtype=np.float64,
+    )
+    saved_distances = metrics[:, PUSH_CUBE_DISTANCE_COLUMN]
+    if not np.allclose(
+        saved_distances,
+        recomputed_distances,
+        rtol=0.0,
+        atol=DISTANCE_TOLERANCE_M,
+    ):
+        worst_error = float(np.max(np.abs(saved_distances - recomputed_distances)))
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} has inconsistent distance_to_target values; "
+            f"maximum planar position-derived error is {worst_error:.9f} m."
+        )
+
+    within_target = recomputed_distances <= target_radius
+    expected_dwell: list[int] = []
+    dwell = 0
+    for within in within_target:
+        dwell = dwell + 1 if bool(within) else 0
+        expected_dwell.append(dwell)
+    saved_dwell = metrics[:, PUSH_CUBE_DWELL_COLUMN]
+    if not np.array_equal(saved_dwell, np.asarray(expected_dwell, dtype=np.float64)):
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} has dwell_steps inconsistent with "
+            "consecutive in-target cube frames."
+        )
+
+    qualifying = np.asarray(
+        [
+            is_push_cube_success(
+                distance_m=float(distance),
+                dwell_steps=int(round(dwell_steps)),
+                distance_threshold_m=target_radius,
+                required_dwell_steps=required_dwell,
+            )
+            for distance, dwell_steps in zip(
+                recomputed_distances,
+                saved_dwell,
+                strict=True,
+            )
+        ],
+        dtype=bool,
+    )
+    first_success_frame = (
+        int(np.flatnonzero(qualifying)[0]) if np.any(qualifying) else None
+    )
+    recomputed_success = first_success_frame is not None
+    operator_success = _operator_success(metadata, path=path)
+    resolved_object_id = _required_config_string(
+        task_config,
+        "resolved_object_id",
+        path=path,
+    )
+    resolved_target_source = _required_config_string(
+        task_config,
+        "resolved_target_source",
+        path=path,
+    )
+    return PushCubeEpisodeRelabelResult(
+        episode_directory=path.name,
+        episode_id=str(metadata.get("episode_id", path.name)),
+        task_id=PUSH_CUBE_TASK_ID,
+        operator_success=operator_success,
+        recomputed_success=recomputed_success,
+        labels_agree=(
+            None if operator_success is None else operator_success == recomputed_success
+        ),
+        frame_count=int(task_states.shape[0]),
+        first_success_frame=first_success_frame,
+        max_consecutive_goal_frames=int(np.max(saved_dwell)),
+        resolved_object_id=resolved_object_id,
+        resolved_target_source=resolved_target_source,
+        target_radius_m=target_radius,
+    )
+
+
+def relabel_push_cube_dataset(
+    dataset_dir: str | Path,
+) -> PushCubeRelabelReport:
+    """Relabel every cube-push episode immediately below a dataset directory."""
+
+    dataset = Path(dataset_dir)
+    episode_dirs = _episode_directories(dataset)
+    episodes = tuple(relabel_push_cube_episode(path) for path in episode_dirs)
+    radii = {episode.target_radius_m for episode in episodes}
+    dwell_values = {
+        _positive_integer_config(
+            _validate_push_cube_metadata(_load_metadata(path), path=path),
+            "success_dwell_steps",
+            path=path,
+        )
+        for path in episode_dirs
+    }
+    if len(radii) != 1 or len(dwell_values) != 1:
+        raise SuccessRelabelError(
+            "push_cube_to_target episodes use inconsistent target radius or "
+            "success dwell requirements."
+        )
+    return PushCubeRelabelReport(
+        version=PUSH_CUBE_RELABEL_REPORT_VERSION,
+        task_id=PUSH_CUBE_TASK_ID,
+        dataset=str(dataset),
+        target_radius_m=radii.pop(),
+        required_dwell_frames=dwell_values.pop(),
+        episode_count=len(episodes),
+        recomputed_success_count=sum(
+            result.recomputed_success for result in episodes
+        ),
+        operator_success_count=sum(
+            result.operator_success is True for result in episodes
+        ),
+        label_disagreement_count=sum(
+            result.labels_agree is False for result in episodes
+        ),
+        raw_episodes_modified=False,
+        episodes=episodes,
+    )
+
+
 def relabel_demo_dataset(
     dataset_dir: str | Path,
-) -> RelabelReport | ButtonPressRelabelReport:
+) -> RelabelReport | ButtonPressRelabelReport | PushCubeRelabelReport:
     """Dispatch one single-task dataset to its implemented relabeler."""
 
     dataset = Path(dataset_dir)
@@ -380,14 +617,17 @@ def relabel_demo_dataset(
         return relabel_reach_touch_dataset(dataset)
     if task_id == BUTTON_PRESS_TASK_ID:
         return relabel_button_press_dataset(dataset)
+    if task_id == PUSH_CUBE_TASK_ID:
+        return relabel_push_cube_dataset(dataset)
     raise SuccessRelabelError(
         f"{episode_dirs[0] / 'metadata.json'} has unsupported task_id={task_id!r}; "
-        f"expected {REACH_TOUCH_TARGET_TASK_ID!r} or {BUTTON_PRESS_TASK_ID!r}."
+        f"expected {REACH_TOUCH_TARGET_TASK_ID!r}, {BUTTON_PRESS_TASK_ID!r}, "
+        f"or {PUSH_CUBE_TASK_ID!r}."
     )
 
 
 def save_relabel_report(
-    report: RelabelReport | ButtonPressRelabelReport,
+    report: RelabelReport | ButtonPressRelabelReport | PushCubeRelabelReport,
     output_path: str | Path,
 ) -> Path:
     """Save a relabel report atomically without rewriting raw episodes."""
@@ -495,6 +735,35 @@ def _validate_button_press_metadata(
     return task_config
 
 
+def _validate_push_cube_metadata(
+    metadata: dict[str, Any],
+    *,
+    path: Path,
+) -> dict[str, Any]:
+    task_id = metadata.get("task_id")
+    if task_id != PUSH_CUBE_TASK_ID:
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} has task_id={task_id!r}; only "
+            f"{PUSH_CUBE_TASK_ID!r} relabeling is supported."
+        )
+    task_config = metadata.get("task_config")
+    if not isinstance(task_config, dict):
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} is missing the task_config object required "
+            "for success relabeling."
+        )
+    metric_names = task_config.get("success_metric_inputs")
+    if (
+        not isinstance(metric_names, list)
+        or tuple(metric_names) != PUSH_CUBE_REQUIRED_METRIC_INPUTS
+    ):
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} is missing the required success_metric_inputs "
+            f"{list(PUSH_CUBE_REQUIRED_METRIC_INPUTS)}."
+        )
+    return task_config
+
+
 def _load_task_states(
     path: Path,
     *,
@@ -578,6 +847,103 @@ def _validate_button_metric_inputs(
             f"{path / 'task_states.npy'} dwell_steps values must be "
             "non-negative integers."
         )
+
+
+def _validate_push_cube_metric_inputs(
+    metric_inputs: np.ndarray,
+    *,
+    path: Path,
+) -> None:
+    if not np.all(np.isfinite(metric_inputs)):
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} has non-finite cube success metric inputs."
+        )
+    if np.any(metric_inputs[:, PUSH_CUBE_DISTANCE_COLUMN] < 0.0):
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} has negative distance_to_target values."
+        )
+    dwell_values = metric_inputs[:, PUSH_CUBE_DWELL_COLUMN]
+    if np.any(dwell_values < 0.0) or not np.allclose(
+        dwell_values,
+        np.round(dwell_values),
+    ):
+        raise SuccessRelabelError(
+            f"{path / 'task_states.npy'} dwell_steps values must be "
+            "non-negative integers."
+        )
+
+
+def _load_object_states(path: Path) -> np.ndarray:
+    object_state_path = path / "object_states.npy"
+    if not object_state_path.is_file():
+        raise SuccessRelabelError(
+            f"Missing cube pose/velocity inputs: {object_state_path} does not exist."
+        )
+    try:
+        object_states = np.load(object_state_path, allow_pickle=False)
+    except (OSError, ValueError) as exc:
+        raise SuccessRelabelError(
+            f"Could not load cube pose/velocity from {object_state_path}: {exc}"
+        ) from exc
+    if object_states.ndim != 2 or object_states.shape[1] != PUSH_CUBE_OBJECT_STATE_WIDTH:
+        raise SuccessRelabelError(
+            f"{object_state_path} must have shape [T, {PUSH_CUBE_OBJECT_STATE_WIDTH}], "
+            f"got {object_states.shape}."
+        )
+    if not np.all(np.isfinite(object_states)):
+        raise SuccessRelabelError(f"{object_state_path} contains non-finite values.")
+    return np.asarray(object_states, dtype=np.float64)
+
+
+def _positive_integer_config(
+    task_config: dict[str, Any],
+    field_name: str,
+    *,
+    path: Path,
+) -> int:
+    value = task_config.get(field_name)
+    if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} task_config.{field_name} "
+            "must be a positive integer."
+        )
+    return value
+
+
+def _positive_float_config(
+    task_config: dict[str, Any],
+    field_name: str,
+    *,
+    path: Path,
+) -> float:
+    value = task_config.get(field_name)
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} task_config.{field_name} "
+            "must be a finite positive number."
+        )
+    result = float(value)
+    if not np.isfinite(result) or result <= 0.0:
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} task_config.{field_name} "
+            "must be a finite positive number."
+        )
+    return result
+
+
+def _required_config_string(
+    task_config: dict[str, Any],
+    field_name: str,
+    *,
+    path: Path,
+) -> str:
+    value = task_config.get(field_name)
+    if not isinstance(value, str) or not value:
+        raise SuccessRelabelError(
+            f"{path / 'metadata.json'} task_config.{field_name} "
+            "must be a non-empty string."
+        )
+    return value
 
 
 def _operator_success(metadata: dict[str, Any], *, path: Path) -> bool | None:

@@ -441,6 +441,19 @@ def test_task_board_scene_loads_with_push_cube_fixtures() -> None:
             mujoco.mjtObj.mjOBJ_GEOM,
             "push_cube_geom",
         )
+        wall_geom_id = mujoco.mj_name2id(
+            task.env.model,
+            mujoco.mjtObj.mjOBJ_GEOM,
+            "task_board",
+        )
+        button_geom_ids = tuple(
+            mujoco.mj_name2id(
+                task.env.model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                f"{button_id}_geom",
+            )
+            for button_id in ("button_left", "button_center", "button_right")
+        )
 
     assert state.object_id == "push_cube"
     assert state.target_source in task.config.target_zone_sites
@@ -449,6 +462,12 @@ def test_task_board_scene_loads_with_push_cube_fixtures() -> None:
     assert np.all(np.isfinite(task_vector))
     assert task.env.model.geom_rgba[cube_geom_id, 3] == pytest.approx(1.0)
     assert task.env.model.geom_contype[cube_geom_id] == 1
+    assert task.env.model.geom_rgba[wall_geom_id, 3] == pytest.approx(0.0)
+    assert task.env.model.geom_contype[wall_geom_id] == 0
+    assert all(
+        task.env.model.geom_rgba[geom_id, 3] == pytest.approx(0.0)
+        for geom_id in button_geom_ids
+    )
     for object_name, object_type in (
         ("push_cube_joint", mujoco.mjtObj.mjOBJ_JOINT),
         ("push_cube_geom", mujoco.mjtObj.mjOBJ_GEOM),
@@ -527,6 +546,16 @@ def test_push_cube_reset_is_deterministic_and_saves_object_target_initial_state(
     )
     assert second.initial_object_linear_velocity == pytest.approx([0.0, 0.0, 0.0])
     assert second.initial_object_angular_velocity == pytest.approx([0.0, 0.0, 0.0])
+    assert second.initial_base_position == pytest.approx(
+        [
+            task.config.initial_base_x,
+            second.initial_object_position[1],
+            task.config.initial_base_z,
+        ]
+    )
+    assert second.initial_base_orientation == pytest.approx(
+        task.config.initial_base_orientation
+    )
     assert object_vector == pytest.approx(
         np.concatenate(
             (
@@ -561,6 +590,9 @@ def test_push_cube_reset_accepts_named_target_and_explicit_world_target() -> Non
 
     assert named.target_source == "push_target_right"
     assert named.target_index == 2
+    assert named.initial_object_position[1] == pytest.approx(
+        named.target_position[1]
+    )
     assert named.approach_side == "front"
     assert explicit.target_source == "target_pose"
     assert explicit.target_index == -1

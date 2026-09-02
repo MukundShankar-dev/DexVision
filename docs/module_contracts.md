@@ -340,8 +340,59 @@ distance, dwell count, terminal state, and deterministic initial object/robot
 state.
 push_cube_to_target success must be recomputable from the saved object position,
 target position, planar distance, target radius, and consecutive dwell count.
-Level 2.7F task code must not record cube demonstrations, add dataset relabel
-dispatch for an unrecorded cube dataset, or add learning code.
+Level 2.7G records push_cube_to_target pilot episodes with the full Level 1.13
+action, 13-column cube pose/velocity object state, and the complete PushCubeState
+task array. Recording metadata preserves the resolved object/start, target cue,
+target radius, dwell requirement, and optional approach side.
+Cube mode hides the vertical reach/button wall plus all reach and button
+fixtures so the horizontal orange-cube/green-target task is visually isolated.
+Reset aligns the hand free joint and mocap target behind the cube with the palm
+upright and facing the cube, with fingers up, before stepping. The operator
+calibrates with the real palm facing the camera and fingers up; increasing
+camera-relative hand scale must then move the simulated palm along its normal
+toward the cube. The free joint and mocap target must remain aligned so reset
+does not sweep the robot through the object.
+The task uses the model's palm-facing reset quaternion, not the visually
+opposite back-of-hand quaternion. Live base orientation must remain disabled
+for cube recording even when the Level 1.13 full-control preset is requested;
+translation, camera-relative depth, and finger controls remain active. The
+saved effective teleop snapshot must report these resolved enable flags.
+Cube mode hides and disables forearm/wrist geometry where those support bodies
+extend below the tabletop, while palm and finger visuals and collision geometry
+remain active. Hand height is fixed for this planar task; image up/down motion
+must not drive the palm into the table. Named target zones use the matching
+lateral cube-start lane, and lateral position remains fixed on that lane. Thus
+the live pilot requires only palm-normal depth motion and cannot saturate or
+drift sideways. The live viewer starts from a three-quarter angle showing the
+palm, cube, and target together.
+Live cube recording does not enforce the task spec's nominal step timeout;
+recording continues until success, a workspace safety failure, or operator q.
+Push-cube recording must request and save an explicit operator success/failure
+label just like reach-touch and button-press pilots. Automated relabeling must
+retain a null operator label for older raw recordings rather than rewriting
+their metadata.
+The effective task-specific base neutral/workspace override must be saved in
+the teleop config snapshot for quality filtering.
+The cube recording profile uses task-specific monocular-depth gain, fixed
+lateral position/height/orientation, moderate depth smoothing, a smaller depth
+deadband, and bounded forward workspace/step limits.
+These limits prevent table penetration, abrupt scoop/lift motion, and
+overtravel while preserving responsive control. Effective values must be
+recorded, not silently inherited from the base YAML.
+Live cube recording must also advance MuJoCo by at least one nominal camera
+control period per frame. With the current 0.002-second model timestep and
+30 Hz control rate this is 17 simulation steps per frame; using the generic
+2-step default causes visible mocap-weld lag. Save the effective
+sim_steps_per_frame value in recording metadata.
+Replay must use that saved `sim_steps_per_frame` cadence by default so recorded
+contact dynamics are reproduced. An explicit `--sim-steps-per-action` may
+override it; legacy demos without saved cadence fall back to one step.
+Quality filtering must accept workspace axes whose minimum equals maximum;
+such axes are intentionally fixed and are excluded from limit-hit accounting.
+Dataset summaries must include push-cube target-position distributions and
+count a clean success when the episode both recomputes as successful and
+passes quality filtering. This target distribution is the audit source for
+coverage of all three configured cube lanes.
 ```
 
 ---
@@ -545,16 +596,19 @@ save_relabel_report(report, output_path)
 Rules:
 
 ```text
-Task-specific dispatch supports reach_touch_target and button_press.
+Task-specific dispatch supports reach_touch_target, button_press, and
+push_cube_to_target.
 For reach_touch_target, recompute distance from saved target and touch positions
 and validate the saved distance.
 For reach_touch_target, recompute consecutive qualifying contact frames from
 saved palm-contact flags and use the fixed task distance/dwell thresholds.
 For button_press, recompute success from saved press depth, target press depth,
 button/target pressed states, and dwell count.
-push_cube_to_target exposes a pure saved-state success predicate in
-`dexvision.sim.tasks`; dataset-level relabel dispatch remains deferred until the
-Level 2.7G pilot produces cube episodes.
+For push_cube_to_target, recompute planar object-to-target distance from saved
+object and target positions, validate the saved distance and consecutive dwell
+count, and require the 13-column cube pose/velocity object state.
+Cube target position, target radius, object id, target source, and dwell
+requirement must remain reconstructable from immutable episode metadata/state.
 Button target depth/state must stay constant within an episode, and the saved
 button id plus dwell requirement must be present in task metadata.
 Preserve the operator label and recomputed label together in the audit report.
@@ -582,8 +636,9 @@ save_quality_report(report, output_path)
 Rules:
 
 ```text
-Level 2.7 evaluates saved reach_touch_target and button_press pilot episodes;
-scaled reach-touch evaluation remains supported.
+Level 2.7 evaluates saved reach_touch_target, button_press, and
+push_cube_to_target pilot episodes; scaled reach-touch evaluation remains
+supported.
 Quality thresholds must be versioned, configurable, and embedded in each report.
 Filters cover mean tracking confidence, missing frames, feature jitter, action
 jerk, actuator-limit hits, recomputed task failure, and workspace-limit hits.

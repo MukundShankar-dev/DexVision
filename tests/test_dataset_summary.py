@@ -57,6 +57,11 @@ def _write_episode(
             "resolved_target_source": target_site,
             "target_position": target_positions[target_site],
         }
+    elif task_id == "push_cube_to_target":
+        metadata["task_config"] = {
+            "resolved_target_source": "push_target_left",
+            "target_position": [0.09, -0.07, -0.015],
+        }
     (episode / "metadata.json").write_text(
         json.dumps(metadata),
         encoding="utf-8",
@@ -272,6 +277,38 @@ def test_json_and_csv_outputs_are_saved(tmp_path: Path) -> None:
     assert rows[0]["skill_name"] == "reach_touch_target"
     assert rows[0]["action_schema_version"] == "level1.13/full-action-v1"
     assert rows[0]["clean_success_count"] == "0"
+
+
+def test_push_cube_pilot_summary_uses_relabel_and_quality_reports(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "raw" / "push_cube_to_target"
+    episode = _write_episode(
+        dataset,
+        "episode_001",
+        skill_name="push_cube_to_target",
+        task_id="push_cube_to_target",
+        success=False,
+    )
+    _write_quality_report(dataset, ((episode, True, ()),))
+    _write_relabel_report(dataset, ((episode, False, True),))
+
+    report = summarize_demo_dataset(tmp_path)
+    group = report.groups[0]
+
+    assert group.skill_name == "push_cube_to_target"
+    assert group.task_id == "push_cube_to_target"
+    assert group.num_episodes == 1
+    assert group.num_success == 1
+    assert group.success_rate == 1.0
+    assert group.quality_pass_count == 1
+    assert group.quality_unreported_count == 0
+    assert group.relabel_unreported_count == 0
+    assert group.relabel_disagreement_count == 1
+    assert group.clean_success_count == 1
+    assert group.target_position_distribution[0].target_id == "push_target_left"
+    assert group.target_position_distribution[0].quality_pass_count == 1
+    assert group.level3_ready is None
 
 
 def test_reach_touch_summary_marks_balanced_clean_dataset_ready(

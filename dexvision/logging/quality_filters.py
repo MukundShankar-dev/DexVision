@@ -11,9 +11,11 @@ import numpy as np
 
 from dexvision.logging.relabel_success import (
     BUTTON_PRESS_TASK_ID,
+    PUSH_CUBE_TASK_ID,
     REACH_TOUCH_TARGET_TASK_ID,
     SuccessRelabelError,
     relabel_button_press_episode,
+    relabel_push_cube_episode,
     relabel_reach_touch_episode,
 )
 
@@ -126,11 +128,16 @@ def evaluate_episode_quality(
     metadata = _load_metadata(path)
     skill_name = _required_string(metadata, "skill_name", path=path)
     task_id = _required_string(metadata, "task_id", path=path)
-    if task_id not in {REACH_TOUCH_TARGET_TASK_ID, BUTTON_PRESS_TASK_ID}:
+    if task_id not in {
+        REACH_TOUCH_TARGET_TASK_ID,
+        BUTTON_PRESS_TASK_ID,
+        PUSH_CUBE_TASK_ID,
+    }:
         raise QualityFilterError(
             f"{path / 'metadata.json'} has task_id={task_id!r}; Level 2.7 quality "
             "filtering supports only "
-            f"{REACH_TOUCH_TARGET_TASK_ID!r} and {BUTTON_PRESS_TASK_ID!r} pilot demos."
+            f"{REACH_TOUCH_TARGET_TASK_ID!r}, {BUTTON_PRESS_TASK_ID!r}, and "
+            f"{PUSH_CUBE_TASK_ID!r} pilot demos."
         )
 
     tracking = _load_required_array(path, "tracking_quality.npy")
@@ -186,8 +193,10 @@ def evaluate_episode_quality(
     try:
         if task_id == REACH_TOUCH_TARGET_TASK_ID:
             recomputed_success = relabel_reach_touch_episode(path).recomputed_success
-        else:
+        elif task_id == BUTTON_PRESS_TASK_ID:
             recomputed_success = relabel_button_press_episode(path).recomputed_success
+        else:
+            recomputed_success = relabel_push_cube_episode(path).recomputed_success
     except SuccessRelabelError as exc:
         raise QualityFilterError(f"Could not recompute task success for {path}: {exc}") from exc
 
@@ -552,12 +561,16 @@ def _workspace_limit_hit_fraction(
         )
     lower = _three_vector(workspace.get("min"), "workspace minimum", path=path)
     upper = _three_vector(workspace.get("max"), "workspace maximum", path=path)
-    if np.any(upper <= lower):
+    if np.any(upper < lower):
         raise QualityFilterError(f"{path / 'metadata.json'} workspace limits are invalid.")
-    margin = np.maximum((upper - lower) * margin_fraction, 1e-9)
+    active_axes = upper > lower
+    if not np.any(active_axes):
+        return 0.0
+    margin = (upper - lower) * margin_fraction
     positions = actions[:, start:stop]
     hit_frames = np.any(
-        (positions <= lower + margin) | (positions >= upper - margin),
+        active_axes
+        & ((positions <= lower + margin) | (positions >= upper - margin)),
         axis=1,
     )
     return float(np.mean(hit_frames))
