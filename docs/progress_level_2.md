@@ -1910,7 +1910,7 @@ Do not add policy learning.
 [x] Reach-touch summary and scaled dataset are Level 3-ready
 [x] button_press task and pilot pass all data-quality gates
 [x] push_cube_to_target task and pilot pass all data-quality gates
-[ ] Button and push datasets are scaled only after their pilot gates pass
+[x] Button and push datasets are scaled only after their pilot gates pass
 [ ] Optional skill-card metadata export documented
 [ ] Fingertip retargeter implemented
 [ ] Optimization retargeter implemented
