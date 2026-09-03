@@ -7,9 +7,11 @@ import sys
 from pathlib import Path
 
 from dexvision.logging.dataset_summary import (
+    DEFAULT_BUTTON_PRESS_CONFIG,
     DEFAULT_REACH_TOUCH_CONFIG,
     DatasetSummaryError,
     default_summary_paths,
+    load_button_press_dataset_config,
     load_reach_touch_dataset_config,
     save_dataset_summary,
     summarize_demo_dataset,
@@ -50,6 +52,15 @@ def build_parser() -> argparse.ArgumentParser:
             f"Defaults to {DEFAULT_REACH_TOUCH_CONFIG}."
         ),
     )
+    parser.add_argument(
+        "--button-press-config",
+        type=Path,
+        default=DEFAULT_BUTTON_PRESS_CONFIG,
+        help=(
+            "Versioned button-goal train/held-out split and readiness thresholds. "
+            f"Defaults to {DEFAULT_BUTTON_PRESS_CONFIG}."
+        ),
+    )
     return parser
 
 
@@ -64,12 +75,15 @@ def run_summary(args: argparse.Namespace) -> int:
     print(f"JSON output: {json_path}")
     print(f"CSV output: {csv_path}")
     print(f"Reach-touch readiness config: {args.reach_touch_config}")
+    print(f"Button-press readiness config: {args.button_press_config}")
     print("Raw episodes: immutable")
 
     reach_touch_config = load_reach_touch_dataset_config(args.reach_touch_config)
+    button_press_config = load_button_press_dataset_config(args.button_press_config)
     report = summarize_demo_dataset(
         args.dataset,
         reach_touch_config=reach_touch_config,
+        button_press_config=button_press_config,
     )
     for warning in report.warnings:
         print(f"WARNING: {warning}", file=sys.stderr)

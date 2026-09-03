@@ -682,7 +682,39 @@ Existing raw episode directories must never be deleted or rewritten.
 
 ---
 
-## Dataset Summary and Reach-Touch Readiness
+## Scaled Button-Press Collection Gate
+
+Modules:
+
+```text
+dexvision/logging/collection_planner.py
+dexvision/apps/select_button_goal.py
+```
+
+Contract:
+
+```python
+plan = plan_button_press_collection(dataset_dir)
+python -m dexvision.apps.select_button_goal --run
+```
+
+Rules:
+
+```text
+The versioned button dataset config defines training button/depth goals and
+held-out evaluation states before scaled collection starts.
+Goal selection balances quality-passed successful episodes by exact configured
+button id and target press depth, not raw attempts or button id alone.
+Quality-gated attempts record into a staging directory first.
+Only episodes passing the current Level 2.7 quality filters move into raw/.
+Rejected or invalid attempts remain outside raw/ for audit and tuning.
+Existing raw episode directories must never be deleted or rewritten.
+Held-out button/depth states must never be selected for Level 2 training data.
+```
+
+---
+
+## Dataset Summary and Task Readiness
 
 Module:
 
@@ -694,7 +726,12 @@ Contract:
 
 ```python
 config = load_reach_touch_dataset_config("configs/reach_touch_dataset.yaml")
-report = summarize_demo_dataset(dataset_dir, reach_touch_config=config)
+button_config = load_button_press_dataset_config("configs/button_press_dataset.yaml")
+report = summarize_demo_dataset(
+    dataset_dir,
+    reach_touch_config=config,
+    button_press_config=button_config,
+)
 ```
 
 Rules:
@@ -708,6 +745,11 @@ Level 3 readiness requires complete relabel/quality coverage, no disagreements,
 one action/observation schema version, the configured clean total and per-target
 minimums, and declared uncontaminated held-out evaluation targets.
 Summary generation remains read-only with respect to raw episode directories.
+Button-press summaries report exact button/depth goal counts plus observed
+button and robot initial-state distributions.
+Button readiness requires complete relabel/quality coverage, no label
+disagreements, one action/observation schema version, the configured clean total
+and per-goal minimums, and declared uncontaminated held-out button/depth states.
 ```
 
 ---

@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7G — Push-Cube Pilot
+Level 2.7H — Scale Button-Press Dataset
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7H — Scale Button-Press Dataset
+Level 2.7I — Scale Push-Cube Dataset
 
 ---
 
@@ -554,7 +554,16 @@ The exactly-five pilot, three-zone coverage, and pipeline-report requirements
 are satisfied. On September 2, 2026, the user manually replayed all five
 retained episodes and confirmed that their saved cube starts, target markers,
 planar pushes, and final target behavior looked correct. Level 2.7G is complete.
-Level 2.7H is the next target but has not been started.
+
+Level 2.7H — Scale Button-Press Dataset manually passed on September 2, 2026
+after the user completed 50 quality-gated live recordings. Together with the
+five retained pilots, the immutable raw dataset contains 55 episodes. All 55
+validated and completed semantic headless replay for 5,475 action steps,
+recomputed as successful, passed every quality filter, and had zero label
+disagreements. The nine training button/depth goals contain six or seven clean
+successes each, three interpolated button/depth states remain held out, and the
+v3 dataset summary reports `level3_ready: true`. Level 2.7H is complete.
+Level 2.7I is the next target but has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

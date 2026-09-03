@@ -1,8 +1,9 @@
-"""Planning helpers for scaled reach-touch data collection."""
+"""Planning helpers for quality-gated scaled task data collection."""
 
 from __future__ import annotations
 
 import json
+import math
 import os
 import random
 import re
@@ -17,10 +18,17 @@ from dexvision.logging.quality_filters import (
     QualityFilterError,
     evaluate_episode_quality,
 )
+from dexvision.logging.dataset_summary import (
+    DEFAULT_BUTTON_PRESS_CONFIG,
+    ButtonGoalDefinition,
+    ButtonPressDatasetConfig,
+    load_button_press_dataset_config,
+)
 from dexvision.sim.tasks import ReachTouchTargetConfig
 
 
 DEFAULT_REACH_TOUCH_DATASET = Path("data/demos/raw/reach_touch_target")
+DEFAULT_BUTTON_PRESS_DATASET = Path("data/demos/raw/button_press")
 REACH_TOUCH_TARGET_SITES = ReachTouchTargetConfig().target_sites
 
 
@@ -36,6 +44,16 @@ class ReachTouchCollectionPlan:
     output_directory: Path
     target_counts: tuple[tuple[str, int], ...]
     clean_target_counts: tuple[tuple[str, int], ...]
+
+
+@dataclass(frozen=True)
+class ButtonPressCollectionPlan:
+    """One balanced-random button/depth recording suggestion."""
+
+    goal: ButtonGoalDefinition
+    output_directory: Path
+    goal_counts: tuple[tuple[str, int], ...]
+    clean_goal_counts: tuple[tuple[str, int], ...]
 
 
 def plan_reach_touch_collection(
@@ -68,6 +86,47 @@ def plan_reach_touch_collection(
         target_counts=tuple((target, counts[target]) for target in REACH_TOUCH_TARGET_SITES),
         clean_target_counts=tuple(
             (target, clean_counts[target]) for target in REACH_TOUCH_TARGET_SITES
+        ),
+    )
+
+
+def plan_button_press_collection(
+    dataset_dir: str | Path = DEFAULT_BUTTON_PRESS_DATASET,
+    *,
+    config: ButtonPressDatasetConfig | None = None,
+    config_path: str | Path = DEFAULT_BUTTON_PRESS_CONFIG,
+    collection_date: date | None = None,
+    seed: int | None = None,
+) -> ButtonPressCollectionPlan:
+    """Choose randomly among button/depth goals with the fewest clean demos."""
+
+    dataset = Path(dataset_dir)
+    resolved_config = config or load_button_press_dataset_config(config_path)
+    counts, clean_counts = _button_goal_counts(dataset, config=resolved_config)
+    minimum_count = min(clean_counts.values())
+    candidates = tuple(
+        goal
+        for goal in resolved_config.training_goals
+        if clean_counts[goal.goal_id] == minimum_count
+    )
+    generator: random.Random = (
+        random.SystemRandom() if seed is None else random.Random(seed)
+    )
+    goal = generator.choice(candidates)
+    output_directory = _next_episode_directory(
+        dataset,
+        collection_date=collection_date or date.today(),
+    )
+    return ButtonPressCollectionPlan(
+        goal=goal,
+        output_directory=output_directory,
+        goal_counts=tuple(
+            (item.goal_id, counts[item.goal_id])
+            for item in resolved_config.training_goals
+        ),
+        clean_goal_counts=tuple(
+            (item.goal_id, clean_counts[item.goal_id])
+            for item in resolved_config.training_goals
         ),
     )
 
@@ -110,6 +169,46 @@ def recording_arguments(
     )
 
 
+def format_button_recording_command(
+    plan: ButtonPressCollectionPlan,
+    *,
+    python_command: str = "mjpython",
+) -> str:
+    """Format the button recorder command for the current operating system."""
+
+    arguments = button_recording_arguments(plan, python_command=python_command)
+    if os.name == "nt":
+        return subprocess.list2cmdline(arguments)
+    return shlex.join(arguments)
+
+
+def button_recording_arguments(
+    plan: ButtonPressCollectionPlan,
+    *,
+    python_command: str = "mjpython",
+) -> tuple[str, ...]:
+    """Return button recorder arguments for a shell-free subprocess call."""
+
+    if not python_command:
+        raise CollectionPlannerError("python_command must be non-empty.")
+    return (
+        python_command,
+        "-m",
+        "dexvision.apps.record_demo",
+        "--task",
+        "button_press",
+        "--retargeter",
+        "curl",
+        "--button-id",
+        plan.goal.button_id,
+        "--target-press-depth",
+        str(plan.goal.target_press_depth),
+        "--output",
+        str(plan.output_directory),
+        "--level1-13-full",
+    )
+
+
 def _target_counts(dataset: Path) -> tuple[dict[str, int], dict[str, int]]:
     counts = dict.fromkeys(REACH_TOUCH_TARGET_SITES, 0)
     clean_counts = dict.fromkeys(REACH_TOUCH_TARGET_SITES, 0)
@@ -139,6 +238,66 @@ def _target_counts(dataset: Path) -> tuple[dict[str, int], dict[str, int]]:
         counts[target_source] += 1
         if _episode_is_clean(metadata_path.parent):
             clean_counts[target_source] += 1
+    return counts, clean_counts
+
+
+def _button_goal_counts(
+    dataset: Path,
+    *,
+    config: ButtonPressDatasetConfig,
+) -> tuple[dict[str, int], dict[str, int]]:
+    counts = {goal.goal_id: 0 for goal in config.training_goals}
+    clean_counts = counts.copy()
+    if not dataset.exists():
+        return counts, clean_counts
+    if not dataset.is_dir():
+        raise CollectionPlannerError(f"Dataset path is not a directory: {dataset}")
+
+    goals_by_state = {
+        (goal.button_id, goal.target_press_depth): goal
+        for goal in config.training_goals
+    }
+    for metadata_path in sorted(dataset.glob("*/metadata.json")):
+        metadata = _load_metadata(metadata_path)
+        if metadata.get("task_id") != "button_press":
+            raise CollectionPlannerError(
+                f"{metadata_path} is not a button_press episode."
+            )
+        task_config = metadata.get("task_config")
+        if not isinstance(task_config, dict):
+            raise CollectionPlannerError(
+                f"{metadata_path} must declare task_config as an object."
+            )
+        button_id = task_config.get("resolved_button_id")
+        depth_value = task_config.get("target_press_depth")
+        if isinstance(depth_value, bool):
+            depth_value = None
+        try:
+            target_depth = float(depth_value)
+        except (TypeError, ValueError):
+            target_depth = math.nan
+        goal = next(
+            (
+                candidate
+                for (candidate_button, candidate_depth), candidate in goals_by_state.items()
+                if button_id == candidate_button
+                and math.isclose(
+                    target_depth,
+                    candidate_depth,
+                    rel_tol=0.0,
+                    abs_tol=1e-9,
+                )
+            ),
+            None,
+        )
+        if goal is None:
+            raise CollectionPlannerError(
+                f"{metadata_path} has button/depth goal "
+                f"({button_id!r}, {depth_value!r}) outside the training split."
+            )
+        counts[goal.goal_id] += 1
+        if _episode_is_clean(metadata_path.parent):
+            clean_counts[goal.goal_id] += 1
     return counts, clean_counts
 
 

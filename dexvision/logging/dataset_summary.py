@@ -15,12 +15,14 @@ from dexvision.logging.quality_filters import DEFAULT_REPORT_NAME as QUALITY_REP
 from dexvision.logging.relabel_success import DEFAULT_REPORT_NAME as RELABEL_REPORT_NAME
 
 
-DATASET_SUMMARY_VERSION = "level2/dataset-summary-v2"
+DATASET_SUMMARY_VERSION = "level2/dataset-summary-v3"
 DEFAULT_JSON_NAME = "dataset_summary.json"
 DEFAULT_CSV_NAME = "dataset_summary.csv"
 DEFAULT_REPORT_DIRECTORY = Path("reports") / "summaries"
 DEFAULT_REACH_TOUCH_CONFIG = Path("configs/reach_touch_dataset.yaml")
+DEFAULT_BUTTON_PRESS_CONFIG = Path("configs/button_press_dataset.yaml")
 REACH_TOUCH_TASK_ID = "reach_touch_target"
+BUTTON_PRESS_TASK_ID = "button_press"
 PUSH_CUBE_TASK_ID = "push_cube_to_target"
 
 
@@ -51,6 +53,31 @@ class ReachTouchDatasetConfig:
 
 
 @dataclass(frozen=True)
+class ButtonGoalDefinition:
+    """One configured button identity and target-depth goal."""
+
+    goal_id: str
+    button_id: str
+    button_position: tuple[float, float, float]
+    target_press_depth: float
+
+
+@dataclass(frozen=True)
+class ButtonPressDatasetConfig:
+    """Versioned button-press readiness and held-out-state contract."""
+
+    version: str
+    task_id: str
+    minimum_clean_successful_episodes: int
+    minimum_clean_per_training_goal: int
+    position_units: str
+    press_depth_units: str
+    coordinate_frame: str
+    training_goals: tuple[ButtonGoalDefinition, ...]
+    held_out_evaluation_goals: tuple[ButtonGoalDefinition, ...]
+
+
+@dataclass(frozen=True)
 class TargetPositionSummary:
     """Recorded distribution and clean count for one training target."""
 
@@ -59,6 +86,33 @@ class TargetPositionSummary:
     num_episodes: int
     num_recomputed_success: int
     quality_pass_count: int
+    clean_success_count: int
+
+
+@dataclass(frozen=True)
+class ButtonGoalSummary:
+    """Recorded distribution and clean count for one button goal."""
+
+    goal_id: str
+    button_id: str
+    button_position: tuple[float, float, float]
+    target_press_depth: float
+    num_episodes: int
+    num_recomputed_success: int
+    quality_pass_count: int
+    clean_success_count: int
+
+
+@dataclass(frozen=True)
+class ButtonInitialStateSummary:
+    """Observed button/robot initial state and its episode counts."""
+
+    button_id: str
+    button_position: tuple[float, float, float]
+    initial_button_depth: float
+    initial_base_position: tuple[float, float, float]
+    initial_base_orientation: tuple[float, float, float, float]
+    num_episodes: int
     clean_success_count: int
 
 
@@ -104,10 +158,14 @@ class SkillDatasetSummary:
     observation_schema_versions: tuple[str, ...]
     clean_success_count: int
     target_position_distribution: tuple[TargetPositionSummary, ...]
+    button_goal_distribution: tuple[ButtonGoalSummary, ...]
+    button_initial_state_distribution: tuple[ButtonInitialStateSummary, ...]
     held_out_evaluation_targets: tuple[TargetDefinition, ...]
+    held_out_button_goals: tuple[ButtonGoalDefinition, ...]
     readiness_config_version: str | None
     minimum_clean_success_count: int | None
     minimum_clean_per_training_target: int | None
+    minimum_clean_per_training_goal: int | None
     level3_ready: bool | None
     readiness_failures: tuple[str, ...]
     quality_failures: tuple[QualityFailureSummary, ...]
@@ -145,6 +203,12 @@ class _EpisodeSummaryInput:
     observation_schema_version: str
     target_source: str | None
     target_position: tuple[float, float, float] | None
+    button_id: str | None
+    button_position: tuple[float, float, float] | None
+    target_press_depth: float | None
+    initial_button_depth: float | None
+    initial_base_position: tuple[float, float, float] | None
+    initial_base_orientation: tuple[float, float, float, float] | None
 
 
 @dataclass(frozen=True)
@@ -172,6 +236,7 @@ def summarize_demo_dataset(
     dataset_dir: str | Path,
     *,
     reach_touch_config: ReachTouchDatasetConfig | None = None,
+    button_press_config: ButtonPressDatasetConfig | None = None,
 ) -> DatasetSummaryReport:
     """Summarize every saved episode below ``dataset_dir`` without modifying it."""
 
@@ -203,6 +268,7 @@ def summarize_demo_dataset(
             reports=reports,
             warnings=warnings,
             reach_touch_config=reach_touch_config,
+            button_press_config=button_press_config,
         )
         for group_key in group_keys
     )
@@ -261,10 +327,14 @@ def save_dataset_summary(
             "observation_schema_versions",
             "clean_success_count",
             "target_position_distribution",
+            "button_goal_distribution",
+            "button_initial_state_distribution",
             "held_out_evaluation_targets",
+            "held_out_button_goals",
             "readiness_config_version",
             "minimum_clean_success_count",
             "minimum_clean_per_training_target",
+            "minimum_clean_per_training_goal",
             "level3_ready",
             "readiness_failures",
         )
@@ -362,6 +432,85 @@ def load_reach_touch_dataset_config(
     )
 
 
+def load_button_press_dataset_config(
+    config_path: str | Path,
+) -> ButtonPressDatasetConfig:
+    """Load and validate the versioned button-goal train/evaluation split."""
+
+    path = Path(config_path)
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise DatasetSummaryError(f"Button dataset config does not exist: {path}") from exc
+    except (OSError, yaml.YAMLError) as exc:
+        raise DatasetSummaryError(
+            f"Could not read valid YAML from button dataset config {path}: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise DatasetSummaryError(f"{path} must contain a YAML mapping.")
+
+    version = _config_string(payload, "version", path=path)
+    task_id = _config_string(payload, "task_id", path=path)
+    if task_id != BUTTON_PRESS_TASK_ID:
+        raise DatasetSummaryError(
+            f"{path} task_id must be {BUTTON_PRESS_TASK_ID!r}; got {task_id!r}."
+        )
+    minimum_clean = _config_positive_int(
+        payload,
+        "minimum_clean_successful_episodes",
+        path=path,
+    )
+    minimum_per_goal = _config_positive_int(
+        payload,
+        "minimum_clean_per_training_goal",
+        path=path,
+    )
+    units = _config_string(payload, "position_units", path=path)
+    depth_units = _config_string(payload, "press_depth_units", path=path)
+    coordinate_frame = _config_string(payload, "coordinate_frame", path=path)
+    training_goals = _config_button_goals(payload, "training_goals", path=path)
+    held_out_goals = _config_button_goals(
+        payload,
+        "held_out_evaluation_goals",
+        path=path,
+    )
+    if not training_goals:
+        raise DatasetSummaryError(f"{path} must declare at least one training goal.")
+    if not held_out_goals:
+        raise DatasetSummaryError(
+            f"{path} must declare at least one held-out evaluation goal."
+        )
+    training_ids = {goal.goal_id for goal in training_goals}
+    held_out_ids = {goal.goal_id for goal in held_out_goals}
+    overlap = training_ids & held_out_ids
+    if overlap:
+        raise DatasetSummaryError(
+            f"{path} goal ids cannot be both training and held-out: {sorted(overlap)}."
+        )
+    training_states = {
+        (goal.button_id, goal.target_press_depth) for goal in training_goals
+    }
+    held_out_states = {
+        (goal.button_id, goal.target_press_depth) for goal in held_out_goals
+    }
+    if training_states & held_out_states:
+        raise DatasetSummaryError(
+            f"{path} held-out button/depth states must be distinct from training states."
+        )
+    _validate_button_positions(training_goals + held_out_goals, path=path)
+    return ButtonPressDatasetConfig(
+        version=version,
+        task_id=task_id,
+        minimum_clean_successful_episodes=minimum_clean,
+        minimum_clean_per_training_goal=minimum_per_goal,
+        position_units=units,
+        press_depth_units=depth_units,
+        coordinate_frame=coordinate_frame,
+        training_goals=training_goals,
+        held_out_evaluation_goals=held_out_goals,
+    )
+
+
 def _episode_directories(dataset: Path, *, warnings: list[str]) -> tuple[Path, ...]:
     if not dataset.exists():
         warnings.append(f"Dataset directory does not exist: {dataset}")
@@ -435,6 +584,12 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
     observation_version = _schema_version(metadata, "observation_schema", path=path)
     target_source: str | None = None
     target_position: tuple[float, float, float] | None = None
+    button_id: str | None = None
+    button_position: tuple[float, float, float] | None = None
+    target_press_depth: float | None = None
+    initial_button_depth: float | None = None
+    initial_base_position: tuple[float, float, float] | None = None
+    initial_base_orientation: tuple[float, float, float, float] | None = None
     if task_id in {REACH_TOUCH_TASK_ID, PUSH_CUBE_TASK_ID}:
         task_config = metadata.get("task_config")
         if not isinstance(task_config, dict):
@@ -451,6 +606,39 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
             label="task_config.target_position",
             path=path / "metadata.json",
         )
+    elif task_id == BUTTON_PRESS_TASK_ID:
+        task_config = metadata.get("task_config")
+        if not isinstance(task_config, dict):
+            raise DatasetSummaryError(
+                f"{path / 'metadata.json'} must declare task_config as an object."
+            )
+        button_id = _required_string(task_config, "resolved_button_id", path=path)
+        button_position = _position_tuple(
+            task_config.get("button_position"),
+            label="task_config.button_position",
+            path=path / "metadata.json",
+        )
+        target_press_depth = _finite_scalar(
+            task_config.get("target_press_depth"),
+            label="task_config.target_press_depth",
+            path=path / "metadata.json",
+        )
+        initial_button_depth = _finite_scalar(
+            task_config.get("initial_button_depth"),
+            label="task_config.initial_button_depth",
+            path=path / "metadata.json",
+        )
+        initial_base_position = _position_tuple(
+            task_config.get("initial_base_position"),
+            label="task_config.initial_base_position",
+            path=path / "metadata.json",
+        )
+        initial_base_orientation = _vector_tuple(
+            task_config.get("initial_base_orientation"),
+            length=4,
+            label="task_config.initial_base_orientation",
+            path=path / "metadata.json",
+        )
     return _EpisodeSummaryInput(
         path=path.resolve(),
         episode_id=episode_id,
@@ -463,6 +651,12 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
         observation_schema_version=observation_version,
         target_source=target_source,
         target_position=target_position,
+        button_id=button_id,
+        button_position=button_position,
+        target_press_depth=target_press_depth,
+        initial_button_depth=initial_button_depth,
+        initial_base_position=initial_base_position,
+        initial_base_orientation=initial_base_orientation,
     )
 
 
@@ -472,6 +666,7 @@ def _summarize_group(
     reports: _ReportIndex,
     warnings: list[str],
     reach_touch_config: ReachTouchDatasetConfig | None,
+    button_press_config: ButtonPressDatasetConfig | None,
 ) -> SkillDatasetSummary:
     skill_name = episodes[0].skill_name
     task_id = episodes[0].task_id
@@ -543,13 +738,28 @@ def _summarize_group(
         relabel_results=tuple(relabel_results),
         config=reach_touch_config if task_id == REACH_TOUCH_TASK_ID else None,
     )
-    clean_success_count = sum(
-        target.clean_success_count for target in target_distribution
+    button_goal_distribution = _summarize_button_goal_distribution(
+        episodes,
+        quality_results=tuple(quality_results),
+        relabel_results=tuple(relabel_results),
+        config=button_press_config if task_id == BUTTON_PRESS_TASK_ID else None,
+    )
+    button_initial_state_distribution = _summarize_button_initial_states(
+        episodes,
+        quality_results=tuple(quality_results),
+        relabel_results=tuple(relabel_results),
+    )
+    clean_success_count = (
+        sum(goal.clean_success_count for goal in button_goal_distribution)
+        if task_id == BUTTON_PRESS_TASK_ID
+        else sum(target.clean_success_count for target in target_distribution)
     )
     readiness_failures = _readiness_failures(
         task_id=task_id,
-        config=reach_touch_config,
+        reach_touch_config=reach_touch_config,
+        button_press_config=button_press_config,
         target_distribution=target_distribution,
+        button_goal_distribution=button_goal_distribution,
         clean_success_count=clean_success_count,
         quality_unreported_count=quality_unreported_count,
         relabel_unreported_count=relabel_unreported_count,
@@ -557,9 +767,13 @@ def _summarize_group(
         action_versions=action_versions,
         observation_versions=observation_versions,
     )
-    readiness_applies = (
+    reach_readiness_applies = (
         task_id == REACH_TOUCH_TASK_ID and reach_touch_config is not None
     )
+    button_readiness_applies = (
+        task_id == BUTTON_PRESS_TASK_ID and button_press_config is not None
+    )
+    readiness_applies = reach_readiness_applies or button_readiness_applies
     return SkillDatasetSummary(
         skill_name=skill_name,
         task_id=task_id,
@@ -588,22 +802,40 @@ def _summarize_group(
         observation_schema_versions=observation_versions,
         clean_success_count=clean_success_count,
         target_position_distribution=target_distribution,
+        button_goal_distribution=button_goal_distribution,
+        button_initial_state_distribution=button_initial_state_distribution,
         held_out_evaluation_targets=(
             reach_touch_config.held_out_evaluation_targets
-            if readiness_applies
+            if reach_readiness_applies
+            else ()
+        ),
+        held_out_button_goals=(
+            button_press_config.held_out_evaluation_goals
+            if button_readiness_applies
             else ()
         ),
         readiness_config_version=(
-            reach_touch_config.version if readiness_applies else None
+            reach_touch_config.version
+            if reach_readiness_applies
+            else button_press_config.version
+            if button_readiness_applies
+            else None
         ),
         minimum_clean_success_count=(
             reach_touch_config.minimum_clean_successful_episodes
-            if readiness_applies
+            if reach_readiness_applies
+            else button_press_config.minimum_clean_successful_episodes
+            if button_readiness_applies
             else None
         ),
         minimum_clean_per_training_target=(
             reach_touch_config.minimum_clean_per_training_target
-            if readiness_applies
+            if reach_readiness_applies
+            else None
+        ),
+        minimum_clean_per_training_goal=(
+            button_press_config.minimum_clean_per_training_goal
+            if button_readiness_applies
             else None
         ),
         level3_ready=(not readiness_failures if readiness_applies else None),
@@ -692,11 +924,180 @@ def _summarize_target_distribution(
     )
 
 
+def _summarize_button_goal_distribution(
+    episodes: tuple[_EpisodeSummaryInput, ...],
+    *,
+    quality_results: tuple[_QualityResult | None, ...],
+    relabel_results: tuple[_RelabelResult | None, ...],
+    config: ButtonPressDatasetConfig | None,
+) -> tuple[ButtonGoalSummary, ...]:
+    if episodes[0].task_id != BUTTON_PRESS_TASK_ID:
+        return ()
+
+    observed: dict[tuple[str, float], tuple[float, float, float]] = {}
+    counts: dict[tuple[str, float], list[int]] = {}
+    for episode, quality, relabel in zip(
+        episodes,
+        quality_results,
+        relabel_results,
+        strict=True,
+    ):
+        if (
+            episode.button_id is None
+            or episode.button_position is None
+            or episode.target_press_depth is None
+        ):
+            raise DatasetSummaryError(f"{episode.path} is missing its button goal.")
+        key = (episode.button_id, episode.target_press_depth)
+        previous_position = observed.setdefault(key, episode.button_position)
+        if not np.allclose(
+            previous_position,
+            episode.button_position,
+            rtol=0.0,
+            atol=1e-9,
+        ):
+            raise DatasetSummaryError(
+                f"Button goal {key!r} has inconsistent saved positions."
+            )
+        values = counts.setdefault(key, [0, 0, 0, 0])
+        values[0] += 1
+        values[1] += int(relabel is not None and relabel.recomputed_success)
+        values[2] += int(quality is not None and quality.passed)
+        values[3] += int(
+            quality is not None
+            and quality.passed
+            and relabel is not None
+            and relabel.recomputed_success
+        )
+
+    if config is not None:
+        configured = {
+            (goal.button_id, goal.target_press_depth): goal
+            for goal in config.training_goals
+        }
+        unknown = set(observed) - set(configured)
+        if unknown:
+            raise DatasetSummaryError(
+                "Button dataset contains goals absent from the training split: "
+                f"{sorted(unknown)}."
+            )
+        for key, position in observed.items():
+            if not np.allclose(
+                position,
+                configured[key].button_position,
+                rtol=0.0,
+                atol=1e-9,
+            ):
+                raise DatasetSummaryError(
+                    f"Saved position for button goal {key!r} does not match the "
+                    "dataset config."
+                )
+        ordered_goals = config.training_goals
+    else:
+        ordered_goals = tuple(
+            ButtonGoalDefinition(
+                goal_id=f"{button_id}_depth_{depth:.3f}",
+                button_id=button_id,
+                button_position=observed[(button_id, depth)],
+                target_press_depth=depth,
+            )
+            for button_id, depth in sorted(observed)
+        )
+
+    return tuple(
+        ButtonGoalSummary(
+            goal_id=goal.goal_id,
+            button_id=goal.button_id,
+            button_position=goal.button_position,
+            target_press_depth=goal.target_press_depth,
+            num_episodes=counts.get(
+                (goal.button_id, goal.target_press_depth), [0, 0, 0, 0]
+            )[0],
+            num_recomputed_success=counts.get(
+                (goal.button_id, goal.target_press_depth), [0, 0, 0, 0]
+            )[1],
+            quality_pass_count=counts.get(
+                (goal.button_id, goal.target_press_depth), [0, 0, 0, 0]
+            )[2],
+            clean_success_count=counts.get(
+                (goal.button_id, goal.target_press_depth), [0, 0, 0, 0]
+            )[3],
+        )
+        for goal in ordered_goals
+    )
+
+
+def _summarize_button_initial_states(
+    episodes: tuple[_EpisodeSummaryInput, ...],
+    *,
+    quality_results: tuple[_QualityResult | None, ...],
+    relabel_results: tuple[_RelabelResult | None, ...],
+) -> tuple[ButtonInitialStateSummary, ...]:
+    if episodes[0].task_id != BUTTON_PRESS_TASK_ID:
+        return ()
+
+    counts: dict[
+        tuple[
+            str,
+            tuple[float, float, float],
+            float,
+            tuple[float, float, float],
+            tuple[float, float, float, float],
+        ],
+        list[int],
+    ] = {}
+    for episode, quality, relabel in zip(
+        episodes,
+        quality_results,
+        relabel_results,
+        strict=True,
+    ):
+        if (
+            episode.button_id is None
+            or episode.button_position is None
+            or episode.initial_button_depth is None
+            or episode.initial_base_position is None
+            or episode.initial_base_orientation is None
+        ):
+            raise DatasetSummaryError(
+                f"{episode.path} is missing its button initial state."
+            )
+        key = (
+            episode.button_id,
+            episode.button_position,
+            episode.initial_button_depth,
+            episode.initial_base_position,
+            episode.initial_base_orientation,
+        )
+        values = counts.setdefault(key, [0, 0])
+        values[0] += 1
+        values[1] += int(
+            quality is not None
+            and quality.passed
+            and relabel is not None
+            and relabel.recomputed_success
+        )
+    return tuple(
+        ButtonInitialStateSummary(
+            button_id=key[0],
+            button_position=key[1],
+            initial_button_depth=key[2],
+            initial_base_position=key[3],
+            initial_base_orientation=key[4],
+            num_episodes=values[0],
+            clean_success_count=values[1],
+        )
+        for key, values in sorted(counts.items())
+    )
+
+
 def _readiness_failures(
     *,
     task_id: str,
-    config: ReachTouchDatasetConfig | None,
+    reach_touch_config: ReachTouchDatasetConfig | None,
+    button_press_config: ButtonPressDatasetConfig | None,
     target_distribution: tuple[TargetPositionSummary, ...],
+    button_goal_distribution: tuple[ButtonGoalSummary, ...],
     clean_success_count: int,
     quality_unreported_count: int,
     relabel_unreported_count: int,
@@ -704,7 +1105,45 @@ def _readiness_failures(
     action_versions: tuple[str, ...],
     observation_versions: tuple[str, ...],
 ) -> tuple[str, ...]:
-    if task_id != REACH_TOUCH_TASK_ID or config is None:
+    if task_id == REACH_TOUCH_TASK_ID and reach_touch_config is not None:
+        minimum_clean = reach_touch_config.minimum_clean_successful_episodes
+        minimum_distribution = (
+            (
+                target.target_id,
+                target.clean_success_count,
+                reach_touch_config.minimum_clean_per_training_target,
+            )
+            for target in target_distribution
+        )
+        held_out_present = bool(reach_touch_config.held_out_evaluation_targets)
+        recorded_states: set[object] = {
+            target.position for target in target_distribution if target.num_episodes
+        }
+        held_out_states: tuple[tuple[str, object], ...] = tuple(
+            (target.target_id, target.position)
+            for target in reach_touch_config.held_out_evaluation_targets
+        )
+    elif task_id == BUTTON_PRESS_TASK_ID and button_press_config is not None:
+        minimum_clean = button_press_config.minimum_clean_successful_episodes
+        minimum_distribution = (
+            (
+                goal.goal_id,
+                goal.clean_success_count,
+                button_press_config.minimum_clean_per_training_goal,
+            )
+            for goal in button_goal_distribution
+        )
+        held_out_present = bool(button_press_config.held_out_evaluation_goals)
+        recorded_states = {
+            (goal.button_id, goal.target_press_depth)
+            for goal in button_goal_distribution
+            if goal.num_episodes
+        }
+        held_out_states = tuple(
+            (goal.goal_id, (goal.button_id, goal.target_press_depth))
+            for goal in button_press_config.held_out_evaluation_goals
+        )
+    else:
         return ()
 
     failures: list[str] = []
@@ -714,28 +1153,25 @@ def _readiness_failures(
         failures.append(f"relabel coverage missing for {relabel_unreported_count} episodes")
     if disagreement_count:
         failures.append(f"{disagreement_count} operator/recomputed label disagreements")
-    if clean_success_count < config.minimum_clean_successful_episodes:
+    if clean_success_count < minimum_clean:
         failures.append(
             f"clean successful episodes {clean_success_count} below required "
-            f"{config.minimum_clean_successful_episodes}"
+            f"{minimum_clean}"
         )
-    for target in target_distribution:
-        if target.clean_success_count < config.minimum_clean_per_training_target:
+    for goal_id, goal_clean_count, required_count in minimum_distribution:
+        if goal_clean_count < required_count:
             failures.append(
-                f"{target.target_id} has {target.clean_success_count} clean successes; "
-                f"requires {config.minimum_clean_per_training_target}"
+                f"{goal_id} has {goal_clean_count} clean successes; "
+                f"requires {required_count}"
             )
-    if not config.held_out_evaluation_targets:
-        failures.append("no held-out evaluation targets declared")
-    recorded_positions = {target.position for target in target_distribution}
+    if not held_out_present:
+        failures.append("no held-out evaluation states declared")
     contaminated = tuple(
-        target.target_id
-        for target in config.held_out_evaluation_targets
-        if target.position in recorded_positions
+        state_id for state_id, state in held_out_states if state in recorded_states
     )
     if contaminated:
         failures.append(
-            f"held-out target positions overlap recorded training targets: {contaminated}"
+            f"held-out evaluation states overlap recorded training states: {contaminated}"
         )
     if len(action_versions) != 1:
         failures.append("mixed action schema versions")
@@ -971,6 +1407,38 @@ def _position_tuple(
     return tuple(float(item) for item in position)
 
 
+def _vector_tuple(
+    value: object,
+    *,
+    length: int,
+    label: str,
+    path: Path,
+) -> tuple[float, ...]:
+    try:
+        vector = np.asarray(value, dtype=np.float64)
+    except (TypeError, ValueError) as exc:
+        raise DatasetSummaryError(
+            f"{path} {label} must contain {length} finite numbers."
+        ) from exc
+    if vector.shape != (length,) or not np.all(np.isfinite(vector)):
+        raise DatasetSummaryError(
+            f"{path} {label} must contain {length} finite numbers."
+        )
+    return tuple(float(item) for item in vector)
+
+
+def _finite_scalar(value: object, *, label: str, path: Path) -> float:
+    if isinstance(value, bool):
+        raise DatasetSummaryError(f"{path} {label} must be a finite number.")
+    try:
+        scalar = float(value)
+    except (TypeError, ValueError) as exc:
+        raise DatasetSummaryError(f"{path} {label} must be a finite number.") from exc
+    if not np.isfinite(scalar):
+        raise DatasetSummaryError(f"{path} {label} must be a finite number.")
+    return scalar
+
+
 def _config_string(payload: dict[str, Any], name: str, *, path: Path) -> str:
     value = payload.get(name)
     if not isinstance(value, str) or not value:
@@ -1012,6 +1480,68 @@ def _config_targets(
     if len(set(positions)) != len(positions):
         raise DatasetSummaryError(f"{path} {name!r} contains duplicate positions.")
     return tuple(targets)
+
+
+def _config_button_goals(
+    payload: dict[str, Any],
+    name: str,
+    *,
+    path: Path,
+) -> tuple[ButtonGoalDefinition, ...]:
+    value = payload.get(name)
+    if not isinstance(value, dict):
+        raise DatasetSummaryError(f"{path} {name!r} must be a goal-id mapping.")
+    goals: list[ButtonGoalDefinition] = []
+    for goal_id, goal_payload in value.items():
+        if not isinstance(goal_id, str) or not goal_id:
+            raise DatasetSummaryError(f"{path} {name!r} contains an invalid goal id.")
+        if not isinstance(goal_payload, dict):
+            raise DatasetSummaryError(
+                f"{path} {name}.{goal_id} must be a mapping."
+            )
+        button_id = _config_string(goal_payload, "button_id", path=path)
+        position = _position_tuple(
+            goal_payload.get("button_position"),
+            label=f"{name}.{goal_id}.button_position",
+            path=path,
+        )
+        depth = _finite_scalar(
+            goal_payload.get("target_press_depth"),
+            label=f"{name}.{goal_id}.target_press_depth",
+            path=path,
+        )
+        if depth <= 0.0:
+            raise DatasetSummaryError(
+                f"{path} {name}.{goal_id}.target_press_depth must be positive."
+            )
+        goals.append(
+            ButtonGoalDefinition(
+                goal_id=goal_id,
+                button_id=button_id,
+                button_position=position,
+                target_press_depth=depth,
+            )
+        )
+    states = [(goal.button_id, goal.target_press_depth) for goal in goals]
+    if len(set(states)) != len(states):
+        raise DatasetSummaryError(
+            f"{path} {name!r} contains duplicate button/depth states."
+        )
+    return tuple(goals)
+
+
+def _validate_button_positions(
+    goals: tuple[ButtonGoalDefinition, ...],
+    *,
+    path: Path,
+) -> None:
+    positions: dict[str, tuple[float, float, float]] = {}
+    for goal in goals:
+        previous = positions.setdefault(goal.button_id, goal.button_position)
+        if previous != goal.button_position:
+            raise DatasetSummaryError(
+                f"{path} gives button {goal.button_id!r} inconsistent positions."
+            )
 
 
 def _csv_value(field: str, value: Any) -> Any:

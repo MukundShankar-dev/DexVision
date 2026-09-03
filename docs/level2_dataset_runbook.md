@@ -151,6 +151,18 @@ python -m dexvision.apps.select_reach_target --run
 This command balances the clean-success distribution, launches the recorder,
 and admits only quality-passed successful episodes into `raw/`.
 
+Current quality-gated button-press collection:
+
+```bash
+python -m dexvision.apps.select_button_goal --run
+```
+
+This command uses `configs/button_press_dataset.yaml`, balances exact
+button/depth training goals by clean-success count, and never selects the
+reserved held-out evaluation states. Run it once per attempted episode until
+the dataset summary reports at least 50 clean successes and every training goal
+has at least five.
+
 Button-press pilot recording is implemented for Level 2.7E:
 
 ```bash
@@ -351,8 +363,9 @@ Dataset summaries and Level 3 readiness evaluation are implemented:
 python -m dexvision.apps.summarize_demos --dataset data/demos
 ```
 
-The summary uses `configs/reach_touch_dataset.yaml` to validate the versioned
-training-target and held-out-evaluation split.
+The summary uses `configs/reach_touch_dataset.yaml` and
+`configs/button_press_dataset.yaml` to validate the versioned training-goal and
+held-out-evaluation splits.
 
 ## I. Dataset Readiness Criteria For Level 3
 
@@ -388,18 +401,22 @@ Current `reach_touch_target` readiness:
   `reach_eval_center_right = [0.14, 0.03, 0.50]` metres
 - dataset summary result: `level3_ready: true`
 
-Current `button_press` pilot status:
+Current `button_press` scaled-dataset status:
 
 - task-board scene and task-specific recorder are implemented
-- five retained pilot episodes cover left, center, and right buttons
-- all five episodes validate and complete headless replay
-- all five recompute as successful with zero label disagreements
-- all five pass the Level 2.7 quality filters
+- 55 immutable raw episodes cover all nine configured button/depth goals
+- all 55 episodes validate and complete headless replay for 5,475 action steps
+- all 55 recompute as successful with zero label disagreements
+- all 55 pass the Level 2.7 quality filters
 - the selected target is bright green and non-target buttons are dark gray
 - target-isolation review confirmed the selected button was the primary press
   in every retained episode
-- dataset scale-up and held-out evaluation states remain pending, so
-  `button_press` is not yet Level 3-ready
+- the versioned scale-up config reserves interpolated 0.011 m/0.013 m
+  button/depth combinations for Level 3 evaluation
+- the quality-gated balanced selector is available through
+  `python -m dexvision.apps.select_button_goal --run`
+- clean training coverage is six or seven episodes per configured goal
+- dataset summary result: `level3_ready: true`
 
 Current `push_cube_to_target` pilot status:
 
@@ -487,7 +504,7 @@ Current `push_cube_to_target` pilot status:
 |---|---|---|---|---|---:|---|
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
-| button_press | yes | yes, pilot | yes, 5/5 | yes, 5 pass | 5 pilot / 50 scale | no |
+| button_press | yes | yes, quality-gated | yes, 55/55 | yes, 55 pass | 55/50 | yes |
 | push_cube_to_target | yes | yes, 5/5 pilot | yes, 5/5 manually confirmed | yes, 5 pass | 5/5 pilot / 100 scale | no |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
@@ -504,7 +521,7 @@ Manipulation-task order and current completion:
 [x] 3. scale reach_touch_target and reserve held-out target positions
 [x] 4. button_press task and five-demo pilot through the same gates
 [x] 5a. push_cube_to_target task schema/reset/state/success metric
-[ ] 5b. push_cube_to_target five-demo pilot through replay/relabel/quality/summary gates
+[x] 5b. push_cube_to_target five-demo pilot through replay/relabel/quality/summary gates
 [ ] 6. scale only the task datasets whose pilots pass
 ```
 
@@ -517,7 +534,7 @@ timesteps from one episode into multiple splits.
 - Do not train a task-specific Level 3 policy until that task has replay,
   validation, relabeling, filtering, a clean scaled dataset, and held-out
   evaluation conditions. `reach_touch_target` now satisfies these data gates;
-  later tasks do not.
+  `button_press` now also satisfies these data gates; later tasks do not.
 - Do not collect large datasets before task schemas, success metrics, action
   schemas, and observation schemas stabilize.
 - Do not implement Level 5 orchestration in this repo.

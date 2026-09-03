@@ -8,13 +8,20 @@ import numpy as np
 
 from dexvision.apps import summarize_demos
 from dexvision.logging.dataset_summary import (
+    ButtonGoalDefinition,
+    ButtonPressDatasetConfig,
     DATASET_SUMMARY_VERSION,
+    DEFAULT_BUTTON_PRESS_CONFIG,
     ReachTouchDatasetConfig,
     TargetDefinition,
     default_summary_paths,
+    load_button_press_dataset_config,
     save_dataset_summary,
     summarize_demo_dataset,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _write_episode(
@@ -61,6 +68,20 @@ def _write_episode(
         metadata["task_config"] = {
             "resolved_target_source": "push_target_left",
             "target_position": [0.09, -0.07, -0.015],
+        }
+    elif task_id == "button_press":
+        button_positions = {
+            "button_left": [0.137, -0.08, 0.40],
+            "button_center": [0.137, 0.00, 0.40],
+            "button_right": [0.137, 0.08, 0.40],
+        }
+        metadata["task_config"] = {
+            "resolved_button_id": target_site,
+            "button_position": button_positions[target_site],
+            "target_press_depth": 0.01,
+            "initial_button_depth": 0.0,
+            "initial_base_position": [0.0, 0.0, 0.14],
+            "initial_base_orientation": [1.0, 0.0, 0.0, 0.0],
         }
     (episode / "metadata.json").write_text(
         json.dumps(metadata),
@@ -364,6 +385,95 @@ def test_reach_touch_summary_marks_balanced_clean_dataset_ready(
     assert group.readiness_config_version == config.version
     assert group.level3_ready is True
     assert group.readiness_failures == ()
+
+
+def test_button_summary_reports_initial_and_goal_distributions_and_readiness(
+    tmp_path: Path,
+) -> None:
+    dataset = tmp_path / "raw" / "button_press"
+    episodes = tuple(
+        _write_episode(
+            dataset,
+            f"episode_{index:03d}",
+            skill_name="button_press",
+            task_id="button_press",
+            target_site=button_id,
+        )
+        for index, button_id in enumerate(
+            ("button_left", "button_center", "button_right"),
+            start=1,
+        )
+    )
+    _write_quality_report(
+        dataset,
+        tuple((episode, True, ()) for episode in episodes),
+    )
+    _write_relabel_report(
+        dataset,
+        tuple((episode, True, True) for episode in episodes),
+    )
+    config = ButtonPressDatasetConfig(
+        version="test/button-press-split-v1",
+        task_id="button_press",
+        minimum_clean_successful_episodes=3,
+        minimum_clean_per_training_goal=1,
+        position_units="metres",
+        press_depth_units="metres",
+        coordinate_frame="MuJoCo world",
+        training_goals=(
+            ButtonGoalDefinition(
+                "left_010", "button_left", (0.137, -0.08, 0.40), 0.01
+            ),
+            ButtonGoalDefinition(
+                "center_010", "button_center", (0.137, 0.00, 0.40), 0.01
+            ),
+            ButtonGoalDefinition(
+                "right_010", "button_right", (0.137, 0.08, 0.40), 0.01
+            ),
+        ),
+        held_out_evaluation_goals=(
+            ButtonGoalDefinition(
+                "center_eval_011", "button_center", (0.137, 0.00, 0.40), 0.011
+            ),
+        ),
+    )
+
+    report = summarize_demo_dataset(tmp_path, button_press_config=config)
+
+    group = report.groups[0]
+    assert group.clean_success_count == 3
+    assert [goal.clean_success_count for goal in group.button_goal_distribution] == [
+        1,
+        1,
+        1,
+    ]
+    assert len(group.button_initial_state_distribution) == 3
+    assert sum(
+        state.num_episodes for state in group.button_initial_state_distribution
+    ) == 3
+    assert group.held_out_button_goals == config.held_out_evaluation_goals
+    assert group.readiness_config_version == config.version
+    assert group.minimum_clean_per_training_goal == 1
+    assert group.level3_ready is True
+    assert group.readiness_failures == ()
+
+
+def test_button_dataset_config_declares_distinct_held_out_states() -> None:
+    config = load_button_press_dataset_config(ROOT / DEFAULT_BUTTON_PRESS_CONFIG)
+
+    assert config.task_id == "button_press"
+    assert config.minimum_clean_successful_episodes == 50
+    assert config.minimum_clean_per_training_goal == 5
+    assert len(config.training_goals) == 9
+    assert len(config.held_out_evaluation_goals) == 3
+    training_states = {
+        (goal.button_id, goal.target_press_depth) for goal in config.training_goals
+    }
+    held_out_states = {
+        (goal.button_id, goal.target_press_depth)
+        for goal in config.held_out_evaluation_goals
+    }
+    assert training_states.isdisjoint(held_out_states)
 
 
 def test_cli_saves_default_outputs_and_keeps_episode_files_unchanged(

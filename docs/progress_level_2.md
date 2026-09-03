@@ -1490,7 +1490,7 @@ override, and falls back to one step for legacy data. Focused tests pass with
 2, 2026, the user manually replayed all five retained episodes and confirmed
 that each showed the correct saved cube start and target marker, a clean planar
 push, and the intended final target behavior. Every Level 2.7G pass criterion
-is satisfied and the checkpoint is complete. Level 2.7H has not been started.
+is satisfied and the checkpoint is complete.
 
 ### Codex Prompt
 
@@ -1511,6 +1511,20 @@ Do not scale the dataset or add learning.
 Scale the button-press dataset only after its pilot passes replay, relabeling,
 quality, and summary gates.
 
+### Files
+
+```text
+configs/button_press_dataset.yaml
+dexvision/logging/collection_planner.py
+dexvision/apps/select_button_goal.py
+dexvision/logging/dataset_summary.py
+dexvision/apps/summarize_demos.py
+tests/test_button_collection_planner.py
+tests/test_dataset_summary.py
+docs/module_contracts.md
+docs/level2_dataset_runbook.md
+```
+
 ### Target Dataset
 
 ```text
@@ -1518,15 +1532,58 @@ button_press: 50-100 clean successful demos
 held-out button poses/press targets identified before Level 3
 ```
 
+### Collection
+
+Use the balanced quality-gated selector once per attempt:
+
+```bash
+python -m dexvision.apps.select_button_goal --run
+```
+
+The selector chooses randomly among the configured button/depth training goals
+with the fewest clean successful episodes. It records into staging and moves
+only quality-passed successes into `data/demos/raw/button_press/`. Reserved
+held-out button/depth states are declared in
+`configs/button_press_dataset.yaml` and are never selected for training.
+
+After collection, regenerate all dataset-level audit artifacts:
+
+```bash
+python -m dexvision.apps.relabel_demos --dataset data/demos/raw/button_press
+python -m dexvision.apps.filter_demos --dataset data/demos/raw/button_press
+python -m dexvision.apps.summarize_demos --dataset data/demos
+```
+
+### Run
+
+```bash
+conda run -n dexvision python -m dexvision.apps.select_button_goal --help
+conda run -n dexvision pytest tests/test_button_collection_planner.py tests/test_dataset_summary.py tests/test_button_press_pilot.py
+conda run -n dexvision ruff check dexvision tests
+conda run -n dexvision pytest
+```
+
 ### Pass Criteria
 
 ```text
-[ ] Button pilot passed every gate
-[ ] Every episode has replay, relabel, and quality results
-[ ] Initial-state and goal distributions are summarized
-[ ] Held-out evaluation states are declared before training
-[ ] Dataset summary marks button_press Level 3-ready
+[x] Button pilot passed every gate
+[x] Every episode has replay, relabel, and quality results
+[x] Initial-state and goal distributions are summarized
+[x] Held-out evaluation states are declared before training
+[x] Dataset summary marks button_press Level 3-ready
 ```
+
+The completed collection contains 55 immutable raw episodes: the original five
+pilots plus 50 quality-gated scaled recordings. All 55 episodes validated and
+completed semantic headless replay for 5,475 action steps, recomputed as
+successful, passed every quality filter, and had zero operator/recomputed label
+disagreements. Clean training coverage is balanced across all nine configured
+button/depth goals, with seven `button_left_depth_010` episodes and six for each
+other goal. The versioned split reserves three interpolated 0.011 m/0.013 m
+button/depth states exclusively for Level 3 evaluation. The v3 JSON/CSV summary
+reports the goal and initial-state distributions and marks `button_press`
+`level3_ready: true`. The user completed the 50-recording live collection on
+September 2, 2026 through the quality-gated selector. Level 2.7H is complete.
 
 ### Codex Prompt
 

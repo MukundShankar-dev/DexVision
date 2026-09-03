@@ -1,0 +1,67 @@
+version: level2/button-press-dataset-split-v1
+task_id: button_press
+
+minimum_clean_successful_episodes: 50
+minimum_clean_per_training_goal: 5
+
+position_units: metres
+press_depth_units: metres
+coordinate_frame: MuJoCo world
+
+# The scaled training set covers every physical button at three press depths.
+# The balanced selector admits only quality-passed successful episodes and
+# chooses among the least represented button/depth goals.
+training_goals:
+  button_left_depth_010:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.010
+  button_left_depth_012:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.012
+  button_left_depth_014:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.014
+  button_center_depth_010:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.010
+  button_center_depth_012:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.012
+  button_center_depth_014:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.014
+  button_right_depth_010:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.010
+  button_right_depth_012:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.012
+  button_right_depth_014:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.014
+
+# These button/depth combinations are reserved for Level 3 evaluation. They
+# reuse the known physical button poses but use interpolated depths that must
+# not appear in Level 2 training demonstrations.
+held_out_evaluation_goals:
+  button_left_eval_depth_011:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.011
+  button_center_eval_depth_013:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.013
+  button_right_eval_depth_011:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.011
