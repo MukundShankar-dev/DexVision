@@ -15,25 +15,21 @@ Level 6 documentation, robustness, and reproducibility artifacts
 ```
 
 A future Level 7 system can consume qualified Level 5 policies and skill cards
-as reusable skills. Example skills could include:
+as reusable skills. The first complete system exposes this bounded set:
 
 ```text
-free_space_gesture, calibration only unless explicitly promoted
-reach_object
-reach_touch_target
-button_press
-push_object_to_target
-grasp_object
-pinch_lift_object
-place_object
-release_object
-rotate_dial
-slide_object_to_target
-hold_object
-transport_object
-recover_dropped_object
-tool_use_simple, optional after core skills
+reach_object(object_id, approach_pose)
+pick_object(object_id)
+place_held_object(target_pose_or_receptacle)
+push_object_to_target(object_id, target_zone)
+press_button(button_id)
+rotate_dial(dial_id, target_angle), optional
 ```
+
+Grasp, lift, hold, transport, release, and slide remain internal policy phases
+or measurements rather than separate planner-visible calls. Learned regrasp,
+dropped-object recovery, arbitrary-object grasping, hinged-lid operation, tool
+use, cutting, pouring, and deformables are deferred.
 
 That orchestration layer can choose which skill to run, chain skills across a
 longer task, monitor success/failure, retry failed subtasks, and expose a
@@ -89,30 +85,37 @@ rejected before execution
 ```
 
 The orchestrator must plan from skill preconditions and terminal-state
-envelopes. For example, `grasp_object(object_id)` cannot be assumed to start
-from arbitrary robot state, and `place_object(object_id, target_pose)` must
-verify that the object is still held before execution.
+envelopes. For example, `pick_object(object_id)` requires a reachable rigid
+object, and `place_held_object(target_pose_or_receptacle)` must verify that an
+object is still held before execution.
 
 Example future requests:
 
 ```text
-Sort these objects into the matching bins.
-Clear the workspace into the tray.
-Press the blue button, then turn the dial to 90 degrees.
-Assemble a cheese sandwich on the plate.
+Clear the loose parts from the workspace into their return bins.
+Put the blue cylinder on the inspection pad and press Start.
+Set up the workspace for job B using the marked target positions.
+Prepare inspection job B: place the blue cylinder on the inspection pad,
+place the red block in the left tray slot, optionally set the dial to 45
+degrees, then press Start.
 ```
 
-Example sandwich-proxy decomposition in a constrained environment:
+Example inspection-job decomposition in a constrained environment:
 
 ```text
-reach_object(bread) -> grasp_object(bread) -> place_object(plate) -> release_object()
+pick_object(blue_cylinder)
+-> place_held_object(inspection_pad)
+-> pick_object(red_block)
+-> place_held_object(left_tray_slot)
+-> rotate_dial(dial, 45 degrees), if qualified
+-> press_button(start)
 ```
 
-That decomposition is illustrative, not a claim that the current repo solves
-open-ended food preparation. Level 5 must first validate rigid-proxy sandwich
-assembly and at least two materially different scripted pilots. Real tomato
-cutting is excluded from the core plan because deformable-object physics,
-blade contact, force control, and tool safety exceed the current setup.
+That decomposition is illustrative. Level 5 must first validate workspace
+clearing, inspection-station operation, and workspace setup as deterministic
+scripted pilots. The supervisor handles failure by moving to a safe pose,
+retrying once when allowed, then aborting with a structured reason; a learned
+recovery policy is not required.
 
 Before connecting an LLM, Level 7 should validate the orchestration contract
 with scripted plans and mock or deterministic skills. Learned policies should

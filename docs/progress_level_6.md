@@ -18,7 +18,7 @@ demonstration recording and replay
 imitation learning from saved task demos
 the versioned Level 4 dataset
 the qualified Level 5 skill library
-diverse scripted pilot-task results
+three tabletop-workcell pilot results
 ```
 
 Future Level 7 language-guided skill orchestration should be described as
@@ -52,7 +52,7 @@ Level 2 data pipeline
 Level 3 learning feasibility
 Level 4 comprehensive dataset
 Level 5 full-scale skill learning and qualification
-diverse scripted pilot tasks
+tabletop workcell pilots: clearing, inspection-station operation, and setup
 Results
 How to run
 Failure modes
@@ -482,7 +482,16 @@ add ROS2 bridge
 add sim-to-real mini gripper
 add ACT-style or diffusion-policy-style learner
 guided rigid cutting proxy, explicitly not deformable-food cutting
+learned regrasp or dropped-object recovery
+general grasping across arbitrary objects
+hinged-lid or other articulated-object operation
+tool use, kitchen tasks, pouring, liquids, or deformables
+open-world scenes or end-to-end VLM control
 ```
+
+These extensions are not prerequisites for a complete portfolio project. The
+stable claim remains the bounded tabletop workcell and its three Level 5
+pilots.
 
 Pass criteria:
 

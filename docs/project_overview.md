@@ -23,8 +23,9 @@ retargeting methods, a full retargeting benchmark, and an immutable Level 2
 dataset release tracked with Git LFS.
 
 Level 3 is active. Its purpose is to test whether the existing narrow datasets
-support useful behavior-cloned policies. The next checkpoint is Level 3.1, the
-goal-conditioned per-skill dataset loader.
+support useful behavior-cloned policies. The Level 3.1 goal-conditioned dataset
+loader is complete; the next checkpoint is Level 3.2, the goal-conditioned MLP
+policy.
 
 ## Architecture
 
@@ -76,23 +77,29 @@ generalization.
 
 ### Level 4 — Comprehensive skill dataset (planned)
 
-Level 4 is the major data-haul phase. New data must carry
-genuine session provenance, broader object and goal variation, synchronized
-visual labels when used, explicit failures, and corrective/recovery episodes.
-The planning floor is 100 accepted episodes per core skill family across at
-least three genuine sessions, subject to a documented pilot that can revise the
-count.
+Level 4 is the major data-haul phase. New data must carry genuine session
+provenance, broader object and goal variation, synchronized visual labels when
+used, explicit failures, and separately labeled operator corrections. Level
+4.0 freezes exact counts after small pilots; the planning envelope is roughly
+250–350 new accepted episodes across at least three genuine sessions, three
+simple rigid-object families, and three or four target regions. Compatible
+Level 2 episodes remain labeled legacy seed data.
 
-Core skill families are:
+Required operational skills are:
 
 ```text
-reach/approach
-grasp/hold/lift
-transport/place/release
-push/slide
-press/rotate
-regrasp/drop recovery
+reach_object
+pick_object
+place_held_object
+push_object_to_target
+press_button
 ```
+
+`rotate_dial` is optional. Grasp/lift/hold and transport/place/release are
+measurable phases inside pick and place-held-object, not separate policies.
+Approximately 100–150 complete pick/place demonstrations can therefore cover
+those phase labels without multiplying the collection target for every
+micro-skill.
 
 Level 4 ends with an immutable release, coverage and bias reports, and frozen
 session/object/goal/visual splits. It does not claim full-scale trained skills.
@@ -105,8 +112,10 @@ stable ids. Model training waits for Level 5.
 Level 5 retrains the successful Level 3 approach on the comprehensive release
 and evaluates every core skill on session-held-out and condition-held-out data.
 It separately measures ground-truth-state and perception-grounded rollouts,
-adds corrective/recovery learning, and escalates to temporal or action-chunked
-models only when measured failures justify the complexity.
+tests whether corrective data improve the core policies, and escalates to
+temporal or action-chunked models only when measured failures justify the
+complexity. Initial retry and abort behavior remains deterministic rather than
+a separately learned recovery skill.
 
 Only qualified policies enter the typed skill registry and supervised
 executor. Level 5 then runs at least three materially different scripted pilot
@@ -118,10 +127,10 @@ remain separate.
 
 ### Level 6 — Robustness and portfolio polish (planned)
 
-The original portfolio roadmap is preserved here: README and architecture polish,
-results tables, demo materials, robust CLI/config handling, reproducibility and
-CI, troubleshooting, optional dataset export, and carefully labeled advanced
-extensions.
+The original portfolio roadmap is preserved here: README and architecture
+polish, results tables, demo materials, robust CLI/config handling,
+reproducibility and CI, troubleshooting, optional dataset export, and carefully
+labeled advanced extensions.
 
 ### Level 7 — Language-guided orchestration (future)
 
@@ -130,24 +139,23 @@ skill cards. It creates typed plans; a deterministic supervisor validates and
 executes them. Scripted plans and mock skills validate the contract before
 learned policies are introduced one at a time.
 
-## Diverse pilot tasks
+## Tabletop workcell pilot tasks
 
-The final evaluation is not a single sandwich demo. Level 5 must validate at
-least three materially different scripted pilots through the same typed skill
-interface:
+Level 5 validates three related but materially different scripted pilots
+through the same typed skill interface:
 
-1. Sort and pack varied objects into matching bins or receptacles.
-2. Clear a workspace into a tray and recover from at least one miss.
-3. Press selected buttons and rotate a dial in a requested sequence.
-4. Assemble a simple sandwich from rigid ingredient proxies on a plate.
-5. Set a place with a cup, plate, and utensil proxy.
+1. Workspace clearing: return loose rigid parts to bins, using a push for a
+   flat or awkward part when appropriate.
+2. Inspection-station operation: place a part on an inspection pad and press
+   Start, with dial setting optional.
+3. Workspace setup: arrange components at marked positions for the next job.
 
-Rigid-proxy sandwich assembly is feasible because it mainly composes grasp,
-transport, place, and release. Real tomato cutting is not a core target for the
-current hand-only setup: deformable/fracture physics, blade contact, force
-control, tool safety, and broader arm motion make it a different research
-problem. A guided pre-scored or pre-segmented rigid cutting proxy may be an
-explicitly labeled later experiment.
+A combined final work order can ask the system to place a blue cylinder on the
+inspection pad, put a red block in the left tray slot, optionally set the dial
+to 45 degrees, and press Start. General arbitrary-object grasping, learned
+regrasp/drop recovery, hinged lids, tools, kitchen work, cutting, pouring,
+liquids, deformables, and open-world scenes are deferred beyond the first
+complete project.
 
 ## Dataset release policy
 
@@ -162,6 +170,6 @@ while a versioned external artifact store holds the immutable payload.
 DexVision currently demonstrates a complete teleoperation and dataset engine.
 Level 3 will determine whether its existing data can support autonomous
 policies. Level 4 will determine whether a comprehensive dataset can be built;
-Level 5 will determine whether those data can become a broad, qualified skill
-library. Language-guided multi-skill behavior remains future work until those
-evidence gates pass.
+Level 5 will determine whether those data can become a compact, qualified
+workcell skill library. Language-guided multi-skill behavior remains future
+work until those evidence gates pass.

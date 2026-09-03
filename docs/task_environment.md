@@ -211,18 +211,16 @@ should not control per-timestep actions.
 
 The initial task set is staged from simple operator/action-distribution demos
 to contact and object manipulation. These are primitive skills, not a solved
-long-horizon application. They could support a future constrained sandwich
-environment, but object perception, symbolic state, sequencing, and long-horizon
+long-horizon application. They can seed a future constrained tabletop
+workcell, but object perception, symbolic state, sequencing, and long-horizon
 planning remain future Level 7 concerns.
 
 Level 4 broadens this initial task board into object families, independent
-recording sessions, visual grounding, and recovery data. Level 5 learns and
-qualifies the resulting skills, then runs composed scripted pilots. Its core
-pilots are sorting/packing, workspace clearing, control-panel operation, and
-rigid-proxy sandwich assembly; at least three materially different pilots must
-pass. Real tomato cutting is not a core task because the current hand-only
-setup does not validate deformable-object fracture, blade contact, force
-control, or tool safety.
+recording sessions, visual grounding, and separately labeled failures and
+corrections. Level 5 learns and qualifies the resulting skills, then runs three
+composed scripted pilots: workspace clearing, inspection-station operation,
+and workspace setup. Cutting, pouring, tools, deformables, and open-world
+household manipulation are outside the first complete project.
 
 Curriculum notes:
 
@@ -410,8 +408,8 @@ It bridges target reaching and manipulation by adding object-relative target
 poses while still avoiding difficult object dynamics.
 
 Why this skill matters for future orchestration:
-Future planners can call `reach_object(object_id)` before grasping, pushing, or
-tool interaction.
+Future planners can call `reach_object(object_id, approach_pose)` before a
+bounded interaction.
 
 ### button_press
 
@@ -538,8 +536,9 @@ It is the first object task with visible cause and effect, useful for learning
 contact-rich hand/base coordination without requiring grasp stability.
 
 Why this skill matters for future orchestration:
-Future planners can use this as `push_object_to_target(object_id, target_pose)`
-when a task requires moving an object across a surface without grasping.
+Future planners can use this as
+`push_object_to_target(object_id, target_zone)` when a workcell task requires
+moving an object across a surface without grasping.
 
 ### grasp_object
 
@@ -594,9 +593,9 @@ Why useful for Level 3 learning:
 It isolates grasp formation before adding vertical lift and placement.
 
 Why this skill matters for future orchestration:
-Future planners can use `grasp_object(object_id)` before lift, place, or tool
-skills. It is intentionally later because grasp success is more fragile than
-reaching or pushing.
+This remains a measurable acquisition phase inside the future
+`pick_object(object_id)` policy, not a separately required planner-visible
+skill.
 
 ### pinch_lift_object
 
@@ -652,8 +651,9 @@ Why useful for Level 3 learning:
 It combines grasp stability, vertical motion, and object state feedback.
 
 Why this skill matters for future orchestration:
-Future planners can use `pinch_lift_object(object_id)` for constrained pick
-steps after a reachable object and feasible grasp are established.
+This remains a measurable lift/stability phase inside the future
+`pick_object(object_id)` policy, not a separately required planner-visible
+skill.
 
 ### place_object
 
@@ -709,8 +709,8 @@ It teaches object transport and target-relative positioning after grasp/lift
 skills are reliable.
 
 Why this skill matters for future orchestration:
-Future planners can use `place_object(object_id, target_pose)` for structured
-assembly or constrained food-preparation environments.
+This supplies the transport and placement phases inside
+`place_held_object(target_pose_or_receptacle)` for bounded workcell tasks.
 
 ### release_object
 
@@ -765,8 +765,9 @@ It separates terminal release control from reaching and placement, making
 placing easier to evaluate and compose.
 
 Why this skill matters for future orchestration:
-Future planners can explicitly call `release_object()` after `place_object`
-instead of hoping release is hidden inside another policy.
+This remains a measurable terminal phase inside
+`place_held_object(target_pose_or_receptacle)`, not a separately required
+planner-visible skill.
 
 ### rotate_dial
 
@@ -873,8 +874,7 @@ Why useful for Level 3 learning:
 It tests more continuous contact behavior after rigid-object primitives.
 
 Why this skill matters for future orchestration:
-It could support constrained future food-preparation tasks, but it is optional
-and not required for Levels 2 or 3.
+It is deferred beyond the first complete tabletop-workcell project.
 
 ### optional later: tool_use_simple
 
@@ -920,8 +920,7 @@ Why useful for Level 3 learning:
 It would test transfer from grasp/contact skills to a constrained tool fixture.
 
 Why this skill matters for future orchestration:
-It may become a useful primitive for long-horizon tasks, but it should remain
-optional until core reach/contact/push/grasp/place skills are reliable.
+Tool use is deferred beyond the first complete tabletop-workcell project.
 
 ---
 

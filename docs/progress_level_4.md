@@ -8,8 +8,8 @@ Level 4 goal:
 Level 3 answers whether the current Level 2 data and learning pipeline can
 produce useful policies. It does not establish a comprehensive skill dataset.
 Level 4 is the deliberate data haul: expand task coverage, collect independent
-sessions, record recovery behavior, add visual grounding data, audit coverage,
-and publish an immutable release. Full-scale policy training, skill
+sessions, record failures and operator corrections, add visual grounding data,
+audit coverage, and publish an immutable release. Full-scale policy training, skill
 qualification, skill cards/runtime, and composed pilots belong to Level 5.
 
 Level 4 must remain incremental. Every numbered section below is a separate
@@ -47,41 +47,48 @@ high-rate actuator commands. In simulation, ground-truth object state remains
 the control and evaluation reference while visual perception is developed and
 measured independently.
 
-### Core skill families
+### Core operational skills
 
 ```text
-approach: reach_object
-acquire: grasp_object
-retain: hold_object, lift_object
-move: transport_object
-deposit: place_object, release_object
-planar interaction: push_object_to_target, slide_object_to_target
-fixture interaction: press_button, rotate_dial
-recovery: retry_approach, regrasp_object, recover_dropped_object
+reach_object(object_id, approach_pose)
+pick_object(object_id)
+place_held_object(target_pose_or_receptacle)
+push_object_to_target(object_id, target_zone)
+press_button(button_id)
 ```
+
+`rotate_dial(dial_id, target_angle)` is an optional sixth skill. Promote it only
+if Level 4.0 pilots show that it fits the same hand/workspace limits without
+displacing the five required skills.
+
+Grasp, lift, hold, transport, release, and slide are useful phase labels and
+success measurements inside the operational skills above; they are not
+separate policies that must each be collected, trained, and orchestrated.
+This keeps the project small enough to finish while preserving the state
+transitions needed for diagnosis.
 
 `reach_touch_target`, `button_press`, and `push_cube_to_target` from Level 2 are
 seed tasks and regression baselines. Level 4 generalizes them across objects,
 poses, targets, and genuinely separate recording sessions.
 
-### Candidate extensions
+### Explicitly deferred extensions
 
-Only promote these after the core families qualify:
+The first complete project does not require:
 
 ```text
-align_object
-stack_object
+general grasping of arbitrary objects
+regrasp_object or recover_dropped_object learned policies
+learned retry behavior
 open_hinged_lid
-close_hinged_lid
-tool_use_simple, such as a guided scoop or slide
+tool use, cutting, pouring, liquids, or deformable objects
+arbitrary household or open-world scenes
+end-to-end VLM control
 ```
 
-Real tomato cutting is not a core pilot. Cutting deformable food introduces
-fracture/deformation modeling, blade contact, force control, tool safety, and
-often arm-level motion that the present hand-only setup does not validate. A
-later experiment may move a guided knife through a pre-scored or pre-segmented
-rigid proxy, but it must be described as a cutting proxy, not autonomous food
-preparation.
+Initial failure handling is deterministic supervisor logic: detect failure,
+move to a safe pose, retry once when the failure is retryable, then abort and
+report the reason. Corrective demonstrations may improve a core policy, but
+learned recovery is not a Level 4 dataset requirement.
 
 ---
 
@@ -108,19 +115,24 @@ core and optional skill list
 object families and object/target identifiers
 train/validation/test condition matrix
 minimum independent recording sessions
-minimum accepted episodes per skill family
-failure and recovery sampling targets
+minimum accepted episodes per operational skill or complete sequence
+failure and correction sampling targets
 required RGB/state/action streams
 data-quality gates and planned Level 5 policy-qualification handoff
 dataset release name and schema versions
 ```
 
-The default planning floor is 100 accepted episodes per core skill family,
-collected across at least three genuine sessions. Change that floor only after
-a documented pilot estimates task variability and collection cost. Coverage is
-more important than inflating episode count: splits must reserve complete
-sessions, object instances, and goal regions where the intended claim requires
-them.
+Level 4.0 freezes exact counts only after a small pilot estimates task
+variability and collection cost. The planning envelope is roughly 250–350 new
+accepted episodes in total, collected across at least three genuine sessions,
+three simple rigid-object families, and three or four target
+zones/receptacles. Reuse compatible Level 2 reach, press, and push episodes as
+clearly labeled legacy seed data. About 100–150 complete pick/place sequences
+may supply phase labels for acquisition, lift, transport, placement, and
+release; do not demand a separate 100 episodes for every internal phase.
+Coverage and genuinely independent sessions matter more than inflating the
+episode count. Splits must reserve complete sessions, object instances, and
+goal regions where the intended claim requires them.
 
 ### Pass criteria
 
@@ -128,7 +140,7 @@ them.
 [ ] Every core skill has a typed goal and executable success metric
 [ ] Coverage cells and collection counts are machine-readable
 [ ] Session-held-out and condition-held-out evaluation are defined
-[ ] Recovery/failure data remain distinguishable from expert successes
+[ ] Correction/failure data remain distinguishable from expert successes
 [ ] No dataset collection has started under an unfrozen schema
 ```
 
@@ -245,51 +257,54 @@ successful reaches plus separately labeled near-miss corrections
 
 ---
 
-## Level 4.4 — Grasp, Hold, and Lift Dataset Haul
+## Level 4.4 — Pick-Object Dataset Haul
 
 ### Goal
 
-Collect object-conditioned acquisition and retention data for simple rigid
-objects.
+Collect `pick_object` sequences for simple rigid objects. A sequence includes
+the acquisition, lift, and brief stability phases required to finish with a
+verified held object.
 
 ### Required variation
 
 ```text
 object size, shape, mass, and friction families
 approach direction and pre-grasp pose
-grasp family when explicitly supported
-target lift height and hold duration
+target lift height and short stability duration
 slip, failed acquisition, and drop outcomes
 ```
 
-Grasp, hold, and lift may share episodes, but labels and terminal-state
-boundaries must allow each skill to be trained and evaluated independently.
+Internal grasp, lift, and hold boundaries must be labeled for diagnosis, but
+they do not create three separately exposed policies. The frozen plan may pair
+a successful pick with a later placement in one complete demonstration when
+the phase boundary and held-object state are reconstructable.
 
 ### Pass criteria
 
 ```text
 [ ] Physical contact and object motion define success, not operator labels alone
 [ ] Drop/slip outcomes are retained with explicit labels
-[ ] Object-held state can be recomputed from saved data
+[ ] Object-held state and internal phase boundaries can be recomputed from saved data
 [ ] Frozen coverage/count target is met across independent sessions
 ```
 
 ---
 
-## Level 4.5 — Transport, Place, and Release Dataset Haul
+## Level 4.5 — Place-Held-Object Dataset Haul
 
 ### Goal
 
-Collect the object-in-hand transitions needed to complete useful tasks.
+Collect `place_held_object` sequences from a verified held-object precondition
+through transport, placement, release, and post-release stability.
 
 ### Coverage
 
 ```text
 source and destination regions
 object/receptacle combinations
-free placement, constrained placement, and stacking-alignment subsets
+marked target zones and simple receptacles
 different initial grasp states within the valid precondition envelope
-clean release, premature release, and recoverable misplacement
+clean release, premature release, and misplacement outcomes
 ```
 
 ### Pass criteria
@@ -297,13 +312,13 @@ clean release, premature release, and recoverable misplacement
 ```text
 [ ] Preconditions require an actually held object
 [ ] Target pose/receptacle ids are typed and saved
-[ ] Placement tolerance and post-release stability are executable metrics
+[ ] Transport retention, placement tolerance, and post-release stability are executable metrics
 [ ] Frozen coverage/count target is met across independent sessions
 ```
 
 ---
 
-## Level 4.6 — Push, Slide, Press, and Rotate Dataset Haul
+## Level 4.6 — Push, Press, and Optional Dial Dataset Haul
 
 ### Goal
 
@@ -313,9 +328,9 @@ collection condition.
 ### Coverage
 
 ```text
-push/slide objects with varied size, mass, friction, start, and target
+push objects with varied size, mass, friction, start, and target
 multiple button ids and press depths
-multiple dial starts and target angles
+multiple dial starts and target angles only if the optional skill was promoted
 contact-loss and wrong-contact outcomes
 ```
 
@@ -334,12 +349,14 @@ variation rather than duplicating the original distribution.
 
 ---
 
-## Level 4.7 — Corrective and Recovery Demonstrations
+## Level 4.7 — Failures and Corrective Demonstrations
 
 ### Goal
 
-Record how to recover from policy drift, failed approaches, unstable grasps,
-drops, and near-limit states without contaminating the expert-success set.
+Record representative policy drift, failed approaches, unstable picks,
+misplacements, and safe operator corrections without contaminating the
+expert-success set. This checkpoint improves diagnosis and may improve the
+core policies; it does not create learned recovery skills.
 
 ### Rules
 
@@ -347,7 +364,7 @@ drops, and near-limit states without contaminating the expert-success set.
 preserve the original expert datasets
 record policy/checkpoint and failure trigger
 record intervention start and end
-label whether recovery is safe and whether it succeeds
+label whether the correction is safe and whether it succeeds
 keep evaluation failures out of the training set until a new protocol version
 ```
 
@@ -355,8 +372,8 @@ keep evaluation failures out of the training set until a new protocol version
 
 ```text
 [ ] Corrections can be included/excluded deterministically
-[ ] Common failure modes have measurable recovery coverage
-[ ] Baseline and recovery-trained policies use identical evaluation conditions
+[ ] Common failure modes have measurable correction coverage
+[ ] Baseline and correction-trained policies use identical evaluation conditions
 [ ] Retryability is part of the terminal result
 ```
 
@@ -434,9 +451,9 @@ payload. Do not silently omit large streams or commit mutable working data.
 ```text
 [ ] Comprehensive dataset scope and coverage are frozen
 [ ] New data has genuine session provenance
-[ ] Core reach/grasp/lift/transport/place/release data is collected
-[ ] Push/slide/press/rotate data is generalized
-[ ] Corrective and recovery data is separately labeled
+[ ] Core reach, pick, place-held, push, and press data is collected
+[ ] Optional dial data exists only if Level 4.0 promoted it
+[ ] Failures and corrective data are separately labeled
 [ ] Visual grounding data and integrity checks exist
 [ ] Immutable Level 4 dataset release is reproducible
 [ ] Session/object/goal/visual split manifests are frozen for Level 5

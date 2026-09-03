@@ -21,13 +21,15 @@ Level 7  language-guided composition of typed skills                   future
 
 Level 3 asks whether the learning loop works; it does not claim the current
 episodes are a comprehensive robot-skill dataset. Level 4 will add genuine
-recording sessions, broader objects/goals, grasp-lift-place and recovery data,
-visual grounding, and an immutable release with frozen held-out splits. Level
-5 will train and qualify the full skill set, expose it through a supervised
-runtime, and run scripted pilots including sorting/packing, workspace clearing,
-control-panel operation, rigid-proxy sandwich assembly, and place-setting.
-Real deformable-food cutting is outside the core plan for the current
-hand-only simulator.
+recording sessions, broader objects/goals, complete pick/place sequences,
+separately labeled failures and corrections, visual grounding, and an immutable
+release with frozen held-out splits. Level 5 will train and qualify five core
+skills—reach, pick, place-held-object, push, and button press—through a
+supervised runtime. It will validate a coherent tabletop workcell assistant on
+workspace clearing, inspection-station operation, and workspace setup; dial
+rotation is optional. Learned drop recovery, general arbitrary-object
+grasping, tools, kitchen tasks, cutting, pouring, deformables, and open-world
+scenes are deferred.
 
 ## Clean setup
 

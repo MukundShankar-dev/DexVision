@@ -34,22 +34,22 @@ perception produces stable object ids and poses. A compact VLM may help map a
 phrase to an object id, but metric localization and safety checks remain with
 the grounded perception and supervisor layers.
 
-Core skill families:
+Core operational skills:
 
 ```text
-approach: reach_object
-acquire: grasp_object
-retain: hold_object, lift_object
-move: transport_object
-deposit: place_object, release_object
-planar interaction: push_object_to_target, slide_object_to_target
-fixture interaction: press_button, rotate_dial
-recovery: retry_approach, regrasp_object, recover_dropped_object
+reach_object(object_id, approach_pose)
+pick_object(object_id)
+place_held_object(target_pose_or_receptacle)
+push_object_to_target(object_id, target_zone)
+press_button(button_id)
 ```
 
-Candidate skills such as alignment, stacking, hinged-lid operation, and simple
-guided tool use remain optional until every required core skill has a measured
-qualification result.
+`rotate_dial(dial_id, target_angle)` is optional and is trained only if Level 4
+promoted and released the required data. Grasp/lift/hold and
+transport/place/release remain measurable internal phases of `pick_object` and
+`place_held_object`, not separate policies. Learned regrasp, dropped-object
+recovery, arbitrary-object grasping, hinged-lid operation, tool use, and
+deformable-object tasks are deferred beyond the first complete project.
 
 ---
 
@@ -76,7 +76,7 @@ model carried forward from Level 3
 per-skill observation, goal, and action schemas
 session/object/goal/scene split manifests from Level 4
 ground-truth-state versus perception-grounded evaluation tracks
-numerical offline, rollout, safety, and recovery gates
+numerical offline, rollout, safety, and failure-handling gates
 training budget, seeds, checkpoint-selection rule, and stop conditions
 qualified, experimental, and failed status definitions
 ```
@@ -161,12 +161,13 @@ perception-grounded object state, separately reported
 
 ---
 
-## Level 5.3 — Grasp, Hold, and Lift Policies
+## Level 5.3 — Pick-Object Policy
 
 ### Goal
 
-Train acquisition and retention policies that generalize across the frozen
-rigid-object families.
+Train and qualify `pick_object` across the frozen rigid-object families. The
+policy must finish with a physically verified held object; grasp, lift, and
+brief hold remain internal measured phases.
 
 ### Required metrics
 
@@ -182,7 +183,7 @@ performance by object shape, mass, friction, and session
 ### Pass criteria
 
 ```text
-[ ] Each policy has independently measurable success and failure
+[ ] Internal acquisition, lift, and stability phases have independently measurable outcomes
 [ ] Held-object state is physically recomputed, not inferred from the action
 [ ] Failed acquisitions, slips, and drops remain in reports
 [ ] Qualified policies meet every frozen per-object and aggregate gate
@@ -190,11 +191,12 @@ performance by object shape, mass, friction, and session
 
 ---
 
-## Level 5.4 — Transport, Place, and Release Policies
+## Level 5.4 — Place-Held-Object Policy
 
 ### Goal
 
-Train object-in-hand transitions needed by useful composed tasks.
+Train and qualify `place_held_object` from a verified held-object precondition
+through transport, placement, release, and post-release stability.
 
 ### Required metrics
 
@@ -210,14 +212,14 @@ performance by source, destination, object, and session
 
 ```text
 [ ] Execution rejects episodes where the object is not actually held
-[ ] Place and release policies have explicit, compatible terminal envelopes
+[ ] Transport, placement, and release phases have explicit compatible envelopes
 [ ] Held-out receptacles and goal regions are evaluated
 [ ] Failed transfers and unstable post-release states remain visible
 ```
 
 ---
 
-## Level 5.5 — Push, Slide, Press, and Rotate Policies
+## Level 5.5 — Push, Press, and Optional Dial Policies
 
 ### Goal
 
@@ -227,9 +229,9 @@ fixture, and session coverage.
 ### Pass criteria
 
 ```text
-[ ] Push/slide results cover varied size, mass, friction, start, and target
+[ ] Push results cover varied size, mass, friction, start, and target
 [ ] Press results cover held-out button ids/depths and wrong-contact failures
-[ ] Rotate results cover held-out starts/angles and contact-loss failures
+[ ] If promoted, rotate results cover held-out starts/angles and contact-loss failures
 [ ] Level 2 and Level 5 results are compared without merging their claims
 ```
 
@@ -268,19 +270,21 @@ Ti is preferred for the optional semantic component.
 
 ---
 
-## Level 5.7 — Corrective and Recovery Learning
+## Level 5.7 — Corrective Learning and Deterministic Failure Handling
 
 ### Goal
 
-Use the separately labeled Level 4 corrective data to reduce compounding error
-and qualify explicit recovery skills.
+Test whether separately labeled Level 4 corrections reduce compounding error
+in the five core policies. Failure handling itself remains deterministic:
+detect failure, move to a safe pose, retry once when allowed, then abort and
+report the reason. This checkpoint does not require a learned regrasp or dropped-object recovery policy.
 
 ### Comparisons
 
 ```text
 expert-only baseline
 expert plus corrective demonstrations
-recovery-enabled versus abort-only execution
+single-retry versus abort-only supervisor execution
 ```
 
 ### Pass criteria
@@ -288,8 +292,8 @@ recovery-enabled versus abort-only execution
 ```text
 [ ] Compared policies share frozen splits and evaluation conditions
 [ ] Policy/checkpoint and intervention provenance are preserved
-[ ] Recovery success, retry count, jerk, timeout, and safety metrics are reported
-[ ] A failed recovery cannot be mislabeled as ordinary task success
+[ ] Correction benefit, retry count, jerk, timeout, and safety metrics are reported
+[ ] A failed retry cannot be mislabeled as ordinary task success
 ```
 
 ---
@@ -379,7 +383,7 @@ tests/test_skill_executor.py
 
 ---
 
-## Level 5.11 — Diverse Scripted Pilot Tasks
+## Level 5.11 — Tabletop Workcell Pilot Tasks
 
 ### Goal
 
@@ -389,29 +393,30 @@ tasks before Level 7 adds language planning.
 ### Core pilots
 
 ```text
-1. Sort and pack varied objects into matching bins/receptacles.
-2. Clear the workspace into a tray and recover from at least one miss.
-3. Press specified buttons and rotate a dial to target states in order.
-4. Assemble a sandwich proxy by stacking rigid bread/filling props on a plate.
-5. Set a snack place using a cup, plate, and utensil proxy.
+1. Workspace clearing: move loose rigid parts into return bins; push a flat or awkward part when picking is unnecessary.
+2. Inspection-station operation: place a part on the inspection pad, then press Start; setting a dial is optional.
+3. Workspace setup: arrange specified components at marked target positions for the next job.
 ```
 
-At least three materially different pilots must pass. Every pilot uses a
+All three pilots must pass. Together they form one coherent tabletop workcell
+assistant rather than unrelated showcase tasks. Every pilot uses a
 deterministic scripted plan and the typed calls intended for future Level 7.
 It fails if a human silently repairs state between skills.
 
-Real tomato cutting is not a core acceptance task. A guided knife through a
-pre-scored or pre-segmented rigid proxy may be an explicitly labeled later
-experiment, but it is not evidence of deformable-food cutting or tool safety.
+The final scripted work order should combine the same capabilities, for
+example: place a blue cylinder on the inspection pad, place a red block in the
+left tray slot, optionally set the dial to 45 degrees, then press Start.
+Kitchen tasks, cutting, pouring, tools, deformables, and open-world household
+manipulation remain explicitly deferred.
 
 ### Pass criteria
 
 ```text
-[ ] At least three pilots run from reset through explicit termination
+[ ] All three workcell pilots run from reset through explicit termination
 [ ] Every skill request, result, and world-state transition is recorded
-[ ] Recovery and abort behavior are deterministic and visible
+[ ] Retry and abort behavior are deterministic and visible
 [ ] Per-pilot success rates and failure reasons are reported
-[ ] Sandwich assembly is one pilot, not the project's sole final claim
+[ ] The combined inspection work order runs without hidden human intervention
 ```
 
 ---
@@ -430,8 +435,8 @@ per-skill training and evaluation manifests
 qualified/experimental/failed registry
 checkpoint and schema digests
 ground-truth versus perception-grounded comparisons
-failure and recovery analysis
-diverse pilot results
+failure, correction, retry, and abort analysis
+tabletop-workcell pilot results
 known limitations and unsupported claims
 ```
 
@@ -440,7 +445,7 @@ known limitations and unsupported claims
 ```text
 [ ] Every claim traces to immutable data, config, split, and checkpoint digests
 [ ] Negative results and disabled skills are documented
-[ ] At least three diverse scripted pilots pass
+[ ] All three workcell pilots pass
 [ ] Level 6 receives reproducible results rather than presentation-only claims
 [ ] Level 7 prerequisites are listed without implementing orchestration
 ```
@@ -453,14 +458,14 @@ known limitations and unsupported claims
 [ ] Learning scope and per-skill protocols are frozen
 [ ] Comprehensive dataset loader and training manifests are reproducible
 [ ] Reach/approach skills are evaluated
-[ ] Grasp/hold/lift skills are evaluated
-[ ] Transport/place/release skills are evaluated
-[ ] Push/slide/press/rotate skills are evaluated
+[ ] Pick-object policy and its internal phases are evaluated
+[ ] Place-held-object policy and its internal phases are evaluated
+[ ] Push and press policies are evaluated; optional dial status is explicit
 [ ] Visual grounding is measured and safely integrated
-[ ] Corrective/recovery learning is evaluated
+[ ] Corrective learning and deterministic failure handling are evaluated
 [ ] Model escalation is evidence-gated
 [ ] Every core skill is qualified, experimental, or failed
 [ ] Qualified skills run through one supervised executor
-[ ] At least three diverse scripted pilots pass
+[ ] All three workcell pilots pass
 [ ] Full-scale results and Level 6 handoff are documented
 ```

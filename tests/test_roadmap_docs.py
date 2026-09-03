@@ -10,13 +10,13 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_keeps_level3_loader_as_next_target() -> None:
+def test_current_status_keeps_level3_as_active_roadmap() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert "Level 3 — Learning Feasibility on Existing Data" in status
     assert "`docs/progress_level_3.md`" in status
-    assert "Level 3.0B — Dataset/Learning Phase Separation" in status
-    assert "Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader" in status
+    assert "## Last Completed Checkpoint" in status
+    assert "## Next Target Checkpoint" in status
 
 
 def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
@@ -35,15 +35,28 @@ def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
     assert "# Future Level 7 — Language-Guided Skill Orchestration" in level7
 
 
-def test_level5_requires_diverse_pilots_and_bounds_cutting_claim() -> None:
+def test_level5_requires_bounded_workcell_skills_and_pilots() -> None:
     level5 = read("docs/progress_level_5.md")
 
-    assert "Sort and pack" in level5
-    assert "Clear the workspace" in level5
-    assert "Press specified buttons" in level5
-    assert "Assemble a sandwich proxy" in level5
-    assert "At least three materially different pilots must pass" in level5
-    assert "Real tomato cutting is not a core acceptance task" in level5
+    assert "reach_object(object_id, approach_pose)" in level5
+    assert "pick_object(object_id)" in level5
+    assert "place_held_object(target_pose_or_receptacle)" in level5
+    assert "Workspace clearing" in level5
+    assert "Inspection-station operation" in level5
+    assert "Workspace setup" in level5
+    assert "All three pilots must pass" in level5
+    assert "learned regrasp or dropped-object recovery policy" in level5
+    assert "Kitchen tasks, cutting, pouring" in level5
+
+
+def test_level4_uses_realistic_collection_envelope() -> None:
+    level4 = read("docs/progress_level_4.md")
+
+    assert "250–350 new" in level4
+    assert "accepted episodes in total" in level4
+    assert "at least three genuine sessions" in level4
+    assert "100–150 complete pick/place sequences" in level4
+    assert "do not demand a separate 100 episodes" in level4
 
 
 def test_project_authored_markdown_has_no_old_orchestration_number_or_path() -> None:

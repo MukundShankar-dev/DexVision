@@ -45,23 +45,25 @@ deterministic skills. Qualified learned policies should replace the mocks
 behind the same interface one at a time. An in-process Python/tool interface is
 enough initially; an HTTP API is not a prerequisite.
 
-## Diverse pilot requests
+## Workcell pilot requests
 
-Level 7 must demonstrate more than one memorized showcase. Candidate requests
-map to the scripted pilots already validated in Level 5:
+Level 7 must demonstrate more than one memorized showcase. Requests should map
+to the coherent tabletop-workcell pilots already validated in Level 5:
 
 ```text
-"Sort these objects into the matching bins."
-"Clear the workspace into the tray."
-"Press the blue button, then turn the dial to 90 degrees."
-"Assemble a cheese sandwich on the plate."
-"Set a place with the cup, plate, and utensil."
+"Clear the loose parts from the workspace into their return bins."
+"Put this part on the inspection pad and press Start."
+"Set up the workspace for job B using the marked target positions."
+"Prepare inspection job B: put the blue cylinder on the inspection pad,
+ place the red block in the left tray slot, optionally set the dial to
+ 45 degrees, then press Start."
 ```
 
-The sandwich uses rigid ingredient proxies and is one Level 5 pilot, not the
-final definition of the project. Real tomato slicing is not an acceptance task for
-the present setup. A guided, pre-segmented rigid cutting proxy may be explored
-later, but it must not be represented as safe deformable-food cutting.
+These requests reuse five required operational skills: `reach_object`,
+`pick_object`, `place_held_object`, `push_object_to_target`, and
+`press_button`. `rotate_dial` is optional. Kitchen tasks, cutting, pouring,
+tools, deformables, arbitrary household scenes, and end-to-end VLM control are
+deferred beyond the first complete project.
 
 ## Planner inputs and outputs
 
@@ -90,9 +92,9 @@ rejected before execution
 ```
 
 The planner must respect skill preconditions and terminal-state envelopes.
-For example, `grasp_object(object_id)` cannot start from arbitrary hand state,
-and `place_object(object_id, target_pose)` must verify that the object remains
-held.
+For example, `pick_object(object_id)` requires a reachable rigid object, and
+`place_held_object(target_pose_or_receptacle)` must verify that an object
+remains held before execution.
 
 ## Required Level 5 exports
 
