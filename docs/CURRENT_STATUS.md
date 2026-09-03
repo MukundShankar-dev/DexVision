@@ -29,8 +29,12 @@ validation-selected full-action policy failed its frozen closed-loop gates, so
 the Level 2-trained policies are a no-go for qualification. Level 4 should
 address measured action-space, safety, session, object, goal, failure, and
 observation gaps before Level 5. The existing Level 4 roadmap already matches
-the evidence-backed 250–350 new-episode envelope, so no Level 4 scope correction
-was needed. No manual verification was required.
+the evidence-backed 250–350 new-episode envelope. Post-closeout roadmap
+hardening retains that envelope while requiring four split-owned sessions,
+per-cell split minima, reconstructable requested/commanded/applied actions,
+causal online phases, source-aware correction provenance, and a bounded
+fixed-camera visual-condition matrix. This does not alter the immutable Level 3
+evidence or start Level 4.0 implementation. No manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.

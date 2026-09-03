@@ -60,11 +60,36 @@ def test_level4_uses_realistic_collection_envelope() -> None:
     level4 = read("docs/progress_level_4.md")
 
     assert "Required total | 250 | 250–350" in level4
-    assert "at least three genuine sessions" in level4
+    assert "at least 4 genuine sessions" in level4
+    assert "session C: validation only" in level4
+    assert "session D: untouched cross-session test" in level4
     assert "Complete pick/place sequences | 120 | 120–150" in level4
     assert "counts and segment counts" in level4
     assert "renaming" in level4
     assert "does not create multiple sessions" in level4
+
+
+def test_level4_freezes_action_phase_correction_and_visual_contracts() -> None:
+    level4 = read("docs/progress_level_4.md")
+    contracts = read("docs/module_contracts.md")
+
+    for phrase in (
+        "requested action and request source",
+        "commanded action before safety handling",
+        "applied action after clipping",
+        "minimum_accepted_by_split",
+        "online phase state machine",
+        "mild illumination variation",
+        "partial occlusion",
+        "bounded workcell distractors",
+    ):
+        assert phrase in level4
+    assert (
+        "require source policy/checkpoint only when source category is policy_rollout"
+        in level4
+    )
+    assert "source_policy_checkpoint: required only when trigger_source" in contracts
+    assert "Quaternions are normalized and sign-continuous" in contracts
 
 
 def test_level4_checkpoints_are_execution_ready() -> None:
@@ -124,6 +149,9 @@ def test_project_overview_source_and_pdf_exist() -> None:
     overview = read("docs/project_overview.md")
     pdf_path = ROOT / "DexVision Project Overview.pdf"
 
+    assert "Levels 1 through 3 are complete" in overview
+    assert "Level 4 is active at checkpoint 4.0" in overview
+    assert "at least four genuine sessions" in overview
     assert "Level 3 — Learning feasibility" in overview
     assert "Level 4 — Comprehensive skill dataset" in overview
     assert "Level 5 — Full-scale skill learning and qualification" in overview

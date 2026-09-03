@@ -1217,6 +1217,11 @@ episode contract:
 recording_session_id: genuine stable id for one collection session
 operator_id: stable local/pseudonymous label
 source: teleoperation, scripted, policy_rollout, or corrective_intervention
+source_episode_id: required for corrective_intervention
+trigger_source: required for corrective_intervention; identifies whether the
+  triggering episode was teleoperation, scripted, or policy_rollout
+source_policy_checkpoint: required only when trigger_source is policy_rollout;
+  otherwise null with a stable not-applicable reason
 object_instance_ids: concrete objects used in the episode
 goal_condition_id: frozen coverage-matrix cell
 camera_or_render_config: null only when no image stream is claimed
@@ -1224,16 +1229,44 @@ intervention_interval and failure_reason: required for corrective data
 code/config/schema versions and random seed
 ```
 
+Every control sample must preserve:
+
+```text
+requested_action and request source (operator, script, or policy)
+commanded_action before safety handling
+applied_action after clipping/rate limiting/rejection/safe fallback
+prior commanded and applied actions
+per-field safety mask and stable safety reason code
+action frame, units, bounds, rate limits, and control interval
+online phase and versioned phase-specific action relevance mask
+resulting state timestamp
+```
+
+The complete named commanded/applied layouts remain present even when a phase
+uses only a subset. Quaternions are normalized and sign-continuous with the
+previous applied quaternion, with a frozen first-sample canonical-sign rule.
+The action record must support deterministic derivation of bounded residual
+targets. Unsafe commands may remain failure evidence but are never expert
+applied-action targets.
+
 Rules:
 
 ```text
 Do not invent session ids for Level 2 legacy episodes.
-Keep complete sessions together whenever a split claims session independence.
+Require at least four genuine Level 4 sessions: two training, one validation,
+and one untouched test session. Keep every complete session in exactly one split.
 Keep held-out object instances and goal regions out of training when the
 evaluation protocol claims generalization to them.
+Assign every coverage cell to a split and freeze a per-split accepted minimum;
+global episode totals cannot compensate for a missing required cell.
 Expert successes, ordinary failures, policy rollouts, and corrective
 interventions must remain distinguishable.
+Derive the online phase causally from current/prior world state and task
+metrics; retain audited annotations separately and report disagreements.
 Synchronized image/state/action streams must have validated alignment.
+The fixed-camera visual matrix covers nominal, mild-illumination,
+partial-occlusion, and bounded-distractor conditions without implying
+cross-camera or real-world transfer.
 Every immutable release needs a manifest, checksum, schema versions, split
 manifests, coverage report, and retrieval instructions.
 ```

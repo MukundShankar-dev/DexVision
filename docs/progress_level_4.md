@@ -79,6 +79,36 @@ demonstration counts as one recorded episode even when it yields multiple
 training segments. Reports must publish both episode counts and segment counts
 so data are never double-counted.
 
+Level 4.0 must also freeze an online phase state machine. Its current phase and
+transitions must be computable causally from the current and prior typed world
+state, task request, and terminal metrics; future frames and retrospective
+labels are forbidden at execution time. Store both the online phase and any
+audited annotation so disagreement can be measured. Phase-specific action
+relevance masks must be versioned with the transition rules.
+
+### Recorded action and safety contract
+
+Every Level 4 control sample must distinguish:
+
+```text
+requested action and request source (operator, script, or policy)
+commanded action before safety handling
+applied action after clipping, rate limiting, rejection, or safe fallback
+per-field clipping/rejection mask and stable reason code
+the prior commanded and prior applied action
+the resulting state timestamp and control interval
+```
+
+Commanded and applied arrays retain the complete named action layout. Level
+4.0 must freeze units, coordinate frames, absolute-versus-delta semantics,
+per-field bounds, rate limits, and phase-specific relevance for base,
+orientation, wrist, and finger fields. Quaternions must be normalized and
+sign-continuous with the previous applied quaternion; the first sample uses a
+frozen canonical-sign rule. These records must make bounded residual targets
+derivable without rewriting an accepted episode. Unsafe requested/commanded
+motion may remain as failure evidence, but it must never become an expert
+applied-action target.
+
 ### Default workcell vocabulary
 
 Level 4.0 must freeze exact ids, but the minimum intended scope is:
@@ -110,6 +140,13 @@ documents a justified revision, use this plan:
 | Required total | 250 | 250–350 |
 | Optional dial | 0 unless promoted | Additional 30–40 |
 
+Global totals are not sufficient coverage. Level 4.0 must assign every frozen
+coverage cell to train, validation, test, or intentionally unsupported status
+and declare `minimum_accepted_by_split` for that cell. An intentionally
+held-out object/goal cell must have zero training ownership and positive
+validation or test ownership. Level 4.3 freezes the exact per-cell minima after
+the pilot; a global total may not compensate for a missing required cell.
+
 The immutable Level 2 release remains legacy seed data: 55 reach, 55 button,
 and 101 push successes. It does not count toward the new-session minimum, and
 it must not be rewritten to invent session metadata.
@@ -123,17 +160,30 @@ episodes from one sitting does not create multiple sessions.
 Minimum split policy:
 
 ```text
-at least 3 genuine sessions
+at least 4 genuine sessions
 sessions A/B: training pool
-session C: untouched cross-session test
-validation: whole episodes from A/B, grouped so one episode never crosses splits
-4 or more sessions: reserve one whole session for validation and one for test
+session C: validation only
+session D: untouched cross-session test
+additional sessions: assigned wholly to exactly one split before collection use
 held-out object instances and goal regions: test only
 normalization/statistics: training split only
 ```
 
-No test episode, held-out instance, or held-out goal may influence collection
-tuning, normalization, checkpoint choice, or threshold selection.
+No session may cross splits. No test episode, held-out instance, or held-out
+goal may influence collection tuning, normalization, checkpoint choice, or
+threshold selection. `operator_id` is always recorded, but the default project
+makes no cross-operator claim; any later cross-operator claim requires multiple
+operators and a separately frozen operator-held-out split.
+
+### Fixed-camera visual claim boundary
+
+Level 4 uses one calibrated camera pose and does not claim cross-camera or
+real-world visual transfer. Level 4.0 must freeze a compact visual-condition
+matrix covering nominal rendering plus mild illumination variation, partial
+occlusion, and bounded workcell distractors. It must assign each condition cell
+to splits and define object/fixture coverage. Camera pose and intrinsics remain
+fixed. Level 4.7 must report missing cells rather than silently broadening the
+claim or duplicating frames.
 
 ### Non-goals and deferred work
 
@@ -223,8 +273,12 @@ typed goal fields, units, and coordinate frames
 phase-label vocabulary and transition rules
 success, failure, timeout, and retryability rules
 provisional and maximum episode counts by data group
-minimum sessions and split policy
+per-cell train/validation/test minima and split ownership
+minimum four sessions and whole-session split policy
 RGB/state/action stream requirements
+requested, commanded, and applied action semantics plus safety reason codes
+causal online phase state machine and phase-specific action relevance masks
+fixed-camera visual-condition matrix and explicit claim boundary
 quality thresholds and acceptance workflow
 Level 3 failure -> Level 4 requirement traceability table
 ```
@@ -243,6 +297,10 @@ conda run -n dexvision ruff check tests/test_level4_dataset_plan.py
 [ ] Every core skill has typed preconditions, goals, terminal states, and executable metrics
 [ ] Object, fixture, target, phase, session, and split vocabularies are machine-readable
 [ ] The 250–350 required-episode envelope and optional-dial treatment are explicit
+[ ] Every required coverage cell has split ownership and a per-split minimum
+[ ] Four whole sessions provide separate training, validation, and test ownership
+[ ] Requested, commanded, and applied actions are reconstructable with safety reasons
+[ ] Online phases are causal and the fixed-camera visual claim is bounded
 [ ] No collection has started under an unfrozen schema
 ```
 
@@ -349,6 +407,8 @@ object, fixture, and target ids
 sampled reset state and random seed
 camera/render/calibration version when RGB is enabled
 teleoperation, policy, or correction source
+requested, commanded, and applied actions plus safety masks/reasons
+online phase and optional audited phase annotation
 phase intervals with monotonic non-overlapping frame indices
 intervention interval and failure reason when applicable
 schema, config, code, observation, and action versions
@@ -371,7 +431,9 @@ python -m dexvision.apps.validate_level4_episode --episode <episode-directory>
 ```text
 [ ] Missing or duplicate session ids fail clearly
 [ ] Phase transitions are valid and reconstructable from saved indices/state
+[ ] Online phases use no future frames and disagreements with annotations are reportable
 [ ] A complete pick/place episode yields compatible reach, pick, and place segments
+[ ] Requested, commanded, and applied actions reproduce safety handling exactly
 [ ] RGB is optional, but enabled frames align to timestamps and state
 [ ] Legacy Level 2 episodes still load without invented Level 4 fields
 [ ] Resume behavior never overwrites an existing episode
@@ -431,7 +493,7 @@ conda run -n dexvision pytest -q tests/test_level4_collection.py tests/test_leve
 [ ] Every required skill has at least one replayed, recomputed success
 [ ] All object families and target types appear in the pilot
 [ ] Episode and segment counts are reported separately
-[ ] Final per-cell counts fit the 250–350 envelope or a revision is justified
+[ ] Final per-cell split minima fit the 250–350 envelope or a revision is justified
 [ ] Storage projection determines Git LFS versus external payload handling
 [ ] Dial is explicitly promoted or deferred
 ```
@@ -470,7 +532,7 @@ reach: object and fixture approaches, interior and near-boundary safe poses
 push: blocks and pucks, varied start/target direction, mass, and friction
 press: multiple button ids or states when present, varied approach poses
 all: nominal and perturbed safe starts, successful and ordinary failed attempts
-all: at least three genuine sessions by the end of the checkpoint
+all: at least four genuine sessions by the end of the checkpoint
 ```
 
 Any Level 3.4 workspace/joint-limit pattern must have an explicit coverage cell
@@ -489,6 +551,7 @@ conda run -n dexvision pytest -q tests/test_level4_core_collection.py tests/test
 
 ```text
 [ ] Frozen reach, push, and press success counts and coverage cells are met
+[ ] Sessions A/B, C, and D remain exclusively train, validation, and test owned
 [ ] No one session or target dominates beyond the frozen balance tolerance
 [ ] Test-session, held-out-object, and held-out-goal data remain untouched
 [ ] Every accepted episode passes schema, replay, quality, and recomputed labels
@@ -584,7 +647,9 @@ tests/test_correction_summary.py
 ### Required behavior
 
 ```text
-link a correction to source policy/checkpoint and triggering episode
+link every correction to its triggering episode and source category
+require source policy/checkpoint only when source category is policy_rollout;
+store null plus a stable not-applicable reason for teleoperation/scripted sources
 record failure class, retryability, intervention start/end, and outcome
 preserve pre-intervention frames and original terminal result
 separate expert, ordinary failure, policy rollout, and correction streams
@@ -608,6 +673,7 @@ conda run -n dexvision pytest -q tests/test_corrective_demos.py tests/test_corre
 ```text
 [ ] At least 30 failure/correction episodes meet the frozen category coverage
 [ ] Corrections can be included or excluded deterministically
+[ ] Correction provenance validates conditionally by source category
 [ ] Failure, retry, correction, and final outcome are not conflated
 [ ] Workspace/joint-limit failures are abort-only
 [ ] Baseline and later correction-trained comparisons can use identical splits
@@ -646,10 +712,14 @@ object id, class id, visibility, 2D box, segmentation mask, and 6D pose
 camera intrinsics/extrinsics and image size
 train/validation/test ownership inherited from the source episode
 asset source/license metadata
+frozen visual-condition id: nominal, mild illumination, partial occlusion,
+or bounded workcell distractor
 ```
 
 The export must not duplicate images across splits. A compact VLM may later
 select an object semantically, but Level 4 does not download or train a VLM.
+Camera pose and intrinsics remain fixed, and no cross-camera or real-world
+transfer claim is made.
 
 ### Commands
 
@@ -665,6 +735,7 @@ conda run -n dexvision pytest -q tests/test_render_annotations.py tests/test_vis
 [ ] Boxes, masks, poses, ids, camera calibration, and visibility are complete
 [ ] Occluded/out-of-frame objects follow the frozen annotation rule
 [ ] Visual splits inherit episode/session/condition isolation
+[ ] Every frozen visual-condition cell meets its split-owned coverage minimum
 [ ] Export size and storage plan are reported before release
 ```
 
@@ -697,6 +768,7 @@ tests/test_level4_split_audit.py
 
 ```text
 episodes and segments by skill, phase, session, object, target, and outcome
+coverage cells and minima separately for train, validation, and test
 quality/rejection counts and reasons
 failure/correction coverage
 visual annotation completeness
@@ -716,7 +788,7 @@ conda run -n dexvision pytest -q tests/test_level4_dataset_audit.py tests/test_l
 
 ```text
 [ ] Frozen minimum counts and required coverage cells pass
-[ ] No episode, session-held-out condition, object instance, goal, or image leaks
+[ ] No episode, session, held-out condition, object instance, goal, or image leaks
 [ ] Every accepted episode passes schema, quality, and recomputed-task checks
 [ ] Training-only normalization inputs are explicitly identified
 [ ] All shortages and biases are visible; none are repaired by silent duplication
@@ -793,5 +865,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [ ] 4.7 single-camera visual annotations and alignment pass
 [ ] 4.8 coverage, quality, provenance, and leakage audits pass
 [ ] 4.9 immutable release restores and verifies from a clean directory
+[ ] Four sessions remain split-owned; per-cell minima and visual conditions are audited
+[ ] Requested, commanded, and applied actions plus causal phases are reconstructable
 [ ] No full-scale training, policy qualification, LLM, or future extension is claimed
 ```

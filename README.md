@@ -3,27 +3,30 @@
 DexVision is a staged robotics and computer-vision project for controlling a
 simulated dexterous robot hand from live hand-pose tracking. Completed Level 2
 work turns the Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation pipeline into
-reproducible demonstration datasets. Level 3 now tests state-based behavior
-cloning on that existing, deliberately narrow data before Level 4 undertakes a
-larger multi-session dataset campaign and Level 5 learns the full skill set.
+reproducible demonstration datasets. Level 3 completed a state-based behavior-
+cloning feasibility study on that deliberately narrow data. Level 4 now begins
+by freezing the requirements for a broader multi-session dataset before any
+new collection and before Level 5 learns and qualifies the full skill set.
 
 ## Roadmap
 
 ```text
 Level 1  camera hand tracking and MuJoCo teleoperation                 complete
 Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
-Level 3  learning feasibility on the existing Level 2 datasets       active
-Level 4  comprehensive multi-session skill dataset                     planned
+Level 3  learning feasibility on the existing Level 2 datasets       complete
+Level 4  comprehensive multi-session skill dataset                     active
 Level 5  full-scale skill learning and qualification                   planned
 Level 6  robustness, reproducibility, results, and portfolio polish    planned
 Level 7  language-guided composition of typed skills                   future
 ```
 
-Level 3 asks whether the learning loop works; it does not claim the current
-episodes are a comprehensive robot-skill dataset. Level 4 will add genuine
-recording sessions, broader objects/goals, complete pick/place sequences,
-separately labeled failures and corrections, visual grounding, and an immutable
-release with frozen held-out splits. Level 5 will train and qualify five core
+Level 3 established that the reproducible learning loop works but that no
+Level 2-trained policy passes the frozen closed-loop gates. Level 4 will add
+four split-owned recording sessions, broader objects/goals, complete pick/place
+sequences, per-cell coverage minima, separately labeled failures and
+corrections, visual grounding, and an immutable release with frozen held-out
+splits. It also records requested, commanded, and post-safety applied actions
+and derives internal phases causally. Level 5 will train and qualify five core
 skills—reach, pick, place-held-object, push, and button press—through a
 supervised runtime. It will validate a coherent tabletop workcell assistant on
 workspace clearing, inspection-station operation, and workspace setup; dial
@@ -51,7 +54,7 @@ conda env update --name dexvision --file environment.yml --prune
 conda activate dexvision
 ```
 
-PyTorch is reserved for Level 3 learning work and is an optional dependency:
+PyTorch is used for learning work and is an optional dependency:
 
 ```bash
 python -m pip install -e ".[learning]"
@@ -128,11 +131,13 @@ are frozen before training in the
 held-out target poses are closed-loop MuJoCo rollout conditions, not required
 demonstration samples.
 
-Level 3.1 through Level 3.5B are complete: the repository now has a
+Level 3.1 through Level 3.8 are complete: the repository now has a
 goal-conditioned dataset loader, a schema-bound MLP, reproducible CPU
 behavior-cloning, validation-only best-checkpoint selection, and frozen
-headless evaluation for reach, button press, and cube push. Train the three
-baselines from the repository root with:
+headless evaluation for reach, button press, and cube push. The final
+[Level 3 feasibility report](docs/level3_results.md) records the no-go decision
+for Level 2-trained policies and the evidence-backed Level 4 requirements.
+Train the three preserved baselines from the repository root with:
 
 ```bash
 python -m dexvision.apps.train_policy --config configs/level3_reach_bc_v2.yaml
@@ -152,15 +157,17 @@ python -m dexvision.apps.evaluate_policy --training-config configs/level3_button
 python -m dexvision.apps.evaluate_policy --training-config configs/level3_push_bc.yaml
 ```
 
-All three Level 3.5B closed-loop baselines failed their frozen gates. The
-negative results and every rollout failure are preserved under
-`outputs/level3/`; they motivate the Level 3.6 diagnostics rather than
-post-evaluation retuning.
+All three Level 3.5B closed-loop baselines failed their frozen gates. Level 3.6
+then measured action-space and safety effects, Level 3.7 correctly skipped an
+untriggered temporal model, and Level 3.8 closed the feasibility study. The
+negative results and every rollout failure remain preserved under
+`outputs/level3/` rather than being tuned away.
 
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
-[active Level 3 progress file](docs/progress_level_3.md). The later roadmap is
-defined in the [Level 4 dataset plan](docs/progress_level_4.md),
+[active Level 4 progress file](docs/progress_level_4.md). Completed Level 3 is
+documented in the [Level 3 progress file](docs/progress_level_3.md). The later
+roadmap is defined in the
 [Level 5 full-scale learning plan](docs/progress_level_5.md),
 [Level 6 polish plan](docs/progress_level_6.md), and
 [future Level 7 orchestration boundary](docs/level7_future.md).
@@ -243,9 +250,10 @@ bias. No independent live fingertip/optimization trajectories were collected
 or claimed; doing so requires a new operator collection campaign.
 
 Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
-freezes the first reach-policy evaluation protocol. Level 3 now implements
-offline training and frozen closed-loop rollout for reach, button press, and
-cube push. Level 7 orchestration has not been implemented.
+freezes the first reach-policy evaluation protocol. Level 3 completed offline
+training, frozen closed-loop rollout, diagnostics, and its feasibility report
+for reach, button press, and cube push. Level 7 orchestration has not been
+implemented.
 
 ## Known Limitations
 
