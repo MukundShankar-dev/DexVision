@@ -281,13 +281,25 @@ seed and environment metadata
 ### Pass criteria
 
 ```text
-[ ] Tiny synthetic or five-demo subset can be overfit
-[ ] Validation never updates normalization or model parameters
-[ ] Checkpoint resumes deterministically where practical
-[ ] Loss history and compatibility metadata are saved
-[ ] CLI has clear missing-data/dependency errors
-[ ] Automated test requires no GPU
+[x] Tiny synthetic or five-demo subset can be overfit
+[x] Validation never updates normalization or model parameters
+[x] Checkpoint resumes deterministically where practical
+[x] Loss history and compatibility metadata are saved
+[x] CLI has clear missing-data/dependency errors
+[x] Automated test requires no GPU
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_train_tiny.py tests/test_learning_models.py
+tests/test_learning_dataset.py` with 18 passed, `conda run -n dexvision ruff
+check dexvision tests`, and `conda run -n dexvision pytest -q` with 415 passed.
+The real frozen reach dataset completed the configured 100-epoch CPU training
+command and produced a checkpoint whose SHA-256 sidecar verified successfully.
+The final smoke-run training and validation losses were 0.01456721 and
+0.09558076. Checkpoints preserve the exact policy schema, optimizer state,
+loss history, config and environment metadata, dataset/split/normalization
+digests, and training-only normalization statistics. No manual verification
+was required, and no rollout was implemented.
 
 ### Codex prompt
 
@@ -507,8 +519,8 @@ estimated Level 4 collection cells and episode counts
 [x] Roadmap separates feasibility, comprehensive data, and full-scale learning
 [x] Deterministic per-skill dataset loader works
 [x] Training-only normalization and split manifests are saved
-[ ] Goal-conditioned MLP and tiny overfit test work
-[ ] Behavior-cloning training is reproducible
+[x] Goal-conditioned MLP and tiny overfit test work
+[x] Behavior-cloning training is reproducible
 [ ] Frozen reach rollout is evaluated honestly
 [ ] Button and push protocols are frozen before their training runs
 [ ] Cross-task feasibility baselines are reported

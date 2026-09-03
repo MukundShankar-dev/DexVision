@@ -20,15 +20,16 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.2 — Goal-Conditioned MLP Policy
+Level 3.3 — Behavior-Cloning Training Loop
 
-The CPU-capable baseline concatenates normalized state observations and typed
-goals, passes them through a small configurable MLP, and predicts normalized
-full actions or an explicitly declared named action subset. Its schema contract
-records exact observation, goal, complete dataset-action, and output-action
-layouts and versions. Checkpoints save and restore the schema, architecture,
-and weights together. Automated checks passed with 411 tests; no manual
-verification was required. No training or rollout has been implemented.
+The deterministic CPU behavior-cloning loop trains and validates the existing
+schema-bound MLP on the frozen reach split, saves epoch-boundary model and
+optimizer state, resumes with epoch-derived shuffle order, and emits a verified
+SHA-256 sidecar. Checkpoints record full loss history, training-only
+normalization, config/model/schema versions, dataset/split/normalization
+digests, seed, and environment metadata. Automated checks passed with 415
+tests, and the real 100-epoch frozen-reach smoke run completed successfully.
+No manual verification was required. No MuJoCo rollout has been implemented.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -37,7 +38,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.3 — Behavior-Cloning Training Loop
+Level 3.4 — Frozen Reach Closed-Loop Rollout
 
 ---
 
@@ -47,7 +48,7 @@ Level 3.3 — Behavior-Cloning Training Loop
 
 Suggested next feature branch:
 
-`codex/level3-bc-training`
+`codex/level3-reach-rollout`
 
 ---
 
@@ -660,6 +661,12 @@ tests and Ruff. The verified Level 2 release checksum passed, all three clean
 skill datasets loaded successfully, and the frozen reach split produced 43
 training and 12 validation episodes. A full-suite run excluding the unrelated
 in-progress roadmap-doc test passed with 399 tests.
+
+Level 3.3 — Behavior-Cloning Training Loop did not require manual verification.
+Automated checks passed on September 3, 2026 with 18 focused tests, Ruff, and
+the full 415-test suite. The configured 100-epoch CPU training command also
+completed on the extracted immutable reach dataset, and its checkpoint digest
+verified. No camera, GUI, live teleoperation, or MuJoCo rollout was involved.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

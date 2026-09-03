@@ -1072,6 +1072,45 @@ Level 3.2 contains no optimizer, training loop, rollout, camera, or MuJoCo runti
 
 ---
 
+## Behavior-Cloning Training
+
+Module:
+
+```text
+dexvision/learning/train_bc.py
+```
+
+Contract:
+
+```python
+result = train_behavior_cloning(
+    bundle,
+    output_path=...,
+    training_config=...,
+    model_config=...,
+    output_action_names=None,
+    resume_from=None,
+)
+```
+
+Rules:
+
+```text
+Training and validation consume the same training-only normalization metadata.
+Validation runs without gradients and must not update model parameters or normalization.
+The declared PolicySchema selects full-action or named-subset targets; training must not infer action offsets.
+Level 3.3 uses deterministic CPU execution and an epoch-derived shuffle seed.
+Epoch-boundary checkpoints save model and optimizer state, completed epoch count, and complete train/validation loss history.
+Checkpoints preserve the Level 3.2 model fields so GoalConditionedMLP.load can load trained weights directly.
+Saved provenance includes config/model/schema versions, dataset and split-manifest digests, training-only normalization and its digest, seed, and environment metadata.
+Every written checkpoint has a sibling SHA-256 digest file; resume verifies it when present.
+Resume requires exact schema, architecture, dataset, split, normalization, and non-epoch training settings.
+The Level 3.3 CLI trains only reach_touch_target under the frozen reach split.
+No camera, live teleoperation, MuJoCo rollout, or other-skill training belongs in this module.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.
