@@ -166,14 +166,25 @@ do not invent session ids for legacy episodes
 ### Pass criteria
 
 ```text
-[ ] Dataset loads directly from the verified Level 2 release/extraction
-[ ] Samples include obs, goal, action, episode id, and timestep
-[ ] Episode leakage is impossible
-[ ] Reach assignments match the frozen protocol
-[ ] Training-only normalization is reproducible
-[ ] Missing fields and schema mismatches fail clearly
-[ ] Synthetic tests need no camera, GUI, or GPU
+[x] Dataset loads directly from the verified Level 2 release/extraction
+[x] Samples include obs, goal, action, episode id, and timestep
+[x] Episode leakage is impossible
+[x] Reach assignments match the frozen protocol
+[x] Training-only normalization is reproducible
+[x] Missing fields and schema mismatches fail clearly
+[x] Synthetic tests need no camera, GUI, or GPU
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_learning_dataset.py tests/test_dataset_schema.py
+tests/test_replay_loader.py tests/test_level3_evaluation_protocol.py` with 37
+passed and `conda run -n dexvision ruff check dexvision/learning/datasets.py
+dexvision/learning/splits.py tests/test_learning_dataset.py`. The verified
+Level 2 extraction loaded 55 clean reach, 55 clean button, and 101 clean
+push-cube episodes. The frozen reach split contains 43 training and 12
+validation episodes, uses training-only normalization, and records that the
+legacy release has no recording-session ids. No manual verification was
+required.
 
 ### Codex prompt
 
@@ -483,8 +494,8 @@ estimated Level 4 collection cells and episode counts
 
 ```text
 [x] Roadmap separates feasibility, comprehensive data, and full-scale learning
-[ ] Deterministic per-skill dataset loader works
-[ ] Training-only normalization and split manifests are saved
+[x] Deterministic per-skill dataset loader works
+[x] Training-only normalization and split manifests are saved
 [ ] Goal-conditioned MLP and tiny overfit test work
 [ ] Behavior-cloning training is reproducible
 [ ] Frozen reach rollout is evaluated honestly

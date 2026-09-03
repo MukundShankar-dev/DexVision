@@ -20,12 +20,14 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.0B — Dataset/Learning Phase Separation
+Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader
 
-Level 2.11 — Learning Readiness Freeze remains the last completed
-implementation/data checkpoint. Levels 3.0 and 3.0B changed documentation and
-sequencing only; they did not implement learning code or alter the immutable
-Level 2 data.
+The loader reads all three clean per-skill datasets from the verified immutable
+Level 2 extraction through executable named layouts, builds typed goals and
+full Level 1.13 actions, creates deterministic whole-episode splits, preserves
+genuine recording-session groups when present, and fits normalization using
+training episodes only. The legacy release remains unchanged and contains no
+recording-session ids.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -34,7 +36,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader
+Level 3.2 — Goal-Conditioned MLP Policy
 
 ---
 
@@ -44,7 +46,7 @@ Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader
 
 Suggested next feature branch:
 
-`codex/level3-dataset-loader`
+`codex/level3-mlp-policy`
 
 ---
 
@@ -650,7 +652,13 @@ Level 5 owns full-scale skill learning, qualification, supervised runtime, and
 diverse scripted pilots; Level 6 owns portfolio polish, robustness, and
 reproducibility; and Level 7 is future language-guided orchestration. Neither
 docs-only checkpoint modifies completed Level 1/2 work or dataset contents.
-The next implementation checkpoint remains Level 3.1.
+
+Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader did not require manual
+verification. Automated checks passed on September 3, 2026 with 37 focused
+tests and Ruff. The verified Level 2 release checksum passed, all three clean
+skill datasets loaded successfully, and the frozen reach split produced 43
+training and 12 validation episodes. A full-suite run excluding the unrelated
+in-progress roadmap-doc test passed with 399 tests.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

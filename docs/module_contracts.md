@@ -984,10 +984,17 @@ Contract:
 
 ```python
 sample = {
-  "obs": Tensor,  # hand/base pose and velocity, finger qpos/qvel, object pose, target pose
+  "obs": Tensor,  # named robot/base/finger/object state plus tracking quality
+  "goal": Tensor,  # task-typed goal parameters resolved from saved metadata
   "action": Tensor,  # base position target, base orientation target, finger actuator targets
+  "episode_id": str,
   "demo_id": str,
+  "goal_id": str,
   "timestep": int,
+  "timestamp": float,
+  "tracking_quality": Tensor,
+  "quality_passed": bool,
+  "recomputed_success": bool,
 }
 ```
 
@@ -997,6 +1004,15 @@ Rules:
 No live camera.
 No live teleop.
 Should work from saved demos only.
+Clean datasets require complete saved quality and recomputed-success reports.
+Observation columns are resolved through executable saved layouts and named
+MuJoCo fields; packed offsets and dimensions must never be inferred.
+Task-irrelevant fixture joints are excluded by their saved names and the
+task's required-object declaration.
+Saved wxyz base orientation observations are converted to a sign-invariant 6D
+rotation representation. Stored action quaternions remain unchanged.
+Reach, button, and push goals are encoded from explicit typed task_config
+fields rather than dynamic target_state prefixes.
 Saved demos should preserve the full Level 1.13 base-plus-finger action at each timestep.
 Early learning experiments may expose action subsets, but should not require recollecting demos.
 Replay storage may keep MuJoCo wxyz quaternions; learning datasets may convert orientation to 6D or another stable representation.
@@ -1008,6 +1024,9 @@ but results must not claim cross-session generalization.
 When a real session id is present, all episodes from that session must remain in
 one split.
 Normalization statistics must come from the training partition only.
+Split manifests save every episode assignment, goal id, recording-session-id
+availability, per-episode data digest, dataset digest, schema versions, and
+training-only normalization statistics.
 Reserved held-out targets must not be added to demonstration training or
 validation partitions merely to satisfy a test-split requirement.
 ```
