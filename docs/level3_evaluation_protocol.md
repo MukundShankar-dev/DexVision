@@ -208,3 +208,23 @@ v1 protocol, the v1 file and report must be preserved. Changing any split,
 goal, reset perturbation, metric, or threshold requires a new protocol version
 and a new config file; prior results must continue to name the original version
 and digest. A failed run is evidence, not permission to edit v1.
+
+## 10. Recorded Level 3.5B Baselines
+
+Level 3.5B evaluated only checkpoints selected by lowest offline validation
+loss, with exact ties resolved in favor of the earliest epoch. Reach selected
+epoch 15, button press selected epoch 17, and cube push selected epoch 97. The
+fixed-seed reruns reproduced every best/last checkpoint digest exactly.
+
+The corrected reach checkpoint achieved zero training-target and zero held-out
+success across the unchanged 35-scenario matrix, terminating with 20 workspace
+and 15 joint-limit failures. This result is preserved separately under
+`outputs/level3/reach_rollout_v2/`; it does not replace the Level 3.4 v1 result.
+Button press achieved zero success across all 84 scenarios and recorded 84
+joint-limit terminal failures. Cube push achieved zero success across all 30
+scenarios and recorded 30 joint-limit terminal failures. Their reports remain
+under `outputs/level3/button_rollout_v1/` and
+`outputs/level3/push_rollout_v1/`.
+
+These are negative feasibility results. Held-out rollout outcomes did not
+select an epoch, change a training setting, or alter either frozen v1 protocol.

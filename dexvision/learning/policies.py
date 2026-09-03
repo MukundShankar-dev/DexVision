@@ -70,6 +70,10 @@ class CheckpointPolicy:
         checkpoint_digest: str,
         dataset_digest: str,
         normalization_digest: str,
+        experiment_config_digest: str,
+        split_manifest_digest: str,
+        selected_epoch: int,
+        selected_validation_loss: float,
     ) -> None:
         self.model = model.eval()
         self._observation_stats = observation_stats
@@ -78,6 +82,11 @@ class CheckpointPolicy:
         self._checkpoint_digest = checkpoint_digest
         self._dataset_digest = dataset_digest
         self.normalization_digest = normalization_digest
+        self.experiment_config_digest = experiment_config_digest
+        self.split_manifest_digest = split_manifest_digest
+        self.selected_epoch = selected_epoch
+        self.selected_validation_loss = selected_validation_loss
+        self.schema_digest = _canonical_digest(model.schema.to_dict())
 
     @property
     def schema(self) -> PolicySchema:
@@ -188,6 +197,36 @@ def load_checkpoint_policy(
     action_stats = _load_stats(
         normalization, "action", expected_names=schema.dataset_action_names
     )
+    experiment_config_digest = _optional_string(
+        provenance, "experiment_config_digest", default="unavailable"
+    )
+    split_manifest_digest = _optional_string(
+        provenance, "split_manifest_digest", default="unavailable"
+    )
+    selected_epoch = payload.get("selected_epoch", payload.get("completed_epochs", 0))
+    selected_validation_loss = payload.get("selected_validation_loss")
+    if isinstance(selected_epoch, bool) or not isinstance(selected_epoch, int) or selected_epoch < 0:
+        raise PolicyError("policy checkpoint has an invalid selected_epoch.")
+    if selected_validation_loss is None and selected_epoch > 0:
+        history = payload.get("loss_history")
+        if not isinstance(history, list):
+            raise PolicyError("policy checkpoint is missing loss history.")
+        try:
+            selected_validation_loss = next(
+                float(item["validation_loss"])
+                for item in history
+                if item.get("epoch") == selected_epoch
+            )
+        except (StopIteration, TypeError, ValueError) as exc:
+            raise PolicyError("policy checkpoint cannot resolve its selected validation loss.") from exc
+    if selected_validation_loss is None:
+        selected_validation_loss = float("nan")
+    elif (
+        isinstance(selected_validation_loss, bool)
+        or not isinstance(selected_validation_loss, (int, float))
+        or not np.isfinite(selected_validation_loss)
+    ):
+        raise PolicyError("policy checkpoint has an invalid selected validation loss.")
     return CheckpointPolicy(
         model=model,
         observation_stats=observation_stats,
@@ -196,6 +235,10 @@ def load_checkpoint_policy(
         checkpoint_digest=digest,
         dataset_digest=dataset_digest,
         normalization_digest=normalization_digest,
+        experiment_config_digest=experiment_config_digest,
+        split_manifest_digest=split_manifest_digest,
+        selected_epoch=selected_epoch,
+        selected_validation_loss=float(selected_validation_loss),
     )
 
 
@@ -247,6 +290,15 @@ def _canonical_digest(payload: Mapping[str, Any]) -> str:
 
 def _required_string(payload: Mapping[str, Any], key: str) -> str:
     value = payload.get(key)
+    if not isinstance(value, str) or not value:
+        raise PolicyError(f"checkpoint provenance {key!r} must be a non-empty string.")
+    return value
+
+
+def _optional_string(
+    payload: Mapping[str, Any], key: str, *, default: str
+) -> str:
+    value = payload.get(key, default)
     if not isinstance(value, str) or not value:
         raise PolicyError(f"checkpoint provenance {key!r} must be a non-empty string.")
     return value

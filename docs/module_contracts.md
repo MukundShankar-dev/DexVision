@@ -1101,17 +1101,22 @@ Validation runs without gradients and must not update model parameters or normal
 The declared PolicySchema selects full-action or named-subset targets; training must not infer action offsets.
 Level 3.3 uses deterministic CPU execution and an epoch-derived shuffle seed.
 Epoch-boundary checkpoints save model and optimizer state, completed epoch count, and complete train/validation loss history.
+Level 3.5B writes distinct last and best-validation checkpoints with SHA-256 sidecars.
+Best-checkpoint selection uses offline validation loss only and breaks exact ties by earliest epoch.
+Both checkpoint roles record the selected epoch/metric, full loss history, and the epoch represented by their saved state.
 Checkpoints preserve the Level 3.2 model fields so GoalConditionedMLP.load can load trained weights directly.
 Saved provenance includes config/model/schema versions, dataset and split-manifest digests, training-only normalization and its digest, seed, and environment metadata.
 Every written checkpoint has a sibling SHA-256 digest file; resume verifies it when present.
 Resume requires exact schema, architecture, dataset, split, normalization, and non-epoch training settings.
-The Level 3.3 CLI trains only reach_touch_target under the frozen reach split.
-No camera, live teleoperation, MuJoCo rollout, or other-skill training belongs in this module.
+The preserved Level 3.3 configuration trains only reach_touch_target under the frozen reach split.
+Level 3.5B uses the same dataset, schema, model, and training interfaces for reach_touch_target, button_press, and push_cube_to_target.
+Each task's offline split comes only from its frozen evaluation protocol, and reserved rollout-only goals cannot enter training.
+No camera, live teleoperation, or MuJoCo rollout belongs in this training module.
 ```
 
 ---
 
-## Closed-Loop Policy Inference and Reach Evaluation
+## Closed-Loop Policy Inference and Task Evaluation
 
 Modules:
 
@@ -1153,6 +1158,11 @@ Normalized action jerk uses the complete applied action layout normalized by
 its declared workspace, quaternion-component, and actuator ranges.
 No camera, live teleoperation, button/push training, or held-out retuning
 belongs in Level 3.4.
+Level 3.5B adds button and push training/evaluation under their unchanged
+Level 3.5A protocols. Their reports preserve offline selected epoch/loss and
+dataset, split, training-config, schema, checkpoint, rollout-config, and
+protocol digests. Every rollout failure remains saved and held-out outcomes
+never select an epoch or model setting.
 ```
 
 ---

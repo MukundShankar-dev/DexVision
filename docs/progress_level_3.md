@@ -480,20 +480,40 @@ dataset, split, config, schema, checkpoint, and protocol digests
 ### Pass criteria
 
 ```text
-[ ] Best and last checkpoints are distinct, versioned, and reproducible
-[ ] Selection uses offline validation only and follows the frozen tie-break rule
-[ ] Corrected reach uses identical data/split/seed/model/training settings and gates
-[ ] Original Level 3.4 artifacts remain unchanged and v2 writes new paths
-[ ] Both tasks train through the same dataset/model/training interfaces
-[ ] Both use their frozen evaluation protocols
-[ ] Results compare offline loss with closed-loop success
-[ ] Task-specific failures are recorded, not hidden or retuned away
-[ ] No new model family is introduced in this checkpoint
+[x] Best and last checkpoints are distinct, versioned, and reproducible
+[x] Selection uses offline validation only and follows the frozen tie-break rule
+[x] Corrected reach uses identical data/split/seed/model/training settings and gates
+[x] Original Level 3.4 artifacts remain unchanged and v2 writes new paths
+[x] Both tasks train through the same dataset/model/training interfaces
+[x] Both use their frozen evaluation protocols
+[x] Results compare offline loss with closed-loop success
+[x] Task-specific failures are recorded, not hidden or retuned away
+[x] No new model family is introduced in this checkpoint
 ```
 
 Any result may remain negative. A failed corrected reach, button, or push task
 is useful evidence for Level 3.6 diagnostics and Level 4 data, observation, or
 policy requirements. Do not add an unplanned hyperparameter sweep.
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_checkpoint_selection.py tests/test_cross_task_policy.py
+tests/test_train_tiny.py tests/test_policy_rollout.py
+tests/test_level3_evaluation_configs.py` with 23 passed, `conda run -n
+dexvision ruff check dexvision tests`, and `conda run -n dexvision pytest -q`
+with 437 passed. Repeated fixed-seed training reproduced all six best/last
+checkpoint SHA-256 digests exactly.
+
+Offline validation selected reach epoch 15 (loss 0.06687358), button epoch 17
+(loss 0.04679401), and push epoch 97 (loss 0.00068553). The corrected reach
+policy used the unchanged 35-scenario protocol but achieved 0.000 training and
+0.000 held-out success, with 20 workspace and 15 joint-limit terminal
+failures; this is worse than the preserved Level 3.4 v1 result and is recorded
+under `outputs/level3/reach_rollout_v2/` without overwriting v1. Button ran all
+84 frozen scenarios and push ran all 30. Both achieved 0.000 training and
+held-out success: button recorded 84 joint-limit terminal failures, while push
+recorded 30 joint-limit terminal failures with 60 violating action values.
+No held-out outcome selected a checkpoint or changed a model, training setting,
+scenario, or gate. No manual verification was required.
 
 ---
 
@@ -606,7 +626,7 @@ estimated Level 4 collection cells and episode counts
 [x] Behavior-cloning training is reproducible
 [x] Frozen reach rollout is evaluated honestly
 [x] Button and push protocols are frozen before their training runs
-[ ] Cross-task feasibility baselines are reported
+[x] Cross-task feasibility baselines are reported
 [ ] Data/action diagnostics are reported
 [ ] Temporal policy is justified by evidence or explicitly skipped
 [ ] Feasibility report defines the Level 4 data haul

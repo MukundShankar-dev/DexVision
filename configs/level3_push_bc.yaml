@@ -1,0 +1,35 @@
+version: level3/bc-training-v2
+skill_name: push_cube_to_target
+
+dataset:
+  root: data/demos/raw
+  evaluation_config: configs/level3_push_evaluation.yaml
+  include_previous_action: false
+  observation_fields:
+    - robot_qpos
+    - robot_qvel
+    - base_position
+    - base_orientation
+    - finger_joint_positions
+    - finger_joint_velocities
+    - object_state
+    - tracking_quality
+
+model:
+  hidden_dims: [128, 128]
+  activation: relu
+  output_action_names: null
+
+training:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0
+  seed: 20260903
+  num_workers: 0
+  device: cpu
+
+output:
+  directory: outputs/level3/push_bc_v1
+  best_checkpoint_name: policy_best.pt
+  last_checkpoint_name: policy_last.pt

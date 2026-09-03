@@ -1,4 +1,4 @@
-"""Command-line entry point for Level 3.3 behavior-cloning training."""
+"""Command-line entry point for corrected Level 3 behavior-cloning training."""
 
 from __future__ import annotations
 
@@ -7,13 +7,14 @@ import sys
 from pathlib import Path
 
 
-DEFAULT_CONFIG = Path("configs/level3_bc.yaml")
+DEFAULT_CONFIG = Path("configs/level3_reach_bc_v2.yaml")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Train the Level 3.3 goal-conditioned MLP on the frozen reach split."
+            "Train the shared Level 3 goal-conditioned MLP with offline-validation "
+            "checkpoint selection."
         )
     )
     parser.add_argument(
@@ -35,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--resume",
         type=Path,
-        help="Resume from an epoch-boundary Level 3.3 checkpoint.",
+        help="Resume from an epoch-boundary last checkpoint.",
     )
     return parser
 
@@ -54,11 +55,12 @@ def run(args: argparse.Namespace) -> int:
     config = load_experiment_config(args.config)
     dataset_root = args.dataset_root or config.dataset_root
     output_dir = args.output_dir or config.output_dir
-    print("DexVision Level 3.3 behavior-cloning training")
+    print("DexVision Level 3.5B behavior-cloning training")
     print(f"Skill: {config.skill_name}")
     print(f"Dataset root: {dataset_root}")
     print(f"Evaluation config: {config.evaluation_config}")
-    print(f"Output: {output_dir / config.checkpoint_name}")
+    print(f"Best output: {output_dir / config.best_checkpoint_name}")
+    print(f"Last output: {output_dir / config.checkpoint_name}")
     print(
         "Training: "
         f"epochs={config.training.epochs}, batch_size={config.training.batch_size}, "
@@ -78,9 +80,16 @@ def run(args: argparse.Namespace) -> int:
         f"train_loss={final['train_loss']:.8f}, "
         f"validation_loss={final['validation_loss']:.8f}"
     )
-    print(f"Checkpoint: {result.checkpoint_path}")
-    print(f"SHA-256: {result.checkpoint_digest}")
-    print(f"Digest file: {result.digest_path}")
+    print(
+        f"Selected epoch {result.selected_epoch}: "
+        f"validation_loss={result.selected_validation_loss:.8f}"
+    )
+    print(f"Best checkpoint: {result.best_checkpoint_path}")
+    print(f"Best SHA-256: {result.best_checkpoint_digest}")
+    print(f"Best digest file: {result.best_digest_path}")
+    print(f"Last checkpoint: {result.last_checkpoint_path}")
+    print(f"Last SHA-256: {result.last_checkpoint_digest}")
+    print(f"Last digest file: {result.last_digest_path}")
     return 0
 
 

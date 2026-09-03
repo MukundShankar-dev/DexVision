@@ -309,6 +309,34 @@ def load_frozen_reach_datasets(
 ) -> DatasetBundle:
     """Build the exact ``level3/reach-evaluation-v1`` offline split."""
 
+    return load_frozen_skill_datasets(
+        dataset_root,
+        evaluation_config_path=evaluation_config_path,
+        expected_version="level3/reach-evaluation-v1",
+        expected_skill_name="reach_touch_target",
+        observation_fields=observation_fields,
+        include_previous_action=include_previous_action,
+        normalize=normalize,
+    )
+
+
+def load_frozen_skill_datasets(
+    dataset_root: str | Path,
+    *,
+    evaluation_config_path: str | Path,
+    expected_version: str,
+    expected_skill_name: str,
+    observation_fields: Sequence[str] = DEFAULT_OBSERVATION_FIELDS,
+    include_previous_action: bool = False,
+    normalize: bool = True,
+) -> DatasetBundle:
+    """Build one task's exact frozen Level 3 offline split.
+
+    The evaluator configuration is also the allow-list for demonstration goal
+    ids.  Reserved rollout-only goals therefore cannot enter training merely
+    because an episode was placed in the extracted dataset directory.
+    """
+
     config_path = Path(evaluation_config_path)
     try:
         payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
@@ -319,29 +347,51 @@ def load_frozen_reach_datasets(
     if not isinstance(payload, Mapping):
         raise LearningDatasetError(f"{config_path} must contain a YAML mapping.")
     version = payload.get("version")
-    if version != "level3/reach-evaluation-v1":
+    if version != expected_version:
         raise LearningDatasetError(
-            f"expected frozen split version 'level3/reach-evaluation-v1', got {version!r}."
+            f"expected frozen split version {expected_version!r}, got {version!r}."
         )
-    if payload.get("task_id") != "reach_touch_target":
-        raise LearningDatasetError("frozen reach config has an incompatible task_id.")
+    if payload.get("task_id") != expected_skill_name or payload.get(
+        "skill_name"
+    ) != expected_skill_name:
+        raise LearningDatasetError(
+            f"frozen config has an incompatible task_id/skill_name for "
+            f"{expected_skill_name!r}."
+        )
     offline = payload.get("offline_split")
     if not isinstance(offline, Mapping):
-        raise LearningDatasetError("frozen reach config is missing offline_split.")
+        raise LearningDatasetError("frozen config is missing offline_split.")
     if offline.get("group_by_episode") is not True:
-        raise LearningDatasetError("frozen reach split must group by complete episode.")
+        raise LearningDatasetError("frozen split must group by complete episode.")
     if offline.get("normalization_source") != "train_only":
-        raise LearningDatasetError("frozen reach normalization_source must be train_only.")
+        raise LearningDatasetError("frozen normalization_source must be train_only.")
+    training_goals = payload.get("training_goals") or payload.get("training_targets")
+    if not isinstance(training_goals, Mapping) or not training_goals:
+        raise LearningDatasetError("frozen config must declare non-empty training goals.")
     split_config = split_config_from_mapping(offline, version=str(version))
-    return build_skill_datasets(
+    bundle = build_skill_datasets(
         dataset_root,
-        skill_name="reach_touch_target",
+        skill_name=expected_skill_name,
         split_config=split_config,
         observation_fields=observation_fields,
         include_previous_action=include_previous_action,
         require_clean=True,
         normalize=normalize,
     )
+    observed_goals = {
+        episode.goal_id
+        for dataset in (bundle.train, bundle.validation, bundle.test)
+        for episode in dataset.episodes
+    }
+    configured_goals = set(training_goals)
+    unexpected = sorted(observed_goals - configured_goals)
+    missing = sorted(configured_goals - observed_goals)
+    if unexpected or missing:
+        raise LearningDatasetError(
+            "saved demonstration goals do not match the frozen training-goal "
+            f"declaration; unexpected={unexpected}, missing={missing}."
+        )
+    return bundle
 
 
 def fit_training_normalization(

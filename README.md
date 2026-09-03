@@ -128,20 +128,34 @@ are frozen before training in the
 held-out target poses are closed-loop MuJoCo rollout conditions, not required
 demonstration samples.
 
-Level 3.1 through Level 3.3 are complete: the repository now has a
-goal-conditioned dataset loader, a schema-bound MLP, and a reproducible CPU
-behavior-cloning training loop. Train the reach baseline from the repository
-root with:
+Level 3.1 through Level 3.5B are complete: the repository now has a
+goal-conditioned dataset loader, a schema-bound MLP, reproducible CPU
+behavior-cloning, validation-only best-checkpoint selection, and frozen
+headless evaluation for reach, button press, and cube push. Train the three
+baselines from the repository root with:
 
 ```bash
-python -m dexvision.apps.train_policy --config configs/level3_bc.yaml
+python -m dexvision.apps.train_policy --config configs/level3_reach_bc_v2.yaml
+python -m dexvision.apps.train_policy --config configs/level3_button_bc.yaml
+python -m dexvision.apps.train_policy --config configs/level3_push_bc.yaml
 ```
 
-The command saves an epoch-resumable checkpoint and SHA-256 sidecar under
-`outputs/level3/reach_bc_v1/`. Checkpoint metadata includes the exact model and
-schema contract, dataset/split/normalization digests, training-only
-normalization statistics, loss history, seed, and environment information.
-Closed-loop MuJoCo policy rollout remains the next checkpoint.
+Each command saves distinct best-validation and last checkpoints with SHA-256
+sidecars. Checkpoint metadata includes the exact model and schema contract,
+dataset/split/normalization digests, training-only normalization statistics,
+loss history, selected epoch, seed, and environment information. Evaluate the
+selected checkpoints against their unchanged frozen protocols with:
+
+```bash
+python -m dexvision.apps.evaluate_policy --training-config configs/level3_reach_bc_v2.yaml
+python -m dexvision.apps.evaluate_policy --training-config configs/level3_button_bc.yaml
+python -m dexvision.apps.evaluate_policy --training-config configs/level3_push_bc.yaml
+```
+
+All three Level 3.5B closed-loop baselines failed their frozen gates. The
+negative results and every rollout failure are preserved under
+`outputs/level3/`; they motivate the Level 3.6 diagnostics rather than
+post-evaluation retuning.
 
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
@@ -229,9 +243,9 @@ bias. No independent live fingertip/optimization trajectories were collected
 or claimed; doing so requires a new operator collection campaign.
 
 Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
-freezes the first reach-policy evaluation protocol. Offline reach-policy
-training is implemented through Level 3.3; closed-loop policy rollout and
-Level 7 orchestration have not been implemented.
+freezes the first reach-policy evaluation protocol. Level 3 now implements
+offline training and frozen closed-loop rollout for reach, button press, and
+cube push. Level 7 orchestration has not been implemented.
 
 ## Known Limitations
 

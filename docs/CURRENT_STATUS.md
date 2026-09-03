@@ -20,15 +20,16 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.5A — Button and Push Evaluation Freeze
+Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
 
-The button and push protocols now freeze deterministic whole-episode offline
-splits, the exact Level 2 training and held-out goal declarations, executable
-rollout perturbations and terminal metrics, and geometry/baseline-backed gates.
-The button matrix contains 84 scenarios and the push matrix contains 30.
-Focused tests pin both v1 YAML digests so a protocol change requires an
-explicit new version. Automated checks passed with 431 tests. No policy was
-trained or evaluated, and no manual verification was required.
+Training now saves reproducible best-validation and last checkpoints, selects
+the lowest offline validation loss with earliest-epoch tie-breaking, and uses
+the same dataset/model/training interfaces for reach, button, and push. Reach
+v2 preserved the Level 3.4 artifacts and unchanged 35-scenario protocol;
+button and push ran their frozen 84- and 30-scenario matrices. All three
+closed-loop baselines failed their frozen gates, and all failures remain in
+their versioned reports. Automated checks passed with 437 tests. No manual
+verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -37,7 +38,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
+Level 3.6 — Data and Action-Space Diagnostics
 
 ---
 
@@ -47,7 +48,7 @@ Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
 
 Suggested next feature branch:
 
-`codex/level3-button-push-evaluation`
+`codex/level3-data-action-diagnostics`
 
 ---
 
@@ -679,6 +680,14 @@ verification. Automated checks passed on September 3, 2026 with 8 focused
 tests, 59 evaluation/dataset/task tests, Ruff, and the full 431-test suite. The
 two v1 protocols preserve all reserved Level 2 conditions and are frozen before
 any button or push policy training.
+
+Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines did not
+require manual verification. Automated checks passed on September 3, 2026 with
+23 focused tests, Ruff, and the full 437-test suite. Fixed-seed reruns reproduced
+all best/last checkpoint digests. Corrected reach, button, and push completed
+their unchanged frozen matrices and all failed their numerical gates; all
+rollout failures and the reach v1-versus-v2 comparison remain in versioned
+reports under `outputs/level3/`.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

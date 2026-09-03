@@ -8,6 +8,7 @@ import math
 import platform
 import random
 import sys
+from copy import deepcopy
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -24,7 +25,7 @@ from dexvision.learning.datasets import (
     DEFAULT_OBSERVATION_FIELDS,
     DatasetBundle,
     GoalConditionedSkillDataset,
-    load_frozen_reach_datasets,
+    load_frozen_skill_datasets,
 )
 from dexvision.learning.models import GoalConditionedMLP, MLPConfig, PolicySchema
 
@@ -96,13 +97,22 @@ class BCExperimentConfig:
     training: TrainingConfig
     output_dir: Path
     checkpoint_name: str
+    best_checkpoint_name: str
     source_digest: str
 
-    SUPPORTED_VERSION: ClassVar[str] = "level3/bc-training-v1"
+    SUPPORTED_VERSION: ClassVar[str] = "level3/bc-training-v2"
+    SUPPORTED_VERSIONS: ClassVar[tuple[str, ...]] = (
+        "level3/bc-training-v1",
+        SUPPORTED_VERSION,
+    )
 
     @property
     def checkpoint_path(self) -> Path:
         return self.output_dir / self.checkpoint_name
+
+    @property
+    def best_checkpoint_path(self) -> Path:
+        return self.output_dir / self.best_checkpoint_name
 
     def compatibility_dict(self) -> dict[str, Any]:
         return {
@@ -131,6 +141,14 @@ class TrainingResult:
     checkpoint_digest: str
     completed_epochs: int
     loss_history: tuple[dict[str, float | int], ...]
+    best_checkpoint_path: Path
+    best_digest_path: Path
+    best_checkpoint_digest: str
+    last_checkpoint_path: Path
+    last_digest_path: Path
+    last_checkpoint_digest: str
+    selected_epoch: int
+    selected_validation_loss: float
 
 
 def load_experiment_config(path: str | Path) -> BCExperimentConfig:
@@ -148,10 +166,10 @@ def load_experiment_config(path: str | Path) -> BCExperimentConfig:
         raise BCTrainingError(f"training config {config_path} must contain a YAML mapping.")
 
     version = _required_string(payload, "version")
-    if version != BCExperimentConfig.SUPPORTED_VERSION:
+    if version not in BCExperimentConfig.SUPPORTED_VERSIONS:
         raise BCTrainingError(
             f"unsupported training config version {version!r}; expected "
-            f"{BCExperimentConfig.SUPPORTED_VERSION!r}."
+            f"one of {BCExperimentConfig.SUPPORTED_VERSIONS!r}."
         )
     dataset = _required_mapping(payload, "dataset")
     model = _required_mapping(payload, "model")
@@ -180,9 +198,20 @@ def load_experiment_config(path: str | Path) -> BCExperimentConfig:
     include_previous_action = dataset.get("include_previous_action", False)
     if not isinstance(include_previous_action, bool):
         raise BCTrainingError("dataset.include_previous_action must be boolean.")
-    checkpoint_name = _required_string(output, "checkpoint_name")
-    if Path(checkpoint_name).name != checkpoint_name:
-        raise BCTrainingError("output.checkpoint_name must be a file name, not a path.")
+    if version == "level3/bc-training-v1":
+        checkpoint_name = _required_string(output, "checkpoint_name")
+        best_checkpoint_name = f"{Path(checkpoint_name).stem}_best{Path(checkpoint_name).suffix}"
+    else:
+        checkpoint_name = _required_string(output, "last_checkpoint_name")
+        best_checkpoint_name = _required_string(output, "best_checkpoint_name")
+    for field_name, file_name in (
+        ("last_checkpoint_name", checkpoint_name),
+        ("best_checkpoint_name", best_checkpoint_name),
+    ):
+        if Path(file_name).name != file_name:
+            raise BCTrainingError(f"output.{field_name} must be a file name, not a path.")
+    if checkpoint_name == best_checkpoint_name:
+        raise BCTrainingError("best and last checkpoint names must be distinct.")
 
     return BCExperimentConfig(
         version=version,
@@ -196,6 +225,7 @@ def load_experiment_config(path: str | Path) -> BCExperimentConfig:
         training=TrainingConfig.from_dict(training),
         output_dir=Path(_required_string(output, "directory")),
         checkpoint_name=checkpoint_name,
+        best_checkpoint_name=best_checkpoint_name,
         source_digest=hashlib.sha256(raw).hexdigest(),
     )
 
@@ -207,18 +237,26 @@ def run_experiment(
     output_dir: str | Path | None = None,
     resume_from: str | Path | None = None,
 ) -> TrainingResult:
-    """Load the frozen reach data and train the configured baseline."""
+    """Load one frozen task split and train the shared corrected baseline."""
 
-    if config.skill_name != "reach_touch_target":
+    protocol_versions = {
+        "reach_touch_target": "level3/reach-evaluation-v1",
+        "button_press": "level3/button-evaluation-v1",
+        "push_cube_to_target": "level3/push-evaluation-v1",
+    }
+    try:
+        protocol_version = protocol_versions[config.skill_name]
+    except KeyError as exc:
         raise BCTrainingError(
-            "Level 3.3 is frozen to skill_name='reach_touch_target'; other skills "
-            "belong to Level 3.5B."
-        )
+            f"unsupported Level 3 training skill {config.skill_name!r}."
+        ) from exc
     root = config.dataset_root if dataset_root is None else Path(dataset_root)
     destination = config.output_dir if output_dir is None else Path(output_dir)
-    bundle = load_frozen_reach_datasets(
+    bundle = load_frozen_skill_datasets(
         root,
         evaluation_config_path=config.evaluation_config,
+        expected_version=protocol_version,
+        expected_skill_name=config.skill_name,
         observation_fields=config.observation_fields,
         include_previous_action=config.include_previous_action,
         normalize=True,
@@ -228,6 +266,7 @@ def run_experiment(
     return train_behavior_cloning(
         bundle,
         output_path=destination / config.checkpoint_name,
+        best_output_path=destination / config.best_checkpoint_name,
         training_config=config.training,
         model_config=config.model,
         output_action_names=config.output_action_names,
@@ -249,8 +288,9 @@ def train_behavior_cloning(
     experiment_config_digest: str = "in-memory-config",
     source_config_digest: str | None = None,
     resume_from: str | Path | None = None,
+    best_output_path: str | Path | None = None,
 ) -> TrainingResult:
-    """Train and validate a schema-bound MLP, saving after every epoch.
+    """Train and validate a schema-bound MLP, saving last and validation-best.
 
     Data-loader order is derived solely from ``seed + epoch``. Consequently,
     an epoch-boundary resume uses the same batches as an uninterrupted run.
@@ -273,6 +313,10 @@ def train_behavior_cloning(
     )
     history: list[dict[str, float | int]] = []
     start_epoch = 0
+    selected_epoch = 0
+    selected_validation_loss = math.inf
+    best_model_state: dict[str, Any] | None = None
+    best_optimizer_state: dict[str, Any] | None = None
 
     provenance = _provenance(
         bundle,
@@ -290,14 +334,38 @@ def train_behavior_cloning(
             training_config=training_config,
             provenance=provenance,
         )
+        selected = _select_best_history_entry(history)
+        selected_epoch = int(selected["epoch"])
+        selected_validation_loss = float(selected["validation_loss"])
     if start_epoch >= training_config.epochs:
         raise BCTrainingError(
             f"checkpoint already completed {start_epoch} epochs; requested total is "
             f"{training_config.epochs}."
         )
 
-    checkpoint_path = Path(output_path)
-    digest = ""
+    last_checkpoint_path = Path(output_path)
+    best_checkpoint_path = (
+        Path(best_output_path)
+        if best_output_path is not None
+        else last_checkpoint_path.with_name(
+            f"{last_checkpoint_path.stem}_best{last_checkpoint_path.suffix}"
+        )
+    )
+    if last_checkpoint_path == best_checkpoint_path:
+        raise BCTrainingError("best and last checkpoint paths must be distinct.")
+    if start_epoch:
+        best_model_state, best_optimizer_state = _restore_best_snapshot(
+            best_checkpoint_path,
+            selected_epoch=selected_epoch,
+            selected_validation_loss=selected_validation_loss,
+            fallback_model=model,
+            fallback_optimizer=optimizer,
+            completed_epochs=start_epoch,
+            schema=schema,
+            model_config=architecture,
+            provenance=provenance,
+        )
+    last_digest = ""
     for epoch in range(start_epoch, training_config.epochs):
         train_loss = _train_epoch(
             model,
@@ -322,8 +390,13 @@ def train_behavior_cloning(
                 "validation_loss": validation_loss,
             }
         )
-        digest = _save_training_checkpoint(
-            checkpoint_path,
+        if validation_loss < selected_validation_loss:
+            selected_epoch = epoch + 1
+            selected_validation_loss = validation_loss
+            best_model_state = deepcopy(model.state_dict())
+            best_optimizer_state = deepcopy(optimizer.state_dict())
+        last_digest = _save_training_checkpoint(
+            last_checkpoint_path,
             model=model,
             optimizer=optimizer,
             training_config=training_config,
@@ -331,14 +404,49 @@ def train_behavior_cloning(
             history=history,
             provenance=provenance,
             device=device,
+            checkpoint_role="last",
+            state_epoch=epoch + 1,
+            selected_epoch=selected_epoch,
+            selected_validation_loss=selected_validation_loss,
         )
 
+    if best_model_state is None or best_optimizer_state is None:
+        raise BCTrainingError("training did not produce a validation-selected checkpoint.")
+    final_model_state = deepcopy(model.state_dict())
+    final_optimizer_state = deepcopy(optimizer.state_dict())
+    model.load_state_dict(best_model_state, strict=True)
+    optimizer.load_state_dict(best_optimizer_state)
+    best_digest = _save_training_checkpoint(
+        best_checkpoint_path,
+        model=model,
+        optimizer=optimizer,
+        training_config=training_config,
+        completed_epochs=training_config.epochs,
+        history=history,
+        provenance=provenance,
+        device=device,
+        checkpoint_role="best_validation",
+        state_epoch=selected_epoch,
+        selected_epoch=selected_epoch,
+        selected_validation_loss=selected_validation_loss,
+    )
+    model.load_state_dict(final_model_state, strict=True)
+    optimizer.load_state_dict(final_optimizer_state)
+
     return TrainingResult(
-        checkpoint_path=checkpoint_path,
-        digest_path=_digest_path(checkpoint_path),
-        checkpoint_digest=digest,
+        checkpoint_path=last_checkpoint_path,
+        digest_path=_digest_path(last_checkpoint_path),
+        checkpoint_digest=last_digest,
         completed_epochs=training_config.epochs,
         loss_history=tuple(history),
+        best_checkpoint_path=best_checkpoint_path,
+        best_digest_path=_digest_path(best_checkpoint_path),
+        best_checkpoint_digest=best_digest,
+        last_checkpoint_path=last_checkpoint_path,
+        last_digest_path=_digest_path(last_checkpoint_path),
+        last_checkpoint_digest=last_digest,
+        selected_epoch=selected_epoch,
+        selected_validation_loss=selected_validation_loss,
     )
 
 
@@ -476,6 +584,10 @@ def _save_training_checkpoint(
     history: list[dict[str, float | int]],
     provenance: Mapping[str, Any],
     device: torch.device,
+    checkpoint_role: str,
+    state_epoch: int,
+    selected_epoch: int,
+    selected_validation_loss: float,
 ) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -487,9 +599,16 @@ def _save_training_checkpoint(
         "config": model.config.to_dict(),
         "state_dict": model.state_dict(),
         "training_checkpoint_version": "dexvision/bc-training-v1",
+        "checkpoint_selection_version": "dexvision/offline-validation-selection-v1",
+        "checkpoint_role": checkpoint_role,
         "training_config": training_config.to_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "completed_epochs": completed_epochs,
+        "state_epoch": state_epoch,
+        "selected_epoch": selected_epoch,
+        "selection_metric": "validation_loss",
+        "selected_validation_loss": selected_validation_loss,
+        "selection_tie_break": "earliest_epoch",
         "loss_history": list(history),
         "provenance": dict(provenance),
         "environment": _environment_metadata(device),
@@ -521,6 +640,12 @@ def _restore_training_state(
         raise BCTrainingError(f"training checkpoint {path} must contain a mapping.")
     if payload.get("training_checkpoint_version") != "dexvision/bc-training-v1":
         raise BCTrainingError(f"training checkpoint {path} has an unsupported version.")
+    state_epoch = payload.get("state_epoch", payload.get("completed_epochs"))
+    completed_for_run = payload.get("completed_epochs")
+    if state_epoch != completed_for_run:
+        raise BCTrainingError(
+            "resume requires a last checkpoint whose state matches its completed epoch."
+        )
     if payload.get("schema") != schema.to_dict():
         raise BCTrainingError("resume checkpoint policy schema is incompatible.")
     if payload.get("config") != model_config.to_dict():
@@ -560,6 +685,84 @@ def _restore_training_state(
     except (RuntimeError, ValueError) as exc:
         raise BCTrainingError(f"cannot restore training state: {exc}") from exc
     return completed, [dict(item) for item in history]
+
+
+def _select_best_history_entry(
+    history: Sequence[Mapping[str, float | int]],
+) -> Mapping[str, float | int]:
+    """Select the lowest offline validation loss, breaking ties by earliest epoch."""
+
+    if not history:
+        raise BCTrainingError("cannot select a checkpoint from empty loss history.")
+    try:
+        return min(
+            history,
+            key=lambda item: (float(item["validation_loss"]), int(item["epoch"])),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise BCTrainingError("loss history is missing valid epoch/validation_loss values.") from exc
+
+
+def _restore_best_snapshot(
+    path: Path,
+    *,
+    selected_epoch: int,
+    selected_validation_loss: float,
+    fallback_model: GoalConditionedMLP,
+    fallback_optimizer: torch.optim.Optimizer,
+    completed_epochs: int,
+    schema: PolicySchema,
+    model_config: MLPConfig,
+    provenance: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Load the earlier best snapshot needed by an epoch-boundary resume."""
+
+    if selected_epoch == completed_epochs and not path.is_file():
+        return deepcopy(fallback_model.state_dict()), deepcopy(
+            fallback_optimizer.state_dict()
+        )
+    _verify_digest_sidecar_when_present(path)
+    try:
+        payload = torch.load(path, map_location="cpu", weights_only=True)
+    except (OSError, RuntimeError) as exc:
+        raise BCTrainingError(
+            f"cannot restore validation-best checkpoint {path}: {exc}"
+        ) from exc
+    if not isinstance(payload, Mapping):
+        raise BCTrainingError(f"validation-best checkpoint {path} must contain a mapping.")
+    if payload.get("state_epoch") != selected_epoch:
+        raise BCTrainingError(
+            "validation-best checkpoint epoch does not match resumed loss history."
+        )
+    if payload.get("checkpoint_role") != "best_validation":
+        raise BCTrainingError("validation-best checkpoint has the wrong role.")
+    if payload.get("schema") != schema.to_dict():
+        raise BCTrainingError("validation-best checkpoint policy schema is incompatible.")
+    if payload.get("config") != model_config.to_dict():
+        raise BCTrainingError("validation-best checkpoint model config is incompatible.")
+    if payload.get("selected_validation_loss") != selected_validation_loss:
+        raise BCTrainingError(
+            "validation-best checkpoint metric does not match resumed loss history."
+        )
+    saved_provenance = payload.get("provenance")
+    if not isinstance(saved_provenance, Mapping):
+        raise BCTrainingError("validation-best checkpoint is missing provenance metadata.")
+    for key in (
+        "experiment_config_version",
+        "experiment_config_digest",
+        "dataset_digest",
+        "split_manifest_digest",
+        "normalization_digest",
+    ):
+        if saved_provenance.get(key) != provenance.get(key):
+            raise BCTrainingError(
+                f"validation-best checkpoint provenance {key!r} differs."
+            )
+    state_dict = payload.get("state_dict")
+    optimizer_state = payload.get("optimizer_state_dict")
+    if not isinstance(state_dict, Mapping) or not isinstance(optimizer_state, Mapping):
+        raise BCTrainingError("validation-best checkpoint is missing model or optimizer state.")
+    return deepcopy(dict(state_dict)), deepcopy(dict(optimizer_state))
 
 
 def _verify_digest_sidecar_when_present(path: Path) -> None:
