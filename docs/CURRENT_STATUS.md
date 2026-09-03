@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7H — Scale Button-Press Dataset
+Level 2.7I — Scale Push-Cube Dataset
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7I — Scale Push-Cube Dataset
+Level 2.7J — Optional Skill Card Export Metadata
 
 ---
 
@@ -39,7 +39,7 @@ Level 2.7I — Scale Push-Cube Dataset
 
 Suggested first feature branch:
 
-`feature/level1-health-check`
+`feature/level2-7j-skill-card-metadata`
 
 ---
 
@@ -563,7 +563,16 @@ recomputed as successful, passed every quality filter, and had zero label
 disagreements. The nine training button/depth goals contain six or seven clean
 successes each, three interpolated button/depth states remain held out, and the
 v3 dataset summary reports `level3_ready: true`. Level 2.7H is complete.
-Level 2.7I is the next target but has not been started.
+Level 2.7I — Scale Push-Cube Dataset manually passed on September 2, 2026 after
+the user completed the live quality-gated collection. The immutable raw dataset
+contains 101 episodes and 7,176 action frames. All 101 episodes validated and
+completed semantic headless replay using their saved 17-step cadence; all 101
+recomputed as successful, passed every quality filter, and had zero label
+disagreements. Clean goal coverage is left=33, centre=34, and right=34. Three
+interpolated cube start/target-pose states remain held out, and dataset-summary
+v4 reports `level3_ready: true`. Focused checks pass with 27 tests, Ruff passes,
+and the full suite passes with 362 tests. Level 2.7I is complete. Level 2.7J is
+the next target and has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

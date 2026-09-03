@@ -163,6 +163,18 @@ reserved held-out evaluation states. Run it once per attempted episode until
 the dataset summary reports at least 50 clean successes and every training goal
 has at least five.
 
+Current quality-gated push-cube collection:
+
+```bash
+python -m dexvision.apps.select_push_cube_goal --run
+```
+
+This command uses `configs/push_cube_dataset.yaml`, balances the three proven
+lane-aligned cube start/target/approach goals by clean-success count, and never
+selects the reserved held-out cube starts or target poses. Run it once per
+attempted episode until the dataset summary reports at least 100 clean
+successes and every training goal has at least 30.
+
 Button-press pilot recording is implemented for Level 2.7E:
 
 ```bash
@@ -363,9 +375,9 @@ Dataset summaries and Level 3 readiness evaluation are implemented:
 python -m dexvision.apps.summarize_demos --dataset data/demos
 ```
 
-The summary uses `configs/reach_touch_dataset.yaml` and
-`configs/button_press_dataset.yaml` to validate the versioned training-goal and
-held-out-evaluation splits.
+The summary uses `configs/reach_touch_dataset.yaml`,
+`configs/button_press_dataset.yaml`, and `configs/push_cube_dataset.yaml` to
+validate the versioned training-goal and held-out-evaluation splits.
 
 ## I. Dataset Readiness Criteria For Level 3
 
@@ -419,6 +431,16 @@ Current `button_press` scaled-dataset status:
 - dataset summary result: `level3_ready: true`
 
 Current `push_cube_to_target` pilot status:
+
+- the Level 2.7I quality-gated balanced selector is available through
+  `python -m dexvision.apps.select_push_cube_goal --run`
+- the versioned scale-up config declares three lane-aligned training goals and
+  three interpolated held-out cube start/target-pose states
+- the completed immutable dataset contains 101 clean successful episodes with
+  balanced goal coverage left=33, centre=34, and right=34
+- all 101 episodes validate, complete semantic headless replay, recompute as
+  successful, pass every quality filter, and have zero label disagreements
+- dataset-summary v4 reports `level3_ready: true`
 
 - task-board scene and task-specific recorder are implemented
 - replay restores the saved cube start pose/velocity and target marker
@@ -505,7 +527,7 @@ Current `push_cube_to_target` pilot status:
 | free_space_gesture | yes, no object scene required | yes | yes | not yet applied | 60 raw | no |
 | reach_touch_target | yes | yes, quality-gated | yes, 76/76 | yes, 55 pass | 55/50 | yes |
 | button_press | yes | yes, quality-gated | yes, 55/55 | yes, 55 pass | 55/50 | yes |
-| push_cube_to_target | yes | yes, 5/5 pilot | yes, 5/5 manually confirmed | yes, 5 pass | 5/5 pilot / 100 scale | no |
+| push_cube_to_target | yes | yes, quality-gated | yes, 101/101 | yes, 101 pass | 101/100 | yes |
 | rotate_dial | no | TODO | no | no | 100 | stretch |
 | pinch_lift_object | no | TODO | no | no | 100+ | stretch |
 
@@ -522,7 +544,7 @@ Manipulation-task order and current completion:
 [x] 4. button_press task and five-demo pilot through the same gates
 [x] 5a. push_cube_to_target task schema/reset/state/success metric
 [x] 5b. push_cube_to_target five-demo pilot through replay/relabel/quality/summary gates
-[ ] 6. scale only the task datasets whose pilots pass
+[x] 6. scale only the task datasets whose pilots pass
 ```
 
 Train/validation/test planning must happen before dataset scale-up. Split by

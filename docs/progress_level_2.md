@@ -1602,6 +1602,20 @@ Do not train policies.
 Scale the cube-push dataset only after its pilot passes replay, relabeling,
 quality, and summary gates.
 
+### Files
+
+```text
+configs/push_cube_dataset.yaml
+dexvision/logging/collection_planner.py
+dexvision/apps/select_push_cube_goal.py
+dexvision/logging/dataset_summary.py
+dexvision/apps/summarize_demos.py
+tests/test_push_cube_collection_planner.py
+tests/test_dataset_summary.py
+docs/module_contracts.md
+docs/level2_dataset_runbook.md
+```
+
 ### Target Dataset
 
 ```text
@@ -1609,15 +1623,58 @@ push_cube_to_target: 100+ clean successful demos
 held-out cube starts and target poses identified before Level 3
 ```
 
+### Collection
+
+Use the balanced quality-gated selector once per attempt:
+
+```bash
+python -m dexvision.apps.select_push_cube_goal --run
+```
+
+The selector chooses randomly among the configured cube start/target/approach
+training goals with the fewest clean successful episodes. It records into
+staging and moves only quality-passed successes into
+`data/demos/raw/push_cube_to_target/`. Reserved held-out starts and target poses
+are declared in `configs/push_cube_dataset.yaml` and are never selected for
+training.
+
+After collection, regenerate all dataset-level audit artifacts:
+
+```bash
+python -m dexvision.apps.relabel_demos --dataset data/demos/raw/push_cube_to_target
+python -m dexvision.apps.filter_demos --dataset data/demos/raw/push_cube_to_target
+python -m dexvision.apps.summarize_demos --dataset data/demos
+```
+
+### Run
+
+```bash
+conda run -n dexvision python -m dexvision.apps.select_push_cube_goal --help
+conda run -n dexvision pytest tests/test_push_cube_collection_planner.py tests/test_dataset_summary.py tests/test_push_cube_recording.py
+conda run -n dexvision ruff check dexvision tests
+conda run -n dexvision pytest
+```
+
 ### Pass Criteria
 
 ```text
-[ ] Cube-push pilot passed every gate
-[ ] Every episode has replay, relabel, and quality results
-[ ] Initial-state and goal distributions are summarized
-[ ] Held-out evaluation states are declared before training
-[ ] Dataset summary marks push_cube_to_target Level 3-ready
+[x] Cube-push pilot passed every gate
+[x] Every episode has replay, relabel, and quality results
+[x] Initial-state and goal distributions are summarized
+[x] Held-out evaluation states are declared before training
+[x] Dataset summary marks push_cube_to_target Level 3-ready
 ```
+
+The completed collection contains 101 immutable raw episodes. All 101 episodes
+validated and completed semantic headless replay for 7,176 action frames using
+their saved 17-step simulation cadence. All 101 recomputed as successful,
+passed every quality filter, and had zero operator/recomputed label
+disagreements. Clean training coverage is balanced across the three configured
+lane-aligned goals: left=33, centre=34, and right=34. Three interpolated cube
+start/target-pose states remain held out for Level 3 evaluation. Dataset-summary
+v4 reports exact cube goal and initial-state distributions and marks
+`push_cube_to_target` `level3_ready: true`. The user completed the live
+quality-gated collection on September 2, 2026. Level 2.7I is complete.
 
 ### Codex Prompt
 

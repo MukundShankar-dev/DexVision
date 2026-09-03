@@ -15,12 +15,13 @@ from dexvision.logging.quality_filters import DEFAULT_REPORT_NAME as QUALITY_REP
 from dexvision.logging.relabel_success import DEFAULT_REPORT_NAME as RELABEL_REPORT_NAME
 
 
-DATASET_SUMMARY_VERSION = "level2/dataset-summary-v3"
+DATASET_SUMMARY_VERSION = "level2/dataset-summary-v4"
 DEFAULT_JSON_NAME = "dataset_summary.json"
 DEFAULT_CSV_NAME = "dataset_summary.csv"
 DEFAULT_REPORT_DIRECTORY = Path("reports") / "summaries"
 DEFAULT_REACH_TOUCH_CONFIG = Path("configs/reach_touch_dataset.yaml")
 DEFAULT_BUTTON_PRESS_CONFIG = Path("configs/button_press_dataset.yaml")
+DEFAULT_PUSH_CUBE_CONFIG = Path("configs/push_cube_dataset.yaml")
 REACH_TOUCH_TASK_ID = "reach_touch_target"
 BUTTON_PRESS_TASK_ID = "button_press"
 PUSH_CUBE_TASK_ID = "push_cube_to_target"
@@ -78,6 +79,32 @@ class ButtonPressDatasetConfig:
 
 
 @dataclass(frozen=True)
+class CubeGoalDefinition:
+    """One configured cube start, target, and approach combination."""
+
+    goal_id: str
+    object_id: str
+    initial_object_position: tuple[float, float, float]
+    target_source: str
+    target_position: tuple[float, float, float]
+    approach_side: str
+
+
+@dataclass(frozen=True)
+class PushCubeDatasetConfig:
+    """Versioned cube-push readiness and held-out-state contract."""
+
+    version: str
+    task_id: str
+    minimum_clean_successful_episodes: int
+    minimum_clean_per_training_goal: int
+    position_units: str
+    coordinate_frame: str
+    training_goals: tuple[CubeGoalDefinition, ...]
+    held_out_evaluation_goals: tuple[CubeGoalDefinition, ...]
+
+
+@dataclass(frozen=True)
 class TargetPositionSummary:
     """Recorded distribution and clean count for one training target."""
 
@@ -110,6 +137,35 @@ class ButtonInitialStateSummary:
     button_id: str
     button_position: tuple[float, float, float]
     initial_button_depth: float
+    initial_base_position: tuple[float, float, float]
+    initial_base_orientation: tuple[float, float, float, float]
+    num_episodes: int
+    clean_success_count: int
+
+
+@dataclass(frozen=True)
+class CubeGoalSummary:
+    """Recorded distribution and clean count for one cube-push goal."""
+
+    goal_id: str
+    object_id: str
+    initial_object_position: tuple[float, float, float]
+    target_source: str
+    target_position: tuple[float, float, float]
+    approach_side: str
+    num_episodes: int
+    num_recomputed_success: int
+    quality_pass_count: int
+    clean_success_count: int
+
+
+@dataclass(frozen=True)
+class CubeInitialStateSummary:
+    """Observed cube/robot initial state and its episode counts."""
+
+    object_id: str
+    initial_object_position: tuple[float, float, float]
+    initial_object_orientation: tuple[float, float, float, float]
     initial_base_position: tuple[float, float, float]
     initial_base_orientation: tuple[float, float, float, float]
     num_episodes: int
@@ -160,8 +216,11 @@ class SkillDatasetSummary:
     target_position_distribution: tuple[TargetPositionSummary, ...]
     button_goal_distribution: tuple[ButtonGoalSummary, ...]
     button_initial_state_distribution: tuple[ButtonInitialStateSummary, ...]
+    cube_goal_distribution: tuple[CubeGoalSummary, ...]
+    cube_initial_state_distribution: tuple[CubeInitialStateSummary, ...]
     held_out_evaluation_targets: tuple[TargetDefinition, ...]
     held_out_button_goals: tuple[ButtonGoalDefinition, ...]
+    held_out_cube_goals: tuple[CubeGoalDefinition, ...]
     readiness_config_version: str | None
     minimum_clean_success_count: int | None
     minimum_clean_per_training_target: int | None
@@ -209,6 +268,10 @@ class _EpisodeSummaryInput:
     initial_button_depth: float | None
     initial_base_position: tuple[float, float, float] | None
     initial_base_orientation: tuple[float, float, float, float] | None
+    object_id: str | None
+    initial_object_position: tuple[float, float, float] | None
+    initial_object_orientation: tuple[float, float, float, float] | None
+    approach_side: str | None
 
 
 @dataclass(frozen=True)
@@ -237,6 +300,7 @@ def summarize_demo_dataset(
     *,
     reach_touch_config: ReachTouchDatasetConfig | None = None,
     button_press_config: ButtonPressDatasetConfig | None = None,
+    push_cube_config: PushCubeDatasetConfig | None = None,
 ) -> DatasetSummaryReport:
     """Summarize every saved episode below ``dataset_dir`` without modifying it."""
 
@@ -269,6 +333,7 @@ def summarize_demo_dataset(
             warnings=warnings,
             reach_touch_config=reach_touch_config,
             button_press_config=button_press_config,
+            push_cube_config=push_cube_config,
         )
         for group_key in group_keys
     )
@@ -294,9 +359,13 @@ def save_dataset_summary(
     json_output = Path(json_path)
     csv_output = Path(csv_path)
     if json_output.suffix.lower() != ".json":
-        raise DatasetSummaryError("dataset summary JSON output must use a .json extension.")
+        raise DatasetSummaryError(
+            "dataset summary JSON output must use a .json extension."
+        )
     if csv_output.suffix.lower() != ".csv":
-        raise DatasetSummaryError("dataset summary CSV output must use a .csv extension.")
+        raise DatasetSummaryError(
+            "dataset summary CSV output must use a .csv extension."
+        )
 
     json_output.parent.mkdir(parents=True, exist_ok=True)
     csv_output.parent.mkdir(parents=True, exist_ok=True)
@@ -329,8 +398,11 @@ def save_dataset_summary(
             "target_position_distribution",
             "button_goal_distribution",
             "button_initial_state_distribution",
+            "cube_goal_distribution",
+            "cube_initial_state_distribution",
             "held_out_evaluation_targets",
             "held_out_button_goals",
+            "held_out_cube_goals",
             "readiness_config_version",
             "minimum_clean_success_count",
             "minimum_clean_per_training_target",
@@ -343,10 +415,7 @@ def save_dataset_summary(
         for group in report.groups:
             row = asdict(group)
             writer.writerow(
-                {
-                    field: _csv_value(field, row[field])
-                    for field in fieldnames
-                }
+                {field: _csv_value(field, row[field]) for field in fieldnames}
             )
     json_temporary.replace(json_output)
     csv_temporary.replace(csv_output)
@@ -369,7 +438,9 @@ def load_reach_touch_dataset_config(
     try:
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise DatasetSummaryError(f"Reach-touch dataset config does not exist: {path}") from exc
+        raise DatasetSummaryError(
+            f"Reach-touch dataset config does not exist: {path}"
+        ) from exc
     except (OSError, yaml.YAMLError) as exc:
         raise DatasetSummaryError(
             f"Could not read valid YAML from reach-touch dataset config {path}: {exc}"
@@ -441,7 +512,9 @@ def load_button_press_dataset_config(
     try:
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise DatasetSummaryError(f"Button dataset config does not exist: {path}") from exc
+        raise DatasetSummaryError(
+            f"Button dataset config does not exist: {path}"
+        ) from exc
     except (OSError, yaml.YAMLError) as exc:
         raise DatasetSummaryError(
             f"Could not read valid YAML from button dataset config {path}: {exc}"
@@ -511,6 +584,86 @@ def load_button_press_dataset_config(
     )
 
 
+def load_push_cube_dataset_config(
+    config_path: str | Path,
+) -> PushCubeDatasetConfig:
+    """Load and validate the versioned cube-goal train/evaluation split."""
+
+    path = Path(config_path)
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise DatasetSummaryError(
+            f"Push-cube dataset config does not exist: {path}"
+        ) from exc
+    except (OSError, yaml.YAMLError) as exc:
+        raise DatasetSummaryError(
+            f"Could not read valid YAML from push-cube dataset config {path}: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise DatasetSummaryError(f"{path} must contain a YAML mapping.")
+
+    version = _config_string(payload, "version", path=path)
+    task_id = _config_string(payload, "task_id", path=path)
+    if task_id != PUSH_CUBE_TASK_ID:
+        raise DatasetSummaryError(
+            f"{path} task_id must be {PUSH_CUBE_TASK_ID!r}; got {task_id!r}."
+        )
+    minimum_clean = _config_positive_int(
+        payload,
+        "minimum_clean_successful_episodes",
+        path=path,
+    )
+    minimum_per_goal = _config_positive_int(
+        payload,
+        "minimum_clean_per_training_goal",
+        path=path,
+    )
+    units = _config_string(payload, "position_units", path=path)
+    coordinate_frame = _config_string(payload, "coordinate_frame", path=path)
+    training_goals = _config_cube_goals(payload, "training_goals", path=path)
+    held_out_goals = _config_cube_goals(
+        payload,
+        "held_out_evaluation_goals",
+        path=path,
+    )
+    if not training_goals:
+        raise DatasetSummaryError(f"{path} must declare at least one training goal.")
+    if not held_out_goals:
+        raise DatasetSummaryError(
+            f"{path} must declare at least one held-out evaluation goal."
+        )
+    training_ids = {goal.goal_id for goal in training_goals}
+    held_out_ids = {goal.goal_id for goal in held_out_goals}
+    if training_ids & held_out_ids:
+        raise DatasetSummaryError(
+            f"{path} goal ids cannot be both training and held-out: "
+            f"{sorted(training_ids & held_out_ids)}."
+        )
+    training_starts = {goal.initial_object_position for goal in training_goals}
+    held_out_starts = {goal.initial_object_position for goal in held_out_goals}
+    if training_starts & held_out_starts:
+        raise DatasetSummaryError(
+            f"{path} held-out cube starts must be distinct from training starts."
+        )
+    training_targets = {goal.target_position for goal in training_goals}
+    held_out_targets = {goal.target_position for goal in held_out_goals}
+    if training_targets & held_out_targets:
+        raise DatasetSummaryError(
+            f"{path} held-out target poses must be distinct from training targets."
+        )
+    return PushCubeDatasetConfig(
+        version=version,
+        task_id=task_id,
+        minimum_clean_successful_episodes=minimum_clean,
+        minimum_clean_per_training_goal=minimum_per_goal,
+        position_units=units,
+        coordinate_frame=coordinate_frame,
+        training_goals=training_goals,
+        held_out_evaluation_goals=held_out_goals,
+    )
+
+
 def _episode_directories(dataset: Path, *, warnings: list[str]) -> tuple[Path, ...]:
     if not dataset.exists():
         warnings.append(f"Dataset directory does not exist: {dataset}")
@@ -521,11 +674,7 @@ def _episode_directories(dataset: Path, *, warnings: list[str]) -> tuple[Path, .
     if (dataset / "metadata.json").is_file():
         return (dataset,)
     episodes = tuple(
-        sorted(
-            path.parent
-            for path in dataset.rglob("metadata.json")
-            if path.is_file()
-        )
+        sorted(path.parent for path in dataset.rglob("metadata.json") if path.is_file())
     )
     if not episodes:
         warnings.append(
@@ -590,6 +739,10 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
     initial_button_depth: float | None = None
     initial_base_position: tuple[float, float, float] | None = None
     initial_base_orientation: tuple[float, float, float, float] | None = None
+    object_id: str | None = None
+    initial_object_position: tuple[float, float, float] | None = None
+    initial_object_orientation: tuple[float, float, float, float] | None = None
+    approach_side: str | None = None
     if task_id in {REACH_TOUCH_TASK_ID, PUSH_CUBE_TASK_ID}:
         task_config = metadata.get("task_config")
         if not isinstance(task_config, dict):
@@ -606,6 +759,39 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
             label="task_config.target_position",
             path=path / "metadata.json",
         )
+        if task_id == PUSH_CUBE_TASK_ID:
+            object_id = _required_string(
+                task_config,
+                "resolved_object_id",
+                path=path,
+            )
+            initial_object_position = _position_tuple(
+                task_config.get("initial_object_position"),
+                label="task_config.initial_object_position",
+                path=path / "metadata.json",
+            )
+            initial_object_orientation = _vector_tuple(
+                task_config.get("initial_object_orientation"),
+                length=4,
+                label="task_config.initial_object_orientation",
+                path=path / "metadata.json",
+            )
+            initial_base_position = _position_tuple(
+                task_config.get("initial_base_position"),
+                label="task_config.initial_base_position",
+                path=path / "metadata.json",
+            )
+            initial_base_orientation = _vector_tuple(
+                task_config.get("initial_base_orientation"),
+                length=4,
+                label="task_config.initial_base_orientation",
+                path=path / "metadata.json",
+            )
+            approach_side = _required_string(
+                task_config,
+                "resolved_approach_side",
+                path=path,
+            )
     elif task_id == BUTTON_PRESS_TASK_ID:
         task_config = metadata.get("task_config")
         if not isinstance(task_config, dict):
@@ -657,6 +843,10 @@ def _load_episode(path: Path) -> _EpisodeSummaryInput:
         initial_button_depth=initial_button_depth,
         initial_base_position=initial_base_position,
         initial_base_orientation=initial_base_orientation,
+        object_id=object_id,
+        initial_object_position=initial_object_position,
+        initial_object_orientation=initial_object_orientation,
+        approach_side=approach_side,
     )
 
 
@@ -667,6 +857,7 @@ def _summarize_group(
     warnings: list[str],
     reach_touch_config: ReachTouchDatasetConfig | None,
     button_press_config: ButtonPressDatasetConfig | None,
+    push_cube_config: PushCubeDatasetConfig | None,
 ) -> SkillDatasetSummary:
     skill_name = episodes[0].skill_name
     task_id = episodes[0].task_id
@@ -728,7 +919,9 @@ def _summarize_group(
 
     labeled = tuple(value for value in successes if value is not None)
     num_success = sum(value is True for value in labeled)
-    action_versions = tuple(sorted({episode.action_schema_version for episode in episodes}))
+    action_versions = tuple(
+        sorted({episode.action_schema_version for episode in episodes})
+    )
     observation_versions = tuple(
         sorted({episode.observation_schema_version for episode in episodes})
     )
@@ -749,17 +942,32 @@ def _summarize_group(
         quality_results=tuple(quality_results),
         relabel_results=tuple(relabel_results),
     )
+    cube_goal_distribution = _summarize_cube_goal_distribution(
+        episodes,
+        quality_results=tuple(quality_results),
+        relabel_results=tuple(relabel_results),
+        config=push_cube_config if task_id == PUSH_CUBE_TASK_ID else None,
+    )
+    cube_initial_state_distribution = _summarize_cube_initial_states(
+        episodes,
+        quality_results=tuple(quality_results),
+        relabel_results=tuple(relabel_results),
+    )
     clean_success_count = (
         sum(goal.clean_success_count for goal in button_goal_distribution)
         if task_id == BUTTON_PRESS_TASK_ID
+        else sum(goal.clean_success_count for goal in cube_goal_distribution)
+        if task_id == PUSH_CUBE_TASK_ID
         else sum(target.clean_success_count for target in target_distribution)
     )
     readiness_failures = _readiness_failures(
         task_id=task_id,
         reach_touch_config=reach_touch_config,
         button_press_config=button_press_config,
+        push_cube_config=push_cube_config,
         target_distribution=target_distribution,
         button_goal_distribution=button_goal_distribution,
+        cube_goal_distribution=cube_goal_distribution,
         clean_success_count=clean_success_count,
         quality_unreported_count=quality_unreported_count,
         relabel_unreported_count=relabel_unreported_count,
@@ -773,7 +981,12 @@ def _summarize_group(
     button_readiness_applies = (
         task_id == BUTTON_PRESS_TASK_ID and button_press_config is not None
     )
-    readiness_applies = reach_readiness_applies or button_readiness_applies
+    cube_readiness_applies = (
+        task_id == PUSH_CUBE_TASK_ID and push_cube_config is not None
+    )
+    readiness_applies = (
+        reach_readiness_applies or button_readiness_applies or cube_readiness_applies
+    )
     return SkillDatasetSummary(
         skill_name=skill_name,
         task_id=task_id,
@@ -804,6 +1017,8 @@ def _summarize_group(
         target_position_distribution=target_distribution,
         button_goal_distribution=button_goal_distribution,
         button_initial_state_distribution=button_initial_state_distribution,
+        cube_goal_distribution=cube_goal_distribution,
+        cube_initial_state_distribution=cube_initial_state_distribution,
         held_out_evaluation_targets=(
             reach_touch_config.held_out_evaluation_targets
             if reach_readiness_applies
@@ -814,11 +1029,16 @@ def _summarize_group(
             if button_readiness_applies
             else ()
         ),
+        held_out_cube_goals=(
+            push_cube_config.held_out_evaluation_goals if cube_readiness_applies else ()
+        ),
         readiness_config_version=(
             reach_touch_config.version
             if reach_readiness_applies
             else button_press_config.version
             if button_readiness_applies
+            else push_cube_config.version
+            if cube_readiness_applies
             else None
         ),
         minimum_clean_success_count=(
@@ -826,6 +1046,8 @@ def _summarize_group(
             if reach_readiness_applies
             else button_press_config.minimum_clean_successful_episodes
             if button_readiness_applies
+            else push_cube_config.minimum_clean_successful_episodes
+            if cube_readiness_applies
             else None
         ),
         minimum_clean_per_training_target=(
@@ -836,6 +1058,8 @@ def _summarize_group(
         minimum_clean_per_training_goal=(
             button_press_config.minimum_clean_per_training_goal
             if button_readiness_applies
+            else push_cube_config.minimum_clean_per_training_goal
+            if cube_readiness_applies
             else None
         ),
         level3_ready=(not readiness_failures if readiness_applies else None),
@@ -892,7 +1116,9 @@ def _summarize_target_distribution(
         )
 
     if config is not None:
-        configured = {target.target_id: target.position for target in config.training_targets}
+        configured = {
+            target.target_id: target.position for target in config.training_targets
+        }
         unknown = set(observed_positions) - set(configured)
         if unknown:
             raise DatasetSummaryError(
@@ -907,7 +1133,9 @@ def _summarize_target_distribution(
         ordered_targets = config.training_targets
     else:
         ordered_targets = tuple(
-            TargetDefinition(target_id=target_id, position=observed_positions[target_id])
+            TargetDefinition(
+                target_id=target_id, position=observed_positions[target_id]
+            )
             for target_id in sorted(observed_positions)
         )
 
@@ -1091,13 +1319,172 @@ def _summarize_button_initial_states(
     )
 
 
+def _summarize_cube_goal_distribution(
+    episodes: tuple[_EpisodeSummaryInput, ...],
+    *,
+    quality_results: tuple[_QualityResult | None, ...],
+    relabel_results: tuple[_RelabelResult | None, ...],
+    config: PushCubeDatasetConfig | None,
+) -> tuple[CubeGoalSummary, ...]:
+    if episodes[0].task_id != PUSH_CUBE_TASK_ID:
+        return ()
+
+    observed: dict[
+        tuple[
+            str,
+            tuple[float, float, float],
+            str,
+            tuple[float, float, float],
+            str,
+        ],
+        list[int],
+    ] = {}
+    for episode, quality, relabel in zip(
+        episodes,
+        quality_results,
+        relabel_results,
+        strict=True,
+    ):
+        if (
+            episode.object_id is None
+            or episode.initial_object_position is None
+            or episode.target_source is None
+            or episode.target_position is None
+            or episode.approach_side is None
+        ):
+            raise DatasetSummaryError(f"{episode.path} is missing its cube-push goal.")
+        key = (
+            episode.object_id,
+            episode.initial_object_position,
+            episode.target_source,
+            episode.target_position,
+            episode.approach_side,
+        )
+        values = observed.setdefault(key, [0, 0, 0, 0])
+        values[0] += 1
+        values[1] += int(relabel is not None and relabel.recomputed_success)
+        values[2] += int(quality is not None and quality.passed)
+        values[3] += int(
+            quality is not None
+            and quality.passed
+            and relabel is not None
+            and relabel.recomputed_success
+        )
+
+    if config is not None:
+        configured = {_cube_goal_state(goal): goal for goal in config.training_goals}
+        unknown = set(observed) - set(configured)
+        if unknown:
+            raise DatasetSummaryError(
+                "Push-cube dataset contains goals absent from the training split: "
+                f"{sorted(unknown)}."
+            )
+        ordered_goals = config.training_goals
+    else:
+        ordered_goals = tuple(
+            CubeGoalDefinition(
+                goal_id=f"{key[2]}_{index:02d}",
+                object_id=key[0],
+                initial_object_position=key[1],
+                target_source=key[2],
+                target_position=key[3],
+                approach_side=key[4],
+            )
+            for index, key in enumerate(sorted(observed), start=1)
+        )
+
+    return tuple(
+        CubeGoalSummary(
+            goal_id=goal.goal_id,
+            object_id=goal.object_id,
+            initial_object_position=goal.initial_object_position,
+            target_source=goal.target_source,
+            target_position=goal.target_position,
+            approach_side=goal.approach_side,
+            num_episodes=observed.get(_cube_goal_state(goal), [0, 0, 0, 0])[0],
+            num_recomputed_success=observed.get(_cube_goal_state(goal), [0, 0, 0, 0])[
+                1
+            ],
+            quality_pass_count=observed.get(_cube_goal_state(goal), [0, 0, 0, 0])[2],
+            clean_success_count=observed.get(_cube_goal_state(goal), [0, 0, 0, 0])[3],
+        )
+        for goal in ordered_goals
+    )
+
+
+def _summarize_cube_initial_states(
+    episodes: tuple[_EpisodeSummaryInput, ...],
+    *,
+    quality_results: tuple[_QualityResult | None, ...],
+    relabel_results: tuple[_RelabelResult | None, ...],
+) -> tuple[CubeInitialStateSummary, ...]:
+    if episodes[0].task_id != PUSH_CUBE_TASK_ID:
+        return ()
+
+    counts: dict[
+        tuple[
+            str,
+            tuple[float, float, float],
+            tuple[float, float, float, float],
+            tuple[float, float, float],
+            tuple[float, float, float, float],
+        ],
+        list[int],
+    ] = {}
+    for episode, quality, relabel in zip(
+        episodes,
+        quality_results,
+        relabel_results,
+        strict=True,
+    ):
+        if (
+            episode.object_id is None
+            or episode.initial_object_position is None
+            or episode.initial_object_orientation is None
+            or episode.initial_base_position is None
+            or episode.initial_base_orientation is None
+        ):
+            raise DatasetSummaryError(
+                f"{episode.path} is missing its cube/robot initial state."
+            )
+        key = (
+            episode.object_id,
+            episode.initial_object_position,
+            episode.initial_object_orientation,
+            episode.initial_base_position,
+            episode.initial_base_orientation,
+        )
+        values = counts.setdefault(key, [0, 0])
+        values[0] += 1
+        values[1] += int(
+            quality is not None
+            and quality.passed
+            and relabel is not None
+            and relabel.recomputed_success
+        )
+    return tuple(
+        CubeInitialStateSummary(
+            object_id=key[0],
+            initial_object_position=key[1],
+            initial_object_orientation=key[2],
+            initial_base_position=key[3],
+            initial_base_orientation=key[4],
+            num_episodes=values[0],
+            clean_success_count=values[1],
+        )
+        for key, values in sorted(counts.items())
+    )
+
+
 def _readiness_failures(
     *,
     task_id: str,
     reach_touch_config: ReachTouchDatasetConfig | None,
     button_press_config: ButtonPressDatasetConfig | None,
+    push_cube_config: PushCubeDatasetConfig | None,
     target_distribution: tuple[TargetPositionSummary, ...],
     button_goal_distribution: tuple[ButtonGoalSummary, ...],
+    cube_goal_distribution: tuple[CubeGoalSummary, ...],
     clean_success_count: int,
     quality_unreported_count: int,
     relabel_unreported_count: int,
@@ -1143,14 +1530,44 @@ def _readiness_failures(
             (goal.goal_id, (goal.button_id, goal.target_press_depth))
             for goal in button_press_config.held_out_evaluation_goals
         )
+    elif task_id == PUSH_CUBE_TASK_ID and push_cube_config is not None:
+        minimum_clean = push_cube_config.minimum_clean_successful_episodes
+        minimum_distribution = (
+            (
+                goal.goal_id,
+                goal.clean_success_count,
+                push_cube_config.minimum_clean_per_training_goal,
+            )
+            for goal in cube_goal_distribution
+        )
+        held_out_present = bool(push_cube_config.held_out_evaluation_goals)
+        recorded_states = {
+            (
+                goal.object_id,
+                goal.initial_object_position,
+                goal.target_source,
+                goal.target_position,
+                goal.approach_side,
+            )
+            for goal in cube_goal_distribution
+            if goal.num_episodes
+        }
+        held_out_states = tuple(
+            (goal.goal_id, _cube_goal_state(goal))
+            for goal in push_cube_config.held_out_evaluation_goals
+        )
     else:
         return ()
 
     failures: list[str] = []
     if quality_unreported_count:
-        failures.append(f"quality coverage missing for {quality_unreported_count} episodes")
+        failures.append(
+            f"quality coverage missing for {quality_unreported_count} episodes"
+        )
     if relabel_unreported_count:
-        failures.append(f"relabel coverage missing for {relabel_unreported_count} episodes")
+        failures.append(
+            f"relabel coverage missing for {relabel_unreported_count} episodes"
+        )
     if disagreement_count:
         failures.append(f"{disagreement_count} operator/recomputed label disagreements")
     if clean_success_count < minimum_clean:
@@ -1202,9 +1619,8 @@ def _load_report_index(dataset: Path) -> _ReportIndex:
                 raise DatasetSummaryError(
                     f"{report_path} episode {episode_id!r} must declare boolean 'passed'."
                 )
-            if (
-                not isinstance(failed_filters, list)
-                or any(not isinstance(item, str) or not item for item in failed_filters)
+            if not isinstance(failed_filters, list) or any(
+                not isinstance(item, str) or not item for item in failed_filters
             ):
                 raise DatasetSummaryError(
                     f"{report_path} episode {episode_id!r} must declare "
@@ -1285,7 +1701,9 @@ def _required_report_episodes(
     if not isinstance(episodes, list) or any(
         not isinstance(entry, dict) for entry in episodes
     ):
-        raise DatasetSummaryError(f"{path} must declare 'episodes' as a list of objects.")
+        raise DatasetSummaryError(
+            f"{path} must declare 'episodes' as a list of objects."
+        )
     return tuple(episodes)
 
 
@@ -1310,7 +1728,9 @@ def _load_json_object(path: Path, *, label: str) -> dict[str, Any]:
     except FileNotFoundError as exc:
         raise DatasetSummaryError(f"Missing {label}: {path}") from exc
     except (OSError, json.JSONDecodeError) as exc:
-        raise DatasetSummaryError(f"Could not read valid JSON from {path}: {exc}") from exc
+        raise DatasetSummaryError(
+            f"Could not read valid JSON from {path}: {exc}"
+        ) from exc
     if not isinstance(loaded, dict):
         raise DatasetSummaryError(f"{path} must contain a JSON object.")
     return loaded
@@ -1401,9 +1821,7 @@ def _position_tuple(
             f"{path} {label} must contain three finite numbers."
         ) from exc
     if position.shape != (3,) or not np.all(np.isfinite(position)):
-        raise DatasetSummaryError(
-            f"{path} {label} must contain three finite numbers."
-        )
+        raise DatasetSummaryError(f"{path} {label} must contain three finite numbers.")
     return tuple(float(item) for item in position)
 
 
@@ -1496,9 +1914,7 @@ def _config_button_goals(
         if not isinstance(goal_id, str) or not goal_id:
             raise DatasetSummaryError(f"{path} {name!r} contains an invalid goal id.")
         if not isinstance(goal_payload, dict):
-            raise DatasetSummaryError(
-                f"{path} {name}.{goal_id} must be a mapping."
-            )
+            raise DatasetSummaryError(f"{path} {name}.{goal_id} must be a mapping.")
         button_id = _config_string(goal_payload, "button_id", path=path)
         position = _position_tuple(
             goal_payload.get("button_position"),
@@ -1530,6 +1946,73 @@ def _config_button_goals(
     return tuple(goals)
 
 
+def _config_cube_goals(
+    payload: dict[str, Any],
+    name: str,
+    *,
+    path: Path,
+) -> tuple[CubeGoalDefinition, ...]:
+    value = payload.get(name)
+    if not isinstance(value, dict):
+        raise DatasetSummaryError(f"{path} {name!r} must be a goal-id mapping.")
+    goals: list[CubeGoalDefinition] = []
+    for goal_id, goal_payload in value.items():
+        if not isinstance(goal_id, str) or not goal_id:
+            raise DatasetSummaryError(f"{path} {name!r} contains an invalid goal id.")
+        if not isinstance(goal_payload, dict):
+            raise DatasetSummaryError(f"{path} {name}.{goal_id} must be a mapping.")
+        goals.append(
+            CubeGoalDefinition(
+                goal_id=goal_id,
+                object_id=_config_string(goal_payload, "object_id", path=path),
+                initial_object_position=_position_tuple(
+                    goal_payload.get("initial_object_position"),
+                    label=f"{name}.{goal_id}.initial_object_position",
+                    path=path,
+                ),
+                target_source=_config_string(
+                    goal_payload,
+                    "target_source",
+                    path=path,
+                ),
+                target_position=_position_tuple(
+                    goal_payload.get("target_position"),
+                    label=f"{name}.{goal_id}.target_position",
+                    path=path,
+                ),
+                approach_side=_config_string(
+                    goal_payload,
+                    "approach_side",
+                    path=path,
+                ),
+            )
+        )
+    states = [_cube_goal_state(goal) for goal in goals]
+    if len(set(states)) != len(states):
+        raise DatasetSummaryError(
+            f"{path} {name!r} contains duplicate cube start/target states."
+        )
+    return tuple(goals)
+
+
+def _cube_goal_state(
+    goal: CubeGoalDefinition,
+) -> tuple[
+    str,
+    tuple[float, float, float],
+    str,
+    tuple[float, float, float],
+    str,
+]:
+    return (
+        goal.object_id,
+        goal.initial_object_position,
+        goal.target_source,
+        goal.target_position,
+        goal.approach_side,
+    )
+
+
 def _validate_button_positions(
     goals: tuple[ButtonGoalDefinition, ...],
     *,
@@ -1551,6 +2034,15 @@ def _csv_value(field: str, value: Any) -> Any:
         "readiness_failures",
     }:
         return ";".join(value)
-    if field in {"target_position_distribution", "held_out_evaluation_targets"}:
+    if field in {
+        "target_position_distribution",
+        "button_goal_distribution",
+        "button_initial_state_distribution",
+        "cube_goal_distribution",
+        "cube_initial_state_distribution",
+        "held_out_evaluation_targets",
+        "held_out_button_goals",
+        "held_out_cube_goals",
+    }:
         return json.dumps(value, sort_keys=True)
     return value

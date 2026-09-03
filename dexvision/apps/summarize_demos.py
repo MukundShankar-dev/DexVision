@@ -8,10 +8,12 @@ from pathlib import Path
 
 from dexvision.logging.dataset_summary import (
     DEFAULT_BUTTON_PRESS_CONFIG,
+    DEFAULT_PUSH_CUBE_CONFIG,
     DEFAULT_REACH_TOUCH_CONFIG,
     DatasetSummaryError,
     default_summary_paths,
     load_button_press_dataset_config,
+    load_push_cube_dataset_config,
     load_reach_touch_dataset_config,
     save_dataset_summary,
     summarize_demo_dataset,
@@ -61,6 +63,15 @@ def build_parser() -> argparse.ArgumentParser:
             f"Defaults to {DEFAULT_BUTTON_PRESS_CONFIG}."
         ),
     )
+    parser.add_argument(
+        "--push-cube-config",
+        type=Path,
+        default=DEFAULT_PUSH_CUBE_CONFIG,
+        help=(
+            "Versioned cube-goal train/held-out split and readiness thresholds. "
+            f"Defaults to {DEFAULT_PUSH_CUBE_CONFIG}."
+        ),
+    )
     return parser
 
 
@@ -76,14 +87,17 @@ def run_summary(args: argparse.Namespace) -> int:
     print(f"CSV output: {csv_path}")
     print(f"Reach-touch readiness config: {args.reach_touch_config}")
     print(f"Button-press readiness config: {args.button_press_config}")
+    print(f"Push-cube readiness config: {args.push_cube_config}")
     print("Raw episodes: immutable")
 
     reach_touch_config = load_reach_touch_dataset_config(args.reach_touch_config)
     button_press_config = load_button_press_dataset_config(args.button_press_config)
+    push_cube_config = load_push_cube_dataset_config(args.push_cube_config)
     report = summarize_demo_dataset(
         args.dataset,
         reach_touch_config=reach_touch_config,
         button_press_config=button_press_config,
+        push_cube_config=push_cube_config,
     )
     for warning in report.warnings:
         print(f"WARNING: {warning}", file=sys.stderr)
@@ -93,8 +107,7 @@ def run_summary(args: argparse.Namespace) -> int:
         csv_path=csv_path,
     )
     print(
-        "Summary complete: "
-        f"groups={report.num_groups}, episodes={report.num_episodes}"
+        f"Summary complete: groups={report.num_groups}, episodes={report.num_episodes}"
     )
     for group in report.groups:
         success_rate = (

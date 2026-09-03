@@ -99,18 +99,21 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.7F is complete. The `reach_touch_target` dataset contains 55 clean
-successful demonstrations with balanced left/center/right coverage
-(`18/18/19`) and is marked Level 3-ready. The five-demo `button_press` pilot
-covers all three configured buttons; every retained episode validates,
-replays, recomputes as successful, and passes quality filtering.
+Level 2.7I is complete. The three manipulation datasets currently marked Level
+3-ready are:
 
-The deterministic `push_cube_to_target` task schema, MuJoCo fixture, reset,
-object/target state extraction, and saved-state success metric are implemented.
-The next checkpoint is Level 2.7G — Push-Cube Pilot. Cube recording/replay
-restoration, dataset relabeling/filtering/summary integration, pilot
-demonstrations, dataset scale-up, retargeter baselines, and the final Level 2
-benchmark/results work are not yet complete.
+- `reach_touch_target`: 55 clean successes with balanced target coverage
+  (`18/18/19`)
+- `button_press`: 55 clean successes across nine configured button/depth goals
+- `push_cube_to_target`: 101 clean successes across three lane-aligned goals
+  (`33/34/34`)
+
+Every retained push-cube episode validates, completes semantic headless replay,
+recomputes as successful, and passes quality filtering. Its versioned split
+also reserves three interpolated cube start/target-pose states for Level 3
+evaluation. The next checkpoint is Level 2.7J — Optional Skill Card Export
+Metadata. It is metadata-only; no policy training, Level 5 orchestration, or
+future retargeter checkpoint has been started.
 
 ## Known Limitations
 

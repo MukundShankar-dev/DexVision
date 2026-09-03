@@ -1,0 +1,54 @@
+version: level2/push-cube-dataset-split-v1
+task_id: push_cube_to_target
+
+minimum_clean_successful_episodes: 100
+minimum_clean_per_training_goal: 30
+
+position_units: metres
+coordinate_frame: MuJoCo world cube centre
+
+# The live Level 2 collector uses the three named, lane-aligned start/target
+# pairs already proven by the pilot. The selector balances clean successes,
+# not raw attempts, across these exact states.
+training_goals:
+  push_cube_left_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, -0.07, -0.015]
+    target_source: push_target_left
+    target_position: [0.09, -0.07, -0.015]
+    approach_side: left
+  push_cube_center_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.00, -0.015]
+    target_source: push_target_center
+    target_position: [0.09, 0.00, -0.015]
+    approach_side: front
+  push_cube_right_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.07, -0.015]
+    target_source: push_target_right
+    target_position: [0.09, 0.07, -0.015]
+    approach_side: right
+
+# These interpolated starts and target poses are reserved for Level 3
+# evaluation. They are declarations only in Level 2.7I and must never be
+# selected by the scaled training-data collector.
+held_out_evaluation_goals:
+  push_cube_eval_left_center:
+    object_id: push_cube
+    initial_object_position: [-0.09, -0.035, -0.015]
+    target_source: target_pose
+    target_position: [0.09, -0.035, -0.015]
+    approach_side: left
+  push_cube_eval_center_right:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.035, -0.015]
+    target_source: target_pose
+    target_position: [0.09, 0.035, -0.015]
+    approach_side: right
+  push_cube_eval_shifted_center:
+    object_id: push_cube
+    initial_object_position: [-0.075, 0.00, -0.015]
+    target_source: target_pose
+    target_position: [0.105, 0.00, -0.015]
+    approach_side: front
