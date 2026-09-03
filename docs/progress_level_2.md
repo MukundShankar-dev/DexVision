@@ -1907,11 +1907,25 @@ pytest tests/test_retargeting_metrics.py
 ### Pass Criteria
 
 ```text
-[ ] Runs at least curl vs fingertip retargeter
-[ ] Saves metrics JSON/CSV
-[ ] Produces a plot
-[ ] README summary table updated
+[x] Runs at least curl vs fingertip retargeter
+[x] Saves metrics JSON/CSV
+[x] Produces a plot
+[x] README summary table updated
 ```
+
+The benchmark compares curl, fingertip, and optimization retargeters on the
+same saved feature and landmark streams. The September 2, 2026 baseline used
+the first 10 sorted `push_cube_to_target` episodes and counterfactual headless
+MuJoCo replay with each retargeter's finger targets and the recorded base
+actions. Curl/fingertip/optimization mean latency was
+0.0774/0.1019/1.7385 ms, mean normalized action jerk was
+0.018819/0.023423/0.022442, joint-limit violation rate was zero for all three,
+mean palm-width-normalized fingertip error was
+0.440249/0.401410/0.401413, and replay task success was 1.00/0.80/0.90.
+The CLI saves JSON, CSV, and dependency-free SVG artifacts. Automated checks
+passed using the focused metric suite with 5 tests, Ruff, and the full test
+suite with 388 tests. Level 2.10 is complete and did not require manual
+verification.
 
 ### Codex Prompt
 
@@ -1945,7 +1959,7 @@ Do not add policy learning.
 [x] Button and push datasets are scaled only after their pilot gates pass
 [x] Optional skill-card metadata export documented
 [x] Fingertip retargeter implemented
-[ ] Optimization retargeter implemented
-[ ] Retargeter benchmark produces results
-[ ] Level 2 README/results updated
+[x] Optimization retargeter implemented
+[x] Retargeter benchmark produces results
+[x] Level 2 README/results updated
 ```

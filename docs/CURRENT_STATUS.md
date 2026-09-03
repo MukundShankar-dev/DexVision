@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.9 — Retargeter C: Optimization Retargeter
+Level 2.10 — Retargeting Benchmark
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.10 — Retargeting Benchmark
+None — Level 2 is complete; await explicit direction before starting Level 3.
 
 ---
 
@@ -39,7 +39,7 @@ Level 2.10 — Retargeting Benchmark
 
 Suggested next feature branch:
 
-`feature/level2-9-optimization-retargeter`
+Not selected; await explicit direction before beginning Level 3.
 
 ---
 
@@ -604,7 +604,16 @@ Automated checks passed on September 2, 2026 using `conda run -n dexvision
 pytest tests/test_optimization_retargeter.py` with 7 passed, the three-
 retargeter suite with 30 passed, `conda run -n dexvision ruff check dexvision
 tests`, and `conda run -n dexvision pytest` with 383 passed. Level 2.9 is
-complete. Level 2.10 is the next target and has not been started.
+complete.
+
+Level 2.10 — Retargeting Benchmark did not require manual verification. The
+benchmark compares curl, fingertip, and optimization retargeters on identical
+saved episode streams, saves JSON/CSV metrics and a dependency-free SVG plot,
+and recomputes push-cube task success through counterfactual headless MuJoCo
+replay. The September 2, 2026 10-episode baseline completed successfully;
+the focused metric suite passed with 5 tests, Ruff passed, and the full suite
+passed with 388 tests. Level 2 is complete. No Level 3 policy learning was
+implemented.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

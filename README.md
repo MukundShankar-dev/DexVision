@@ -99,7 +99,7 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.9 is complete. The three manipulation datasets currently marked Level
+Level 2.10 is complete. The three manipulation datasets currently marked Level
 3-ready are:
 
 - `reach_touch_target`: 55 clean successes with balanced target coverage
@@ -144,8 +144,27 @@ falls back to last-valid or safe-open targets. Run its synthetic checks with:
 pytest tests/test_optimization_retargeter.py
 ```
 
-The next checkpoint is Level 2.10 — Retargeting Benchmark. No retargeting
-benchmark, policy training, or Level 5 orchestration has been implemented.
+Level 2.10 compares all three retargeters on identical saved episode streams.
+The following reproducible baseline used the first 10 sorted
+`push_cube_to_target` episodes, the shared Level 1 teleop mapping, and
+counterfactual headless MuJoCo replay with the recorded base actions:
+
+| Retargeter | Mean latency (ms) | Mean action jerk | Limit violation rate | Fingertip error | Task success |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Curl | 0.0774 | 0.018819 | 0.000000 | 0.440249 | 1.00 |
+| Fingertip | 0.1019 | 0.023423 | 0.000000 | 0.401410 | 0.80 |
+| Optimization | 1.7385 | 0.022442 | 0.000000 | 0.401413 | 0.90 |
+
+Latency varies by machine and should be regenerated for performance claims.
+Action jerk is measured in normalized actuator units per frame cubed, and
+fingertip error is normalized by palm width. Generate JSON, CSV, and SVG
+artifacts with:
+
+```bash
+python -m dexvision.apps.benchmark_retargeters --task push_cube_to_target --episodes 10
+```
+
+No policy training or Level 5 orchestration has been implemented.
 
 ## Known Limitations
 
@@ -155,5 +174,6 @@ peace-sign poses remain approximate. Tracking quality depends on lighting,
 camera placement, and whether the input is mirrored. Use
 `--assume-mirrored-input` only for selfie-mirrored camera feeds.
 The Level 2.8 fingertip baseline is a geometric approximation rather than a
-numerical robot-model IK solve; formal retargeter comparisons remain a future
-Level 2.10 checkpoint.
+numerical robot-model IK solve. The Level 2.10 fingertip-error metric uses the
+same palm-local surrogate for a consistent comparison and is not a measured
+physical robot fingertip distance.

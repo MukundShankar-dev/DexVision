@@ -272,6 +272,48 @@ The pinch overlay may use simple hand-shape gates, such as requiring index bend 
 
 ---
 
+## Retargeting Benchmark
+
+Module:
+
+```text
+dexvision/evaluation/benchmark_retargeters.py
+```
+
+Contract:
+
+```python
+report = run_benchmark(
+    episode_dirs,
+    task_id="push_cube_to_target",
+    config_path="configs/level1_teleop.yaml",
+    retargeter_names=("curl", "fingertip", "optimization"),
+    success_evaluator=replay_push_cube_success,
+)
+save_benchmark_report(report, json_path=..., csv_path=...)
+save_benchmark_plot(report, output_path=...)
+```
+
+Rules:
+
+```text
+Every retargeter must receive the same ordered saved episodes and frame streams.
+The curl benchmark consumes the saved named feature layout; fingertip and
+optimization methods consume the saved MediaPipe-compatible landmarks.
+Latency measures only retargeter mapping time, not metric calculation or replay.
+Action jerk is the mean L2 third difference after actuator-limit normalization.
+Joint-limit rate counts scalar outputs outside the configured inclusive limits.
+Fingertip error is palm-width-normalized Euclidean error under the shared
+benchmark fingertip surrogate.
+For push_cube_to_target, task success is recomputed by counterfactual headless
+MuJoCo replay with recorded base actions and benchmarked finger targets.
+Recorded raw demonstrations are read-only. JSON, CSV, and SVG reports are
+written only to the requested report directory.
+No policy training or live camera access belongs in this module.
+```
+
+---
+
 ## MuJoCo Environment
 
 Module:
