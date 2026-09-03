@@ -99,7 +99,7 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.7J is complete. The three manipulation datasets currently marked Level
+Level 2.8 is complete. The three manipulation datasets currently marked Level
 3-ready are:
 
 - `reach_touch_target`: 55 clean successes with balanced target coverage
@@ -122,9 +122,21 @@ python -m dexvision.apps.export_skill_metadata --task button_press
 python -m dexvision.apps.export_skill_metadata --task push_cube_to_target
 ```
 
-These stubs intentionally leave `policy_checkpoint` unset for Level 3. The next
-checkpoint is Level 2.8 — Retargeter B: Fingertip Target Baseline; no policy
-training, Level 5 orchestration, or future retargeter work has been started.
+These stubs intentionally leave `policy_checkpoint` unset for Level 3.
+
+Level 2.8 adds a second, approximate retargeting baseline alongside the existing
+curl retargeter. It converts MediaPipe-compatible hand landmarks into five
+palm-local fingertip targets normalized by palm width, maps fingertip extension
+to bounded Shadow Hand controls, and safely falls back when target extraction
+or solving fails. Run its synthetic checks with:
+
+```bash
+pytest tests/test_fingertip_retargeter.py
+```
+
+The next checkpoint is Level 2.9 — Retargeter C: Optimization Retargeter. No
+optimization retargeter, retargeting benchmark, policy training, or Level 5
+orchestration has been implemented.
 
 ## Known Limitations
 
@@ -133,3 +145,6 @@ controller. The thumb mapping is intentionally conservative, and pinch and
 peace-sign poses remain approximate. Tracking quality depends on lighting,
 camera placement, and whether the input is mirrored. Use
 `--assume-mirrored-input` only for selfie-mirrored camera feeds.
+The Level 2.8 fingertip baseline is a geometric approximation rather than a
+numerical robot-model IK solve; formal retargeter comparisons remain a future
+Level 2.10 checkpoint.

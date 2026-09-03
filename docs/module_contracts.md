@@ -232,6 +232,9 @@ Contract:
 
 ```python
 joint_targets: dict[str, float] = retargeter.map(features_or_landmarks, robot_state=None)
+
+fingertip_targets: np.ndarray = compute_normalized_fingertip_targets(landmarks)
+# shape [5, 3], ordered thumb/index/middle/ring/pinky
 ```
 
 Rules:
@@ -240,6 +243,17 @@ Rules:
 Output must obey joint limits.
 Retargeter can know robot joint names.
 Retargeter should not step MuJoCo directly.
+The Level 2.8 fingertip baseline accepts a MediaPipe-compatible landmark array
+or a hand-tracking result and computes five palm-local fingertip positions.
+Fingertip positions are normalized by palm width and use axes that cross the
+palm from pinky to index, point from wrist toward the fingers, and follow the
+palm normal.
+The approximate fingertip solve maps long-finger palm-axis extension and thumb
+CMC-to-tip extension to the existing configured Shadow Hand open/closed targets.
+All returned targets must be clipped to the configured inclusive limits.
+Missing or low-confidence tracking returns the safe open target set. If a solve
+fails after a valid frame, the fingertip baseline returns the last valid target
+set; before any valid solve it returns the safe open target set.
 For free_space_gesture pinch collection, the curl retargeter may apply a bounded thumb-index pinch overlay from pinch_thumb_index while keeping the saved full action schema unchanged.
 The pinch overlay may use simple hand-shape gates, such as requiring index bend and open middle/ring/pinky fingers, so loose thumb-index distance thresholds do not corrupt fist demos.
 ```

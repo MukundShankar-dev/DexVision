@@ -1783,11 +1783,20 @@ pytest tests/test_fingertip_retargeter.py
 ### Pass Criteria
 
 ```text
-[ ] Fingertip targets are computed
-[ ] Outputs obey joint limits
-[ ] Works on synthetic open/fist landmarks
-[ ] Fallback exists if solve fails
+[x] Fingertip targets are computed
+[x] Outputs obey joint limits
+[x] Works on synthetic open/fist landmarks
+[x] Fallback exists if solve fails
 ```
+
+The fingertip baseline transforms MediaPipe-compatible landmarks into a
+palm-local frame normalized by palm width, then uses an inexpensive geometric
+solve to map fingertip extension to the existing bounded Shadow Hand targets.
+It accepts landmark arrays or tracking results and falls back to the last valid
+targets, or a safe open pose before the first valid solve. Automated checks
+passed on September 2, 2026 using the focused suite with 7 tests, Ruff, and the
+full suite with 376 tests. Level 2.8 is complete and did not require manual
+verification.
 
 ### Codex Prompt
 
@@ -1922,7 +1931,7 @@ Do not add policy learning.
 [x] push_cube_to_target task and pilot pass all data-quality gates
 [x] Button and push datasets are scaled only after their pilot gates pass
 [x] Optional skill-card metadata export documented
-[ ] Fingertip retargeter implemented
+[x] Fingertip retargeter implemented
 [ ] Optimization retargeter implemented
 [ ] Retargeter benchmark produces results
 [ ] Level 2 README/results updated
