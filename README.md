@@ -3,8 +3,28 @@
 DexVision is a staged robotics and computer-vision project for controlling a
 simulated dexterous robot hand from live hand-pose tracking. Completed Level 2
 work turns the Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation pipeline into
-reproducible demonstration datasets. Level 3 begins with state-based behavior
-cloning of the reach skill.
+reproducible demonstration datasets. Level 3 now tests state-based behavior
+cloning on that existing, deliberately narrow data before Level 4 undertakes a
+larger multi-session dataset and reusable skill-library campaign.
+
+## Roadmap
+
+```text
+Level 1  camera hand tracking and MuJoCo teleoperation                 complete
+Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
+Level 3  learning feasibility on the existing Level 2 datasets       active
+Level 4  comprehensive dataset and qualified manipulation skills      planned
+Level 5  robustness, reproducibility, results, and portfolio polish    planned
+Level 6  language-guided composition of typed skills                   future
+```
+
+Level 3 asks whether the learning loop works; it does not claim the current
+episodes are a comprehensive robot-skill dataset. Level 4 will add genuine
+recording sessions, broader objects/goals, grasp-lift-place and recovery data,
+visual grounding, immutable releases, and held-out skill qualification. Its
+scripted pilots include sorting/packing, workspace clearing, control-panel
+operation, rigid-proxy sandwich assembly, and place-setting. Real deformable
+food cutting is outside the core plan for the current hand-only simulator.
 
 ## Clean setup
 
@@ -105,9 +125,12 @@ demonstration samples.
 
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
-[Level 2 progress file](docs/progress_level_2.md).
+[active Level 3 progress file](docs/progress_level_3.md). The later roadmap is
+defined in the [Level 4 data/skills plan](docs/progress_level_4.md),
+[Level 5 polish plan](docs/progress_level_5.md), and
+[future Level 6 orchestration boundary](docs/level6_future.md).
 
-### Current Level 2 status
+### Completed Level 2 dataset status
 
 Level 2.10B is complete. The three manipulation datasets currently marked Level
 3-ready are:
@@ -183,7 +206,9 @@ counterfactual finger-retargeting comparison, but it does not remove that curl
 bias. No independent live fingertip/optimization trajectories were collected
 or claimed; doing so requires a new operator collection campaign.
 
-No policy training or Level 5 orchestration has been implemented.
+Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
+freezes the first reach-policy evaluation protocol. No policy training or
+Level 6 orchestration has been implemented.
 
 ## Known Limitations
 

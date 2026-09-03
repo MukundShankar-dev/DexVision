@@ -1,5 +1,4 @@
 # Local project notes and source material
-DexVision\ Project\ Overview.pdf
 AGENTS.md
 README_REPO_BOOTSTRAP.md
 SETUP_NEXT_STEPS.md
@@ -31,3 +30,4 @@ Thumbs.db
 data/demos/
 data/skill_metadata/
 outputs/
+tmp/

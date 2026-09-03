@@ -938,7 +938,9 @@ class SkillCard:
 Rules:
 
 ```text
-Skill cards describe trained Level 3 policies for future Level 5 orchestration.
+Skill cards describe qualified Level 4 policies for future Level 6 orchestration.
+Level 3 feasibility checkpoints may emit provisional metadata, but provisional
+or failed policies must not appear as qualified skills by default.
 They must declare observation/action schemas and success/failure metrics.
 The action schema must include base position target, base orientation target, and finger actuator targets.
 Skill cards are metadata only; they must not implement an LLM planner or long-horizon orchestration.
@@ -984,4 +986,79 @@ one split.
 Normalization statistics must come from the training partition only.
 Reserved held-out targets must not be added to demonstration training or
 validation partitions merely to satisfy a test-split requirement.
+```
+
+---
+
+## Level 4 Comprehensive Dataset Contract
+
+The immutable Level 2 release remains the input to Level 3 feasibility work.
+Level 4 creates a new release; it must not rewrite or relabel the Level 2
+archive in place.
+
+Every new Level 4 episode must add these provenance fields to the existing
+episode contract:
+
+```text
+recording_session_id: genuine stable id for one collection session
+operator_id: stable local/pseudonymous label
+source: teleoperation, scripted, policy_rollout, or corrective_intervention
+object_instance_ids: concrete objects used in the episode
+goal_condition_id: frozen coverage-matrix cell
+camera_or_render_config: null only when no image stream is claimed
+intervention_interval and failure_reason: required for corrective data
+code/config/schema versions and random seed
+```
+
+Rules:
+
+```text
+Do not invent session ids for Level 2 legacy episodes.
+Keep complete sessions together whenever a split claims session independence.
+Keep held-out object instances and goal regions out of training when the
+evaluation protocol claims generalization to them.
+Expert successes, ordinary failures, policy rollouts, and corrective
+interventions must remain distinguishable.
+Synchronized image/state/action streams must have validated alignment.
+Every immutable release needs a manifest, checksum, schema versions, split
+manifests, coverage report, and retrieval instructions.
+```
+
+---
+
+## World State and Object Observation
+
+Planned Level 4 modules:
+
+```text
+dexvision/sim/world_state.py
+dexvision/perception/object_observations.py
+```
+
+Minimum conceptual contract:
+
+```python
+@dataclass(frozen=True)
+class ObjectObservation:
+    object_id: str
+    class_id: str
+    position: tuple[float, float, float]
+    orientation_wxyz: tuple[float, float, float, float]
+    linear_velocity: tuple[float, float, float] | None
+    source: str
+    confidence: float
+    timestamp: float
+    frame: str
+```
+
+Rules:
+
+```text
+Object ids are stable within an episode and deterministic after reset.
+Units and coordinate frames are explicit.
+Simulator ground truth and inferred perception share one typed outer schema.
+Source and confidence distinguish measured/inferred state from ground truth.
+Stale, missing, or ambiguous state must fail clearly at the skill boundary.
+A detector, tracker, or compact VLM may populate semantic/object hypotheses;
+none may bypass metric pose validation or safety checks.
 ```

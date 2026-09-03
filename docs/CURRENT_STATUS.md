@@ -8,7 +8,7 @@ Agents should read this file before selecting any checkpoint.
 
 ## Current Level
 
-Level 3 — Skill Policy Learning and Imitation Learning
+Level 3 — Learning Feasibility on Existing Data
 
 ---
 
@@ -20,7 +20,11 @@ Level 3 — Skill Policy Learning and Imitation Learning
 
 ## Last Completed Checkpoint
 
-Level 2.11 — Learning Readiness Freeze
+Level 3.0 — Roadmap Rebaseline
+
+Level 2.11 — Learning Readiness Freeze remains the last completed
+implementation/data checkpoint. Level 3.0 changed documentation and sequencing
+only; it did not implement learning code or alter the immutable Level 2 data.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -229,7 +233,7 @@ current scope with no reported crashes. Level 1 is complete.
 
 Level 2.0 — Task Board Environment and Task Set Design did not require manual
 verification. The task board environment, initial skill/task set, demonstration
-requirements, and future Level 5 orchestration boundary are documented. No
+requirements, and future Level 6 orchestration boundary are documented. No
 demo recording, replay, learning, two-hand control, or future skill
 orchestration code was implemented.
 
@@ -259,7 +263,7 @@ the full Level 1.13 action schema, recording naming convention, current
 free-space recording command, future task command placeholders, per-task demo
 targets, manual quality checklist, TODO replay/filter/summary commands, and
 Level 3 dataset readiness criteria. No code, replay, filtering, learning, or
-Level 5 orchestration was implemented. At that point, the next implementation
+Level 6 orchestration was implemented. At that point, the next implementation
 checkpoint was Level 2.3 — Demo Replay.
 
 Level 2.3 — Demo Replay manually passed on June 14, 2026 after the user
@@ -636,6 +640,14 @@ numerical acceptance gates are frozen in
 `configs/level3_evaluation.yaml`. Existing episodes were not rewritten to
 invent session ids, and the protocol explicitly forbids a cross-session claim.
 No policy, training loop, rollout evaluator, VLM, or planner was implemented.
+
+Level 3.0 — Roadmap Rebaseline did not require manual verification. The
+roadmap now treats Level 3 as a bounded learning-feasibility phase on the
+existing Level 2 release; Level 4 as the comprehensive multi-session dataset
+and qualified skill-library phase; Level 5 as portfolio polish, robustness,
+and reproducibility; and Level 6 as future language-guided orchestration. The
+renumbering does not modify completed Level 1/2 work or dataset contents. The
+next implementation checkpoint remains Level 3.1.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

@@ -1,20 +1,21 @@
-# Future Skill Orchestration
+# Future Level 6 Skill Orchestration Contract
 
-Level 5 is future skill-library and orchestration work. It is intentionally not
-part of the current DexVision / Hand2Bot implementation plan.
+Level 6 is future language-guided orchestration work. It is intentionally not
+part of the current DexVision / Hand2Bot implementation sequence.
 
 The current repository should first produce reliable building blocks:
 
 ```text
 Level 2 task demonstrations
 Level 2 replay and quality reports
-Level 3 learned policy checkpoints
-Level 3 rollout metrics
-Level 4 documentation and reproducibility artifacts
+Level 3 learning-feasibility results
+Level 4 comprehensive multi-session dataset releases
+Level 4 qualified policy checkpoints, skill cards, and rollout metrics
+Level 5 documentation, robustness, and reproducibility artifacts
 ```
 
-A future Level 5 system can consume trained Level 3 policies and skill cards as
-reusable skills. Example skills could include:
+A future Level 6 system can consume qualified Level 4 policies and skill cards
+as reusable skills. Example skills could include:
 
 ```text
 free_space_gesture, calibration only unless explicitly promoted
@@ -27,15 +28,18 @@ pinch_lift_object
 place_object
 release_object
 rotate_dial
-spread_over_surface, optional later
-tool_use_simple, optional later
+slide_object_to_target
+hold_object
+transport_object
+recover_dropped_object
+tool_use_simple, optional after core skills
 ```
 
 That orchestration layer can choose which skill to run, chain skills across a
 longer task, monitor success/failure, retry failed subtasks, and expose a
 higher-level task interface. This is separate from behavior cloning itself:
-Level 3 learns individual policies, while Level 5 would decide how to compose
-them.
+Levels 3–4 learn and qualify individual policies, while Level 6 decides how to
+compose them.
 
 The LLM/planner should select and parameterize learned skills. It should not
 output raw joint actions, raw actuator targets, or per-timestep base/finger
@@ -89,28 +93,33 @@ envelopes. For example, `grasp_object(object_id)` cannot be assumed to start
 from arbitrary robot state, and `place_object(object_id, target_pose)` must
 verify that the object is still held before execution.
 
-Example future request:
+Example future requests:
 
 ```text
-I want a sandwich.
+Sort these objects into the matching bins.
+Clear the workspace into the tray.
+Press the blue button, then turn the dial to 90 degrees.
+Assemble a cheese sandwich on the plate.
 ```
 
-Example future decomposition in a constrained environment:
+Example sandwich-proxy decomposition in a constrained environment:
 
 ```text
 reach_object(bread) -> grasp_object(bread) -> place_object(plate) -> release_object()
 ```
 
 That decomposition is illustrative, not a claim that the current repo solves
-sandwich-making. Object perception, symbolic world state, ingredient tracking,
-long-horizon planning, and robust recovery are Level 5 concerns.
+open-ended food preparation. Level 4 must first validate rigid-proxy sandwich
+assembly and at least two materially different scripted pilots. Real tomato
+cutting is excluded from the core plan because deformable-object physics,
+blade contact, force control, and tool safety exceed the current setup.
 
-Before connecting an LLM, Level 5 should validate the orchestration contract
+Before connecting an LLM, Level 6 should validate the orchestration contract
 with scripted plans and mock or deterministic skills. Learned policies should
 then be substituted behind the same supervised executor one skill at a time.
 
-Level 5 can live in a separate repository. This repo should eventually export
-the artifacts that such a repo would need:
+Level 6 can live in a separate repository. This repo should eventually export
+the Level 4/5 artifacts that such a repo would need:
 
 ```text
 policy checkpoints
@@ -125,4 +134,4 @@ checkpoint digests and compatibility metadata
 structured SkillResult examples
 ```
 
-Do not implement Level 5 orchestration in this repository yet.
+Do not implement Level 6 orchestration in this repository yet.

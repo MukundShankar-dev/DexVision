@@ -6,6 +6,11 @@ This protocol freezes the first behavior-cloning evaluation before policy
 training begins. Its machine-readable source is
 `configs/level3_evaluation.yaml`.
 
+This is a Level 3 learning-feasibility protocol for the narrow Level 2 reach
+dataset. Passing it does not qualify a comprehensive `reach_object` skill or
+support cross-session, cross-object, cross-camera, or open-world claims. Those
+claims require the new Level 4 dataset and qualification protocols.
+
 ## 1. Two Different Kinds of Evaluation
 
 Offline validation and closed-loop rollout evaluation answer different
@@ -55,6 +60,10 @@ session ids exist, every episode from one session must remain in one partition.
 A later cross-session robustness claim requires at least one genuinely separate
 session reserved from training.
 
+For new Level 4 data, `recording_session_id` is mandatory rather than optional.
+Level 2 episodes remain unchanged and may be used only as a labeled legacy
+source in later releases.
+
 ## 4. Frozen Reach Rollout Matrix
 
 Evaluate all three training targets and both held-out targets. For every target,
@@ -97,6 +106,6 @@ targets, perturbations, or thresholds.
 ## 6. Later Skills
 
 Button press and cube push need their own frozen rollout matrices before their
-policies are trained. Their Level 2 held-out configurations remain reserved,
-but this checkpoint does not invent acceptance thresholds for models that do
-not yet exist.
+policies are trained in Level 3.5A/3.5B. Their Level 2 held-out configurations
+remain reserved, but this checkpoint does not invent acceptance thresholds for
+models that do not yet exist.
