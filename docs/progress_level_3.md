@@ -409,16 +409,68 @@ tests/test_level3_evaluation_configs.py
 
 ---
 
-## Level 3.5B — Cross-Task Feasibility Baselines
+## Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
 
 ### Goal
 
-Train and evaluate the same simple pipeline on `button_press` and
-`push_cube_to_target`.
+Correct the validation-checkpoint selection flaw exposed by Level 3.4, rerun
+reach without changing its data or frozen gates, then train and evaluate the
+same corrected simple pipeline on `button_press` and `push_cube_to_target`.
+
+Level 3.4 evaluated the epoch-100 checkpoint even though validation loss was
+best at epoch 15. This is a training/checkpoint-selection defect, not permission
+to tune on held-out rollouts. The original checkpoint, report, and negative
+result remain immutable evidence.
+
+### Files
+
+```text
+dexvision/learning/train_bc.py
+dexvision/apps/train_policy.py
+configs/level3_bc.yaml
+task-specific button/push training configs
+tests/test_train_tiny.py
+tests/test_checkpoint_selection.py
+task-specific button/push training and rollout tests
+```
+
+### Required sequence
+
+```text
+1. Save separate last and best-validation checkpoints during training.
+2. Select best by lowest offline validation loss; break an exact tie by the
+   earliest epoch.
+3. Retrain reach with the same dataset digest, split, seed, architecture,
+   optimizer settings, epoch budget, action layout, and normalization.
+4. Evaluate the best-validation reach checkpoint against the unchanged 35-run
+   matrix and numerical gates under new versioned v2 output paths.
+5. Preserve and compare the Level 3.4 v1 checkpoint/report; never overwrite it.
+6. Train and evaluate button and push with the same corrected selection rule
+   and their Level 3.5A-frozen protocols.
+```
+
+Held-out rollout outcomes may be reported but must not choose an epoch,
+hyperparameter, or model. A v2 reach improvement is evidence for checkpoint
+selection; it does not erase the original v1 result.
+
+### Required outputs
+
+```text
+best and last checkpoint paths plus SHA-256 digests
+selected epoch and validation metric
+complete loss history
+v1-versus-v2 reach comparison using identical frozen scenarios
+button and push offline/closed-loop reports
+dataset, split, config, schema, checkpoint, and protocol digests
+```
 
 ### Pass criteria
 
 ```text
+[ ] Best and last checkpoints are distinct, versioned, and reproducible
+[ ] Selection uses offline validation only and follows the frozen tie-break rule
+[ ] Corrected reach uses identical data/split/seed/model/training settings and gates
+[ ] Original Level 3.4 artifacts remain unchanged and v2 writes new paths
 [ ] Both tasks train through the same dataset/model/training interfaces
 [ ] Both use their frozen evaluation protocols
 [ ] Results compare offline loss with closed-loop success
@@ -426,8 +478,9 @@ Train and evaluate the same simple pipeline on `button_press` and
 [ ] No new model family is introduced in this checkpoint
 ```
 
-The result may be negative. A task that fails is useful evidence for Level 4
-data, observation, or policy requirements.
+Any result may remain negative. A failed corrected reach, button, or push task
+is useful evidence for Level 3.6 diagnostics and Level 4 data, observation, or
+policy requirements. Do not add an unplanned hyperparameter sweep.
 
 ---
 

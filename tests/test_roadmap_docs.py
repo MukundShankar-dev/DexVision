@@ -91,6 +91,19 @@ def test_level5_checkpoints_freeze_training_and_qualification() -> None:
     assert "Do not continue to pilots" in level5
 
 
+def test_level35b_repairs_checkpoint_selection_without_rewriting_v1() -> None:
+    level3 = read("docs/progress_level_3.md")
+    normalized_level3 = " ".join(level3.split())
+
+    assert "Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines" in level3
+    assert "lowest offline validation loss" in level3
+    assert "break an exact tie" in level3
+    assert "unchanged 35-run matrix" in normalized_level3
+    assert "Preserve and compare the Level 3.4 v1 checkpoint/report" in level3
+    assert "must not choose an epoch" in level3
+    assert "Do not add an unplanned hyperparameter sweep" in level3
+
+
 def test_project_authored_markdown_has_no_old_orchestration_number_or_path() -> None:
     authored_paths = [ROOT / "AGENTS.md", ROOT / "README.md"]
     authored_paths.extend((ROOT / "datasets").glob("*.md"))
