@@ -909,6 +909,30 @@ skill orchestration.
 
 ---
 
+## Level 5 Full-Scale Skill Qualification
+
+Level 5 consumes the immutable Level 4 dataset release and frozen split
+manifests. It must not mutate accepted episodes or silently recollect data to
+repair a failed policy.
+
+Rules:
+
+```text
+Every training run records dataset, split, config, schema, seed, and checkpoint
+digests.
+Ground-truth-state and perception-grounded evaluations remain separate.
+Held-out sessions, object instances, goal regions, and scenes are not used for
+checkpoint or hyperparameter selection.
+Every core skill receives one status: qualified, experimental, or failed.
+Only qualified and schema-compatible skills are enabled in the default
+supervised registry.
+Experimental and failed skills remain visible in reports.
+When data are insufficient, create a new Level 4 release rather than modifying
+the old one in place.
+```
+
+---
+
 ## Skill Cards
 
 Module:
@@ -938,7 +962,7 @@ class SkillCard:
 Rules:
 
 ```text
-Skill cards describe qualified Level 4 policies for future Level 6 orchestration.
+Skill cards describe qualified Level 5 policies for future Level 7 orchestration.
 Level 3 feasibility checkpoints may emit provisional metadata, but provisional
 or failed policies must not appear as qualified skills by default.
 They must declare observation/action schemas and success/failure metrics.

@@ -15,33 +15,35 @@ def test_current_status_keeps_level3_loader_as_next_target() -> None:
 
     assert "Level 3 — Learning Feasibility on Existing Data" in status
     assert "`docs/progress_level_3.md`" in status
-    assert "Level 3.0 — Roadmap Rebaseline" in status
+    assert "Level 3.0B — Dataset/Learning Phase Separation" in status
     assert "Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader" in status
 
 
-def test_six_level_roadmap_has_distinct_responsibilities() -> None:
+def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
     agents = read("AGENTS.md")
     level3 = read("docs/progress_level_3.md")
     level4 = read("docs/progress_level_4.md")
     level5 = read("docs/progress_level_5.md")
-    level6 = read("docs/level6_future.md")
+    level6 = read("docs/progress_level_6.md")
+    level7 = read("docs/level7_future.md")
 
-    assert "organized into six levels" in agents
+    assert "organized into seven levels" in agents
     assert "# Progress Level 3 — Learning Feasibility on Existing Data" in level3
-    assert "# Progress Level 4 — Comprehensive Skill Dataset and Skill Library" in level4
-    assert "# Progress Level 5 — Portfolio Polish" in level5
-    assert "# Future Level 6 — Language-Guided Skill Orchestration" in level6
+    assert "# Progress Level 4 — Comprehensive Skill Dataset" in level4
+    assert "# Progress Level 5 — Full-Scale Skill Learning and Qualification" in level5
+    assert "# Progress Level 6 — Portfolio Polish" in level6
+    assert "# Future Level 7 — Language-Guided Skill Orchestration" in level7
 
 
-def test_level4_requires_diverse_pilots_and_bounds_cutting_claim() -> None:
-    level4 = read("docs/progress_level_4.md")
+def test_level5_requires_diverse_pilots_and_bounds_cutting_claim() -> None:
+    level5 = read("docs/progress_level_5.md")
 
-    assert "Sort and pack" in level4
-    assert "Clear the workspace" in level4
-    assert "Operate a control panel" in level4
-    assert "Assemble a simple sandwich proxy" in level4
-    assert "At least three materially different pilots must pass" in level4
-    assert "Real tomato cutting is not a core pilot" in level4
+    assert "Sort and pack" in level5
+    assert "Clear the workspace" in level5
+    assert "Press specified buttons" in level5
+    assert "Assemble a sandwich proxy" in level5
+    assert "At least three materially different pilots must pass" in level5
+    assert "Real tomato cutting is not a core acceptance task" in level5
 
 
 def test_project_authored_markdown_has_no_old_orchestration_number_or_path() -> None:
@@ -51,8 +53,10 @@ def test_project_authored_markdown_has_no_old_orchestration_number_or_path() -> 
     combined = "\n".join(path.read_text(encoding="utf-8") for path in authored_paths)
 
     assert "docs/level5_future.md" not in combined
+    assert "docs/level6_future.md" not in combined
     assert "Future Level 5" not in combined
     assert "Level 5 orchestration" not in combined
+    assert "Level 6 orchestration" not in combined
 
 
 def test_project_overview_source_and_pdf_exist() -> None:
@@ -60,7 +64,8 @@ def test_project_overview_source_and_pdf_exist() -> None:
     pdf_path = ROOT / "DexVision Project Overview.pdf"
 
     assert "Level 3 — Learning feasibility" in overview
-    assert "Level 4 — Comprehensive dataset and qualified skills" in overview
-    assert "Level 6 — Language-guided orchestration" in overview
+    assert "Level 4 — Comprehensive skill dataset" in overview
+    assert "Level 5 — Full-scale skill learning and qualification" in overview
+    assert "Level 7 — Language-guided orchestration" in overview
     assert pdf_path.is_file()
     assert pdf_path.stat().st_size > 1_000

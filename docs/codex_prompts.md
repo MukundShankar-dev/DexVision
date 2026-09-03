@@ -56,9 +56,10 @@ Current roadmap names:
 
 ```text
 Level 3: learning feasibility on the existing Level 2 data
-Level 4: comprehensive dataset and qualified skill library
-Level 5: robustness, reproducibility, and portfolio polish
-Level 6: future language-guided orchestration
+Level 4: comprehensive multi-session dataset and immutable release
+Level 5: full-scale skill learning, qualification, and supervised runtime
+Level 6: robustness, reproducibility, and portfolio polish
+Level 7: future language-guided orchestration
 ```
 
 Do not use a historical prompt's old scope to reintroduce work that the active
@@ -167,7 +168,7 @@ Read:
 Create or update docs only:
 - docs/progress_level_2.md
 - docs/task_environment.md
-- docs/level6_future.md or docs/skill_orchestration_future.md
+- docs/level7_future.md or docs/skill_orchestration_future.md
 - docs/CURRENT_STATUS.md, only if the checkpoint status truly needs it
 
 Define the staged tabletop MuJoCo task board, resettable tasks, fixed success
@@ -201,7 +202,7 @@ Also include:
 - metadata/config snapshot
 
 Use synthetic arrays for tests.
-Do not add live recording, replay, filtering, benchmarking, learning, or Level 6 orchestration.
+Do not add live recording, replay, filtering, benchmarking, learning, or Level 7 orchestration.
 ```
 
 ---
@@ -267,7 +268,7 @@ Make sure the runbook preserves the full Level 1.13 action schema:
 - base_orientation_target
 - finger_actuator_targets
 
-Do not implement replay, filtering, learning, Level 6 orchestration, or any
+Do not implement replay, filtering, learning, Level 7 orchestration, or any
 code changes.
 ```
 

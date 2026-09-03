@@ -17,7 +17,8 @@ push_cube_to_target: 101 clean successes
 A successful result proves the learning and evaluation pipeline works on these
 task distributions. It does not prove cross-session, cross-object,
 cross-camera, cross-operator, open-world, or long-horizon generalization. The
-comprehensive dataset and qualified skill library belong to Level 4.
+comprehensive dataset belongs to Level 4; the qualified skill library belongs
+to Level 5.
 
 Start with state-based behavior cloning and the simplest model that answers the
 feasibility question. Do not add image policies, compact VLMs, skill
@@ -45,15 +46,19 @@ Level 3:
 saved Level 2 state + typed goal -> learned policy -> bounded low-level action
 
 Level 4:
-multi-session comprehensive data -> qualified reusable skill library
+multi-session comprehensive data -> immutable dataset release
 
-Level 6:
+Level 5:
+Level 4 release -> full-scale learning -> qualified reusable skill library
+
+Level 7:
 language request -> typed plan -> deterministic supervisor -> qualified skills
 ```
 
 Long-horizon requests such as sandwich assembly must not be learned end to end
-in Level 3. Visual object identity, broader object/goal coverage, grasp/lift/
-place data, recovery data, and diverse composed pilots are Level 4 work.
+in Level 3. Broader object/goal coverage and visual/grasp/lift/place/recovery
+data are Level 4 work. Full-scale perception/policy learning, qualification,
+and diverse composed pilots are Level 5 work.
 
 ---
 
@@ -61,24 +66,44 @@ place data, recovery data, and diverse composed pilots are Level 4 work.
 
 ### Goal
 
-Align every project document around the feasibility-first Level 3, the new
-comprehensive Level 4, the renumbered polish Level 5, and future orchestration
-Level 6.
+Establish Level 3 as a feasibility-first phase and reserve a later phase for a
+comprehensive data and skill campaign. Level 3.0B below supersedes its initial
+combined data/learning numbering.
 
 ### Pass criteria
 
 ```text
 [x] Level 3 is explicitly limited to learning feasibility on Level 2 data
-[x] Level 4 owns comprehensive dataset collection and skill qualification
-[x] The previous portfolio Level 4 is preserved as Level 5
-[x] Language-guided orchestration is consistently Level 6
-[x] At least three diverse final pilot tasks are defined
-[x] Real tomato cutting is explicitly outside the core acceptance scope
+[x] A later comprehensive data/skill campaign is defined
 [x] Current implementation target remains Level 3.1
 ```
 
 No learning, collection, perception, policy runtime, or orchestration code is
 implemented by this checkpoint.
+
+---
+
+## Level 3.0B — Dataset/Learning Phase Separation
+
+### Goal
+
+Separate the comprehensive data haul from full-scale skill learning and shift
+all later roadmap phases consistently.
+
+### Pass criteria
+
+```text
+[x] Level 4 owns comprehensive dataset collection and immutable release
+[x] Level 5 owns full-scale skill learning, qualification, and runtime
+[x] The former portfolio phase is preserved as Level 6
+[x] Language-guided orchestration is consistently Level 7
+[x] Diverse pilots belong to Level 5 and include more than sandwich assembly
+[x] Real tomato cutting remains outside the core acceptance scope
+[x] Current implementation target remains Level 3.1
+```
+
+No learning, collection, perception, policy runtime, or orchestration code is
+implemented by this docs-only checkpoint.
 
 ---
 
@@ -437,7 +462,7 @@ what trained and what failed
 offline versus closed-loop results
 generalization claims that are and are not supported
 data gaps by task, session, object, goal, and failure mode
-recommended model carried into Level 4
+recommended model for Level 5 and the Level 4 data fields it requires
 required new observations, perception labels, and collection metadata
 estimated Level 4 collection cells and episode counts
 ```
@@ -448,7 +473,7 @@ estimated Level 4 collection cells and episode counts
 [ ] Every result traces to a config, split, dataset, and checkpoint digest
 [ ] Negative results and protocol changes are visible
 [ ] No cross-session or open-world claim is made from Level 2 data
-[ ] Level 4 requirements follow from measured failures and target pilot tasks
+[ ] Level 4 requirements follow from measured failures and Level 5 target pilots
 [ ] Current status advances only after the report is complete
 ```
 
@@ -457,7 +482,7 @@ estimated Level 4 collection cells and episode counts
 # Level 3 Completion Checklist
 
 ```text
-[x] Roadmap rebaselined around learning feasibility and later data scale-up
+[x] Roadmap separates feasibility, comprehensive data, and full-scale learning
 [ ] Deterministic per-skill dataset loader works
 [ ] Training-only normalization and split manifests are saved
 [ ] Goal-conditioned MLP and tiny overfit test work

@@ -7,9 +7,9 @@ of recording, replay, learning, or orchestration.
 The task board is a skill-learning environment. Level 2 defines resettable
 tasks and records demonstrations; Level 3 trains learning-feasibility baselines
 from those demonstrations; Level 4 expands the tasks into a comprehensive
-multi-session dataset and qualifies reusable
-skills; a future Level 6 planner may compose qualified skills into longer
-tasks. Level 6 composition is not implemented here.
+multi-session dataset; Level 5 learns and qualifies reusable skills from that
+release; a future Level 7 planner may compose qualified skills into longer
+tasks. Level 7 composition is not implemented here.
 
 Level 2 should use the completed Level 1.13 teleoperation action space:
 
@@ -155,7 +155,7 @@ contact/touch flag when available
 
 ## Skill Parameters And Composition Contracts
 
-Tasks that are intended to become reusable Level 3 skills must be
+Tasks that are intended to support reusable Level 5 skills must be
 goal-parameterized. A fixed target or object may be used for a smoke test, but
 the task schema and saved episodes must still declare the parameter values that
 produced each trajectory.
@@ -199,8 +199,9 @@ whether a retry is safe
 ```
 
 The Level 3 policy should run closed loop from observation plus typed goal
-parameters. Level 4 should retain this contract while broadening data and
-qualifying the skill. The future Level 6 planner should invoke those parameters
+parameters. Level 4 should retain this contract while broadening the data;
+Level 5 should use it while learning and qualifying the skill. The future Level
+7 planner should invoke those parameters
 through a supervised executor and receive a structured terminal result; it
 should not control per-timestep actions.
 
@@ -212,15 +213,16 @@ The initial task set is staged from simple operator/action-distribution demos
 to contact and object manipulation. These are primitive skills, not a solved
 long-horizon application. They could support a future constrained sandwich
 environment, but object perception, symbolic state, sequencing, and long-horizon
-planning remain future Level 6 concerns.
+planning remain future Level 7 concerns.
 
 Level 4 broadens this initial task board into object families, independent
-recording sessions, visual grounding, recovery data, and composed scripted
-pilots. Its core pilots are sorting/packing, workspace clearing, control-panel
-operation, and rigid-proxy sandwich assembly; at least three materially
-different pilots must pass. Real tomato cutting is not a core task because the
-current hand-only setup does not validate deformable-object fracture, blade
-contact, force control, or tool safety.
+recording sessions, visual grounding, and recovery data. Level 5 learns and
+qualifies the resulting skills, then runs composed scripted pilots. Its core
+pilots are sorting/packing, workspace clearing, control-panel operation, and
+rigid-proxy sandwich assembly; at least three materially different pilots must
+pass. Real tomato cutting is not a core task because the current hand-only
+setup does not validate deformable-object fracture, blade contact, force
+control, or tool safety.
 
 Curriculum notes:
 
@@ -926,5 +928,5 @@ optional until core reach/contact/push/grasp/place skills are reliable.
 ## Out Of Scope
 
 Level 2 should not train policies, add Level 3 learning code, or implement
-future Level 6 skill orchestration. Level 2's job is to produce reliable,
+future Level 7 skill orchestration. Level 2's job is to produce reliable,
 validated demonstrations and benchmarks that Level 3 can consume later.

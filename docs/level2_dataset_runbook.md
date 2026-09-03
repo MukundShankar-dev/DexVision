@@ -14,6 +14,7 @@ The completed Level 2 release is now the bounded input to a Level 3 learning-
 feasibility study. It is not the comprehensive dataset envisioned for the
 final project. New multi-session, cross-object, visual-grounding, and recovery
 data belongs to Level 4 and must be published as a separate immutable release.
+Full-scale training and qualification on that release belong to Level 5.
 
 The goal is not to train policies yet. The goal is to collect demonstrations
 that can be loaded, replayed, validated, filtered, summarized, and trusted as
@@ -611,7 +612,7 @@ timesteps from one episode into multiple splits.
   `push_cube_to_target` now satisfy these data gates; later tasks do not.
 - Do not collect large datasets before task schemas, success metrics, action
   schemas, and observation schemas stabilize.
-- Do not implement Level 6 orchestration in this repo.
+- Do not implement Level 7 orchestration in this repo.
 - Do not use finger-only action logs for serious skill learning now that the
   full Level 1.13 action space exists.
 - Do not assume free-space gesture demos are enough for object manipulation

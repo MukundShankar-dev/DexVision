@@ -20,8 +20,9 @@ It is not the project's final comprehensive skill dataset and must not be used
 to claim cross-session, cross-object, cross-camera, or open-world
 generalization. Level 4 will publish a separate versioned release with genuine
 session ids, broader objects/goals, grasp-lift-place and recovery coverage, and
-visual grounding data. The Level 2 archive must not be overwritten when that
-release is created.
+visual grounding data. Level 5 will train and qualify the full skill set from
+that frozen release. The Level 2 archive must not be overwritten when the
+Level 4 release is created.
 
 `dexvision_level2_v1_manifest.json` records the archive digest, task counts,
 frame counts, report digests, and the known absence of recording-session ids.

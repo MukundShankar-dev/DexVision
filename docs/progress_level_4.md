@@ -1,15 +1,16 @@
-# Progress Level 4 — Comprehensive Skill Dataset and Skill Library
+# Progress Level 4 — Comprehensive Skill Dataset
 
 Level 4 goal:
 
 > Turn the Level 3 learning proof into a broad, versioned, multi-session
-> dataset and a qualified library of reusable manipulation skills.
+> dataset that can support full-scale reusable-skill learning in Level 5.
 
 Level 3 answers whether the current Level 2 data and learning pipeline can
-produce useful policies. It does not establish a comprehensive skill library.
+produce useful policies. It does not establish a comprehensive skill dataset.
 Level 4 is the deliberate data haul: expand task coverage, collect independent
-sessions, record recovery behavior, add visual grounding data, retrain the
-successful Level 3 approach, and qualify each skill behind one typed runtime.
+sessions, record recovery behavior, add visual grounding data, audit coverage,
+and publish an immutable release. Full-scale policy training, skill
+qualification, skill cards/runtime, and composed pilots belong to Level 5.
 
 Level 4 must remain incremental. Every numbered section below is a separate
 checkpoint. Do not begin bulk collection until its task, metadata, coverage,
@@ -23,10 +24,10 @@ The intended stack separates semantic decisions from continuous control:
 
 ```text
 language request
-  -> symbolic task plan (future Level 6)
+  -> symbolic task plan (future Level 7)
   -> object ids, target ids, and typed skill calls
   -> deterministic supervisor and world-state checks
-  -> learned Level 4 skill policy
+  -> learned Level 5 skill policy
   -> bounded base/wrist/finger actions
 ```
 
@@ -84,12 +85,13 @@ preparation.
 
 ---
 
-## Level 4.0 — Dataset and Skill Scope Freeze
+## Level 4.0 — Comprehensive Dataset Scope Freeze
 
 ### Goal
 
 Freeze the first comprehensive release plan before creating tasks or recording
-hundreds of episodes.
+hundreds of episodes. This checkpoint defines the skills the data must support;
+it does not train those skills.
 
 ### Files
 
@@ -109,7 +111,7 @@ minimum independent recording sessions
 minimum accepted episodes per skill family
 failure and recovery sampling targets
 required RGB/state/action streams
-quality and policy-qualification gates
+data-quality gates and planned Level 5 policy-qualification handoff
 dataset release name and schema versions
 ```
 
@@ -360,35 +362,34 @@ keep evaluation failures out of the training set until a new protocol version
 
 ---
 
-## Level 4.8 — Visual Grounding Dataset and Baseline
+## Level 4.8 — Visual Grounding Dataset and Integrity Checks
 
 ### Goal
 
-Connect object language and pixels to the object ids and poses used by skills.
+Record the aligned visual supervision that Level 5 will use to connect object
+language and pixels to object ids and poses.
 
 ### Build order
 
 ```text
-1. Export rendered RGB plus simulator boxes/masks/poses.
-2. Validate image/state/action alignment.
-3. Train or integrate a conventional detector/segmenter baseline.
-4. Measure localization and identity tracking separately from motor policy.
-5. Optionally test a compact local VLM for semantic selection/disambiguation.
+1. Export rendered RGB plus simulator boxes, masks, poses, and stable ids.
+2. Validate image/state/action alignment and annotation completeness.
+3. Reserve scene, object-instance, and session-held-out visual splits.
+4. Run non-learning integrity checks and simple deterministic smoke baselines.
 ```
 
-The default architecture is detector/tracker plus a normal language model or
-small VLM for high-level selection. Do not make a VLM responsible for precise
-poses or direct hand control unless an explicit experiment demonstrates that
-contract safely and reproducibly.
+Level 5 may train a detector/tracker plus an optional compact VLM for semantic
+selection. Level 4 must not use a model result to hide incomplete or misaligned
+annotations.
 
 ### Pass criteria
 
 ```text
 [ ] Visual labels derive from known simulator state or reviewed annotations
 [ ] Object ids remain aligned across frames
-[ ] Detection/selection metrics are reported on held-out scenes
-[ ] Motor-policy results identify whether they use ground truth or perception
-[ ] GPU/model requirements and licenses are documented
+[ ] Held-out visual splits are frozen before Level 5 training
+[ ] Annotation completeness and alignment metrics are reported
+[ ] External asset sources and licenses are documented
 ```
 
 ---
@@ -428,112 +429,6 @@ payload. Do not silently omit large streams or commit mutable working data.
 
 ---
 
-## Level 4.10 — Retrain and Qualify the Skill Library
-
-### Goal
-
-Apply the Level 3 learning result to each core skill family and decide whether
-it is qualified, experimental, or failed.
-
-### Required evaluation
-
-```text
-offline session-held-out action prediction
-closed-loop task success
-held-out object and goal conditions
-action smoothness and safety limits
-failure reason distribution
-perception-grounded rollout where applicable
-comparison with the Level 3 baseline
-```
-
-Use the simplest Level 3 model that worked. Temporal or action-chunked models
-are justified only when the measured Level 3/4 failure mode calls for them.
-
-### Pass criteria
-
-```text
-[ ] Every core skill has a frozen evaluation protocol
-[ ] Results distinguish ground-truth-state and visual-perception inputs
-[ ] Failed skills are reported rather than hidden
-[ ] Qualified skills meet explicit numerical gates on held-out conditions
-```
-
----
-
-## Level 4.11 — Skill Cards, Registry, and Supervised Executor
-
-### Goal
-
-Expose qualified policies through one typed, policy-independent runtime without
-adding an LLM or long-horizon planner.
-
-### Files
-
-```text
-dexvision/learning/skill_cards.py
-dexvision/learning/skill_registry.py
-dexvision/learning/skill_executor.py
-dexvision/apps/run_skill.py
-tests/test_skill_executor.py
-```
-
-### Pass criteria
-
-```text
-[ ] Cards include versioned schemas, checkpoint digest, parameters, and metrics
-[ ] Registry excludes incompatible or unqualified policies by default
-[ ] Preconditions, timeouts, safety limits, and terminal states are enforced
-[ ] Repeated request ids do not duplicate physical actions
-[ ] No LLM, web API, or multi-skill planner is implemented
-```
-
----
-
-## Level 4.12 — Diverse Scripted Pilot Tasks
-
-### Goal
-
-Prove that the skill library supports more than one hand-authored showcase
-before Level 6 adds language planning.
-
-### Core pilots
-
-```text
-1. Sort and pack: move varied objects into matching bins/receptacles.
-2. Clear the workspace: push reachable objects together, then pick/place them
-   into a tray while handling at least one recoverable miss.
-3. Operate a control panel: press specified buttons and rotate a dial to target
-   states in a given order.
-4. Assemble a simple sandwich proxy: stack rigid bread/filling props on a plate
-   in a specified order; no deformable food, spreading, or cutting claim.
-```
-
-Candidate fifth pilot:
-
-```text
-Set a snack place: position a cup, plate, and utensil proxy at named target
-poses. This emphasizes precise placement and object identity rather than the
-same stacking behavior as sandwich assembly.
-```
-
-At least three materially different pilots must pass. Each pilot uses a
-deterministic scripted plan and the same typed skill calls intended for future
-Level 6 orchestration. A pilot fails if a human silently repairs state between
-skills.
-
-### Pass criteria
-
-```text
-[ ] At least three diverse pilots run from reset through explicit termination
-[ ] Every step records the skill request, result, and world-state transition
-[ ] Recovery and abort behavior are visible and deterministic
-[ ] Per-pilot success rates and failure reasons are reported
-[ ] Sandwich assembly is one pilot, not the project's sole final claim
-```
-
----
-
 # Level 4 Completion Checklist
 
 ```text
@@ -542,10 +437,9 @@ skills.
 [ ] Core reach/grasp/lift/transport/place/release data is collected
 [ ] Push/slide/press/rotate data is generalized
 [ ] Corrective and recovery data is separately labeled
-[ ] Visual grounding data and a measured baseline exist
+[ ] Visual grounding data and integrity checks exist
 [ ] Immutable Level 4 dataset release is reproducible
-[ ] Core policies are evaluated on held-out sessions and conditions
-[ ] Qualified skills run through one supervised executor
-[ ] At least three diverse scripted pilots pass
-[ ] Limitations and failed skills are reported honestly
+[ ] Session/object/goal/visual split manifests are frozen for Level 5
+[ ] Dataset limitations, biases, and missing coverage are reported honestly
+[ ] No full-scale policy training or skill qualification is claimed
 ```

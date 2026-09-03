@@ -9,7 +9,7 @@ training begins. Its machine-readable source is
 This is a Level 3 learning-feasibility protocol for the narrow Level 2 reach
 dataset. Passing it does not qualify a comprehensive `reach_object` skill or
 support cross-session, cross-object, cross-camera, or open-world claims. Those
-claims require the new Level 4 dataset and qualification protocols.
+claims require the new Level 4 dataset and Level 5 qualification protocols.
 
 ## 1. Two Different Kinds of Evaluation
 

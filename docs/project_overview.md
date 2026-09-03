@@ -37,7 +37,7 @@ camera -> hand landmarks -> features/smoothing -> retargeting -> MuJoCo
                                                                     v
                                                   learned skill policy -> evaluation
 
-future:
+future Level 7:
 language request -> task plan -> deterministic supervisor -> qualified skill executor
 ```
 
@@ -74,9 +74,9 @@ Passing Level 3 proves the learning pipeline on the Level 2 distributions. It
 does not establish cross-session, cross-object, visual, or open-world
 generalization.
 
-### Level 4 — Comprehensive dataset and qualified skills (planned)
+### Level 4 — Comprehensive skill dataset (planned)
 
-Level 4 is the major data haul and skill-library phase. New data must carry
+Level 4 is the major data-haul phase. New data must carry
 genuine session provenance, broader object and goal variation, synchronized
 visual labels when used, explicit failures, and corrective/recovery episodes.
 The planning floor is 100 accepted episodes per core skill family across at
@@ -94,22 +94,36 @@ press/rotate
 regrasp/drop recovery
 ```
 
-The successful Level 3 approach is retrained and evaluated on session-held-out
-and condition-held-out data. Only policies that meet frozen closed-loop gates
-enter the skill registry and supervised executor.
+Level 4 ends with an immutable release, coverage and bias reports, and frozen
+session/object/goal/visual splits. It does not claim full-scale trained skills.
 
-Visual grounding starts with simulator truth and rendered boxes, masks, and
-poses, then a conventional detector/tracker. A compact local VLM may be tested
-for semantic object selection; metric localization and safety remain separate.
+Visual data starts with simulator truth and rendered boxes, masks, poses, and
+stable ids. Model training waits for Level 5.
 
-### Level 5 — Robustness and portfolio polish (planned)
+### Level 5 — Full-scale skill learning and qualification (planned)
 
-The previous Level 4 roadmap is preserved here: README and architecture polish,
+Level 5 retrains the successful Level 3 approach on the comprehensive release
+and evaluates every core skill on session-held-out and condition-held-out data.
+It separately measures ground-truth-state and perception-grounded rollouts,
+adds corrective/recovery learning, and escalates to temporal or action-chunked
+models only when measured failures justify the complexity.
+
+Only qualified policies enter the typed skill registry and supervised
+executor. Level 5 then runs at least three materially different scripted pilot
+tasks through that same interface.
+
+Visual grounding uses a conventional detector/tracker first. A compact local
+VLM may be tested for semantic object selection; metric localization and safety
+remain separate.
+
+### Level 6 — Robustness and portfolio polish (planned)
+
+The original portfolio roadmap is preserved here: README and architecture polish,
 results tables, demo materials, robust CLI/config handling, reproducibility and
 CI, troubleshooting, optional dataset export, and carefully labeled advanced
 extensions.
 
-### Level 6 — Language-guided orchestration (future)
+### Level 7 — Language-guided orchestration (future)
 
 An LLM or deterministic planner consumes symbolic world state and versioned
 skill cards. It creates typed plans; a deterministic supervisor validates and
@@ -118,7 +132,7 @@ learned policies are introduced one at a time.
 
 ## Diverse pilot tasks
 
-The final evaluation is not a single sandwich demo. Level 4 must validate at
+The final evaluation is not a single sandwich demo. Level 5 must validate at
 least three materially different scripted pilots through the same typed skill
 interface:
 
@@ -147,6 +161,7 @@ while a versioned external artifact store holds the immutable payload.
 
 DexVision currently demonstrates a complete teleoperation and dataset engine.
 Level 3 will determine whether its existing data can support autonomous
-policies. Level 4 will determine whether those methods can become a broad,
-qualified skill library. Language-guided multi-skill behavior remains future
-work until those evidence gates pass.
+policies. Level 4 will determine whether a comprehensive dataset can be built;
+Level 5 will determine whether those data can become a broad, qualified skill
+library. Language-guided multi-skill behavior remains future work until those
+evidence gates pass.

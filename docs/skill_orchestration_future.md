@@ -1,6 +1,6 @@
-# Future Level 6 Skill Orchestration Contract
+# Future Level 7 Skill Orchestration Contract
 
-Level 6 is future language-guided orchestration work. It is intentionally not
+Level 7 is future language-guided orchestration work. It is intentionally not
 part of the current DexVision / Hand2Bot implementation sequence.
 
 The current repository should first produce reliable building blocks:
@@ -10,11 +10,11 @@ Level 2 task demonstrations
 Level 2 replay and quality reports
 Level 3 learning-feasibility results
 Level 4 comprehensive multi-session dataset releases
-Level 4 qualified policy checkpoints, skill cards, and rollout metrics
-Level 5 documentation, robustness, and reproducibility artifacts
+Level 5 qualified policy checkpoints, skill cards, runtime, and rollout metrics
+Level 6 documentation, robustness, and reproducibility artifacts
 ```
 
-A future Level 6 system can consume qualified Level 4 policies and skill cards
+A future Level 7 system can consume qualified Level 5 policies and skill cards
 as reusable skills. Example skills could include:
 
 ```text
@@ -38,8 +38,8 @@ tool_use_simple, optional after core skills
 That orchestration layer can choose which skill to run, chain skills across a
 longer task, monitor success/failure, retry failed subtasks, and expose a
 higher-level task interface. This is separate from behavior cloning itself:
-Levels 3–4 learn and qualify individual policies, while Level 6 decides how to
-compose them.
+Level 3 proves feasibility, Level 4 supplies comprehensive data, and Level 5
+learns and qualifies individual policies; Level 7 decides how to compose them.
 
 The LLM/planner should select and parameterize learned skills. It should not
 output raw joint actions, raw actuator targets, or per-timestep base/finger
@@ -109,17 +109,17 @@ reach_object(bread) -> grasp_object(bread) -> place_object(plate) -> release_obj
 ```
 
 That decomposition is illustrative, not a claim that the current repo solves
-open-ended food preparation. Level 4 must first validate rigid-proxy sandwich
+open-ended food preparation. Level 5 must first validate rigid-proxy sandwich
 assembly and at least two materially different scripted pilots. Real tomato
 cutting is excluded from the core plan because deformable-object physics,
 blade contact, force control, and tool safety exceed the current setup.
 
-Before connecting an LLM, Level 6 should validate the orchestration contract
+Before connecting an LLM, Level 7 should validate the orchestration contract
 with scripted plans and mock or deterministic skills. Learned policies should
 then be substituted behind the same supervised executor one skill at a time.
 
-Level 6 can live in a separate repository. This repo should eventually export
-the Level 4/5 artifacts that such a repo would need:
+Level 7 can live in a separate repository. This repo should eventually export
+the Level 5/6 artifacts that such a repo would need:
 
 ```text
 policy checkpoints
@@ -134,4 +134,4 @@ checkpoint digests and compatibility metadata
 structured SkillResult examples
 ```
 
-Do not implement Level 6 orchestration in this repository yet.
+Do not implement Level 7 orchestration in this repository yet.

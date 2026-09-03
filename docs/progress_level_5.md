@@ -1,492 +1,448 @@
-# Progress Level 5 — Portfolio Polish, Robustness, and Industry-Aligned Extensions
+# Progress Level 5 — Full-Scale Skill Learning and Qualification
 
 Level 5 goal:
 
-> Turn the working project into a portfolio-grade artifact that demonstrates engineering maturity, reproducibility, and relevance to modern embodied AI / humanoid robotics roles.
+> Train, evaluate, and package a comprehensive set of reusable manipulation
+> skills from the frozen Level 4 dataset.
 
-Level 5 follows the comprehensive Level 4 dataset and skill-library work. It
-does not replace missing data or failed policy qualification with presentation;
-it packages measured results and makes the implemented system robust,
-reproducible, and understandable.
+Level 3 establishes whether learning works at all on the narrow Level 2 data.
+Level 4 creates the larger, multi-session, visually grounded dataset. Level 5
+is where those data become qualified policies and a supervised skill library.
 
-Level 5 should present DexVision / Hand2Bot as:
+Level 5 must not collect an unplanned replacement dataset to rescue a failed
+experiment. If the frozen Level 4 data are insufficient, report the failure,
+define the missing coverage, and return through a new versioned Level 4 data
+checkpoint before retraining.
 
-```text
-full hand-pose teleoperation
-demonstration recording and replay
-imitation learning from saved task demos
-the versioned Level 4 dataset and qualified skill library
-diverse scripted pilot-task results
-```
-
-Future Level 6 language-guided skill orchestration should be described as
-future work, not implemented in this repo. It can live in a separate repository that
-consumes qualified Level 4 policies, task metadata, world-state contracts, and
-skill descriptions exported from DexVision.
+Language-guided task planning is Level 7. Level 5 may run deterministic
+scripted multi-skill plans, but it must not add an LLM planner or allow a model
+to emit raw high-rate actuator commands.
 
 ---
 
-## Level 5.1 — Project README Rewrite
+## Level 5 Skill-Learning Boundary
+
+```text
+Level 4 release + typed goal + world state
+  -> trained Level 5 perception/controller components
+  -> supervised skill executor
+  -> structured terminal SkillResult
+```
+
+The skill controller owns bounded closed-loop action prediction. Visual
+perception produces stable object ids and poses. A compact VLM may help map a
+phrase to an object id, but metric localization and safety checks remain with
+the grounded perception and supervisor layers.
+
+Core skill families:
+
+```text
+approach: reach_object
+acquire: grasp_object
+retain: hold_object, lift_object
+move: transport_object
+deposit: place_object, release_object
+planar interaction: push_object_to_target, slide_object_to_target
+fixture interaction: press_button, rotate_dial
+recovery: retry_approach, regrasp_object, recover_dropped_object
+```
+
+Candidate skills such as alignment, stacking, hinged-lid operation, and simple
+guided tool use remain optional until every required core skill has a measured
+qualification result.
+
+---
+
+## Level 5.0 — Learning Scope and Evaluation Freeze
 
 ### Goal
 
-Make the repository understandable in 60 seconds.
+Turn the Level 3 results and Level 4 release into a frozen training and
+qualification matrix before full-scale training starts.
 
 ### Files
 
 ```text
-README.md
-assets/diagrams/system_overview.png
+docs/level5_learning_plan.md
+configs/level5_learning.yaml
+configs/level5_evaluation/*.yaml
+tests/test_level5_learning_plan.py
 ```
 
-### README Sections
+### Required decisions
 
 ```text
-Project overview
-Why this matters
-System architecture
-Level 1 demo
-Level 2 data pipeline
-Level 3 learning feasibility
-Level 4 comprehensive dataset and qualified skills
-diverse scripted pilot tasks
-Results
-How to run
-Failure modes
-Future work
+model carried forward from Level 3
+per-skill observation, goal, and action schemas
+session/object/goal/scene split manifests from Level 4
+ground-truth-state versus perception-grounded evaluation tracks
+numerical offline, rollout, safety, and recovery gates
+training budget, seeds, checkpoint-selection rule, and stop conditions
+qualified, experimental, and failed status definitions
 ```
 
-### Pass Criteria
+### Pass criteria
 
 ```text
-[ ] README has GIF/video link
-[ ] README has architecture diagram
-[ ] README has clear install instructions
-[ ] README has commands for each level
-[ ] README explains what is complete vs planned
-```
-
-### Codex Prompt
-
-```text
-Rewrite README.md for a portfolio audience.
-Use the actual implemented commands and results from the repo.
-Do not exaggerate results.
-Include sections for architecture, demos, results, limitations, and future work.
+[ ] Every core skill has a frozen protocol before training
+[ ] Validation selects checkpoints; held-out test conditions do not tune them
+[ ] Model escalation rules are evidence-based
+[ ] Dataset and split digests are immutable inputs
+[ ] No full-scale training starts before this checkpoint passes
 ```
 
 ---
 
-## Level 5.2 — Architecture Diagram
+## Level 5.1 — Full-Scale Dataset and Training Infrastructure
 
 ### Goal
 
-Create a simple visual pipeline.
-
-### Diagram
-
-```text
-Camera
-→ Hand Pose
-→ Features
-→ Retargeting
-→ MuJoCo
-→ Demo Dataset
-→ Imitation Policy
-→ Supervised Skill Executor
-→ Evaluation
-```
-
-If future Level 6 is shown, place it outside the DexVision boundary:
-
-```text
-Future LLM/planner
-→ deterministic orchestration supervisor
-→ DexVision supervised skill executor
-```
+Load the comprehensive release efficiently and reproducibly across every skill
+family.
 
 ### Files
 
 ```text
-assets/diagrams/system_overview.*
-docs/architecture.md
-```
-
-### Pass Criteria
-
-```text
-[ ] Diagram exists
-[ ] README links to it
-[ ] Diagram matches actual code
-[ ] DexVision and future Level 6 boundaries are visually distinct
-[ ] No fictional components included
-```
-
-### Codex Prompt
-
-```text
-Create docs/architecture.md with a clear system diagram in Mermaid.
-The diagram should reflect the actual implemented modules and data flow.
-Do not include future modules as if they already exist.
-```
-
----
-
-## Level 5.3 — Demo Video Script
-
-### Goal
-
-Create a 60-90 second demo plan.
-
-### Files
-
-```text
-docs/demo_video_script.md
-```
-
-### Structure
-
-```text
-0-10s: problem and project title
-10-25s: hand tracking overlay
-25-40s: MuJoCo teleop
-40-55s: recording and replay
-55-75s: imitation policy rollout
-75-90s: metrics and limitations
-```
-
-### Pass Criteria
-
-```text
-[ ] Script exists
-[ ] Captures are listed
-[ ] Commands to generate scenes are listed
-[ ] No overclaiming
-```
-
-### Codex Prompt
-
-```text
-Create docs/demo_video_script.md.
-It should describe a 60-90 second portfolio demo using only features already implemented.
-Include commands needed to reproduce each clip.
-```
-
----
-
-## Level 5.4 — Results Tables
-
-### Goal
-
-Summarize performance clearly.
-
-### Files
-
-```text
-docs/results.md
-outputs/results/*.csv
-outputs/results/*.png
-```
-
-### Tables
-
-Retargeting:
-
-```text
-method
-latency
-jitter
-joint-limit rate
-success rate
-notes
-```
-
-Policy:
-
-```text
-policy
-dataset
-success rate
-final distance
-action jerk
-notes
-```
-
-### Pass Criteria
-
-```text
-[ ] Results generated from scripts
-[ ] Tables included in docs
-[ ] Plots included
-[ ] Failure modes described
-```
-
-### Codex Prompt
-
-```text
-Create or update docs/results.md using the metrics already generated by benchmark scripts.
-Include tables for retargeting and policy evaluation.
-Do not invent numbers. If metrics are missing, mark them TODO.
-```
-
----
-
-## Level 5.5 — Robust CLI and Configs
-
-### Goal
-
-Make the project easy to run.
-
-### Files
-
-```text
-configs/*.yaml
-dexvision/config.py
-docs/running.md
+dexvision/learning/skill_datasets.py
+dexvision/learning/training_manifest.py
+dexvision/apps/train_skill.py
+tests/test_skill_datasets.py
 ```
 
 ### Requirements
 
 ```text
-all app scripts accept --config
-paths configurable
-camera id configurable
-model path configurable
-seed configurable
-headless flag where possible
-output directory configurable
+session-grouped and condition-grouped splits
+training-only normalization
+state, visual, expert, failure, and corrective streams
+deterministic sampling and weighting
+schema/layout validation without inferred offsets
+checkpoint/config/dataset/split digests
+CPU smoke tests and optional CUDA acceleration
 ```
 
-### Pass Criteria
+### Pass criteria
 
 ```text
-[ ] No hardcoded local paths
-[ ] Mac/Windows path handling works
-[ ] Config examples documented
-[ ] Errors are readable
-```
-
-### Codex Prompt
-
-```text
-Refactor app scripts to accept YAML configs consistently.
-Add dexvision/config.py for loading configs.
-Do not change core algorithm behavior.
-Update docs/running.md with examples.
+[ ] No split leakage across reserved sessions or conditions
+[ ] Expert, failure, and corrective data can be selected independently
+[ ] Image/state/action alignment is verified at load time
+[ ] Interrupted training can resume without changing sample assignments
+[ ] Small CPU-only end-to-end test passes
 ```
 
 ---
 
-## Level 5.6 — Reproducibility Harness
+## Level 5.2 — Reach and Approach Policies
 
 ### Goal
 
-One command should run core tests and smoke checks.
+Train and qualify goal-conditioned reaching across the Level 4 object and pose
+coverage.
+
+### Evaluation
+
+```text
+held-out recording sessions
+held-out object instances and goal regions
+workspace-boundary starts
+ground-truth object state
+perception-grounded object state, separately reported
+```
+
+### Pass criteria
+
+```text
+[ ] Offline and closed-loop metrics are saved
+[ ] Cross-session and condition-held-out results meet frozen gates or fail visibly
+[ ] Invalid actions and workspace/joint-limit violations are zero or within gate
+[ ] `reach_object` has a typed valid-initial-state and terminal-state envelope
+```
+
+---
+
+## Level 5.3 — Grasp, Hold, and Lift Policies
+
+### Goal
+
+Train acquisition and retention policies that generalize across the frozen
+rigid-object families.
+
+### Required metrics
+
+```text
+grasp acquisition rate
+stable hold duration
+lift-height success
+slip and drop rate
+unwanted contact and safety violations
+performance by object shape, mass, friction, and session
+```
+
+### Pass criteria
+
+```text
+[ ] Each policy has independently measurable success and failure
+[ ] Held-object state is physically recomputed, not inferred from the action
+[ ] Failed acquisitions, slips, and drops remain in reports
+[ ] Qualified policies meet every frozen per-object and aggregate gate
+```
+
+---
+
+## Level 5.4 — Transport, Place, and Release Policies
+
+### Goal
+
+Train object-in-hand transitions needed by useful composed tasks.
+
+### Required metrics
+
+```text
+transport retention rate
+target-pose/receptacle placement success
+post-release stability
+premature-release and misplacement rates
+performance by source, destination, object, and session
+```
+
+### Pass criteria
+
+```text
+[ ] Execution rejects episodes where the object is not actually held
+[ ] Place and release policies have explicit, compatible terminal envelopes
+[ ] Held-out receptacles and goal regions are evaluated
+[ ] Failed transfers and unstable post-release states remain visible
+```
+
+---
+
+## Level 5.5 — Push, Slide, Press, and Rotate Policies
+
+### Goal
+
+Generalize the Level 2 contact-task baselines using the larger Level 4 object,
+fixture, and session coverage.
+
+### Pass criteria
+
+```text
+[ ] Push/slide results cover varied size, mass, friction, start, and target
+[ ] Press results cover held-out button ids/depths and wrong-contact failures
+[ ] Rotate results cover held-out starts/angles and contact-loss failures
+[ ] Level 2 and Level 5 results are compared without merging their claims
+```
+
+---
+
+## Level 5.6 — Visual Grounding and Perception Integration
+
+### Goal
+
+Train or integrate the visual system that supplies stable object identities and
+poses to the learned skills.
+
+### Build order
+
+```text
+1. Train/evaluate a conventional detector or segmenter on Level 4 renders.
+2. Add temporal identity tracking and pose estimation.
+3. Evaluate held-out scenes, object instances, occlusion, and lighting.
+4. Integrate perception-grounded skill rollouts behind the same world-state API.
+5. Optionally test a compact local VLM for semantic disambiguation.
+```
+
+The VLM does not replace the detector/tracker for metric control and does not
+output actuator commands. Model size, GPU memory, license, latency, and
+failure behavior must be documented; local execution on the intended RTX 5070
+Ti is preferred for the optional semantic component.
+
+### Pass criteria
+
+```text
+[ ] Detection, pose, tracking, and semantic-selection metrics are separate
+[ ] Ground-truth-state and perception-grounded policy results are not conflated
+[ ] Ambiguous/stale observations are rejected safely
+[ ] CPU tests use synthetic data; GPU/model downloads are not test requirements
+```
+
+---
+
+## Level 5.7 — Corrective and Recovery Learning
+
+### Goal
+
+Use the separately labeled Level 4 corrective data to reduce compounding error
+and qualify explicit recovery skills.
+
+### Comparisons
+
+```text
+expert-only baseline
+expert plus corrective demonstrations
+recovery-enabled versus abort-only execution
+```
+
+### Pass criteria
+
+```text
+[ ] Compared policies share frozen splits and evaluation conditions
+[ ] Policy/checkpoint and intervention provenance are preserved
+[ ] Recovery success, retry count, jerk, timeout, and safety metrics are reported
+[ ] A failed recovery cannot be mislabeled as ordinary task success
+```
+
+---
+
+## Level 5.8 — Evidence-Gated Model Escalation
+
+### Goal
+
+Add temporal history, action chunking, or a stronger visual encoder only where
+the simpler policy has a measured failure that the change could address.
+
+Candidate models:
+
+```text
+short-history GRU
+small temporal CNN or Transformer
+ACT-style action chunking
+compact pretrained visual encoder
+```
+
+Diffusion policies, large foundation models, or complex RL require explicit
+user approval and a separate checkpoint.
+
+### Pass criteria
+
+```text
+[ ] Baseline failure and model hypothesis are written before implementation
+[ ] New and old models use identical data and held-out evaluation
+[ ] Added complexity is retained only if metrics justify it
+[ ] Compute, latency, memory, and reproducibility costs are reported
+```
+
+---
+
+## Level 5.9 — Cross-Skill Qualification
+
+### Goal
+
+Assign each learned policy an evidence-backed status before it can enter the
+runtime.
+
+Statuses:
+
+```text
+qualified: passes all frozen required gates
+experimental: runs but misses at least one required gate
+failed: cannot execute reliably or violates a safety/compatibility gate
+```
+
+### Pass criteria
+
+```text
+[ ] Every core skill receives one explicit status
+[ ] Metrics include session-, object-, goal-, and failure-mode breakdowns
+[ ] Failed and experimental skills remain visible but are disabled by default
+[ ] Qualification is reproducible from immutable data and checkpoint digests
+```
+
+---
+
+## Level 5.10 — Skill Cards, Registry, and Supervised Executor
+
+### Goal
+
+Expose qualified policies through one typed, policy-independent runtime without
+adding an LLM or long-horizon planner.
 
 ### Files
 
 ```text
-scripts/check_all.py
-pyproject.toml
-environment.yml, or the committed environment specification selected in Level 2.4B
-.github/workflows/ci.yml
-Makefile, optional
+dexvision/learning/skill_cards.py
+dexvision/learning/skill_registry.py
+dexvision/learning/skill_executor.py
+dexvision/apps/run_skill.py
+tests/test_skill_executor.py
 ```
 
-### Commands
-
-```bash
-python scripts/check_all.py
-```
-
-Should run:
+### Pass criteria
 
 ```text
-ruff check .
-pytest
-python -m dexvision.apps.health_check
-headless MuJoCo load test
-```
-
-The CI job should create or install the declared environment from committed
-metadata, then run the same non-interactive checks on a clean checkout. It must
-not depend on an already-created local Conda environment.
-
-Optional manual checks listed but not auto-run:
-
-```text
-camera
-live teleop
-GUI viewer
-```
-
-### Pass Criteria
-
-```text
-[ ] One command runs non-interactive checks
-[ ] Clean-checkout environment creation is tested
-[ ] CI runs lint, unit tests, health check, and headless MuJoCo checks
-[ ] Dependency versions used for published results are captured
-[ ] Manual checks documented separately
-[ ] CI-friendly tests do not require webcam/GPU
-```
-
-### Codex Prompt
-
-```text
-Add a scripts/check_all.py harness and CI workflow that create/use the committed environment definition and run lint, tests, health check, and headless MuJoCo load checks.
-Do not include webcam or GUI-dependent commands in the automatic harness.
-Document manual checks separately.
+[ ] Cards include versioned schemas, checkpoint digest, parameters, and metrics
+[ ] Registry excludes incompatible, experimental, or failed policies by default
+[ ] Preconditions, timeouts, safety limits, and terminal states are enforced
+[ ] Repeated request ids do not duplicate physical actions
+[ ] No LLM, web API, or multi-skill planner is implemented
 ```
 
 ---
 
-## Level 5.7 — Troubleshooting Guide
+## Level 5.11 — Diverse Scripted Pilot Tasks
 
 ### Goal
 
-Document common failures.
+Prove that the qualified skill library supports several materially different
+tasks before Level 7 adds language planning.
 
-### Files
+### Core pilots
 
 ```text
-docs/troubleshooting.md
+1. Sort and pack varied objects into matching bins/receptacles.
+2. Clear the workspace into a tray and recover from at least one miss.
+3. Press specified buttons and rotate a dial to target states in order.
+4. Assemble a sandwich proxy by stacking rigid bread/filling props on a plate.
+5. Set a snack place using a cup, plate, and utensil proxy.
 ```
 
-### Include
+At least three materially different pilots must pass. Every pilot uses a
+deterministic scripted plan and the typed calls intended for future Level 7.
+It fails if a human silently repairs state between skills.
+
+Real tomato cutting is not a core acceptance task. A guided knife through a
+pre-scored or pre-segmented rigid proxy may be an explicitly labeled later
+experiment, but it is not evidence of deformable-food cutting or tool safety.
+
+### Pass criteria
 
 ```text
-camera not opening
-wrong camera id
-MediaPipe no hand detected
-low light issues
-MuJoCo import failure
-MuJoCo viewer issues
-hand model joint names wrong
-robot jitter
-tracking loss behavior
-Windows path issues
-Mac camera permission issues
-PyTorch CPU/GPU confusion
-```
-
-### Pass Criteria
-
-```text
-[ ] Common setup failures documented
-[ ] Each issue has likely cause and fix
-[ ] Links to relevant commands
-```
-
-### Codex Prompt
-
-```text
-Create docs/troubleshooting.md based on the current repo commands and known failure modes.
-Keep it practical and specific.
+[ ] At least three pilots run from reset through explicit termination
+[ ] Every skill request, result, and world-state transition is recorded
+[ ] Recovery and abort behavior are deterministic and visible
+[ ] Per-pilot success rates and failure reasons are reported
+[ ] Sandwich assembly is one pilot, not the project's sole final claim
 ```
 
 ---
 
-## Level 5.8 — Optional LeRobot-Compatible Dataset Export
+## Level 5.12 — Skill-Library Results and Level 6 Handoff
 
 ### Goal
 
-Align the dataset with current robot-learning workflows.
+Publish the full learning results and freeze the artifacts that Level 6 will
+polish and Level 7 may later orchestrate.
 
-### Files
+### Required artifacts
 
 ```text
-dexvision/logging/export_lerobot.py
-dexvision/apps/export_dataset.py
-docs/lerobot_export.md
+per-skill training and evaluation manifests
+qualified/experimental/failed registry
+checkpoint and schema digests
+ground-truth versus perception-grounded comparisons
+failure and recovery analysis
+diverse pilot results
+known limitations and unsupported claims
 ```
 
-### Build
-
-Export demos into a format that can later be adapted to LeRobot-style training.
-
-### Pass Criteria
+### Pass criteria
 
 ```text
-[ ] Export script runs
-[ ] Metadata preserved
-[ ] Observations/actions documented
-[ ] Does not break existing dataset format
-```
-
-### Codex Prompt
-
-```text
-Add an optional dataset export path for LeRobot-style imitation learning workflows.
-Do not make LeRobot a required dependency.
-Document the exported fields.
-```
-
----
-
-## Level 5.9 — Optional Phone Camera Support Notes
-
-### Goal
-
-Make Windows desktop without webcam usable.
-
-### Files
-
-```text
-docs/phone_camera_setup.md
-```
-
-### Include
-
-```text
-USB webcam option
-phone-as-webcam option
-how to test camera IDs
-latency recommendations
-resolution recommendations
-```
-
-### Pass Criteria
-
-```text
-[ ] User can test phone camera with check_camera.py
-[ ] Common issues documented
-```
-
-### Codex Prompt
-
-```text
-Create docs/phone_camera_setup.md explaining how to use a phone as a webcam with the existing OpenCV camera check script.
-Keep it tool-agnostic and practical.
-```
-
----
-
-## Level 5.10 — Optional Advanced Extensions
-
-Only after Levels 1-4 are stable.
-
-Possible extensions:
-
-```text
-attach hand to robot arm
-add wrist/arm pose tracking
-add physical servo finger
-add depth camera
-add stereo camera
-add Isaac Lab version for Windows/NVIDIA
-add ROS2 bridge
-add sim-to-real mini gripper
-add ACT-style or diffusion-policy-style learner
-guided rigid cutting proxy, explicitly not deformable-food cutting
-```
-
-Pass criteria:
-
-```text
-[ ] Extension does not destabilize core project
-[ ] Extension clearly marked experimental
-[ ] Main README distinguishes stable vs experimental
+[ ] Every claim traces to immutable data, config, split, and checkpoint digests
+[ ] Negative results and disabled skills are documented
+[ ] At least three diverse scripted pilots pass
+[ ] Level 6 receives reproducible results rather than presentation-only claims
+[ ] Level 7 prerequisites are listed without implementing orchestration
 ```
 
 ---
@@ -494,15 +450,17 @@ Pass criteria:
 # Level 5 Completion Checklist
 
 ```text
-[ ] README portfolio-ready
-[ ] Architecture diagram included
-[ ] Demo video script written
-[ ] Results tables generated
-[ ] Config/CLI robust
-[ ] Reproducibility harness exists
-[ ] Clean-checkout environment creation and CI pass
-[ ] Troubleshooting guide written
-[ ] Optional dataset export documented
-[ ] Optional phone camera setup documented
-[ ] Stable vs experimental features clearly separated
+[ ] Learning scope and per-skill protocols are frozen
+[ ] Comprehensive dataset loader and training manifests are reproducible
+[ ] Reach/approach skills are evaluated
+[ ] Grasp/hold/lift skills are evaluated
+[ ] Transport/place/release skills are evaluated
+[ ] Push/slide/press/rotate skills are evaluated
+[ ] Visual grounding is measured and safely integrated
+[ ] Corrective/recovery learning is evaluated
+[ ] Model escalation is evidence-gated
+[ ] Every core skill is qualified, experimental, or failed
+[ ] Qualified skills run through one supervised executor
+[ ] At least three diverse scripted pilots pass
+[ ] Full-scale results and Level 6 handoff are documented
 ```

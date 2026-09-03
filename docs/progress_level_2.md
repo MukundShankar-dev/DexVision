@@ -12,9 +12,9 @@ methods.
 
 Level 2 does not train policies. Its completed output is a narrow, reliable
 skill-demo release that Level 3 uses to test the learning pipeline. Level 4
-later broadens the data and qualifies reusable low-level skills. Future Level
-6 orchestration may consume those qualified skills, but Level 6 is not
-implemented in this repo.
+later broadens the data, and Level 5 learns and qualifies reusable low-level
+skills. Future Level 7 orchestration may consume those qualified skills, but
+Level 7 is not implemented in this repo.
 
 ---
 
@@ -62,7 +62,7 @@ of scope.
 ```text
 docs/progress_level_2.md
 docs/task_environment.md
-docs/level6_future.md
+docs/level7_future.md
 docs/CURRENT_STATUS.md
 ```
 
@@ -127,8 +127,8 @@ rg -n "Level 2.0|free_space_gesture|reach_touch_target|reach_object|button_press
 [x] Initial skill/task set is documented with success/failure criteria
 [x] Demonstration requirements and future orchestration relevance are documented
 [x] Level 2.1 schema notes require the full Level 1.13 action space
-[x] Future Level 6 skill orchestration is documented as out of scope for this repo
-[x] No Level 3 learning or Level 6 orchestration code is implemented
+[x] Future Level 7 skill orchestration is documented as out of scope for this repo
+[x] No Level 3 learning or Level 7 orchestration code is implemented
 ```
 
 ### Codex Prompt
@@ -136,7 +136,7 @@ rg -n "Level 2.0|free_space_gesture|reach_touch_target|reach_object|button_press
 ```text
 Add the Level 2.0 planning checkpoint.
 Create docs/task_environment.md with the staged tabletop skill-learning task board and initial task set.
-Document future Level 6 skill orchestration as a separate repo concern.
+Document future Level 7 skill orchestration as a separate repo concern.
 Update CURRENT_STATUS so Level 2.0 is the next target.
 Do not implement demo recording, learning, or skill orchestration.
 ```
@@ -355,7 +355,7 @@ operators can follow before recording serious demo datasets, and define when
 Level 2 data is complete enough to move into Level 3 behavior cloning.
 
 This is a docs-only checkpoint. It wraps the Level 2 collection workflow
-without implementing replay, filtering, learning, or Level 6 orchestration.
+without implementing replay, filtering, learning, or Level 7 orchestration.
 
 ### Files
 
@@ -419,7 +419,7 @@ rg -n "level2_dataset_runbook|Dataset Collection Runbook|base_position_target|ba
 [x] Per-task demo targets exist
 [x] Replay/filter commands are documented and marked TODO until implemented
 [x] Dataset readiness criteria are documented
-[x] No replay, filtering, learning, or Level 6 orchestration code is implemented
+[x] No replay, filtering, learning, or Level 7 orchestration code is implemented
 ```
 
 ### Codex Prompt
@@ -428,7 +428,7 @@ rg -n "level2_dataset_runbook|Dataset Collection Runbook|base_position_target|ba
 Update the Level 2 dataset collection runbook and tracker only.
 Read CURRENT_STATUS first and do not override the active next checkpoint unless
 the user explicitly asks to change it.
-Keep this docs-only: do not implement replay, filtering, learning, or Level 6
+Keep this docs-only: do not implement replay, filtering, learning, or Level 7
 orchestration.
 Make sure the runbook preserves the full Level 1.13 action schema:
 base_position_target, base_orientation_target, and finger_actuator_targets.
@@ -1745,7 +1745,7 @@ skills, Ruff, and the full suite with 369 tests. Level 2.7J is complete.
 ```text
 Export optional skill-card metadata stubs from Level 2 task specs and dataset summaries.
 Do not train or evaluate policies.
-Do not implement Level 6 orchestration.
+Do not implement Level 7 orchestration.
 ```
 
 ---
@@ -2054,7 +2054,7 @@ pytest
 [x] Reach rollout perturbations and numerical acceptance gates are frozen
 [x] Missing legacy session ids do not block the first baseline
 [x] Cross-session generalization is not claimed without real session metadata
-[x] No Level 3 learning or Level 6 orchestration is implemented
+[x] No Level 3 learning or Level 7 orchestration is implemented
 ```
 
 The v1 archive contains the immutable raw datasets, rejected attempts, and

@@ -5,7 +5,7 @@ simulated dexterous robot hand from live hand-pose tracking. Completed Level 2
 work turns the Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation pipeline into
 reproducible demonstration datasets. Level 3 now tests state-based behavior
 cloning on that existing, deliberately narrow data before Level 4 undertakes a
-larger multi-session dataset and reusable skill-library campaign.
+larger multi-session dataset campaign and Level 5 learns the full skill set.
 
 ## Roadmap
 
@@ -13,18 +13,21 @@ larger multi-session dataset and reusable skill-library campaign.
 Level 1  camera hand tracking and MuJoCo teleoperation                 complete
 Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
 Level 3  learning feasibility on the existing Level 2 datasets       active
-Level 4  comprehensive dataset and qualified manipulation skills      planned
-Level 5  robustness, reproducibility, results, and portfolio polish    planned
-Level 6  language-guided composition of typed skills                   future
+Level 4  comprehensive multi-session skill dataset                     planned
+Level 5  full-scale skill learning and qualification                   planned
+Level 6  robustness, reproducibility, results, and portfolio polish    planned
+Level 7  language-guided composition of typed skills                   future
 ```
 
 Level 3 asks whether the learning loop works; it does not claim the current
 episodes are a comprehensive robot-skill dataset. Level 4 will add genuine
 recording sessions, broader objects/goals, grasp-lift-place and recovery data,
-visual grounding, immutable releases, and held-out skill qualification. Its
-scripted pilots include sorting/packing, workspace clearing, control-panel
-operation, rigid-proxy sandwich assembly, and place-setting. Real deformable
-food cutting is outside the core plan for the current hand-only simulator.
+visual grounding, and an immutable release with frozen held-out splits. Level
+5 will train and qualify the full skill set, expose it through a supervised
+runtime, and run scripted pilots including sorting/packing, workspace clearing,
+control-panel operation, rigid-proxy sandwich assembly, and place-setting.
+Real deformable-food cutting is outside the core plan for the current
+hand-only simulator.
 
 ## Clean setup
 
@@ -126,9 +129,10 @@ demonstration samples.
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
 [active Level 3 progress file](docs/progress_level_3.md). The later roadmap is
-defined in the [Level 4 data/skills plan](docs/progress_level_4.md),
-[Level 5 polish plan](docs/progress_level_5.md), and
-[future Level 6 orchestration boundary](docs/level6_future.md).
+defined in the [Level 4 dataset plan](docs/progress_level_4.md),
+[Level 5 full-scale learning plan](docs/progress_level_5.md),
+[Level 6 polish plan](docs/progress_level_6.md), and
+[future Level 7 orchestration boundary](docs/level7_future.md).
 
 ### Completed Level 2 dataset status
 
@@ -208,7 +212,7 @@ or claimed; doing so requires a new operator collection campaign.
 
 Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
 freezes the first reach-policy evaluation protocol. No policy training or
-Level 6 orchestration has been implemented.
+Level 7 orchestration has been implemented.
 
 ## Known Limitations
 
