@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 
@@ -29,8 +30,8 @@ def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
 
     assert "organized into seven levels" in agents
     assert "# Progress Level 3 — Learning Feasibility on Existing Data" in level3
-    assert "# Progress Level 4 — Comprehensive Skill Dataset" in level4
-    assert "# Progress Level 5 — Full-Scale Skill Learning and Qualification" in level5
+    assert "# Progress Level 4 — Comprehensive Workcell Skill Dataset" in level4
+    assert "# Progress Level 5 — Workcell Skill Learning and Qualification" in level5
     assert "# Progress Level 6 — Portfolio Polish" in level6
     assert "# Future Level 7 — Language-Guided Skill Orchestration" in level7
 
@@ -38,25 +39,56 @@ def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
 def test_level5_requires_bounded_workcell_skills_and_pilots() -> None:
     level5 = read("docs/progress_level_5.md")
 
-    assert "reach_object(object_id, approach_pose)" in level5
-    assert "pick_object(object_id)" in level5
-    assert "place_held_object(target_pose_or_receptacle)" in level5
+    assert "`reach_object`" in level5
+    assert "`pick_object`" in level5
+    assert "`place_held_object`" in level5
+    assert "`push_object_to_target`" in level5
+    assert "`press_button`" in level5
     assert "Workspace clearing" in level5
     assert "Inspection-station operation" in level5
     assert "Workspace setup" in level5
-    assert "All three pilots must pass" in level5
-    assert "learned regrasp or dropped-object recovery policy" in level5
-    assert "Kitchen tasks, cutting, pouring" in level5
+    assert "20 frozen reset seeds per core pilot" in level5
+    assert "combined work-order success rate >= 0.50" in level5
+    assert "learned regrasp/drop recovery" in level5
+    assert "tools, cutting, pouring, liquids, or deformables" in level5
 
 
 def test_level4_uses_realistic_collection_envelope() -> None:
     level4 = read("docs/progress_level_4.md")
 
-    assert "250–350 new" in level4
-    assert "accepted episodes in total" in level4
+    assert "Required total | 250 | 250–350" in level4
     assert "at least three genuine sessions" in level4
-    assert "100–150 complete pick/place sequences" in level4
-    assert "do not demand a separate 100 episodes" in level4
+    assert "Complete pick/place sequences | 120 | 120–150" in level4
+    assert "counts and segment counts" in level4
+    assert "renaming" in level4
+    assert "does not create multiple sessions" in level4
+
+
+def test_level4_checkpoints_are_execution_ready() -> None:
+    level4 = read("docs/progress_level_4.md")
+    checkpoints = re.findall(r"^## Level 4\.(\d+) —", level4, flags=re.MULTILINE)
+
+    assert checkpoints == [str(index) for index in range(10)]
+    assert level4.count("### Commands") == 10
+    assert level4.count("### Pass criteria") == 10
+    assert "Level 3 failure -> Level 4 requirement traceability table" in level4
+    assert "Stop until the user confirms" in level4
+    assert "Clean-clone retrieval and SHA-256 verification" in level4
+
+
+def test_level5_checkpoints_freeze_training_and_qualification() -> None:
+    level5 = read("docs/progress_level_5.md")
+    checkpoints = re.findall(r"^## Level 5\.(\d+) —", level5, flags=re.MULTILINE)
+
+    assert checkpoints == [str(index) for index in range(13)]
+    assert level5.count("### Commands") == 13
+    assert level5.count("### Pass criteria") == 13
+    assert "3 independent training seeds" in level5
+    assert "at least 30 held-out state-grounded rollouts" in level5
+    assert "workspace violations = 0" in level5
+    assert "joint-limit safety violations = 0" in level5
+    assert "Level 3.4 result must be explicitly handled" in level5
+    assert "Do not continue to pilots" in level5
 
 
 def test_project_authored_markdown_has_no_old_orchestration_number_or_path() -> None:
