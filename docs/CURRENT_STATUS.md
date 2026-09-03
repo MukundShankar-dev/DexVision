@@ -20,17 +20,17 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.6 — Data and Action-Space Diagnostics
+Level 3.7 — Conditional Temporal Baseline
 
-The versioned diagnostic matrix compares full, base-only, finger-only, and
-fixed-training-mean control for reach, button, and push under their unchanged
-seeds, hidden layers, splits, and frozen rollout protocols. Reach additionally
-compares 55 quality-passed successes against 69 recomputed successes while
-preserving assignments for all shared episodes. Button and push have no valid
-broader counterpart, which is recorded as a limitation. The JSON/CSV report
-includes rollout and offline per-field/per-goal metrics with exact provenance
-and separates measured effects from hypotheses. Automated checks passed with
-442 tests. No manual verification was required.
+The documented trigger was not met, so this checkpoint is closed as **not
+justified** without adding a sequence dataset or GRU. Level 3.6 does not measure
+temporal ambiguity or causally isolate compounding error; it explicitly labels
+compounding error and missing recovery coverage as hypotheses. The measured
+evidence instead shows immediate safety failures, action-subset sensitivity,
+and offline-to-rollout mismatch. The decision is preserved in
+`docs/level3_temporal_baseline_decision.json` and
+`docs/level3_temporal_baseline_decision.md`. No manual verification was
+required. Automated checks passed with 445 tests.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -39,7 +39,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.7 — Conditional Temporal Baseline
+Level 3.8 — Feasibility Report and Level 4 Data Requirements
 
 ---
 
@@ -49,7 +49,7 @@ Level 3.7 — Conditional Temporal Baseline
 
 Suggested next feature branch:
 
-`codex/level3-temporal-baseline-decision`
+`codex/level3-feasibility-report`
 
 ---
 
@@ -697,6 +697,17 @@ under the frozen task protocols. All common episodes retained their baseline
 split in the broader reach comparison, and button/push correctly record that no
 broader eligible counterpart exists. The versioned report is under
 `outputs/level3/diagnostics_v1/`.
+
+Level 3.7 — Conditional Temporal Baseline did not require manual verification.
+The evidence trigger was assessed and not met: prior metrics do not measure
+temporal ambiguity or isolate compounding error, and Level 3.6 keeps
+compounding error and missing recovery coverage explicitly categorized as
+hypotheses. The versioned decision records the measured action-space, safety,
+and offline-to-rollout evidence. No sequence dataset, GRU, or temporal training
+run was added. Automated checks passed on September 3, 2026 using `conda run -n
+dexvision pytest -q tests/test_level3_temporal_decision.py
+tests/test_roadmap_docs.py` with 12 passed, `conda run -n dexvision ruff check
+dexvision tests`, and `conda run -n dexvision pytest -q` with 445 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

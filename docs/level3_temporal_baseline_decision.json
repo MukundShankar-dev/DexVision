@@ -1,0 +1,95 @@
+{
+  "checkpoint": "Level 3.7",
+  "decision": "not_justified",
+  "decision_version": "level3/temporal-baseline-decision-v1",
+  "implementation": {
+    "gru_added": false,
+    "sequence_dataset_added": false,
+    "temporal_training_run_added": false
+  },
+  "measured_findings": {
+    "action_space_coupling": {
+      "button_base_only_held_out_success_rate": 0.3333333333333333,
+      "button_base_only_joint_limit_violation_count": 0,
+      "button_base_only_workspace_violation_count": 56,
+      "button_full_held_out_success_rate": 0.0,
+      "button_full_joint_limit_violation_count": 84,
+      "reach_base_only_joint_limit_violation_count": 0,
+      "reach_base_only_mean_final_task_error_m": 0.11050680863943255,
+      "reach_base_only_workspace_violation_count": 0,
+      "reach_full_joint_limit_violation_count": 15,
+      "reach_full_mean_final_task_error_m": 0.29155995360623116,
+      "reach_full_workspace_violation_count": 20
+    },
+    "offline_to_rollout_mismatch": {
+      "button_press": {
+        "held_out_success_rate": 0.0,
+        "selected_validation_loss": 0.046794009801359775,
+        "training_success_rate": 0.0
+      },
+      "push_cube_to_target": {
+        "held_out_success_rate": 0.0,
+        "selected_validation_loss": 0.0006855271678091991,
+        "training_success_rate": 0.0
+      },
+      "reach_touch_target": {
+        "held_out_success_rate": 0.0,
+        "selected_validation_loss": 0.06687357541482264,
+        "training_success_rate": 0.0
+      }
+    },
+    "rollout_safety": {
+      "button_press": {
+        "joint_limit_violation_count": 84,
+        "mean_completion_steps": 1.0,
+        "scenario_count": 84,
+        "workspace_violation_count": 0
+      },
+      "push_cube_to_target": {
+        "joint_limit_violation_count": 60,
+        "mean_completion_steps": 1.0,
+        "scenario_count": 30,
+        "workspace_violation_count": 0
+      },
+      "reach_touch_target": {
+        "joint_limit_violation_count": 15,
+        "mean_completion_steps": 11.114285714285714,
+        "scenario_count": 35,
+        "workspace_violation_count": 20
+      }
+    }
+  },
+  "reassessment_requirements": [
+    "Measure current-state action ambiguity and show that a short history resolves it.",
+    "Isolate error accumulation from action-layout and safety failures in a controlled rollout or replay intervention."
+  ],
+  "source_reports": {
+    "button_rollout": {
+      "path": "outputs/level3/button_rollout_v1/report.json",
+      "sha256": "30223814ffef3a48301bccbb85cf74bdf5371ebca61ccacff936ef5d4415bddd"
+    },
+    "diagnostics": {
+      "path": "outputs/level3/diagnostics_v1/report.json",
+      "sha256": "3ff69461dfe54e1eb8131e89e533af686d9e4a41f7dab4e23a028e747730072a"
+    },
+    "push_rollout": {
+      "path": "outputs/level3/push_rollout_v1/report.json",
+      "sha256": "159528e71def9c752a218371494230b47a4008bd534f232894db3abf145c4b37"
+    },
+    "reach_rollout": {
+      "path": "outputs/level3/reach_rollout_v2/report.json",
+      "sha256": "df014a3a9adfe87ede2e2e9d6555e6830dff69041fae5b1e22ae3ae020ae16b0"
+    }
+  },
+  "trigger_assessment": {
+    "measured_compounding_error": false,
+    "measured_temporal_ambiguity": false,
+    "missing_recovery_coverage_status": "unproven_hypothesis",
+    "required_evidence": "measured_temporal_ambiguity_or_compounding_error",
+    "trigger_met": false,
+    "unproven_hypotheses": [
+      "compounding_error",
+      "missing_recovery_coverage"
+    ]
+  }
+}

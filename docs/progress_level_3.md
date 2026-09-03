@@ -597,7 +597,7 @@ dexvision/learning/temporal_models.py
 tests/test_sequence_dataset.py
 ```
 
-### Pass criteria
+### Pass criteria when justified
 
 ```text
 [ ] Triggering failure mode is identified in prior metrics
@@ -606,6 +606,31 @@ tests/test_sequence_dataset.py
 [ ] MLP and GRU compare on identical splits and rollout conditions
 [ ] Added complexity is retained only if results justify it
 ```
+
+### Closure criteria when not justified
+
+```text
+[x] Prior metrics were assessed against the documented temporal trigger
+[x] Temporal ambiguity and compounding error remain unmeasured
+[x] Recovery-coverage absence remains an explicitly unproven hypothesis
+[x] The decision preserves measured action-space, safety, and rollout evidence
+[x] No sequence dataset, GRU, or temporal training run was added
+```
+
+Decision: **not justified**. The versioned decision report and its readable
+rationale are recorded in `docs/level3_temporal_baseline_decision.json` and
+`docs/level3_temporal_baseline_decision.md`. Full button and push policies
+terminated after a mean of 1.0 control step with joint-limit violations, while
+reach terminated through 20 workspace and 15 joint-limit failures. These runs
+measure safety failure, not temporal error accumulation. Level 3.6 also shows
+that action-subset changes alter button success and safety outcomes, but it has
+no state-aliasing, history-conditioned-error, or controlled compounding-error
+metric. Its compounding-error and missing-recovery explanations remain labeled
+as hypotheses. A GRU is therefore not implemented. No manual verification was
+required. Automated checks passed on September 3, 2026 using `conda run -n
+dexvision pytest -q tests/test_level3_temporal_decision.py
+tests/test_roadmap_docs.py` with 12 passed, `conda run -n dexvision ruff check
+dexvision tests`, and `conda run -n dexvision pytest -q` with 445 passed.
 
 ---
 
