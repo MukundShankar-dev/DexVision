@@ -8,19 +8,19 @@ Agents should read this file before selecting any checkpoint.
 
 ## Current Level
 
-Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Benchmarks
+Level 3 — Skill Policy Learning and Imitation Learning
 
 ---
 
 ## Current Progress File
 
-`docs/progress_level_2.md`
+`docs/progress_level_3.md`
 
 ---
 
 ## Last Completed Checkpoint
 
-Level 2.10B — Full-Dataset Retargeting Benchmark Validation
+Level 2.11 — Learning Readiness Freeze
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-None — Level 2 is complete; await explicit direction before starting Level 3.
+Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader
 
 ---
 
@@ -39,7 +39,7 @@ None — Level 2 is complete; await explicit direction before starting Level 3.
 
 Suggested next feature branch:
 
-Not selected; await explicit direction before beginning Level 3.
+`codex/level3-dataset-loader`
 
 ---
 
@@ -626,6 +626,16 @@ shared base trajectories were originally collected with curl retargeting, so
 independent live per-retargeter trajectories are not claimed. Focused checks
 passed with 6 tests, Ruff passed, and the full suite passed with 389 tests.
 Level 2 is complete. No Level 3 policy learning was implemented.
+
+Level 2.11 — Learning Readiness Freeze did not require manual verification.
+The completed Level 2 raw datasets, rejected attempts, and reports are packaged
+as one immutable Git LFS archive with a SHA-256 checksum and release manifest;
+the editable `data/demos/` working tree remains ignored. The first reach-policy
+offline split, rollout-only held-out targets, initial-state perturbations, and
+numerical acceptance gates are frozen in
+`configs/level3_evaluation.yaml`. Existing episodes were not rewritten to
+invent session ids, and the protocol explicitly forbids a cross-session claim.
+No policy, training loop, rollout evaluator, VLM, or planner was implemented.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

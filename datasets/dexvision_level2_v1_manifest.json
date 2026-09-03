@@ -1,0 +1,51 @@
+{
+  "version": "dexvision/level2-dataset-release-v1",
+  "archive": "datasets/dexvision_level2_v1.tar.gz",
+  "archive_bytes": 50942076,
+  "archive_sha256": "f35851d6b6bb4efd8ffa0f011d6130558f2b2902c38d8568a271bd71f09c002b",
+  "created_date": "2026-09-03",
+  "includes": [
+    "data/demos/raw",
+    "data/demos/rejected",
+    "data/demos/reports"
+  ],
+  "raw_datasets": {
+    "free_space_gesture": {
+      "episodes": 60,
+      "frames": 18645
+    },
+    "reach_touch_target": {
+      "episodes": 76,
+      "frames": 9540,
+      "clean_successes": 55
+    },
+    "button_press": {
+      "episodes": 55,
+      "frames": 5475,
+      "clean_successes": 55
+    },
+    "push_cube_to_target": {
+      "episodes": 101,
+      "frames": 7176,
+      "clean_successes": 101
+    }
+  },
+  "rejected_episodes": {
+    "reach_touch_target": 4,
+    "button_press": 1,
+    "push_cube_to_target": 3
+  },
+  "dataset_summary": {
+    "path": "data/demos/reports/summaries/dataset_summary.json",
+    "sha256": "66f327ddbde8c159b7056d7d9a48fc2985bb309e5d37dcb2a8b501d307e93510"
+  },
+  "retargeting_benchmark": {
+    "path": "data/demos/reports/retargeting/push_cube_to_target_retargeting_benchmark.json",
+    "sha256": "1ec7ef284ae35939a618094496c1262952ff8b62e2d3ec47250429fc606eb867"
+  },
+  "provenance": {
+    "recording_session_ids_available": false,
+    "cross_session_generalization_claimed": false,
+    "raw_episode_files_modified_for_release": false
+  }
+}

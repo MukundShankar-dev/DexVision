@@ -8,6 +8,11 @@ Level 3 goal:
 
 Start with state-based behavior cloning. Do not start with raw images. Vision policies are a later checkpoint.
 
+The first reach-policy split and rollout acceptance criteria are frozen in
+`configs/level3_evaluation.yaml` and `docs/level3_evaluation_protocol.md`.
+Offline demonstration validation and held-out closed-loop rollout evaluation
+are separate evaluations.
+
 Warning:
 Do not train serious policies until the final Level 1.13 action space is stable.
 Changing from finger-only actions to base-plus-finger actions after recording
@@ -243,10 +248,13 @@ pytest tests/test_learning_dataset.py
 [ ] Filters/selects by skill_name/task_id
 [ ] Returns correct tensor shapes
 [ ] Observation and action normalization use training-split statistics only
-[ ] Train/validation/test split is deterministic
-[ ] Splits are grouped by episode, recording session, and initial/goal condition
+[ ] Train/validation split is deterministic
+[ ] Splits are grouped by whole episode and initial/goal condition
 [ ] No timesteps from one episode appear in multiple splits
-[ ] Held-out goal positions are represented in the test split
+[ ] Existing data without session ids are labeled as not testing cross-session generalization
+[ ] Future session ids, when present, are kept wholly within one split
+[ ] Held-out rollout goals are excluded from demonstration splits
+[ ] Split manifest records version, seed, goal, and optional session provenance
 ```
 
 ### Codex Prompt
@@ -256,8 +264,13 @@ Implement a PyTorch dataset for saved demos.
 Use the executable observation layout, goal parameters, target state, and full Level 1.13 actions to create samples.
 Support filtering by success and quality score.
 Support filtering/selecting by skill_name/task_id.
-Split by whole episode/session/initial-goal condition, never by random timestep.
+Split by whole episode and initial-goal condition, never by random timestep.
+Keep a whole session in one split when real session ids are available, but do
+not invent session ids for the existing Level 2 data or claim cross-session
+generalization.
 Compute normalization statistics from the training split only.
+Treat the reserved held-out goals as closed-loop rollout scenarios, not as
+required demonstration test samples.
 Add tests with synthetic demos.
 Do not implement a model yet.
 ```
@@ -407,6 +420,11 @@ Use `reach_touch_target` for the first behavior-cloning rollout/evaluation
 checkpoint. `button_press` should follow after reaching works, and
 `push_cube_to_target` is a later rollout task once simple contact is reliable.
 
+The first reach evaluation must consume the frozen scenarios and acceptance
+gates in `configs/level3_evaluation.yaml`. Do not tune on the held-out rollout
+matrix or change its thresholds after seeing a policy result without creating a
+new protocol version.
+
 Evaluation must include target poses not used for training. A memorized fixed
 trajectory to one target does not pass this checkpoint.
 
@@ -423,8 +441,10 @@ trajectory to one target does not pass this checkpoint.
 [ ] Joint limits are checked
 [ ] Success and failure termination conditions stop the rollout
 [ ] Held-out target positions are evaluated
+[ ] All frozen training-target and held-out-target reset perturbations are evaluated
 [ ] Rollout runs without crashing
 [ ] Metrics saved
+[ ] Frozen success, jerk, invalid-action, workspace, and joint-limit gates are reported
 [ ] Videos optional but supported
 ```
 

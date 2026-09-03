@@ -2004,6 +2004,78 @@ train policies, or implement Level 3.
 
 ---
 
+## Level 2.11 — Learning Readiness Freeze
+
+### Goal
+
+Preserve the completed Level 2 dataset and freeze the first Level 3 evaluation
+protocol before training results can influence the split or acceptance gates.
+
+This is a bridge checkpoint only. It does not implement a dataset loader,
+policy, training loop, rollout evaluator, VLM, or planner.
+
+### Files
+
+```text
+.gitattributes
+AGENTS.md
+configs/level3_evaluation.yaml
+datasets/README.md
+datasets/dexvision_level2_v1.tar.gz
+datasets/dexvision_level2_v1.tar.gz.sha256
+datasets/dexvision_level2_v1_manifest.json
+docs/level2_dataset_runbook.md
+docs/level3_evaluation_protocol.md
+docs/module_contracts.md
+docs/progress_level_3.md
+tests/test_level3_evaluation_protocol.py
+```
+
+### Run
+
+```bash
+git lfs install
+shasum -a 256 -c datasets/dexvision_level2_v1.tar.gz.sha256
+tar -tzf datasets/dexvision_level2_v1.tar.gz
+pytest tests/test_level3_evaluation_protocol.py
+ruff check dexvision tests
+pytest
+```
+
+### Pass Criteria
+
+```text
+[x] Immutable Level 2 dataset snapshot is packaged for Git LFS
+[x] Archive checksum and release manifest are saved
+[x] Editable data/demos working tree remains ignored
+[x] Offline training/validation split is frozen before policy training
+[x] Held-out target poses are defined as rollout-only conditions
+[x] Reach rollout perturbations and numerical acceptance gates are frozen
+[x] Missing legacy session ids do not block the first baseline
+[x] Cross-session generalization is not claimed without real session metadata
+[x] No Level 3 learning or Level 5 orchestration is implemented
+```
+
+The v1 archive contains the immutable raw datasets, rejected attempts, and
+generated Level 2 reports. The editable local data tree remains outside Git;
+only the compressed release snapshot is tracked through Git LFS. The reach
+evaluation protocol uses an 80/20 goal-stratified whole-episode train/validation
+split, fits normalization from training data only, and reserves the two
+interpolated targets for closed-loop evaluation. Its rollout matrix contains
+21 training-target and 14 held-out-target scenarios with fixed one-centimetre
+initial-base perturbations. Because the legacy episodes have no genuine
+session ids, the baseline explicitly makes no cross-session robustness claim.
+
+### Codex Prompt
+
+```text
+Freeze only the completed Level 2 dataset release and first reach-policy
+evaluation protocol. Preserve raw data, keep held-out goals out of demonstration
+splits, and do not implement learning or orchestration.
+```
+
+---
+
 # Level 2 Completion Checklist
 
 ```text
@@ -2029,4 +2101,5 @@ train policies, or implement Level 3.
 [x] Retargeter benchmark produces results
 [x] Level 2 README/results updated
 [x] Full-dataset benchmark validation includes uncertainty and contact metrics
+[x] Level 2 dataset release and first Level 3 evaluation protocol are frozen
 ```

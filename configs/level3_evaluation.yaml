@@ -1,0 +1,52 @@
+version: level3/reach-evaluation-v1
+task_id: reach_touch_target
+skill_name: reach_touch_target
+
+# Offline supervised validation uses only clean Level 2 demonstrations from
+# the configured training targets. The held-out targets below are environment
+# rollout scenarios, not demonstration samples.
+offline_split:
+  seed: 20260903
+  strategy: stratified_episode_hash
+  train_fraction: 0.80
+  validation_fraction: 0.20
+  test_fraction: 0.0
+  normalization_source: train_only
+  group_by_episode: true
+  require_recording_session_id: false
+  claim_cross_session_generalization: false
+
+training_targets:
+  reach_target_left: [0.14, -0.10, 0.45]
+  reach_target_center: [0.14, 0.00, 0.49]
+  reach_target_right: [0.14, 0.06, 0.51]
+
+held_out_rollout_targets:
+  reach_eval_left_center: [0.14, -0.05, 0.47]
+  reach_eval_center_right: [0.14, 0.03, 0.50]
+
+# Apply each offset to the task's normal initial hand-base position. These
+# evaluation-only perturbations must not alter the saved demonstrations.
+initial_base_position_offsets_m:
+  nominal: [0.0, 0.0, 0.0]
+  x_minus_1cm: [-0.01, 0.0, 0.0]
+  x_plus_1cm: [0.01, 0.0, 0.0]
+  y_minus_1cm: [0.0, -0.01, 0.0]
+  y_plus_1cm: [0.0, 0.01, 0.0]
+  z_minus_1cm: [0.0, 0.0, -0.01]
+  z_plus_1cm: [0.0, 0.0, 0.01]
+
+rollout:
+  repetitions_per_scenario: 1
+  use_task_success_condition: true
+  stop_on_success: true
+  stop_on_failure: true
+  stop_on_timeout: true
+
+acceptance_gates:
+  minimum_training_target_success_rate: 0.80
+  minimum_held_out_target_success_rate: 0.80
+  maximum_mean_action_jerk: 0.20
+  maximum_invalid_action_count: 0
+  maximum_workspace_violation_count: 0
+  maximum_joint_limit_violation_count: 0

@@ -101,6 +101,35 @@ Naming rules:
   unused raw name. Failed attempts are retained outside `raw/` under
   `rejected/`.
 
+## C.1 Immutable Git LFS Release
+
+The editable collection tree under `data/demos/` remains ignored by Git. After
+a level or intentional dataset revision is complete, publish one immutable
+compressed snapshot under `datasets/` rather than force-adding thousands of
+individual NumPy files.
+
+The completed Level 2 snapshot is:
+
+```text
+datasets/dexvision_level2_v1.tar.gz
+datasets/dexvision_level2_v1.tar.gz.sha256
+datasets/dexvision_level2_v1_manifest.json
+```
+
+The archive is tracked with Git LFS and contains `raw/`, `rejected/`, and
+generated reports. Temporary staging data and one-off smoke recordings are not
+included. Verify and restore it from the repository root with:
+
+```bash
+git lfs install
+git lfs pull
+shasum -a 256 -c datasets/dexvision_level2_v1.tar.gz.sha256
+tar -xzf datasets/dexvision_level2_v1.tar.gz
+```
+
+Never overwrite a published archive. A future intentional dataset change must
+use a new release version and update its checksum and manifest.
+
 The current single-command style is still acceptable for quick checks:
 
 ```text

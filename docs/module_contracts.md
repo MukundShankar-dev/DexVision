@@ -974,4 +974,14 @@ Should work from saved demos only.
 Saved demos should preserve the full Level 1.13 base-plus-finger action at each timestep.
 Early learning experiments may expose action subsets, but should not require recollecting demos.
 Replay storage may keep MuJoCo wxyz quaternions; learning datasets may convert orientation to 6D or another stable representation.
+The first reach split is defined by level3/reach-evaluation-v1.
+Offline demonstration validation uses only configured training targets and is
+separate from closed-loop held-out-goal rollout evaluation.
+Existing episodes without recording-session ids may be split by whole episode,
+but results must not claim cross-session generalization.
+When a real session id is present, all episodes from that session must remain in
+one split.
+Normalization statistics must come from the training partition only.
+Reserved held-out targets must not be added to demonstration training or
+validation partitions merely to satisfy a test-split requirement.
 ```

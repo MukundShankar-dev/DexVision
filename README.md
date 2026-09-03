@@ -1,9 +1,10 @@
 # DexVision / Hand2Bot
 
 DexVision is a staged robotics and computer-vision project for controlling a
-simulated dexterous robot hand from live hand-pose tracking. The current Level 2
-work turns the completed Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation
-pipeline into reproducible demonstration datasets.
+simulated dexterous robot hand from live hand-pose tracking. Completed Level 2
+work turns the Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation pipeline into
+reproducible demonstration datasets. Level 3 begins with state-based behavior
+cloning of the reach skill.
 
 ## Clean setup
 
@@ -89,9 +90,18 @@ visible MuJoCo GUI.
 ## Demonstration data
 
 Operator-recorded demos under `data/demos/` are local data and are intentionally
-ignored by Git. Creating or updating the environment does not remove them. See
-the [Level 2 dataset runbook](docs/level2_dataset_runbook.md) for the collection
-layout and commands.
+ignored by Git. Creating or updating the environment does not remove them. An
+immutable Level 2 snapshot is published separately in this repository through
+Git LFS; see [Versioned Dataset Releases](datasets/README.md) for download,
+verification, and extraction commands. See the
+[Level 2 dataset runbook](docs/level2_dataset_runbook.md) for the editable
+collection layout and commands.
+
+The first reach-policy offline split, rollout scenarios, and acceptance gates
+are frozen before training in the
+[Level 3 evaluation protocol](docs/level3_evaluation_protocol.md). Reserved
+held-out target poses are closed-loop MuJoCo rollout conditions, not required
+demonstration samples.
 
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
