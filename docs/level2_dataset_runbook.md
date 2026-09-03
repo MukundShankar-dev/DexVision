@@ -430,7 +430,7 @@ Current `button_press` scaled-dataset status:
 - clean training coverage is six or seven episodes per configured goal
 - dataset summary result: `level3_ready: true`
 
-Current `push_cube_to_target` pilot status:
+Current `push_cube_to_target` scaled-dataset status:
 
 - the Level 2.7I quality-gated balanced selector is available through
   `python -m dexvision.apps.select_push_cube_goal --run`
@@ -520,6 +520,23 @@ Current `push_cube_to_target` pilot status:
   final target behavior; Level 2.7G is complete
 - dataset scale-up was not started as part of Level 2.7G
 
+Level 2 skill-card metadata stubs can be exported after regenerating the
+dataset summary:
+
+```bash
+python -m dexvision.apps.export_skill_metadata --task reach_touch_target
+python -m dexvision.apps.export_skill_metadata --task button_press
+python -m dexvision.apps.export_skill_metadata --task push_cube_to_target
+```
+
+By default, each command reads
+`data/demos/reports/summaries/dataset_summary.json` and writes a policy-free
+stub under `data/skill_metadata/`. The exporter checks that the task spec and
+dataset-summary action/observation schema versions agree. Each stub includes
+the full Level 1.13 action layout, typed parameters, success/failure and
+terminal-state contracts, timeout, dataset readiness, preconditions, and known
+limitations. `policy_checkpoint` remains null until Level 3 training.
+
 ## J. Level 2 Completion Tracker
 
 | Task | Scene implemented | Record command | Replay works | Quality filter works | Clean demos target | Ready for Level 3 |
@@ -545,6 +562,7 @@ Manipulation-task order and current completion:
 [x] 5a. push_cube_to_target task schema/reset/state/success metric
 [x] 5b. push_cube_to_target five-demo pilot through replay/relabel/quality/summary gates
 [x] 6. scale only the task datasets whose pilots pass
+[x] 7. export optional policy-free skill metadata stubs
 ```
 
 Train/validation/test planning must happen before dataset scale-up. Split by
@@ -555,8 +573,8 @@ timesteps from one episode into multiple splits.
 
 - Do not train a task-specific Level 3 policy until that task has replay,
   validation, relabeling, filtering, a clean scaled dataset, and held-out
-  evaluation conditions. `reach_touch_target` now satisfies these data gates;
-  `button_press` now also satisfies these data gates; later tasks do not.
+  evaluation conditions. `reach_touch_target`, `button_press`, and
+  `push_cube_to_target` now satisfy these data gates; later tasks do not.
 - Do not collect large datasets before task schemas, success metrics, action
   schemas, and observation schemas stabilize.
 - Do not implement Level 5 orchestration in this repo.

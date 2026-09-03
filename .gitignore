@@ -29,4 +29,5 @@ Thumbs.db
 
 # Operator-owned datasets and generated outputs
 data/demos/
+data/skill_metadata/
 outputs/

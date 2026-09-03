@@ -1721,13 +1721,23 @@ known limitations
 ### Pass Criteria
 
 ```text
-[ ] Metadata stub can be exported per skill
-[ ] Full Level 1.13 action schema is declared
-[ ] Typed parameters include units and coordinate frames
-[ ] Success/failure conditions are included
-[ ] Timeout and terminal-state fields are included
-[ ] No policy checkpoint is required yet
+[x] Metadata stub can be exported per skill
+[x] Full Level 1.13 action schema is declared
+[x] Typed parameters include units and coordinate frames
+[x] Success/failure conditions are included
+[x] Timeout and terminal-state fields are included
+[x] No policy checkpoint is required yet
 ```
+
+The policy-free metadata exporter builds validated JSON stubs for the
+implemented `reach_touch_target`, `button_press`, and `push_cube_to_target`
+skills from their executable task specs and matching dataset-summary groups.
+Each stub records the full Level 1.13 action layout, typed goal parameters,
+transition conditions, timeout, terminal-state contract, dataset readiness,
+and known limitations while leaving `policy_checkpoint` unset for Level 3.
+Automated checks passed on September 2, 2026 using the focused suite with 7
+tests, CLI exports against the repository's v4 dataset summary for all three
+skills, Ruff, and the full suite with 369 tests. Level 2.7J is complete.
 
 ### Codex Prompt
 
@@ -1911,7 +1921,7 @@ Do not add policy learning.
 [x] button_press task and pilot pass all data-quality gates
 [x] push_cube_to_target task and pilot pass all data-quality gates
 [x] Button and push datasets are scaled only after their pilot gates pass
-[ ] Optional skill-card metadata export documented
+[x] Optional skill-card metadata export documented
 [ ] Fingertip retargeter implemented
 [ ] Optimization retargeter implemented
 [ ] Retargeter benchmark produces results

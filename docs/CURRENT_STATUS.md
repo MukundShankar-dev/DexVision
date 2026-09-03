@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.7I — Scale Push-Cube Dataset
+Level 2.7J — Optional Skill Card Export Metadata
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.7J — Optional Skill Card Export Metadata
+Level 2.8 — Retargeter B: Fingertip Target Baseline
 
 ---
 
@@ -39,7 +39,7 @@ Level 2.7J — Optional Skill Card Export Metadata
 
 Suggested first feature branch:
 
-`feature/level2-7j-skill-card-metadata`
+`feature/level2-8-fingertip-retargeter`
 
 ---
 
@@ -571,8 +571,19 @@ recomputed as successful, passed every quality filter, and had zero label
 disagreements. Clean goal coverage is left=33, centre=34, and right=34. Three
 interpolated cube start/target-pose states remain held out, and dataset-summary
 v4 reports `level3_ready: true`. Focused checks pass with 27 tests, Ruff passes,
-and the full suite passes with 362 tests. Level 2.7I is complete. Level 2.7J is
-the next target and has not been started.
+and the full suite passes with 362 tests. Level 2.7I is complete.
+
+Level 2.7J — Optional Skill Card Export Metadata did not require manual
+verification. Policy-free JSON metadata stubs can be exported for the three
+implemented task skills from their task specs and matching dataset-summary
+groups. The stubs declare the full Level 1.13 action layout, typed parameters,
+transition and terminal-state contracts, dataset provenance/readiness, and
+known limitations while leaving the policy checkpoint unset for Level 3.
+Automated checks passed on September 2, 2026 using `conda run -n dexvision
+pytest tests/test_skill_card_metadata.py` with 7 passed, real CLI exports for
+all three skills against the v4 dataset summary, `conda run -n dexvision ruff
+check dexvision tests`, and `conda run -n dexvision pytest` with 369 passed.
+Level 2.7J is complete. Level 2.8 is the next target and has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

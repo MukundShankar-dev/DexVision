@@ -99,7 +99,7 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.7I is complete. The three manipulation datasets currently marked Level
+Level 2.7J is complete. The three manipulation datasets currently marked Level
 3-ready are:
 
 - `reach_touch_target`: 55 clean successes with balanced target coverage
@@ -111,9 +111,20 @@ Level 2.7I is complete. The three manipulation datasets currently marked Level
 Every retained push-cube episode validates, completes semantic headless replay,
 recomputes as successful, and passes quality filtering. Its versioned split
 also reserves three interpolated cube start/target-pose states for Level 3
-evaluation. The next checkpoint is Level 2.7J — Optional Skill Card Export
-Metadata. It is metadata-only; no policy training, Level 5 orchestration, or
-future retargeter checkpoint has been started.
+evaluation.
+
+Policy-free Level 2 skill metadata can be exported from each implemented task
+spec and the matching dataset-summary group:
+
+```bash
+python -m dexvision.apps.export_skill_metadata --task reach_touch_target
+python -m dexvision.apps.export_skill_metadata --task button_press
+python -m dexvision.apps.export_skill_metadata --task push_cube_to_target
+```
+
+These stubs intentionally leave `policy_checkpoint` unset for Level 3. The next
+checkpoint is Level 2.8 — Retargeter B: Fingertip Target Baseline; no policy
+training, Level 5 orchestration, or future retargeter work has been started.
 
 ## Known Limitations
 

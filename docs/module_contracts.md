@@ -794,6 +794,43 @@ target poses.
 
 ---
 
+## Skill Card Metadata Stubs
+
+Module:
+
+```text
+dexvision/logging/skill_card_metadata.py
+```
+
+Contract:
+
+```python
+metadata = build_skill_metadata(
+    task_spec,
+    dataset_summary_path="data/demos/reports/summaries/dataset_summary.json",
+)
+save_skill_metadata(metadata, output_path)
+```
+
+Rules:
+
+```text
+Level 2 metadata stubs are exported from executable task specs and the matching
+dataset-summary group.
+Stubs declare the full Level 1.13 base-position, base-orientation, and finger-
+actuator action layout.
+Every typed goal parameter declares type, shape, units, coordinate frame, and
+whether it is required.
+Success/failure conditions, timeout, terminal-state fields, preconditions,
+dataset-summary provenance/readiness, and known limitations are preserved.
+The task-spec and dataset-summary action/observation schema versions must agree.
+policy_checkpoint remains null until Level 3 trains and exports a policy.
+Metadata export does not train or evaluate a policy and does not implement
+skill orchestration.
+```
+
+---
+
 ## Skill Cards
 
 Module:
