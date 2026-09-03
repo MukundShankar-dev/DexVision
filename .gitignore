@@ -29,5 +29,14 @@ Thumbs.db
 # Operator-owned datasets and generated outputs
 data/demos/
 data/skill_metadata/
-outputs/
 tmp/
+
+# Keep generated run directories local, but version the compact Level 3.8
+# feasibility evidence needed to reproduce the roadmap decision.
+outputs/*
+!outputs/level3/
+outputs/level3/*
+!outputs/level3/feasibility_v1/
+!outputs/level3/feasibility_v1/summary.json
+!outputs/level3/feasibility_v1/rollout_success.svg
+!outputs/level3/feasibility_v1/safety_violations.svg

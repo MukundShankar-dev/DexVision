@@ -128,3 +128,14 @@ def test_not_justified_decision_adds_no_temporal_model() -> None:
     }
     assert not (ROOT / "dexvision/learning/sequence_datasets.py").exists()
     assert not (ROOT / "dexvision/learning/temporal_models.py").exists()
+
+
+def test_level37_completion_markers_agree() -> None:
+    status = (ROOT / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
+    progress = (ROOT / "docs/progress_level_3.md").read_text(encoding="utf-8")
+
+    assert "Level 3.7 — Conditional Temporal Baseline did not require" in status
+    assert "Decision: **not justified**" in progress
+    assert "[x] Temporal policy is justified by evidence or explicitly skipped" in (
+        progress
+    )

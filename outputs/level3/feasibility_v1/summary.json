@@ -1,0 +1,299 @@
+{
+  "version": "level3/feasibility-report-v1",
+  "checkpoint": "Level 3.8",
+  "generated_date": "2026-09-03",
+  "decision": {
+    "learning_pipeline": "go",
+    "level2_policies_for_level5_qualification": "no_go",
+    "level4_collection_and_specification": "go",
+    "summary": "The saved-data, training, checkpoint-selection, and frozen-rollout pipeline is reproducible, but no validation-selected full-action policy passed a frozen closed-loop gate. Level 4 should address measured action-space, safety, coverage, and provenance gaps before Level 5 qualification."
+  },
+  "dataset_release": {
+    "manifest_path": "datasets/dexvision_level2_v1_manifest.json",
+    "manifest_sha256": "efc79c3ad87123f79efd3da8d53ddb0592f85d329c73fefe39fa525877534187",
+    "archive_path": "datasets/dexvision_level2_v1.tar.gz",
+    "archive_sha256": "f35851d6b6bb4efd8ffa0f011d6130558f2b2902c38d8568a271bd71f09c002b",
+    "dataset_summary_path": "data/demos/reports/summaries/dataset_summary.json",
+    "dataset_summary_sha256": "66f327ddbde8c159b7056d7d9a48fc2985bb309e5d37dcb2a8b501d307e93510",
+    "recording_session_ids_available": false,
+    "clean_success_counts": {
+      "reach_touch_target": 55,
+      "button_press": 55,
+      "push_cube_to_target": 101
+    }
+  },
+  "experiments": [
+    {
+      "id": "reach_v1_final_epoch",
+      "task_id": "reach_touch_target",
+      "change_control_note": "Original Level 3.4 result; epoch 100 was evaluated before best-validation checkpoint selection was repaired.",
+      "training_config": {
+        "path": "configs/level3_bc.yaml",
+        "file_sha256": "cb434b20ca0b4b7193c218b98c57a4df5dc9e5ab04df50d437251eab60380fd3",
+        "effective_digest": "8c75e089f552aed1ff49e4ea4de7384473d1695aa0989f0e8b5aa69b5fbc0e20"
+      },
+      "evaluation_config": {
+        "path": "configs/level3_evaluation.yaml",
+        "protocol_version": "level3/reach-evaluation-v1",
+        "digest": "3a4a2a60530dd7bbea0d310d9ef4401810704bcb1e4e18f3ba0cc4dea5e8d143"
+      },
+      "dataset_digest": "b37aa514642e329b28e220568869b755587a43f53ea7b4b06f2cb608598cf7e8",
+      "split_manifest_digest": "3074749edf0368c3a8d41be5470a995eb24ac87bcb7e48422fe7738fc9b5f19b",
+      "checkpoint": {
+        "path": "outputs/level3/reach_bc_v1/policy.pt",
+        "sha256": "8ae19960d877a46010191c68743ee7337dbc90fbe094b4286955688f50488bbc",
+        "selected_epoch": 100,
+        "selected_validation_loss": 0.09558075681663476
+      },
+      "rollout_report": {
+        "path": "outputs/level3/reach_rollout_v1/report.json",
+        "sha256": "7d5533b14998d0eb5e06eb0bbebd5e8a0327cfe87eb57f252f3cabf4f595842d",
+        "rollout_config_digest": "410dc51049f119f0497970b95ace5a633596f87f81113e92f8f56d63afd85c1b"
+      },
+      "metrics": {
+        "scenario_count": 35,
+        "training_success_rate": 0.38095238095238093,
+        "held_out_success_rate": 0.6428571428571429,
+        "mean_final_task_error": 0.059056403178315696,
+        "mean_normalized_action_jerk": 0.040596325121184225,
+        "invalid_action_count": 0,
+        "workspace_violation_count": 7,
+        "joint_limit_violation_count": 14
+      },
+      "passed": false
+    },
+    {
+      "id": "reach_v2_best_validation",
+      "task_id": "reach_touch_target",
+      "change_control_note": "Best-validation selection repair; dataset, split, seed, model, epoch budget, rollout matrix, and gates are unchanged from v1.",
+      "training_config": {
+        "path": "configs/level3_reach_bc_v2.yaml",
+        "file_sha256": "f534a9cf69e6c7096cea0c8dd8d3cc535fcc11eb20fb8ff1f81e94b0bf0ddf29",
+        "effective_digest": "6e76e8ac04a60a6b561115243c11212a77e60df377202f5c8e3b5a439235f392"
+      },
+      "evaluation_config": {
+        "path": "configs/level3_evaluation.yaml",
+        "protocol_version": "level3/reach-evaluation-v1",
+        "digest": "3a4a2a60530dd7bbea0d310d9ef4401810704bcb1e4e18f3ba0cc4dea5e8d143"
+      },
+      "dataset_digest": "b37aa514642e329b28e220568869b755587a43f53ea7b4b06f2cb608598cf7e8",
+      "split_manifest_digest": "3074749edf0368c3a8d41be5470a995eb24ac87bcb7e48422fe7738fc9b5f19b",
+      "schema_digest": "6ff510c4a51251a69e895602003695204255c6e6d06d44adfc01928efb0ef052",
+      "checkpoint": {
+        "path": "outputs/level3/reach_bc_v2/policy_best.pt",
+        "sha256": "d30f3122b50047693426aa7eb3e52616e7c0d1a8b3174370703ee313aade5356",
+        "selected_epoch": 15,
+        "selected_validation_loss": 0.06687357541482264
+      },
+      "rollout_report": {
+        "path": "outputs/level3/reach_rollout_v2/report.json",
+        "sha256": "df014a3a9adfe87ede2e2e9d6555e6830dff69041fae5b1e22ae3ae020ae16b0",
+        "rollout_config_digest": "410dc51049f119f0497970b95ace5a633596f87f81113e92f8f56d63afd85c1b"
+      },
+      "metrics": {
+        "scenario_count": 35,
+        "training_success_rate": 0.0,
+        "held_out_success_rate": 0.0,
+        "mean_final_task_error": 0.29155995360623116,
+        "mean_normalized_action_jerk": 0.1955994778508643,
+        "invalid_action_count": 0,
+        "workspace_violation_count": 20,
+        "joint_limit_violation_count": 15
+      },
+      "passed": false
+    },
+    {
+      "id": "button_v1_best_validation",
+      "task_id": "button_press",
+      "training_config": {
+        "path": "configs/level3_button_bc.yaml",
+        "file_sha256": "8501aa5c7742382a8dcbaf563cb17e8116034974c787500fc5132ba00d55043f",
+        "effective_digest": "be1f2e091bb316d85ff7b334b836798a1de4da484fd72030b5bc857c5bf743c2"
+      },
+      "evaluation_config": {
+        "path": "configs/level3_button_evaluation.yaml",
+        "protocol_version": "level3/button-evaluation-v1",
+        "digest": "c2342bfaf0fb84a7cc0602e04c8f17760d2953619c4275ddd33ae67804a698d2"
+      },
+      "dataset_digest": "9626a8c7a9b1d48ed51403313a786afe2828051460834e4705e832ec67f832c0",
+      "split_manifest_digest": "3c82c4fbce01a4f096c971fa44685f5c5c6cda6ed344b71e11db4826953f5572",
+      "schema_digest": "42af247e71c97b2e2ed40fe4e6fce82e24dde055ddaf79707e9ca10d7196eb2f",
+      "checkpoint": {
+        "path": "outputs/level3/button_bc_v1/policy_best.pt",
+        "sha256": "e8f4be66f624f4ffce9661ac41983141b2e7d408a559258fd2cec124a3497920",
+        "selected_epoch": 17,
+        "selected_validation_loss": 0.046794009801359775
+      },
+      "rollout_report": {
+        "path": "outputs/level3/button_rollout_v1/report.json",
+        "sha256": "30223814ffef3a48301bccbb85cf74bdf5371ebca61ccacff936ef5d4415bddd",
+        "rollout_config_digest": "ef2a089bbcebb5753af2c2cab5cdc93669256f21769b8ef134c6dbb49b5d3abb"
+      },
+      "metrics": {
+        "scenario_count": 84,
+        "training_success_rate": 0.0,
+        "held_out_success_rate": 0.0,
+        "mean_final_task_error": 0.011916666666666666,
+        "mean_normalized_action_jerk": 0.0,
+        "invalid_action_count": 0,
+        "workspace_violation_count": 0,
+        "joint_limit_violation_count": 84
+      },
+      "passed": false
+    },
+    {
+      "id": "push_v1_best_validation",
+      "task_id": "push_cube_to_target",
+      "training_config": {
+        "path": "configs/level3_push_bc.yaml",
+        "file_sha256": "79cfc80e93c867f34722d7a8b417839d0932b6bbdbf2b2d65fd0321a23735974",
+        "effective_digest": "ab72fc19c4b8e9ab43ea3b5bb8f801fa950483bf0632ed1b33ef96bfb04562b9"
+      },
+      "evaluation_config": {
+        "path": "configs/level3_push_evaluation.yaml",
+        "protocol_version": "level3/push-evaluation-v1",
+        "digest": "5cd217efb303d50afbab4d77aaf59efd7f92b736ce7e0c5ae7dfe25e5d0625ee"
+      },
+      "dataset_digest": "1b142e430f1d4ee42b97c8ec9dfbb6b751ca619a46432263d1e95d011939fcd3",
+      "split_manifest_digest": "2d97b056f205e50bd0753c74cd845304053dad86bfaedf05dcc36bcec66c3d18",
+      "schema_digest": "d79edc5565ee1b1503ecbc770c4f7071e898913b6e46ba5b5877130386cc0336",
+      "checkpoint": {
+        "path": "outputs/level3/push_bc_v1/policy_best.pt",
+        "sha256": "dd0ac9bad222749b12f301009f68359743c8c3f67a25b6c1d22d076f1cedce36",
+        "selected_epoch": 97,
+        "selected_validation_loss": 0.0006855271678091991
+      },
+      "rollout_report": {
+        "path": "outputs/level3/push_rollout_v1/report.json",
+        "sha256": "159528e71def9c752a218371494230b47a4008bd534f232894db3abf145c4b37",
+        "rollout_config_digest": "ec6e817570c062d4d5df91129b31e4ba7892fe1a0a7071822e22af4b453575ae"
+      },
+      "metrics": {
+        "scenario_count": 30,
+        "training_success_rate": 0.0,
+        "held_out_success_rate": 0.0,
+        "mean_final_task_error": 0.1801110255092798,
+        "mean_normalized_action_jerk": 0.0,
+        "invalid_action_count": 0,
+        "workspace_violation_count": 0,
+        "joint_limit_violation_count": 60
+      },
+      "passed": false
+    }
+  ],
+  "diagnostics": {
+    "config_path": "configs/level3_diagnostics.yaml",
+    "config_sha256": "9ff07a689f285c1e77e1cfb80d644fbfc1408245dcf8f2118ea22189ef51b9de",
+    "report_path": "outputs/level3/diagnostics_v1/report.json",
+    "report_sha256": "3ff69461dfe54e1eb8131e89e533af686d9e4a41f7dab4e23a028e747730072a",
+    "measured_findings": [
+      "Reach base-only removed all full-policy workspace and joint-limit violations and reduced mean final error from 0.29156 m to 0.11051 m, but success stayed at zero.",
+      "Button base-only improved training and held-out success from zero to 0.333 and removed joint-limit violations, but produced 56 workspace violations and still failed the gates.",
+      "Button fixed-training-mean goal input reached 0.190 training and held-out success, showing goal conditioning was not the only failure source.",
+      "Adding 14 quality-failed but recomputed-successful reach episodes changed neither training nor held-out success from zero.",
+      "No broader eligible data counterpart existed for button or push."
+    ],
+    "unproven_hypotheses": [
+      "compounding_error",
+      "missing_recovery_coverage",
+      "state_distribution_shift"
+    ]
+  },
+  "temporal_decision": {
+    "path": "docs/level3_temporal_baseline_decision.json",
+    "sha256": "0355c163e897ccedda16c6d1e5b2bb7282a8d555bfb1adf31b0059992e3673e3",
+    "decision": "not_justified",
+    "trigger_met": false
+  },
+  "claims": {
+    "supported": [
+      "The Level 2 state/action schema can feed deterministic whole-episode splits and CPU behavior-cloning training.",
+      "Checkpoint selection, digest verification, and frozen headless rollout evaluation are reproducible.",
+      "The tested full-action single-step MLP baselines are not feasible for qualification under the frozen gates.",
+      "Action-subset choice materially affects safety and button success, although no tested variant passes."
+    ],
+    "not_supported": [
+      "cross-session, cross-operator, cross-camera, or cross-lighting generalization",
+      "cross-object, arbitrary-object, or open-world manipulation",
+      "pick, lift, place, recovery, regrasp, or long-horizon skill composition",
+      "a causal claim that temporal ambiguity or compounding error caused the failures",
+      "qualification of any Level 3 policy for autonomous use"
+    ]
+  },
+  "level4_requirements": {
+    "model_recommendation_for_level5": {
+      "reference_baseline": "Retain the current goal-conditioned MLP as the reproducible comparison baseline only.",
+      "recommended_candidate": "A per-skill, phase-conditioned state policy with separate bounded residual heads for base pose and finger commands, explicit previous-applied-action input, and deterministic workspace/joint-limit supervision.",
+      "temporal_condition": "Add a short-history model only after a Level 4 diagnostic measures present-state action ambiguity or isolated error accumulation.",
+      "visual_boundary": "Use the single-camera stream to produce typed object observations; do not let a VLM or image model bypass metric pose validation or safety checks."
+    },
+    "required_observations": [
+      "named robot base pose and velocity",
+      "named wrist/finger joint positions and velocities",
+      "previous commanded and applied action plus clipping/safety masks",
+      "typed goal and active internal phase",
+      "object and fixture identity, 6D pose, velocity, support/held/contact state, confidence, source, and timestamp",
+      "target pose or region and executable task-progress metrics",
+      "tracking quality and missing/stale-state masks",
+      "synchronized single-camera RGB with calibration and object boxes, masks, visibility, identity, and 6D-pose labels"
+    ],
+    "required_metadata": [
+      "genuine recording_session_id and stable pseudonymous operator_id",
+      "source category: teleoperation, scripted, policy_rollout, or corrective_intervention",
+      "object_instance_ids and frozen goal_condition_id",
+      "sampled initial state, random seed, camera/render calibration, and code/config/schema versions",
+      "monotonic phase intervals and state/action/image timestamps",
+      "failure class, retryability, intervention interval, and final outcome",
+      "quality, replay, relabel, split, and per-file digest provenance"
+    ],
+    "collection_plan": {
+      "status": "provisional_until_level4.0_and_level4.3_freeze",
+      "groups": [
+        {
+          "name": "reach_object_or_fixture_approach",
+          "estimated_cells": 10,
+          "cell_definition": "entity or fixture id by nominal/interior versus safe-boundary approach class",
+          "minimum_accepted_episodes": 30,
+          "planning_target_range": [30, 40]
+        },
+        {
+          "name": "complete_pick_place_sequence",
+          "estimated_cells": 30,
+          "cell_definition": "six object instances across three families by five placement targets",
+          "minimum_accepted_episodes": 120,
+          "planning_target_range": [120, 150]
+        },
+        {
+          "name": "push_to_zone",
+          "estimated_cells": 20,
+          "cell_definition": "two push-compatible object families by five targets by two start/direction bands",
+          "minimum_accepted_episodes": 40,
+          "planning_target_range": [40, 55]
+        },
+        {
+          "name": "button_press",
+          "estimated_cells": 10,
+          "cell_definition": "button state/depth goal by approach and safe-reset band",
+          "minimum_accepted_episodes": 30,
+          "planning_target_range": [30, 40]
+        },
+        {
+          "name": "ordinary_failures_and_safe_corrections",
+          "estimated_cells": 9,
+          "cell_definition": "required failure class, with unsafe workspace and joint-limit classes abort-only",
+          "minimum_accepted_episodes": 30,
+          "planning_target_range": [30, 50]
+        }
+      ],
+      "required_total_minimum": 250,
+      "required_total_target_range": [250, 350],
+      "optional_dial_additional_target_range": [30, 40],
+      "minimum_genuine_sessions": 3,
+      "split_rule": "Keep complete sessions together; reserve one genuine session for untouched testing, and reserve separate validation and test sessions when four or more sessions exist. Held-out instances and goal regions remain test-only."
+    }
+  },
+  "plots": [
+    "outputs/level3/feasibility_v1/rollout_success.svg",
+    "outputs/level3/feasibility_v1/safety_violations.svg"
+  ]
+}

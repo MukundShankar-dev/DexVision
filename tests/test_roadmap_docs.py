@@ -11,13 +11,16 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_keeps_level3_as_active_roadmap() -> None:
+def test_current_status_advances_to_level4_after_level3_report() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
-    assert "Level 3 — Learning Feasibility on Existing Data" in status
-    assert "`docs/progress_level_3.md`" in status
-    assert "## Last Completed Checkpoint" in status
-    assert "## Next Target Checkpoint" in status
+    assert (
+        "Level 4 — Comprehensive Multi-Session Dataset Collection and "
+        "Versioned Release"
+    ) in status
+    assert "`docs/progress_level_4.md`" in status
+    assert "## Last Completed Checkpoint\n\nLevel 3.8" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.0" in status
 
 
 def test_seven_level_roadmap_has_distinct_responsibilities() -> None:

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title desc">
+  <title id="title">Level 3 full-action rollout success rates</title>
+  <desc id="desc">Training and held-out success rates for reach v1, validation-selected reach v2, button, and push policies against an 80 percent acceptance gate.</desc>
+  <rect width="1100" height="620" fill="#f8fafc"/>
+  <text x="550" y="42" text-anchor="middle" font-family="sans-serif" font-size="25" font-weight="700" fill="#0f172a">Level 3 full-action closed-loop success</text>
+  <text x="550" y="70" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#475569">Frozen training-condition and held-out-condition rollout matrices</text>
+
+  <line x1="105" y1="505" x2="1040" y2="505" stroke="#334155" stroke-width="2"/>
+  <line x1="105" y1="105" x2="105" y2="505" stroke="#334155" stroke-width="2"/>
+  <g font-family="sans-serif" font-size="13" fill="#475569" text-anchor="end">
+    <text x="95" y="510">0%</text>
+    <text x="95" y="430">20%</text>
+    <text x="95" y="350">40%</text>
+    <text x="95" y="270">60%</text>
+    <text x="95" y="190">80%</text>
+    <text x="95" y="110">100%</text>
+  </g>
+  <g stroke="#cbd5e1" stroke-width="1">
+    <line x1="105" y1="425" x2="1040" y2="425"/>
+    <line x1="105" y1="345" x2="1040" y2="345"/>
+    <line x1="105" y1="265" x2="1040" y2="265"/>
+    <line x1="105" y1="185" x2="1040" y2="185"/>
+    <line x1="105" y1="105" x2="1040" y2="105"/>
+  </g>
+  <line x1="105" y1="185" x2="1040" y2="185" stroke="#dc2626" stroke-width="3" stroke-dasharray="10 7"/>
+  <text x="1035" y="175" text-anchor="end" font-family="sans-serif" font-size="14" font-weight="700" fill="#dc2626">80% acceptance gate</text>
+
+  <g>
+    <rect x="175" y="352.62" width="72" height="152.38" rx="4" fill="#2563eb"/>
+    <rect x="255" y="247.86" width="72" height="257.14" rx="4" fill="#0f766e"/>
+    <text x="211" y="342" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">38.1%</text>
+    <text x="291" y="237" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#115e59">64.3%</text>
+
+    <rect x="405" y="503" width="72" height="2" rx="1" fill="#2563eb"/>
+    <rect x="485" y="503" width="72" height="2" rx="1" fill="#0f766e"/>
+    <text x="441" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">0%</text>
+    <text x="521" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#115e59">0%</text>
+
+    <rect x="635" y="503" width="72" height="2" rx="1" fill="#2563eb"/>
+    <rect x="715" y="503" width="72" height="2" rx="1" fill="#0f766e"/>
+    <text x="671" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">0%</text>
+    <text x="751" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#115e59">0%</text>
+
+    <rect x="865" y="503" width="72" height="2" rx="1" fill="#2563eb"/>
+    <rect x="945" y="503" width="72" height="2" rx="1" fill="#0f766e"/>
+    <text x="901" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#1e3a8a">0%</text>
+    <text x="981" y="492" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#115e59">0%</text>
+  </g>
+
+  <g font-family="sans-serif" font-size="14" fill="#0f172a" text-anchor="middle">
+    <text x="251" y="535">Reach v1</text>
+    <text x="481" y="535">Reach v2 best-val</text>
+    <text x="711" y="535">Button best-val</text>
+    <text x="941" y="535">Push best-val</text>
+  </g>
+  <g font-family="sans-serif" font-size="14" fill="#334155">
+    <rect x="400" y="572" width="18" height="18" rx="2" fill="#2563eb"/>
+    <text x="427" y="586">Training conditions</text>
+    <rect x="595" y="572" width="18" height="18" rx="2" fill="#0f766e"/>
+    <text x="622" y="586">Held-out conditions</text>
+  </g>
+</svg>

@@ -8,29 +8,29 @@ Agents should read this file before selecting any checkpoint.
 
 ## Current Level
 
-Level 3 — Learning Feasibility on Existing Data
+Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ---
 
 ## Current Progress File
 
-`docs/progress_level_3.md`
+`docs/progress_level_4.md`
 
 ---
 
 ## Last Completed Checkpoint
 
-Level 3.7 — Conditional Temporal Baseline
+Level 3.8 — Feasibility Report and Level 4 Data Requirements
 
-The documented trigger was not met, so this checkpoint is closed as **not
-justified** without adding a sequence dataset or GRU. Level 3.6 does not measure
-temporal ambiguity or causally isolate compounding error; it explicitly labels
-compounding error and missing recovery coverage as hypotheses. The measured
-evidence instead shows immediate safety failures, action-subset sensitivity,
-and offline-to-rollout mismatch. The decision is preserved in
-`docs/level3_temporal_baseline_decision.json` and
-`docs/level3_temporal_baseline_decision.md`. No manual verification was
-required. Automated checks passed with 445 tests.
+The final report is recorded in `docs/level3_results.md`, with compact
+machine-readable evidence and plots under `outputs/level3/feasibility_v1/`.
+The reproducible saved-data learning/evaluation pipeline is a go, but every
+validation-selected full-action policy failed its frozen closed-loop gates, so
+the Level 2-trained policies are a no-go for qualification. Level 4 should
+address measured action-space, safety, session, object, goal, failure, and
+observation gaps before Level 5. The existing Level 4 roadmap already matches
+the evidence-backed 250–350 new-episode envelope, so no Level 4 scope correction
+was needed. No manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -39,7 +39,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.8 — Feasibility Report and Level 4 Data Requirements
+Level 4.0 — Workcell and Dataset Requirements Freeze
 
 ---
 
@@ -49,7 +49,7 @@ Level 3.8 — Feasibility Report and Level 4 Data Requirements
 
 Suggested next feature branch:
 
-`codex/level3-feasibility-report`
+`codex/level4-dataset-plan`
 
 ---
 
@@ -708,6 +708,15 @@ run was added. Automated checks passed on September 3, 2026 using `conda run -n
 dexvision pytest -q tests/test_level3_temporal_decision.py
 tests/test_roadmap_docs.py` with 12 passed, `conda run -n dexvision ruff check
 dexvision tests`, and `conda run -n dexvision pytest -q` with 445 passed.
+
+Level 3.8 — Feasibility Report and Level 4 Data Requirements did not require
+manual verification. The report traces the negative full-action baselines,
+checkpoint-selection change, controlled diagnostics, and temporal decision to
+their configs, splits, datasets, schemas, checkpoints, protocols, and report
+digests. It closes Level 3 with a no-go on policy qualification and a go on the
+existing Level 4 workcell-data plan. Automated checks passed on September 3,
+2026 using the focused Level 3.8/temporal/roadmap suite with 18 passed, Ruff,
+and the full suite with 451 passed.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

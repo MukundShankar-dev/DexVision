@@ -664,12 +664,34 @@ estimated Level 4 collection cells and episode counts
 ### Pass criteria
 
 ```text
-[ ] Every result traces to a config, split, dataset, and checkpoint digest
-[ ] Negative results and protocol changes are visible
-[ ] No cross-session or open-world claim is made from Level 2 data
-[ ] Level 4 requirements follow from measured failures and Level 5 target pilots
-[ ] Current status advances only after the report is complete
+[x] Every result traces to a config, split, dataset, and checkpoint digest
+[x] Negative results and protocol changes are visible
+[x] No cross-session or open-world claim is made from Level 2 data
+[x] Level 4 requirements follow from measured failures and Level 5 target pilots
+[x] Current status advances only after the report is complete
 ```
+
+The evidence-backed report is recorded in `docs/level3_results.md`, with a
+compact machine-readable summary and two SVG plots under
+`outputs/level3/feasibility_v1/`. The decision is go for the reproducible
+saved-data learning/evaluation pipeline and Level 4 specification work, but
+no-go for qualifying any Level 2-trained policy: every validation-selected
+full-action policy failed its frozen closed-loop gates. The report preserves
+the original reach v1 result, the checkpoint-selection repair and worse reach
+v2 result, all button/push failures, the Level 3.6 action-space findings, and
+the Level 3.7 temporal no-trigger decision with exact provenance digests.
+
+The provisional Level 4 response retains the existing 250–350 new-episode
+envelope across reach, complete pick/place, push, press, and auditable
+failure/correction coverage. It requires genuine sessions, held-out object and
+goal conditions, typed world state, phase labels, prior applied action, safety
+masks, and aligned single-camera annotations. No scope correction to
+`docs/progress_level_4.md` was needed, no Level 4.0 implementation was added,
+and no manual verification was required. Automated checks passed on September
+3, 2026 using `conda run -n dexvision pytest -q
+tests/test_level3_results.py tests/test_level3_temporal_decision.py
+tests/test_roadmap_docs.py` with 18 passed, `conda run -n dexvision ruff check
+dexvision tests`, and `conda run -n dexvision pytest -q` with 451 passed.
 
 ---
 
@@ -685,6 +707,6 @@ estimated Level 4 collection cells and episode counts
 [x] Button and push protocols are frozen before their training runs
 [x] Cross-task feasibility baselines are reported
 [x] Data/action diagnostics are reported
-[ ] Temporal policy is justified by evidence or explicitly skipped
-[ ] Feasibility report defines the Level 4 data haul
+[x] Temporal policy is justified by evidence or explicitly skipped
+[x] Feasibility report defines the Level 4 data haul
 ```
