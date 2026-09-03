@@ -351,12 +351,29 @@ terminal-reason distribution
 ### Pass criteria
 
 ```text
-[ ] Headless smoke rollout works with a deterministic test policy
-[ ] Frozen scenario matrix is implemented without tuning on held-out runs
-[ ] Full Level 1.13 action fields are applied or an ablation is named explicitly
-[ ] Results include failures and exact protocol/config digests
-[ ] Numerical gates in docs/level3_evaluation_protocol.md are reported honestly
+[x] Headless smoke rollout works with a deterministic test policy
+[x] Frozen scenario matrix is implemented without tuning on held-out runs
+[x] Full Level 1.13 action fields are applied or an ablation is named explicitly
+[x] Results include failures and exact protocol/config digests
+[x] Numerical gates in docs/level3_evaluation_protocol.md are reported honestly
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_policy_rollout.py tests/test_level3_evaluation_protocol.py`
+with 7 passed, `conda run -n dexvision ruff check
+dexvision/learning/policies.py dexvision/evaluation/evaluate_policy.py
+dexvision/apps/evaluate_policy.py tests/test_policy_rollout.py`, and `conda run
+-n dexvision pytest -q` with 420 passed. The real 100-epoch reach checkpoint
+was reproduced with SHA-256
+`8ae19960d877a46010191c68743ee7337dbc90fbe094b4286955688f50488bbc`, then
+all 35 frozen headless scenarios were saved and evaluated. The policy did not
+pass the frozen baseline: training-target success was 0.381, held-out-target
+success was 0.643, mean normalized action jerk was 0.040596, invalid actions
+were 0, workspace violations were 7, and joint-limit violations were 14.
+Terminal reasons were 17 successes, 11 joint-limit violations, and 7 workspace
+violations; all 18 failures remain in the report. No held-out target, offset,
+threshold, or model setting was changed after evaluation. No manual
+verification was required.
 
 If a visual manual check is required, the agent must provide the exact viewer
 command and observable pass/fail criteria. It must not mark that manual check
@@ -521,7 +538,7 @@ estimated Level 4 collection cells and episode counts
 [x] Training-only normalization and split manifests are saved
 [x] Goal-conditioned MLP and tiny overfit test work
 [x] Behavior-cloning training is reproducible
-[ ] Frozen reach rollout is evaluated honestly
+[x] Frozen reach rollout is evaluated honestly
 [ ] Button and push protocols are frozen before their training runs
 [ ] Cross-task feasibility baselines are reported
 [ ] Data/action diagnostics are reported

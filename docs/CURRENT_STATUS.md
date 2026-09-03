@@ -20,16 +20,18 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.3 — Behavior-Cloning Training Loop
+Level 3.4 — Frozen Reach Closed-Loop Rollout
 
-The deterministic CPU behavior-cloning loop trains and validates the existing
-schema-bound MLP on the frozen reach split, saves epoch-boundary model and
-optimizer state, resumes with epoch-derived shuffle order, and emits a verified
-SHA-256 sidecar. Checkpoints record full loss history, training-only
-normalization, config/model/schema versions, dataset/split/normalization
-digests, seed, and environment metadata. Automated checks passed with 415
-tests, and the real 100-epoch frozen-reach smoke run completed successfully.
-No manual verification was required. No MuJoCo rollout has been implemented.
+The checkpoint-backed policy wrapper verifies SHA-256, schema, normalization,
+and dataset provenance before CPU inference. The headless evaluator applies
+the complete Level 1.13 action through bounded MuJoCo controls, runs the exact
+35-scenario frozen reach matrix, stops on explicit terminal conditions, and
+saves successes and failures with checkpoint/protocol/config digests. Automated
+checks passed with 420 tests. The real baseline did not pass the frozen gates:
+training-target success was 0.381, held-out-target success was 0.643, mean
+normalized action jerk was 0.040596, invalid actions were 0, workspace
+violations were 7, and joint-limit violations were 14. No held-out retuning was
+performed, and no manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -38,7 +40,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.4 — Frozen Reach Closed-Loop Rollout
+Level 3.5A — Button and Push Evaluation Freeze
 
 ---
 
@@ -48,7 +50,7 @@ Level 3.4 — Frozen Reach Closed-Loop Rollout
 
 Suggested next feature branch:
 
-`codex/level3-reach-rollout`
+`codex/level3-button-push-evaluation`
 
 ---
 
@@ -667,6 +669,13 @@ Automated checks passed on September 3, 2026 with 18 focused tests, Ruff, and
 the full 415-test suite. The configured 100-epoch CPU training command also
 completed on the extracted immutable reach dataset, and its checkpoint digest
 verified. No camera, GUI, live teleoperation, or MuJoCo rollout was involved.
+
+Level 3.4 — Frozen Reach Closed-Loop Rollout did not require manual
+verification. Automated checks passed on September 3, 2026 with 7 focused
+tests, Ruff, and the full 420-test suite. The real checkpoint completed all 35
+frozen headless scenarios and saved all 17 successes and 18 failures. It failed
+the frozen success and safety gates without any held-out retuning; the exact
+results are recorded in `outputs/level3/reach_rollout_v1/report.json`.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

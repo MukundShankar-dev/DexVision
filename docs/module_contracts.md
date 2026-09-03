@@ -1111,6 +1111,52 @@ No camera, live teleoperation, MuJoCo rollout, or other-skill training belongs i
 
 ---
 
+## Closed-Loop Policy Inference and Reach Evaluation
+
+Modules:
+
+```text
+dexvision/learning/policies.py
+dexvision/evaluation/evaluate_policy.py
+```
+
+Contract:
+
+```python
+policy = load_checkpoint_policy(checkpoint_path, expected_dataset_digest=...)
+protocol = load_reach_evaluation_protocol("configs/level3_evaluation.yaml")
+report = evaluate_policy(policy, protocol, output_dir=...)
+```
+
+Rules:
+
+```text
+Policy loading requires and verifies the checkpoint SHA-256 sidecar.
+The checkpoint model, exact named schemas, training-only normalization, and
+dataset/normalization digests must agree before inference.
+Inference consumes raw named observations and typed goals, normalizes them
+with saved training statistics, and returns denormalized named actions.
+An action-subset checkpoint requires an explicit ablation name; otherwise the
+complete Level 1.13 base-position, quaternion-orientation, and finger layout is
+required.
+The reach scenario matrix comes only from level3/reach-evaluation-v1: three
+training targets, two held-out targets, and seven fixed initial-base offsets.
+Held-out scenarios are evaluation-only and must not tune the policy or protocol.
+Base actions use the Level 1.13 base workspace; finger actions use the MuJoCo
+actuator control ranges. Violating predictions are clipped before application
+and terminate with an explicit recorded safety reason.
+Every rollout, including every failure, saves observations, raw and applied
+actions, distances, target/offset metadata, and its terminal reason.
+Reports preserve checkpoint, dataset, protocol, and effective rollout-config
+digests and separately report training-target and held-out-target success.
+Normalized action jerk uses the complete applied action layout normalized by
+its declared workspace, quaternion-component, and actuator ranges.
+No camera, live teleoperation, button/push training, or held-out retuning
+belongs in Level 3.4.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.
