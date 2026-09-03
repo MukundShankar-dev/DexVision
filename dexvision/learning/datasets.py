@@ -6,7 +6,7 @@ import bisect
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +37,17 @@ DEFAULT_OBSERVATION_FIELDS = (
     "object_state",
     "tracking_quality",
 )
+ELIGIBILITY_QUALITY_PASSED_SUCCESS = "quality_passed_success"
+ELIGIBILITY_RECOMPUTED_SUCCESS = "recomputed_success"
+ELIGIBILITY_ALL_REPORTED = "all_reported"
+ELIGIBILITY_MODES = (
+    ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    ELIGIBILITY_RECOMPUTED_SUCCESS,
+    ELIGIBILITY_ALL_REPORTED,
+)
+GOAL_INPUT_CONDITIONED = "conditioned"
+GOAL_INPUT_FIXED_TRAINING_MEAN = "fixed_training_mean"
+GOAL_INPUT_MODES = (GOAL_INPUT_CONDITIONED, GOAL_INPUT_FIXED_TRAINING_MEAN)
 _EPISODE_DIGEST_SUFFIXES = {".json", ".npy"}
 _PUSH_GOAL_IDS = {
     "push_target_left": "push_cube_left_lane",
@@ -132,9 +143,22 @@ class GoalConditionedSkillDataset(Dataset[dict[str, Any]]):
         episodes: Sequence[EpisodeData],
         *,
         normalization: NormalizationStats | None = None,
+        goal_input_mode: str = GOAL_INPUT_CONDITIONED,
     ) -> None:
+        if goal_input_mode not in GOAL_INPUT_MODES:
+            raise LearningDatasetError(
+                f"goal_input_mode must be one of {GOAL_INPUT_MODES!r}."
+            )
+        if (
+            goal_input_mode == GOAL_INPUT_FIXED_TRAINING_MEAN
+            and normalization is None
+        ):
+            raise LearningDatasetError(
+                "fixed_training_mean goal input requires training normalization."
+            )
         self.episodes = tuple(episodes)
         self.normalization = normalization
+        self.goal_input_mode = goal_input_mode
         self._ends: list[int] = []
         total = 0
         for episode in self.episodes:
@@ -165,6 +189,11 @@ class GoalConditionedSkillDataset(Dataset[dict[str, Any]]):
             observation = _normalize(observation, self.normalization.observation)
             goal = _normalize(goal, self.normalization.goal)
             action = _normalize(action, self.normalization.action)
+        if self.goal_input_mode == GOAL_INPUT_FIXED_TRAINING_MEAN:
+            # The training mean normalizes to an exact zero vector. Keeping the
+            # declared goal layout unchanged preserves model size and makes the
+            # fixed-goal control directly comparable with conditioned training.
+            goal = np.zeros_like(goal)
         return {
             "obs": torch.as_tensor(observation.copy(), dtype=torch.float32),
             "goal": torch.as_tensor(goal.copy(), dtype=torch.float32),
@@ -191,6 +220,9 @@ class DatasetBundle:
     test: GoalConditionedSkillDataset
     manifest: SplitManifest
     normalization: NormalizationStats
+    eligibility: str = ELIGIBILITY_QUALITY_PASSED_SUCCESS
+    goal_input_mode: str = GOAL_INPUT_CONDITIONED
+    anchored_assignment_count: int = 0
 
     def save_manifest(self, output_path: str | Path) -> None:
         save_split_manifest(
@@ -207,6 +239,7 @@ def load_skill_episodes(
     observation_fields: Sequence[str] = DEFAULT_OBSERVATION_FIELDS,
     include_previous_action: bool = False,
     require_clean: bool = True,
+    eligibility: str | None = None,
 ) -> tuple[EpisodeData, ...]:
     """Load one skill directly from an extracted Level 2 release.
 
@@ -224,8 +257,21 @@ def load_skill_episodes(
     if len(set(requested_fields)) != len(requested_fields):
         raise LearningDatasetError("observation_fields must not contain duplicates.")
 
+    eligibility_was_explicit = eligibility is not None
+    if eligibility is None:
+        eligibility = (
+            ELIGIBILITY_QUALITY_PASSED_SUCCESS
+            if require_clean
+            else ELIGIBILITY_ALL_REPORTED
+        )
+    if eligibility not in ELIGIBILITY_MODES:
+        raise LearningDatasetError(
+            f"eligibility must be one of {ELIGIBILITY_MODES!r}."
+        )
+
     skill_dir = _resolve_skill_dir(Path(dataset_root), skill_name)
-    labels = _load_clean_labels(skill_dir) if require_clean else {}
+    labels_required = require_clean or eligibility_was_explicit
+    labels = _load_clean_labels(skill_dir) if labels_required else {}
     episode_dirs = tuple(
         path
         for path in sorted(skill_dir.iterdir())
@@ -237,16 +283,21 @@ def load_skill_episodes(
     loaded: list[EpisodeData] = []
     for episode_dir in episode_dirs:
         label = labels.get(episode_dir.name)
-        if require_clean:
-            if label is None:
+        if label is None:
+            if labels_required:
                 raise LearningDatasetError(
-                    f"clean-label reports do not cover episode directory {episode_dir.name!r}."
+                    f"quality/relabel reports do not cover episode directory "
+                    f"{episode_dir.name!r}."
                 )
-            quality_passed, recomputed_success = label
-            if not quality_passed or not recomputed_success:
-                continue
+            quality_passed, recomputed_success = False, False
         else:
-            quality_passed, recomputed_success = label or (False, False)
+            quality_passed, recomputed_success = label
+        if eligibility == ELIGIBILITY_QUALITY_PASSED_SUCCESS and not (
+            quality_passed and recomputed_success
+        ):
+            continue
+        if eligibility == ELIGIBILITY_RECOMPUTED_SUCCESS and not recomputed_success:
+            continue
         loaded.append(
             _load_episode(
                 episode_dir,
@@ -272,6 +323,9 @@ def build_skill_datasets(
     include_previous_action: bool = False,
     require_clean: bool = True,
     normalize: bool = True,
+    eligibility: str | None = None,
+    goal_input_mode: str = GOAL_INPUT_CONDITIONED,
+    reference_split_assignments: Mapping[str, str] | None = None,
 ) -> DatasetBundle:
     """Load, split, fit training-only statistics, and construct datasets."""
 
@@ -281,21 +335,52 @@ def build_skill_datasets(
         observation_fields=observation_fields,
         include_previous_action=include_previous_action,
         require_clean=require_clean,
+        eligibility=eligibility,
     )
     manifest = deterministic_episode_split(
         (episode.descriptor() for episode in episodes), split_config
     )
+    anchored_assignment_count = 0
+    if reference_split_assignments is not None:
+        manifest = _anchor_split_assignments(manifest, reference_split_assignments)
+        anchored_assignment_count = len(reference_split_assignments)
     normalization = fit_training_normalization(episodes, manifest)
     by_split = _episodes_by_split(episodes, manifest)
+    if goal_input_mode not in GOAL_INPUT_MODES:
+        raise LearningDatasetError(
+            f"goal_input_mode must be one of {GOAL_INPUT_MODES!r}."
+        )
+    if goal_input_mode == GOAL_INPUT_FIXED_TRAINING_MEAN and not normalize:
+        raise LearningDatasetError(
+            "fixed_training_mean goal input requires normalize=True."
+        )
     applied_stats = normalization if normalize else None
+    effective_eligibility = eligibility or (
+        ELIGIBILITY_QUALITY_PASSED_SUCCESS
+        if require_clean
+        else ELIGIBILITY_ALL_REPORTED
+    )
     return DatasetBundle(
-        train=GoalConditionedSkillDataset(by_split["train"], normalization=applied_stats),
-        validation=GoalConditionedSkillDataset(
-            by_split["validation"], normalization=applied_stats
+        train=GoalConditionedSkillDataset(
+            by_split["train"],
+            normalization=applied_stats,
+            goal_input_mode=goal_input_mode,
         ),
-        test=GoalConditionedSkillDataset(by_split["test"], normalization=applied_stats),
+        validation=GoalConditionedSkillDataset(
+            by_split["validation"],
+            normalization=applied_stats,
+            goal_input_mode=goal_input_mode,
+        ),
+        test=GoalConditionedSkillDataset(
+            by_split["test"],
+            normalization=applied_stats,
+            goal_input_mode=goal_input_mode,
+        ),
         manifest=manifest,
         normalization=normalization,
+        eligibility=effective_eligibility,
+        goal_input_mode=goal_input_mode,
+        anchored_assignment_count=anchored_assignment_count,
     )
 
 
@@ -329,6 +414,9 @@ def load_frozen_skill_datasets(
     observation_fields: Sequence[str] = DEFAULT_OBSERVATION_FIELDS,
     include_previous_action: bool = False,
     normalize: bool = True,
+    eligibility: str = ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    goal_input_mode: str = GOAL_INPUT_CONDITIONED,
+    reference_split_assignments: Mapping[str, str] | None = None,
 ) -> DatasetBundle:
     """Build one task's exact frozen Level 3 offline split.
 
@@ -375,8 +463,11 @@ def load_frozen_skill_datasets(
         split_config=split_config,
         observation_fields=observation_fields,
         include_previous_action=include_previous_action,
-        require_clean=True,
+        require_clean=eligibility == ELIGIBILITY_QUALITY_PASSED_SUCCESS,
         normalize=normalize,
+        eligibility=eligibility,
+        goal_input_mode=goal_input_mode,
+        reference_split_assignments=reference_split_assignments,
     )
     observed_goals = {
         episode.goal_id
@@ -421,6 +512,52 @@ def fit_training_normalization(
         goal=_fit_stats(goal_values, reference.goal_names),
         action=_fit_stats(action_values, reference.action_names),
     )
+
+
+def _anchor_split_assignments(
+    manifest: SplitManifest,
+    reference: Mapping[str, str],
+) -> SplitManifest:
+    """Preserve assignments for episodes shared with a comparison baseline."""
+
+    if not reference:
+        raise LearningDatasetError("reference split assignments must not be empty.")
+    current_ids = {item.episode_id for item in manifest.assignments}
+    missing = sorted(set(reference) - current_ids)
+    if missing:
+        raise LearningDatasetError(
+            f"reference split includes episodes absent from this dataset: {missing}."
+        )
+    invalid = sorted(
+        episode_id
+        for episode_id, split in reference.items()
+        if split not in {"train", "validation", "test"}
+    )
+    if invalid:
+        raise LearningDatasetError(
+            f"reference split has invalid assignments for episodes: {invalid}."
+        )
+    assignments = tuple(
+        replace(item, split=reference.get(item.episode_id, item.split))
+        for item in manifest.assignments
+    )
+    session_splits: dict[str, str] = {}
+    for item in assignments:
+        if item.recording_session_id is None:
+            continue
+        prior = session_splits.setdefault(item.recording_session_id, item.split)
+        if prior != item.split:
+            raise LearningDatasetError(
+                f"anchored split leaks recording session "
+                f"{item.recording_session_id!r}."
+            )
+    if not any(item.split == "train" for item in assignments) or not any(
+        item.split == "validation" for item in assignments
+    ):
+        raise LearningDatasetError(
+            "anchored split must retain training and validation episodes."
+        )
+    return replace(manifest, assignments=assignments)
 
 
 def quaternion_wxyz_to_rotation_6d(quaternions: np.ndarray) -> np.ndarray:

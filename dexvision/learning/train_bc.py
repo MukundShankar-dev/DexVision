@@ -23,6 +23,10 @@ from torch.utils.data import DataLoader
 
 from dexvision.learning.datasets import (
     DEFAULT_OBSERVATION_FIELDS,
+    ELIGIBILITY_MODES,
+    ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    GOAL_INPUT_CONDITIONED,
+    GOAL_INPUT_MODES,
     DatasetBundle,
     GoalConditionedSkillDataset,
     load_frozen_skill_datasets,
@@ -92,6 +96,8 @@ class BCExperimentConfig:
     evaluation_config: Path
     observation_fields: tuple[str, ...]
     include_previous_action: bool
+    eligibility: str
+    goal_input_mode: str
     output_action_names: tuple[str, ...] | None
     model: MLPConfig
     training: TrainingConfig
@@ -122,6 +128,8 @@ class BCExperimentConfig:
             "evaluation_config": str(self.evaluation_config),
             "observation_fields": list(self.observation_fields),
             "include_previous_action": self.include_previous_action,
+            "eligibility": self.eligibility,
+            "goal_input_mode": self.goal_input_mode,
             "output_action_names": (
                 None
                 if self.output_action_names is None
@@ -198,6 +206,18 @@ def load_experiment_config(path: str | Path) -> BCExperimentConfig:
     include_previous_action = dataset.get("include_previous_action", False)
     if not isinstance(include_previous_action, bool):
         raise BCTrainingError("dataset.include_previous_action must be boolean.")
+    eligibility = dataset.get(
+        "eligibility", ELIGIBILITY_QUALITY_PASSED_SUCCESS
+    )
+    if eligibility not in ELIGIBILITY_MODES:
+        raise BCTrainingError(
+            f"dataset.eligibility must be one of {ELIGIBILITY_MODES!r}."
+        )
+    goal_input_mode = dataset.get("goal_input_mode", GOAL_INPUT_CONDITIONED)
+    if goal_input_mode not in GOAL_INPUT_MODES:
+        raise BCTrainingError(
+            f"dataset.goal_input_mode must be one of {GOAL_INPUT_MODES!r}."
+        )
     if version == "level3/bc-training-v1":
         checkpoint_name = _required_string(output, "checkpoint_name")
         best_checkpoint_name = f"{Path(checkpoint_name).stem}_best{Path(checkpoint_name).suffix}"
@@ -220,6 +240,8 @@ def load_experiment_config(path: str | Path) -> BCExperimentConfig:
         evaluation_config=Path(_required_string(dataset, "evaluation_config")),
         observation_fields=observation_fields,
         include_previous_action=include_previous_action,
+        eligibility=eligibility,
+        goal_input_mode=goal_input_mode,
         output_action_names=output_action_names,
         model=MLPConfig.from_dict(model),
         training=TrainingConfig.from_dict(training),
@@ -236,6 +258,7 @@ def run_experiment(
     dataset_root: str | Path | None = None,
     output_dir: str | Path | None = None,
     resume_from: str | Path | None = None,
+    reference_split_assignments: Mapping[str, str] | None = None,
 ) -> TrainingResult:
     """Load one frozen task split and train the shared corrected baseline."""
 
@@ -260,9 +283,16 @@ def run_experiment(
         observation_fields=config.observation_fields,
         include_previous_action=config.include_previous_action,
         normalize=True,
+        eligibility=config.eligibility,
+        goal_input_mode=config.goal_input_mode,
+        reference_split_assignments=reference_split_assignments,
     )
     effective = config.compatibility_dict()
     effective["dataset_root"] = str(root)
+    if reference_split_assignments is not None:
+        effective["reference_split_assignments_digest"] = _canonical_digest(
+            dict(sorted(reference_split_assignments.items()))
+        )
     return train_behavior_cloning(
         bundle,
         output_path=destination / config.checkpoint_name,
@@ -551,6 +581,10 @@ def _validate_bundle(bundle: DatasetBundle) -> None:
     for name, dataset in (("train", bundle.train), ("validation", bundle.validation)):
         if dataset.normalization.dataset_digest != normalization.dataset_digest:
             raise BCTrainingError(f"{name} dataset uses incompatible normalization metadata.")
+        if dataset.goal_input_mode != bundle.goal_input_mode:
+            raise BCTrainingError(
+                f"{name} dataset goal_input_mode differs from the bundle."
+            )
 
 
 def _provenance(
@@ -571,6 +605,9 @@ def _provenance(
         "split_manifest": manifest,
         "normalization_digest": _canonical_digest(normalization),
         "normalization": normalization,
+        "dataset_eligibility": bundle.eligibility,
+        "goal_input_mode": bundle.goal_input_mode,
+        "anchored_assignment_count": bundle.anchored_assignment_count,
     }
 
 
@@ -665,6 +702,9 @@ def _restore_training_state(
         "dataset_digest",
         "split_manifest_digest",
         "normalization_digest",
+        "dataset_eligibility",
+        "goal_input_mode",
+        "anchored_assignment_count",
     ):
         if saved_provenance.get(key) != provenance.get(key):
             raise BCTrainingError(f"resume checkpoint provenance {key!r} differs.")
@@ -753,6 +793,9 @@ def _restore_best_snapshot(
         "dataset_digest",
         "split_manifest_digest",
         "normalization_digest",
+        "dataset_eligibility",
+        "goal_input_mode",
+        "anchored_assignment_count",
     ):
         if saved_provenance.get(key) != provenance.get(key):
             raise BCTrainingError(

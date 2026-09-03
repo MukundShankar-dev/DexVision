@@ -55,10 +55,12 @@ def run(args: argparse.Namespace) -> int:
     config = load_experiment_config(args.config)
     dataset_root = args.dataset_root or config.dataset_root
     output_dir = args.output_dir or config.output_dir
-    print("DexVision Level 3.5B behavior-cloning training")
+    print("DexVision Level 3 behavior-cloning training")
     print(f"Skill: {config.skill_name}")
     print(f"Dataset root: {dataset_root}")
     print(f"Evaluation config: {config.evaluation_config}")
+    print(f"Dataset eligibility: {config.eligibility}")
+    print(f"Goal input mode: {config.goal_input_mode}")
     print(f"Best output: {output_dir / config.best_checkpoint_name}")
     print(f"Last output: {output_dir / config.checkpoint_name}")
     print(

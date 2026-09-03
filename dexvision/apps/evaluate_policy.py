@@ -86,6 +86,8 @@ def run(args: argparse.Namespace) -> int:
         observation_fields=training.observation_fields,
         include_previous_action=training.include_previous_action,
         normalize=True,
+        eligibility=training.eligibility,
+        goal_input_mode=training.goal_input_mode,
     )
     checkpoint = args.checkpoint or training.best_checkpoint_path
     policy = load_checkpoint_policy(
@@ -99,11 +101,13 @@ def run(args: argparse.Namespace) -> int:
     }
     output_dir = args.output_dir or default_outputs[training.skill_name]
 
-    print("DexVision Level 3.5B frozen closed-loop rollout")
+    print("DexVision Level 3 frozen closed-loop rollout")
     print(f"Task: {training.skill_name}")
     print(f"Checkpoint: {checkpoint}")
     print(f"Checkpoint SHA-256: {policy.checkpoint_digest}")
     print(f"Dataset digest: {policy.dataset_digest}")
+    print(f"Dataset eligibility: {training.eligibility}")
+    print(f"Goal input mode: {policy.goal_input_mode}")
     print(f"Model: {args.model}")
     print(f"Output: {output_dir}")
     if training.skill_name == "reach_touch_target":

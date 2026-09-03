@@ -152,6 +152,7 @@ class EvaluationReport:
     selected_epoch: int
     selected_validation_loss: float
     action_mode: str
+    goal_input_mode: str
     results: tuple[RolloutResult, ...]
     metrics: dict[str, Any]
     acceptance_gates: dict[str, float | int]
@@ -296,6 +297,12 @@ def evaluate_policy(
         "sim_steps_per_action": sim_steps_per_action,
         "scenario_count": len(protocol.scenarios),
         "action_mode": action_mode,
+        "action_subset_fill_strategy": (
+            "not_applicable" if full_action else "hold_previous_applied_action"
+        ),
+        "goal_input_mode": str(
+            getattr(policy, "goal_input_mode", "conditioned")
+        ),
         "base_workspace_min": workspace_min.tolist(),
         "base_workspace_max": workspace_max.tolist(),
     }
@@ -335,6 +342,7 @@ def evaluate_policy(
             getattr(policy, "selected_validation_loss", float("nan"))
         ),
         action_mode=action_mode,
+        goal_input_mode=str(getattr(policy, "goal_input_mode", "conditioned")),
         results=tuple(results),
         metrics=metrics,
         acceptance_gates=protocol.acceptance_gates,
@@ -926,6 +934,7 @@ class ManipulationEvaluationReport:
     selected_epoch: int
     selected_validation_loss: float
     action_mode: str
+    goal_input_mode: str
     results: tuple[ManipulationRolloutResult, ...]
     metrics: dict[str, Any]
     acceptance_gates: dict[str, float | int]
@@ -1078,6 +1087,12 @@ def evaluate_manipulation_policy(
         "sim_steps_per_action": steps_per_action,
         "scenario_count": len(protocol.scenarios),
         "action_mode": action_mode,
+        "action_subset_fill_strategy": (
+            "not_applicable" if full_action else "hold_previous_applied_action"
+        ),
+        "goal_input_mode": str(
+            getattr(policy, "goal_input_mode", "conditioned")
+        ),
         "task_id": protocol.task_id,
     }
     results: list[ManipulationRolloutResult] = []
@@ -1120,6 +1135,7 @@ def evaluate_manipulation_policy(
             getattr(policy, "selected_validation_loss", float("nan"))
         ),
         action_mode=action_mode,
+        goal_input_mode=str(getattr(policy, "goal_input_mode", "conditioned")),
         results=tuple(results),
         metrics=metrics,
         acceptance_gates=protocol.acceptance_gates,

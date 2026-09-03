@@ -8,6 +8,7 @@ import torch
 from dexvision.learning.datasets import (
     DatasetBundle,
     EpisodeData,
+    GOAL_INPUT_FIXED_TRAINING_MEAN,
     GoalConditionedSkillDataset,
     fit_training_normalization,
 )
@@ -71,6 +72,18 @@ def test_best_validation_selection_uses_earliest_exact_tie(
     assert last_payload["state_epoch"] == 4
     assert len(best_payload["loss_history"]) == 4
     assert best_payload["loss_history"] == last_payload["loss_history"]
+    assert best_payload["provenance"]["goal_input_mode"] == "conditioned"
+
+
+def test_fixed_goal_control_uses_zero_normalized_training_mean() -> None:
+    bundle = _bundle()
+    dataset = GoalConditionedSkillDataset(
+        bundle.train.episodes,
+        normalization=bundle.normalization,
+        goal_input_mode=GOAL_INPUT_FIXED_TRAINING_MEAN,
+    )
+
+    assert torch.equal(dataset[0]["goal"], torch.zeros(1))
 
 
 def _bundle() -> DatasetBundle:

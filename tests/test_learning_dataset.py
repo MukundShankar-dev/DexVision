@@ -9,8 +9,11 @@ import pytest
 import torch
 
 from dexvision.learning.datasets import (
+    ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    ELIGIBILITY_RECOMPUTED_SUCCESS,
     LearningDatasetError,
     load_frozen_reach_datasets,
+    load_frozen_skill_datasets,
     load_skill_episodes,
     quaternion_wxyz_to_rotation_6d,
 )
@@ -173,7 +176,7 @@ def test_loader_builds_samples_and_fits_normalization_on_training_only(
 def test_previous_action_is_explicit_and_zero_at_episode_start(tmp_path: Path) -> None:
     skill_dir = tmp_path / "raw" / "reach_touch_target"
     for index, (goal_id, position) in enumerate(REACH_GOALS.items()):
-        for repeat in range(2):
+        for repeat in range(3):
             episode_id = f"episode-{index}-{repeat}"
             _write_reach_episode(
                 skill_dir / episode_id,
@@ -201,6 +204,65 @@ def test_previous_action_is_explicit_and_zero_at_episode_start(tmp_path: Path) -
         name.startswith("previous_action/")
         for name in episode.observation_names[previous_start:]
     )
+
+
+def test_explicit_recomputed_success_eligibility_keeps_quality_failures(
+    tmp_path: Path,
+) -> None:
+    skill_dir = tmp_path / "raw" / "reach_touch_target"
+    episode_ids = []
+    for index, (goal_id, position) in enumerate(REACH_GOALS.items()):
+        for repeat in range(3):
+            episode_id = f"episode-{index}-{repeat}"
+            episode_ids.append(episode_id)
+            _write_reach_episode(
+                skill_dir / episode_id,
+                episode_id,
+                goal_id,
+                position,
+                float(index + repeat),
+            )
+    rejected = {episode_ids[0]}
+    _write_reports(skill_dir, episode_ids, rejected=rejected)
+
+    clean = load_skill_episodes(
+        tmp_path,
+        skill_name="reach_touch_target",
+        eligibility=ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    )
+    broader = load_skill_episodes(
+        tmp_path,
+        skill_name="reach_touch_target",
+        eligibility=ELIGIBILITY_RECOMPUTED_SUCCESS,
+    )
+
+    assert len(clean) == len(episode_ids) - 1
+    assert len(broader) == len(episode_ids)
+    rejected_episode = next(item for item in broader if item.episode_id in rejected)
+    assert rejected_episode.quality_passed is False
+    assert rejected_episode.recomputed_success is True
+
+    clean_bundle = load_frozen_skill_datasets(
+        tmp_path,
+        evaluation_config_path=ROOT / "configs/level3_evaluation.yaml",
+        expected_version="level3/reach-evaluation-v1",
+        expected_skill_name="reach_touch_target",
+        normalize=False,
+        eligibility=ELIGIBILITY_QUALITY_PASSED_SUCCESS,
+    )
+    reference = clean_bundle.manifest.assignment_by_episode()
+    broader_bundle = load_frozen_skill_datasets(
+        tmp_path,
+        evaluation_config_path=ROOT / "configs/level3_evaluation.yaml",
+        expected_version="level3/reach-evaluation-v1",
+        expected_skill_name="reach_touch_target",
+        normalize=False,
+        eligibility=ELIGIBILITY_RECOMPUTED_SUCCESS,
+        reference_split_assignments=reference,
+    )
+    broader_assignments = broader_bundle.manifest.assignment_by_episode()
+    assert all(broader_assignments[key] == value for key, value in reference.items())
+    assert broader_bundle.anchored_assignment_count == len(reference)
 
 
 def test_missing_layout_field_fails_clearly(tmp_path: Path) -> None:

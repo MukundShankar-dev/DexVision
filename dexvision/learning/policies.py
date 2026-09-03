@@ -12,6 +12,11 @@ from typing import Any, Protocol
 import numpy as np
 import torch
 
+from dexvision.learning.datasets import (
+    GOAL_INPUT_CONDITIONED,
+    GOAL_INPUT_FIXED_TRAINING_MEAN,
+    GOAL_INPUT_MODES,
+)
 from dexvision.learning.models import GoalConditionedMLP, PolicySchema
 from dexvision.learning.train_bc import file_sha256
 
@@ -74,7 +79,12 @@ class CheckpointPolicy:
         split_manifest_digest: str,
         selected_epoch: int,
         selected_validation_loss: float,
+        goal_input_mode: str = GOAL_INPUT_CONDITIONED,
     ) -> None:
+        if goal_input_mode not in GOAL_INPUT_MODES:
+            raise PolicyError(
+                f"goal_input_mode must be one of {GOAL_INPUT_MODES!r}."
+            )
         self.model = model.eval()
         self._observation_stats = observation_stats
         self._goal_stats = goal_stats
@@ -86,6 +96,7 @@ class CheckpointPolicy:
         self.split_manifest_digest = split_manifest_digest
         self.selected_epoch = selected_epoch
         self.selected_validation_loss = selected_validation_loss
+        self.goal_input_mode = goal_input_mode
         self.schema_digest = _canonical_digest(model.schema.to_dict())
 
     @property
@@ -135,6 +146,8 @@ class CheckpointPolicy:
             observation_array - self._observation_stats.mean
         ) / self._observation_stats.std
         normalized_goal = (goal_array - self._goal_stats.mean) / self._goal_stats.std
+        if self.goal_input_mode == GOAL_INPUT_FIXED_TRAINING_MEAN:
+            normalized_goal = np.zeros_like(normalized_goal)
         with torch.no_grad():
             prediction = self.model(
                 torch.as_tensor(normalized_observation[None, :], dtype=torch.float32),
@@ -203,6 +216,13 @@ def load_checkpoint_policy(
     split_manifest_digest = _optional_string(
         provenance, "split_manifest_digest", default="unavailable"
     )
+    goal_input_mode = _optional_string(
+        provenance, "goal_input_mode", default=GOAL_INPUT_CONDITIONED
+    )
+    if goal_input_mode not in GOAL_INPUT_MODES:
+        raise PolicyError(
+            f"checkpoint goal_input_mode must be one of {GOAL_INPUT_MODES!r}."
+        )
     selected_epoch = payload.get("selected_epoch", payload.get("completed_epochs", 0))
     selected_validation_loss = payload.get("selected_validation_loss")
     if isinstance(selected_epoch, bool) or not isinstance(selected_epoch, int) or selected_epoch < 0:
@@ -239,6 +259,7 @@ def load_checkpoint_policy(
         split_manifest_digest=split_manifest_digest,
         selected_epoch=selected_epoch,
         selected_validation_loss=float(selected_validation_loss),
+        goal_input_mode=goal_input_mode,
     )
 
 

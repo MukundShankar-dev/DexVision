@@ -1167,6 +1167,43 @@ never select an epoch or model setting.
 
 ---
 
+## Level 3 Data and Action-Space Diagnostics
+
+Module:
+
+```text
+dexvision/evaluation/level3_diagnostics.py
+```
+
+Contract:
+
+```python
+config = load_level3_diagnostics_config("configs/level3_diagnostics.yaml")
+report = run_level3_diagnostics(config)
+```
+
+Rules:
+
+```text
+Full, base-only, finger-only, and fixed-training-mean controls use the same
+task-specific seed, hidden layers, frozen protocol, and scenario order.
+Action subsets retain the complete named Level 1.13 dataset layout; omitted
+fields hold their previous applied values during rollout.
+Fixed-goal control retains the declared goal layout and model width but feeds
+the training-mean goal, which is zero after training-only normalization.
+A broader-data comparison may include recomputed-success episodes that failed
+quality filtering, but shared clean episodes must retain their baseline split.
+Do not create a broader-data run when no additional eligible episodes exist.
+Summary tables include training/held-out success, final task error, normalized
+jerk, and invalid/workspace/object-workspace/joint-limit violation counts.
+Offline validation error is grouped by named action field and goal condition.
+Reports preserve dataset, split, checkpoint, schema, training-config, and
+protocol provenance and separate measured conclusions from hypotheses.
+Raw demonstrations and prior Level 3 checkpoints/reports remain read-only.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.

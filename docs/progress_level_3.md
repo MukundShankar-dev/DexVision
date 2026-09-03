@@ -535,14 +535,46 @@ per-task error by action field and goal condition
 Do not manufacture a comparison when the released dataset contains no valid
 unfiltered counterpart. Record that limitation instead.
 
+### Files
+
+```text
+configs/level3_diagnostics.yaml
+dexvision/evaluation/level3_diagnostics.py
+dexvision/apps/run_level3_diagnostics.py
+tests/test_level3_diagnostics.py
+```
+
 ### Pass criteria
 
 ```text
-[ ] Compared runs share data split, seed, model size, and evaluation protocol
-[ ] Action-subset layouts are explicit and reversible
-[ ] Tables include success, final task error, jerk, and safety violations
-[ ] Conclusions distinguish measured effects from hypotheses
+[x] Compared runs share data split, seed, model size, and evaluation protocol
+[x] Action-subset layouts are explicit and reversible
+[x] Tables include success, final task error, jerk, and safety violations
+[x] Conclusions distinguish measured effects from hypotheses
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+python -m dexvision.apps.run_level3_diagnostics --help`, `conda run -n
+dexvision ruff check dexvision tests`, and `conda run -n dexvision pytest -q`
+with 442 passed. The real CPU/headless command `conda run -n dexvision python
+-m dexvision.apps.run_level3_diagnostics --config
+configs/level3_diagnostics.yaml` completed 13 report rows: the three preserved
+full-action baselines and ten new controlled experiments. Every task compared
+full, base-only, finger-only, and fixed-training-mean goal input using the same
+seed, hidden layers, dataset split, and frozen scenario matrix. Omitted action
+fields held their prior applied values under an explicit reversible layout.
+
+Reach also compared its 55 quality-passed successes with all 69 recomputed
+successes; all 55 shared episodes retained their baseline split assignments.
+Button and push contained no recomputed-success episodes outside their 55 and
+101 quality-passed sets, so the report records those comparisons as unavailable.
+All variants remained negative on reach and push. Button base-only measured
+0.333 training and held-out success, and fixed-goal measured 0.190/0.190,
+versus 0.000/0.000 for full control, but both retained safety violations and
+did not pass the frozen gates. The versioned JSON/CSV report includes success,
+final task error, jerk, safety counts, per-field/per-goal offline error, exact
+layouts, digests, measured conclusions, and separately labeled hypotheses.
+No manual verification was required.
 
 ---
 
@@ -627,7 +659,7 @@ estimated Level 4 collection cells and episode counts
 [x] Frozen reach rollout is evaluated honestly
 [x] Button and push protocols are frozen before their training runs
 [x] Cross-task feasibility baselines are reported
-[ ] Data/action diagnostics are reported
+[x] Data/action diagnostics are reported
 [ ] Temporal policy is justified by evidence or explicitly skipped
 [ ] Feasibility report defines the Level 4 data haul
 ```

@@ -142,6 +142,35 @@ def test_action_subset_must_be_named_explicitly(tmp_path: Path) -> None:
         )
 
 
+def test_named_base_subset_reconstructs_full_action_by_holding_omitted_fields(
+    tmp_path: Path,
+) -> None:
+    class BaseOnlyPolicy(DeterministicPolicy):
+        output_action_names = BASE_POSITION_ACTION_NAMES
+
+        def predict(self, observation, goal):
+            del observation
+            return np.asarray(goal, dtype=np.float64)
+
+    report = evaluate_policy(
+        BaseOnlyPolicy(),
+        _two_scenario_protocol(),
+        output_dir=tmp_path,
+        backend_factory=FakeBackend,
+        sim_steps_per_action=1,
+        ablation_name="base_only",
+    )
+
+    assert report.action_mode == "ablation:base_only"
+    assert report.rollout_config["action_subset_fill_strategy"] == (
+        "hold_previous_applied_action"
+    )
+    assert all(item.success for item in report.results)
+    trajectory = np.load(report.results[0].trajectory_file)
+    assert trajectory["action_names"].tolist() == list(ACTION_NAMES)
+    assert np.all(trajectory["applied_actions"][:, 3] == 1.0)
+
+
 def test_checkpoint_loader_verifies_sidecar_and_normalization(tmp_path: Path) -> None:
     schema = PolicySchema(
         observation_schema_version="level2/observation-layout-v2",

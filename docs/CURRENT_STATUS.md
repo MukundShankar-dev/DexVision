@@ -20,16 +20,17 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
+Level 3.6 — Data and Action-Space Diagnostics
 
-Training now saves reproducible best-validation and last checkpoints, selects
-the lowest offline validation loss with earliest-epoch tie-breaking, and uses
-the same dataset/model/training interfaces for reach, button, and push. Reach
-v2 preserved the Level 3.4 artifacts and unchanged 35-scenario protocol;
-button and push ran their frozen 84- and 30-scenario matrices. All three
-closed-loop baselines failed their frozen gates, and all failures remain in
-their versioned reports. Automated checks passed with 437 tests. No manual
-verification was required.
+The versioned diagnostic matrix compares full, base-only, finger-only, and
+fixed-training-mean control for reach, button, and push under their unchanged
+seeds, hidden layers, splits, and frozen rollout protocols. Reach additionally
+compares 55 quality-passed successes against 69 recomputed successes while
+preserving assignments for all shared episodes. Button and push have no valid
+broader counterpart, which is recorded as a limitation. The JSON/CSV report
+includes rollout and offline per-field/per-goal metrics with exact provenance
+and separates measured effects from hypotheses. Automated checks passed with
+442 tests. No manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -38,7 +39,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.6 — Data and Action-Space Diagnostics
+Level 3.7 — Conditional Temporal Baseline
 
 ---
 
@@ -48,7 +49,7 @@ Level 3.6 — Data and Action-Space Diagnostics
 
 Suggested next feature branch:
 
-`codex/level3-data-action-diagnostics`
+`codex/level3-temporal-baseline-decision`
 
 ---
 
@@ -688,6 +689,14 @@ all best/last checkpoint digests. Corrected reach, button, and push completed
 their unchanged frozen matrices and all failed their numerical gates; all
 rollout failures and the reach v1-versus-v2 comparison remain in versioned
 reports under `outputs/level3/`.
+
+Level 3.6 — Data and Action-Space Diagnostics did not require manual
+verification. Automated checks passed on September 3, 2026 with Ruff and the
+full 442-test suite. The real CPU/headless matrix completed all 13 report rows
+under the frozen task protocols. All common episodes retained their baseline
+split in the broader reach comparison, and button/push correctly record that no
+broader eligible counterpart exists. The versioned report is under
+`outputs/level3/diagnostics_v1/`.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

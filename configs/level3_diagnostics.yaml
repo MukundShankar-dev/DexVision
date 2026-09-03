@@ -1,0 +1,17 @@
+version: level3/data-action-diagnostics-v1
+dataset_root: data/demos/raw
+output_directory: outputs/level3/diagnostics_v1
+
+tasks:
+  reach_touch_target:
+    training_config: configs/level3_reach_bc_v2.yaml
+    baseline_checkpoint: outputs/level3/reach_bc_v2/policy_best.pt
+    baseline_report: outputs/level3/reach_rollout_v2/report.json
+  button_press:
+    training_config: configs/level3_button_bc.yaml
+    baseline_checkpoint: outputs/level3/button_bc_v1/policy_best.pt
+    baseline_report: outputs/level3/button_rollout_v1/report.json
+  push_cube_to_target:
+    training_config: configs/level3_push_bc.yaml
+    baseline_checkpoint: outputs/level3/push_bc_v1/policy_best.pt
+    baseline_report: outputs/level3/push_rollout_v1/report.json
