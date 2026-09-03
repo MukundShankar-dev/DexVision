@@ -1,0 +1,702 @@
+version: level4/workcell-dataset-plan-v1
+
+freeze:
+  checkpoint: Level 4.0
+  status: requirements_frozen
+  collection_started: false
+  frozen_date: "2026-09-03"
+  change_policy: create_new_version_with_compatibility_note
+  level4_3_count_revision_requires_pilot_evidence: true
+
+evidence_sources:
+  - docs/level3_results.md
+  - outputs/level3/feasibility_v1/summary.json
+  - docs/level3_evaluation_protocol.md
+  - configs/level3_evaluation.yaml
+  - configs/level3_button_evaluation.yaml
+  - configs/level3_push_evaluation.yaml
+  - datasets/dexvision_level2_v1_manifest.json
+  - datasets/dexvision_level2_v1.tar.gz.sha256
+  - data/demos/reports/summaries/dataset_summary.json
+  - docs/task_environment.md
+
+dataset:
+  name: dexvision_level4_workcell_v1
+  release_name: level4-v1
+  legacy_seed_release: dexvision_level2_v1
+  legacy_seed_counts_toward_new_minimum: false
+  accepted_episode_policy: immutable_append_only
+  primary_claim: named_rigid_objects_in_one_bounded_fixed_camera_tabletop_workcell
+
+schema_versions:
+  episode: level4/episode-v1
+  observation: level4/observation-v1
+  action: level4/request-command-apply-v1
+  world_state: level4/world-state-v1
+  phase: level4/causal-phase-v1
+  safety: level4/action-safety-v1
+  rgb: level4/fixed-camera-rgb-v1
+  coverage: level4/coverage-matrix-v1
+
+workcell:
+  coordinate_frame: mujoco_world
+  length_units: m
+  angle_units: rad
+  time_units: s
+  safe_workspace:
+    min: [-0.18, -0.18, 0.08]
+    max: [0.22, 0.18, 0.24]
+    margin_m: 0.01
+    coordinate_frame: mujoco_world
+    units: m
+  board_workspace:
+    min_xy_m: [-0.16, -0.14]
+    max_xy_m: [0.16, 0.14]
+    safe_edge_margin_m: 0.015
+  object_families:
+    cuboid:
+      class_id: rigid_cuboid
+      push_compatible: true
+      pick_compatible: true
+    cylinder:
+      class_id: rigid_cylinder
+      push_compatible: false
+      pick_compatible: true
+    flat_puck:
+      class_id: rigid_flat_puck
+      push_compatible: true
+      pick_compatible: true
+  objects:
+    block_small:
+      family: cuboid
+      split_role: training_pool
+      geometry: {shape: box, size_m: [0.035, 0.035, 0.035]}
+      mass_kg: 0.045
+      friction: [0.8, 0.01, 0.001]
+    block_large:
+      family: cuboid
+      split_role: held_out_test_only
+      geometry: {shape: box, size_m: [0.050, 0.030, 0.040]}
+      mass_kg: 0.070
+      friction: [0.65, 0.01, 0.001]
+    cylinder_short:
+      family: cylinder
+      split_role: training_pool
+      geometry: {shape: cylinder, radius_m: 0.022, height_m: 0.035}
+      mass_kg: 0.050
+      friction: [0.75, 0.01, 0.001]
+    cylinder_tall:
+      family: cylinder
+      split_role: held_out_test_only
+      geometry: {shape: cylinder, radius_m: 0.018, height_m: 0.060}
+      mass_kg: 0.060
+      friction: [0.70, 0.01, 0.001]
+    puck_light:
+      family: flat_puck
+      split_role: training_pool
+      geometry: {shape: cylinder, radius_m: 0.030, height_m: 0.012}
+      mass_kg: 0.025
+      friction: [0.55, 0.01, 0.001]
+    puck_heavy:
+      family: flat_puck
+      split_role: held_out_test_only
+      geometry: {shape: cylinder, radius_m: 0.026, height_m: 0.016}
+      mass_kg: 0.080
+      friction: [0.90, 0.01, 0.001]
+  fixtures:
+    start_button:
+      fixture_type: pressable_button
+      split_role: all_splits
+      position_m: [0.13, -0.11, 0.40]
+      press_axis: [1.0, 0.0, 0.0]
+      depth_range_m: [0.008, 0.014]
+  targets:
+    return_bin_left:
+      target_type: receptacle
+      split_role: training_pool
+      center_m: [0.10, -0.11, 0.02]
+      tolerance_radius_m: 0.025
+    return_bin_right:
+      target_type: receptacle
+      split_role: held_out_test_only
+      center_m: [0.10, 0.11, 0.02]
+      tolerance_radius_m: 0.025
+    inspection_pad:
+      target_type: planar_zone
+      split_role: training_pool
+      center_m: [0.02, 0.00, 0.01]
+      tolerance_radius_m: 0.025
+    setup_slot_a:
+      target_type: placement_slot
+      split_role: training_pool
+      center_m: [-0.07, -0.06, 0.01]
+      tolerance_radius_m: 0.025
+    setup_slot_b:
+      target_type: placement_slot
+      split_role: validation_only
+      center_m: [-0.07, 0.06, 0.01]
+      tolerance_radius_m: 0.025
+
+reset_ranges:
+  cuboid:
+    position_range_m: {min: [-0.11, -0.09, 0.018], max: [-0.04, 0.09, 0.025]}
+    yaw_range_rad: [-0.35, 0.35]
+    bands: [interior, near_boundary]
+  cylinder:
+    position_range_m: {min: [-0.11, -0.09, 0.018], max: [-0.04, 0.09, 0.032]}
+    yaw_range_rad: [-3.141593, 3.141593]
+    bands: [interior, near_boundary]
+  flat_puck:
+    position_range_m: {min: [-0.11, -0.09, 0.008], max: [-0.04, 0.09, 0.012]}
+    yaw_range_rad: [-3.141593, 3.141593]
+    bands: [interior, near_boundary]
+  robot_base:
+    position_range_m: {min: [-0.16, -0.16, 0.09], max: [0.20, 0.16, 0.23]}
+    orientation_delta_range_rad: {roll: [-0.35, 0.35], pitch: [-0.35, 0.35], yaw: [-0.52, 0.52]}
+
+skills:
+  reach_object:
+    enabled: true
+    task_id: reach_object
+    episode_group: reach
+    preconditions:
+      - {field: robot.safe_neutral, operator: equals, value: true}
+      - {field: goal.entity_id, operator: present, value: true}
+      - {field: entity.state_age_s, operator: less_equal, value: 0.10, units: s}
+    goal_fields:
+      entity_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy, start_button, inspection_pad, setup_slot_a, setup_slot_b]}
+      approach_pose: {type: float64, shape: [7], units: "m_and_unit_quaternion", coordinate_frame: mujoco_world, required: true, range: {position_m: {min: [-0.16, -0.16, 0.09], max: [0.20, 0.16, 0.23]}, quaternion_component: [-1.0, 1.0]}}
+    terminal_state_fields: [approach_distance_m, approach_orientation_error_rad, maximum_scene_disturbance_m, dwell_steps, terminal_reason]
+    success_metric:
+      required_consecutive_samples: 5
+      conditions:
+        - {field: approach_distance_m, operator: less_equal, value: 0.025, units: m}
+        - {field: approach_orientation_error_rad, operator: less_equal, value: 0.261799, units: rad}
+        - {field: maximum_scene_disturbance_m, operator: less_equal, value: 0.005, units: m}
+    failure_rules:
+      - {reason: wrong_contact, predicate: non_goal_entity_contact, retryable: true}
+      - {reason: workspace_violation, predicate: base_outside_safe_workspace, retryable: false}
+      - {reason: timeout, predicate: timeout_steps_reached, retryable: true}
+    timeout_steps: 300
+  pick_object:
+    enabled: true
+    task_id: pick_object
+    episode_group: pick_place
+    preconditions:
+      - {field: object.supported, operator: equals, value: true}
+      - {field: object.held, operator: equals, value: false}
+      - {field: approach_metric_passed, operator: equals, value: true}
+    goal_fields:
+      object_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]}
+      approach_pose: {type: float64, shape: [7], units: "m_and_unit_quaternion", coordinate_frame: object, required: false, range: {position_m: {min: [-0.08, -0.08, -0.02], max: [0.08, 0.08, 0.10]}, quaternion_component: [-1.0, 1.0]}}
+    terminal_state_fields: [held_object_id, object_height_above_support_m, held_dwell_steps, terminal_reason]
+    success_metric:
+      required_consecutive_samples: 10
+      conditions:
+        - {field: held_object_id, operator: equals_goal_field, value: object_id, units: id}
+        - {field: object_height_above_support_m, operator: greater_equal, value: 0.040, units: m}
+    failure_rules:
+      - {reason: failed_acquisition, predicate: contact_ended_without_held_state, retryable: true}
+      - {reason: wrong_contact, predicate: non_goal_object_held, retryable: false}
+      - {reason: slip_drop, predicate: held_then_unsupported_not_in_target, retryable: false}
+    timeout_steps: 360
+  place_held_object:
+    enabled: true
+    task_id: place_held_object
+    episode_group: pick_place
+    preconditions:
+      - {field: held_object_count, operator: equals, value: 1}
+      - {field: held_object_id, operator: equals_goal_field, value: object_id}
+    goal_fields:
+      object_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]}
+      target_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [return_bin_left, return_bin_right, inspection_pad, setup_slot_a, setup_slot_b]}
+    terminal_state_fields: [object_to_target_distance_m, object_linear_speed_mps, object_inside_target, held_object_id, settle_steps, terminal_reason]
+    success_metric:
+      required_consecutive_samples: 10
+      conditions:
+        - {field: object_to_target_distance_m, operator: less_equal, value: 0.025, units: m}
+        - {field: object_inside_target, operator: equals, value: true, units: bool}
+        - {field: held_object_id, operator: equals, value: null, units: id}
+        - {field: object_linear_speed_mps, operator: less_equal, value: 0.020, units: m_per_s}
+    failure_rules:
+      - {reason: placement_miss, predicate: released_outside_target, retryable: true}
+      - {reason: premature_release, predicate: released_before_place_phase, retryable: false}
+      - {reason: slip_drop, predicate: unsupported_drop_before_target, retryable: false}
+    timeout_steps: 450
+  push_object_to_target:
+    enabled: true
+    task_id: push_object_to_target
+    episode_group: push
+    preconditions:
+      - {field: object.supported, operator: equals, value: true}
+      - {field: object.family, operator: in, value: [cuboid, flat_puck]}
+      - {field: approach_metric_passed, operator: equals, value: true}
+    goal_fields:
+      object_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, puck_light, puck_heavy]}
+      target_zone: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [return_bin_left, return_bin_right, inspection_pad, setup_slot_a, setup_slot_b]}
+    terminal_state_fields: [planar_object_to_target_distance_m, object_linear_speed_mps, object_on_board, dwell_steps, terminal_reason]
+    success_metric:
+      required_consecutive_samples: 5
+      conditions:
+        - {field: planar_object_to_target_distance_m, operator: less_equal, value: 0.035, units: m}
+        - {field: object_on_board, operator: equals, value: true, units: bool}
+        - {field: object_linear_speed_mps, operator: less_equal, value: 0.020, units: m_per_s}
+    failure_rules:
+      - {reason: wrong_contact, predicate: non_goal_object_displaced, retryable: false}
+      - {reason: object_workspace_violation, predicate: object_outside_board_margin, retryable: false}
+      - {reason: timeout, predicate: timeout_steps_reached, retryable: true}
+    timeout_steps: 300
+  press_button:
+    enabled: true
+    task_id: press_button
+    episode_group: button
+    preconditions:
+      - {field: fixture.present, operator: equals, value: true}
+      - {field: approach_metric_passed, operator: equals, value: true}
+    goal_fields:
+      button_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [start_button]}
+      target_press_depth_m: {type: float64, shape: scalar, units: m, coordinate_frame: fixture_joint, required: true, range: [0.008, 0.014]}
+      target_pressed_state: {type: bool, shape: scalar, units: bool, coordinate_frame: none, required: true, allowed_ids: [true]}
+    terminal_state_fields: [button_id, press_depth_m, target_pressed_state, other_button_max_depth_m, dwell_steps, terminal_reason]
+    success_metric:
+      required_consecutive_samples: 3
+      conditions:
+        - {field: button_id, operator: equals_goal_field, value: button_id, units: id}
+        - {field: press_depth_m, operator: greater_equal_goal_field, value: target_press_depth_m, units: m}
+        - {field: button_pressed, operator: equals_goal_field, value: target_pressed_state, units: bool}
+        - {field: other_button_max_depth_m, operator: less_equal, value: 0.002, units: m}
+    failure_rules:
+      - {reason: wrong_contact, predicate: wrong_fixture_contact, retryable: false}
+      - {reason: workspace_violation, predicate: base_outside_safe_workspace, retryable: false}
+      - {reason: timeout, predicate: timeout_steps_reached, retryable: true}
+    timeout_steps: 240
+
+optional_skills:
+  rotate_dial:
+    enabled: false
+    fixture_id: mode_dial
+    required_episode_minimum: 0
+    promotion_checkpoint: Level 4.3
+    promoted_budget_is_additional: true
+    promotion_requires_successful_pilot: true
+
+phase_contract:
+  version: level4/causal-phase-v1
+  vocabulary: [approach, acquire, lift, stabilize, transport, place, release, settle, push_contact, fixture_contact, retract]
+  store_online_phase: true
+  store_audited_annotation_separately: true
+  report_disagreement: true
+  irrelevant_action_behavior: hold_previous_applied
+  action_relevance_masks:
+    approach: {base_position: true, base_orientation: true, wrist: true, fingers: false}
+    acquire: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    lift: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    stabilize: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    transport: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    place: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    release: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    settle: {base_position: false, base_orientation: false, wrist: false, fingers: false}
+    push_contact: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    fixture_contact: {base_position: true, base_orientation: true, wrist: true, fingers: true}
+    retract: {base_position: true, base_orientation: true, wrist: true, fingers: false}
+
+online_phase_state_machine:
+  version: level4/causal-phase-v1
+  causal: true
+  allowed_inputs: [current_world_state, prior_world_state, task_request, current_terminal_metrics, previous_online_phase]
+  future_frames_allowed: false
+  audited_annotation_used_online: false
+  transition_evaluation: ordered_first_match_once_per_control_sample
+  machines:
+    reach_object:
+      initial_phase: approach
+      transitions:
+        - {from: approach, to: retract, predicate: reach_success_dwell_passed}
+    pick_object:
+      initial_phase: approach
+      transitions:
+        - {from: approach, to: acquire, predicate: approach_success_dwell_passed}
+        - {from: acquire, to: lift, predicate: requested_object_held_now}
+        - {from: lift, to: stabilize, predicate: requested_object_above_lift_height_now}
+        - {from: stabilize, to: retract, predicate: pick_success_dwell_passed}
+    place_held_object:
+      initial_phase: transport
+      transitions:
+        - {from: transport, to: place, predicate: requested_object_inside_target_now}
+        - {from: place, to: release, predicate: release_started_now}
+        - {from: release, to: settle, predicate: requested_object_not_held_now}
+        - {from: settle, to: retract, predicate: place_success_dwell_passed}
+    push_object_to_target:
+      initial_phase: approach
+      transitions:
+        - {from: approach, to: push_contact, predicate: requested_object_contact_started_now}
+        - {from: push_contact, to: settle, predicate: requested_object_inside_target_now}
+        - {from: settle, to: retract, predicate: push_success_dwell_passed}
+    press_button:
+      initial_phase: approach
+      transitions:
+        - {from: approach, to: fixture_contact, predicate: requested_button_contact_started_now}
+        - {from: fixture_contact, to: retract, predicate: press_success_dwell_passed}
+
+action_contract:
+  version: level4/request-command-apply-v1
+  layout_version: level1.13/full-action-v1
+  representation: absolute_targets
+  complete_named_layout_in_every_stage: true
+  nominal_control_interval_s: 0.03333333333333333
+  measured_control_interval_recorded: true
+  stages:
+    requested:
+      semantics: source_requested_action_before_controller_resolution
+      request_sources: [operator, script, policy]
+      timestamp_required: true
+    commanded:
+      semantics: complete_absolute_action_after_controller_resolution_before_safety
+      before_safety_handling: true
+      timestamp_required: true
+    applied:
+      semantics: complete_absolute_action_after_clip_rate_limit_rejection_or_fallback
+      after_safety_handling: true
+      timestamp_required: true
+  record_prior_commanded: true
+  record_prior_applied: true
+  resulting_state_timestamp_required: true
+  per_field_safety_mask: true
+  per_field_safety_reason_code: true
+  unsafe_motion_is_expert_target: false
+  expert_target_stage: applied
+  residual_target_derivation:
+    deterministic: true
+    base: applied_minus_prior_applied
+    actuator: applied_minus_prior_applied
+    orientation: sign_continuous_relative_quaternion_from_prior_applied
+  quaternion:
+    field_order: [qw, qx, qy, qz]
+    convention: mujoco_wxyz
+    normalization_required: true
+    sign_continuity_required: true
+    sign_rule: maximize_dot_with_previous_applied
+    first_sample_canonical_rule: "qw_positive_else_first_nonzero_component_positive"
+    maximum_angular_change_per_sample_rad: 0.139626
+  named_layout:
+    - {index: 0, name: base_position_target/x, group: base_position, units: m, coordinate_frame: mujoco_world, semantics: absolute, lower: -0.18, upper: 0.22, max_change_per_sample: 0.025}
+    - {index: 1, name: base_position_target/y, group: base_position, units: m, coordinate_frame: mujoco_world, semantics: absolute, lower: -0.18, upper: 0.18, max_change_per_sample: 0.025}
+    - {index: 2, name: base_position_target/z, group: base_position, units: m, coordinate_frame: mujoco_world, semantics: absolute, lower: 0.08, upper: 0.24, max_change_per_sample: 0.025}
+    - {index: 3, name: base_orientation_target/qw, group: base_orientation, units: unit_quaternion, coordinate_frame: mujoco_world_from_hand_base, semantics: absolute, lower: -1.0, upper: 1.0, max_change_per_sample: 0.14}
+    - {index: 4, name: base_orientation_target/qx, group: base_orientation, units: unit_quaternion, coordinate_frame: mujoco_world_from_hand_base, semantics: absolute, lower: -1.0, upper: 1.0, max_change_per_sample: 0.14}
+    - {index: 5, name: base_orientation_target/qy, group: base_orientation, units: unit_quaternion, coordinate_frame: mujoco_world_from_hand_base, semantics: absolute, lower: -1.0, upper: 1.0, max_change_per_sample: 0.14}
+    - {index: 6, name: base_orientation_target/qz, group: base_orientation, units: unit_quaternion, coordinate_frame: mujoco_world_from_hand_base, semantics: absolute, lower: -1.0, upper: 1.0, max_change_per_sample: 0.14}
+    - {index: 7, name: finger_actuator_targets/rh_A_WRJ2, group: wrist, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.524, upper: 0.175, max_change_per_sample: 0.15}
+    - {index: 8, name: finger_actuator_targets/rh_A_WRJ1, group: wrist, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.698, upper: 0.489, max_change_per_sample: 0.15}
+    - {index: 9, name: finger_actuator_targets/rh_A_THJ5, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -1.047, upper: 1.047, max_change_per_sample: 0.15}
+    - {index: 10, name: finger_actuator_targets/rh_A_THJ4, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 1.222, max_change_per_sample: 0.15}
+    - {index: 11, name: finger_actuator_targets/rh_A_THJ3, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.209, upper: 0.209, max_change_per_sample: 0.15}
+    - {index: 12, name: finger_actuator_targets/rh_A_THJ2, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.698, upper: 0.698, max_change_per_sample: 0.15}
+    - {index: 13, name: finger_actuator_targets/rh_A_THJ1, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.262, upper: 1.571, max_change_per_sample: 0.15}
+    - {index: 14, name: finger_actuator_targets/rh_A_FFJ4, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.349, upper: 0.349, max_change_per_sample: 0.15}
+    - {index: 15, name: finger_actuator_targets/rh_A_FFJ3, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.262, upper: 1.571, max_change_per_sample: 0.15}
+    - {index: 16, name: finger_actuator_targets/rh_A_FFJ0, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 3.142, max_change_per_sample: 0.15}
+    - {index: 17, name: finger_actuator_targets/rh_A_MFJ4, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.349, upper: 0.349, max_change_per_sample: 0.15}
+    - {index: 18, name: finger_actuator_targets/rh_A_MFJ3, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.262, upper: 1.571, max_change_per_sample: 0.15}
+    - {index: 19, name: finger_actuator_targets/rh_A_MFJ0, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 3.142, max_change_per_sample: 0.15}
+    - {index: 20, name: finger_actuator_targets/rh_A_RFJ4, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.349, upper: 0.349, max_change_per_sample: 0.15}
+    - {index: 21, name: finger_actuator_targets/rh_A_RFJ3, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.262, upper: 1.571, max_change_per_sample: 0.15}
+    - {index: 22, name: finger_actuator_targets/rh_A_RFJ0, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 3.142, max_change_per_sample: 0.15}
+    - {index: 23, name: finger_actuator_targets/rh_A_LFJ5, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 0.785, max_change_per_sample: 0.15}
+    - {index: 24, name: finger_actuator_targets/rh_A_LFJ4, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.349, upper: 0.349, max_change_per_sample: 0.15}
+    - {index: 25, name: finger_actuator_targets/rh_A_LFJ3, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: -0.262, upper: 1.571, max_change_per_sample: 0.15}
+    - {index: 26, name: finger_actuator_targets/rh_A_LFJ0, group: fingers, units: rad, coordinate_frame: actuator_joint, semantics: absolute, lower: 0.0, upper: 3.142, max_change_per_sample: 0.15}
+  safety_reason_codes:
+    - {code: none, expert_eligible: true}
+    - {code: workspace_clip, expert_eligible: true}
+    - {code: orientation_normalized, expert_eligible: true}
+    - {code: orientation_rate_limit, expert_eligible: true}
+    - {code: actuator_clip, expert_eligible: true}
+    - {code: actuator_rate_limit, expert_eligible: true}
+    - {code: phase_irrelevant_hold, expert_eligible: true}
+    - {code: invalid_numeric, expert_eligible: false}
+    - {code: stale_observation, expert_eligible: false}
+    - {code: tracking_lost_safe_hold, expert_eligible: false}
+    - {code: supervisor_reject, expert_eligible: false}
+    - {code: task_abort, expert_eligible: false}
+
+streams:
+  state:
+    required_for_release: true
+    sampling: every_control_sample
+    fields: [robot_qpos, robot_qvel, base_pose, base_velocity, wrist_finger_position, wrist_finger_velocity, typed_world_state, stale_missing_masks]
+  action:
+    required_for_release: true
+    sampling: every_control_sample
+    fields: [requested, commanded, applied, prior_commanded, prior_applied, request_source, per_field_safety_mask, per_field_safety_reason]
+  task_metrics:
+    required_for_release: true
+    sampling: every_control_sample
+    fields: [typed_goal, task_progress, terminal_metric_inputs, terminal_reason]
+  phase_safety:
+    required_for_release: true
+    sampling: every_control_sample
+    fields: [online_phase, audited_phase_annotation, phase_relevance_mask, intervention_flag, failure_reason]
+  rgb:
+    required_for_release: true
+    acquisition: synchronous_capture_or_deterministic_render_from_saved_state
+    camera_config_required: true
+    alignment: episode_frame_and_state_timestamp
+    annotations: [object_id, class_id, visibility, box_2d, segmentation_mask, pose_6d, camera_intrinsics, camera_extrinsics]
+
+episode_budget:
+  required_total_minimum: 250
+  required_total_planning_maximum: 350
+  optional_dial_minimum: 0
+  optional_dial_planning_range_if_promoted: [30, 40]
+  optional_dial_is_additional: true
+  groups:
+    reach: {minimum_new_accepted: 30, planning_range: [30, 40]}
+    pick_place: {minimum_new_accepted: 120, planning_range: [120, 150]}
+    push: {minimum_new_accepted: 40, planning_range: [40, 55]}
+    button: {minimum_new_accepted: 30, planning_range: [30, 40]}
+    failure_correction: {minimum_new_accepted: 30, planning_range: [30, 50]}
+
+counting_rules:
+  pick_place_sequence_is_one_episode: true
+  derived_reach_pick_place_segments_are_not_additional_episodes: true
+  report_episode_and_segment_counts: true
+  one_episode_may_satisfy_only_one_coverage_cell: true
+  global_surplus_cannot_replace_missing_cell: true
+
+sessions:
+  minimum_genuine_sessions: 4
+  whole_session_split_only: true
+  fresh_process_and_calibration_required: true
+  renaming_does_not_create_session: true
+  additional_session_assignment: before_collection_or_inspection
+  required_metadata: [recording_session_id, operator_id, process_start_timestamp, reset_seed, calibration_record_digest]
+  required_slots:
+    - {slot: session_a, split: train, purpose: training_pool}
+    - {slot: session_b, split: train, purpose: training_pool}
+    - {slot: session_c, split: validation, purpose: validation_only}
+    - {slot: session_d, split: test, purpose: untouched_cross_session_test}
+
+split_policy:
+  ownership_unit: complete_recording_session
+  normalization_source: train_only
+  held_out_object_instances: [block_large, cylinder_tall, puck_heavy]
+  held_out_goal_regions: [return_bin_right]
+  held_out_training_minimum: 0
+  test_influences_tuning: false
+  test_influences_thresholds: false
+  test_influences_checkpoint_selection: false
+  default_cross_operator_claim: false
+
+coverage_cells:
+  # Reach: 10 cells x 3 accepted episodes = 30.
+  - {id: reach_block_small_interior, data_group: reach, entity_id: block_small, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: reach_cylinder_short_interior, data_group: reach, entity_id: cylinder_short, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: reach_puck_light_near_boundary, data_group: reach, entity_id: puck_light, approach_class: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: reach_start_button_centered, data_group: reach, entity_id: start_button, approach_class: centered, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: reach_inspection_pad_centered, data_group: reach, entity_id: inspection_pad, approach_class: centered, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: reach_setup_slot_a_oblique, data_group: reach, entity_id: setup_slot_a, approach_class: oblique, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: reach_setup_slot_b_oblique, data_group: reach, entity_id: setup_slot_b, approach_class: oblique, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: reach_block_large_held_out, data_group: reach, entity_id: block_large, object_id: block_large, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  - {id: reach_cylinder_tall_held_out, data_group: reach, entity_id: cylinder_tall, object_id: cylinder_tall, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  - {id: reach_puck_heavy_held_out, data_group: reach, entity_id: puck_heavy, object_id: puck_heavy, approach_class: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+
+  # Pick/place: every one of 6 instances x 5 targets owns 4 episodes = 120.
+  - {id: pp_block_small_return_bin_left, data_group: pick_place, object_id: block_small, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_block_small_inspection_pad, data_group: pick_place, object_id: block_small, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_block_small_setup_slot_a, data_group: pick_place, object_id: block_small, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_block_small_setup_slot_b, data_group: pick_place, object_id: block_small, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
+  - {id: pp_block_small_return_bin_right, data_group: pick_place, object_id: block_small, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_short_return_bin_left, data_group: pick_place, object_id: cylinder_short, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_inspection_pad, data_group: pick_place, object_id: cylinder_short, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_setup_slot_a, data_group: pick_place, object_id: cylinder_short, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_setup_slot_b, data_group: pick_place, object_id: cylinder_short, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
+  - {id: pp_cylinder_short_return_bin_right, data_group: pick_place, object_id: cylinder_short, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_light_return_bin_left, data_group: pick_place, object_id: puck_light, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_puck_light_inspection_pad, data_group: pick_place, object_id: puck_light, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_puck_light_setup_slot_a, data_group: pick_place, object_id: puck_light, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: pp_puck_light_setup_slot_b, data_group: pick_place, object_id: puck_light, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
+  - {id: pp_puck_light_return_bin_right, data_group: pick_place, object_id: puck_light, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_block_large_return_bin_left, data_group: pick_place, object_id: block_large, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_block_large_inspection_pad, data_group: pick_place, object_id: block_large, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_block_large_setup_slot_a, data_group: pick_place, object_id: block_large, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_block_large_setup_slot_b, data_group: pick_place, object_id: block_large, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_block_large_return_bin_right, data_group: pick_place, object_id: block_large, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_tall_return_bin_left, data_group: pick_place, object_id: cylinder_tall, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_tall_inspection_pad, data_group: pick_place, object_id: cylinder_tall, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_tall_setup_slot_a, data_group: pick_place, object_id: cylinder_tall, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_tall_setup_slot_b, data_group: pick_place, object_id: cylinder_tall, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_cylinder_tall_return_bin_right, data_group: pick_place, object_id: cylinder_tall, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_heavy_return_bin_left, data_group: pick_place, object_id: puck_heavy, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_heavy_inspection_pad, data_group: pick_place, object_id: puck_heavy, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_heavy_setup_slot_a, data_group: pick_place, object_id: puck_heavy, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_heavy_setup_slot_b, data_group: pick_place, object_id: puck_heavy, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  - {id: pp_puck_heavy_return_bin_right, data_group: pick_place, object_id: puck_heavy, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+
+  # Push: 2 families x 5 targets x 2 reset/direction bands x 2 episodes = 40.
+  - {id: push_cuboid_return_bin_left_interior, data_group: push, family: cuboid, object_id: block_small, target_id: return_bin_left, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_return_bin_left_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: return_bin_left, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_inspection_pad_interior, data_group: push, family: cuboid, object_id: block_small, target_id: inspection_pad, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_inspection_pad_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: inspection_pad, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_setup_slot_a_interior, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_setup_slot_a_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_setup_slot_b_interior, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: interior, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_cuboid_setup_slot_b_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_cuboid_return_bin_right_interior, data_group: push, family: cuboid, object_id: block_large, target_id: return_bin_right, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: push_cuboid_return_bin_right_boundary, data_group: push, family: cuboid, object_id: block_large, target_id: return_bin_right, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: push_flat_puck_return_bin_left_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_return_bin_left_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_inspection_pad_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_inspection_pad_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_a_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_a_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_b_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: interior, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_flat_puck_setup_slot_b_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_flat_puck_return_bin_right_interior, data_group: push, family: flat_puck, object_id: puck_heavy, target_id: return_bin_right, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: push_flat_puck_return_bin_right_boundary, data_group: push, family: flat_puck, object_id: puck_heavy, target_id: return_bin_right, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+
+  # Button: 10 depth/approach/reset cells x 3 episodes = 30.
+  - {id: press_008_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.008, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_010_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.010, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_012_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.012, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_014_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.014, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_010_oblique_interior, data_group: button, button_id: start_button, target_depth_m: 0.010, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_012_oblique_interior, data_group: button, button_id: start_button, target_depth_m: 0.012, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: press_009_centered_boundary, data_group: button, button_id: start_button, target_depth_m: 0.009, approach_class: centered, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: press_013_oblique_boundary, data_group: button, button_id: start_button, target_depth_m: 0.013, approach_class: oblique, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: press_011_left_offset_test, data_group: button, button_id: start_button, target_depth_m: 0.011, approach_class: left_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  - {id: press_013_right_offset_test, data_group: button, button_id: start_button, target_depth_m: 0.013, approach_class: right_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+
+  # Failures/corrections: nine required classes, 30 accepted evidence episodes.
+  - {id: failure_approach_miss, data_group: failure_correction, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: failure_wrong_contact, data_group: failure_correction, failure_class: wrong_contact, retryability: task_dependent, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: failure_failed_acquisition, data_group: failure_correction, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: failure_slip_drop, data_group: failure_correction, failure_class: slip_drop, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
+  - {id: failure_placement_miss, data_group: failure_correction, failure_class: placement_miss, retryability: retry_once_if_still_held, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: failure_premature_release, data_group: failure_correction, failure_class: premature_release, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
+  - {id: failure_timeout, data_group: failure_correction, failure_class: timeout, retryability: task_dependent, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
+  - {id: failure_workspace_violation, data_group: failure_correction, failure_class: workspace_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  - {id: failure_joint_limit_violation, data_group: failure_correction, failure_class: joint_limit_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+
+failure_and_correction_contract:
+  streams: [expert_success, ordinary_failure, policy_rollout, corrective_intervention]
+  required_failure_classes: [approach_miss, wrong_contact, failed_acquisition, slip_drop, placement_miss, premature_release, timeout, workspace_violation, joint_limit_violation]
+  maximum_retries: 1
+  unsafe_failure_retryable: false
+  required_metadata: [source_episode_id, trigger_source, failure_class, retryability, intervention_interval, final_outcome]
+  source_policy_checkpoint_rule:
+    policy_rollout: required
+    teleoperation: {value: null, not_applicable_reason: trigger_not_policy_rollout}
+    scripted: {value: null, not_applicable_reason: trigger_not_policy_rollout}
+  preserve_pre_intervention_frames: true
+  preserve_original_terminal_result: true
+  unsafe_intervals_are_targets: false
+
+visual_claim:
+  version: level4/fixed-camera-visual-matrix-v1
+  camera_id: workcell_fixed_v1
+  camera_count: 1
+  resolution: [640, 480]
+  fixed_pose_and_intrinsics: true
+  cross_camera_claim: false
+  real_world_transfer_claim: false
+  source_episode_minima_are_additive_to_episode_budget: false
+  duplicate_images_across_splits_allowed: false
+  conditions:
+    nominal:
+      description: frozen nominal renderer and lighting
+      minimum_source_episodes_by_split: {train: 8, validation: 4, test: 4}
+      entity_coverage: [cuboid, cylinder, flat_puck, start_button, all_targets]
+    mild_illumination:
+      description: bounded intensity and color-temperature variation with fixed camera
+      parameter_bounds: {intensity_multiplier: [0.85, 1.15], color_temperature_shift_k: [-300, 300]}
+      minimum_source_episodes_by_split: {train: 4, validation: 2, test: 2}
+      entity_coverage: [cuboid, cylinder, flat_puck, start_button]
+    partial_occlusion:
+      description: one bounded non-target occluder never covering the full goal entity
+      parameter_bounds: {maximum_target_mask_occlusion_fraction: 0.35}
+      minimum_source_episodes_by_split: {train: 4, validation: 2, test: 2}
+      entity_coverage: [cuboid, cylinder, flat_puck, start_button]
+    bounded_distractors:
+      description: zero to two non-articulated workcell distractors outside task geometry
+      parameter_bounds: {distractor_count: [0, 2]}
+      minimum_source_episodes_by_split: {train: 4, validation: 2, test: 2}
+      entity_coverage: [cuboid, cylinder, flat_puck, start_button, all_targets]
+
+quality_thresholds:
+  version: level4/quality-thresholds-v1
+  min_mean_tracking_confidence: 0.75
+  min_mean_feature_confidence: 0.75
+  max_missing_frame_fraction: 0.10
+  max_feature_jitter_p95: 0.20
+  max_action_jerk_p95: 0.20
+  max_joint_limit_hit_fraction: 0.20
+  max_workspace_limit_hit_fraction: 0.10
+  max_state_action_timestamp_skew_s: 0.005
+  max_rgb_state_timestamp_skew_s: 0.017
+  max_phase_annotation_disagreement_fraction: 0.10
+  require_finite_values: true
+  require_recomputed_terminal_result: true
+  require_operator_recomputed_label_agreement: true
+  require_headless_replay: true
+
+acceptance_workflow:
+  ordered_gates: [schema_validation, timestamp_alignment, headless_replay, terminal_metric_recomputation, operator_label_agreement, quality_thresholds, coverage_assignment, split_session_leakage_audit]
+  append_only: true
+  accepted_episode_mutable: false
+  rejected_attempts_preserved: true
+  failures_separate_from_expert: true
+  corrections_includable_by_explicit_filter_only: true
+  checksum_each_accepted_episode: sha256
+
+level3_failure_traceability:
+  task_coverage:
+    disposition: accepted
+    level3_evidence: contact_only_reach_press_depth_only_and_planar_push_only
+    level4_requirements: [five_typed_skills, executable_preconditions_goals_and_terminal_metrics, complete_pick_place_sequences]
+  session_and_operator_provenance:
+    disposition: accepted
+    level3_evidence: level2_has_no_genuine_recording_session_ids_and_supports_no_cross_session_claim
+    level4_requirements: [mandatory_genuine_recording_session_id, stable_pseudonymous_operator_id, two_train_one_validation_one_untouched_test_session, whole_session_split]
+  object_and_fixture_diversity:
+    disposition: accepted
+    level3_evidence: one_cube_one_button_board_and_three_fixed_reach_targets
+    level4_requirements: [three_rigid_object_families, two_instances_per_family, named_fixture_and_targets, test_only_held_out_instances]
+  goal_and_reset_coverage:
+    disposition: accepted
+    level3_evidence: narrow_goals_fixed_initial_states_and_failed_perturbed_rollouts
+    level4_requirements: [interior_and_near_boundary_safe_resets, varied_approach_source_target_direction_mass_friction_and_geometry, per_cell_split_minima]
+  outcome_and_failure_coverage:
+    disposition: accepted
+    level3_evidence: training_sets_are_success_dominated_and_recovery_coverage_is_missing
+    level4_requirements: [separate_expert_failure_policy_and_correction_streams, nine_failure_classes, conditional_correction_provenance, abort_only_safety_failures]
+  observation_and_world_state:
+    disposition: accepted
+    level3_evidence: no_policy_rgb_and_missing_relations_phase_previous_action_and_safety_state
+    level4_requirements: [typed_entity_pose_velocity_support_held_contact_state, prior_commanded_and_applied_actions, causal_phase_and_masks, aligned_fixed_camera_rgb_and_annotations]
+  action_layout_and_safety:
+    disposition: accepted
+    level3_evidence: full_actions_caused_immediate_joint_or_workspace_terminations_and_action_subsets_changed_safety
+    level4_requirements: [requested_commanded_and_applied_stages, per_field_bounds_rates_masks_and_reasons, complete_named_layout, sign_continuous_quaternion, phase_specific_relevance, safe_boundary_coverage]
+  temporal_and_distribution_hypotheses:
+    disposition: deferred_pending_evidence
+    level3_evidence: level3_7_found_no_causal_temporal_ambiguity_or_error_accumulation_measurement
+    level4_requirements: [preserve_timestamps_and_prior_actions, collect_state_distribution_coverage, do_not_add_sequence_model_yet]
+    reconsideration_trigger: controlled_diagnostic_shows_history_resolves_ambiguous_current_states_or_errors_accumulate_after_action_and_safety_repairs
+  unsupported_generalization_claims:
+    disposition: intentionally_unsupported
+    level3_evidence: no_cross_operator_cross_camera_cross_lighting_cross_object_or_open_world_evidence
+    level4_requirements: [fixed_camera_claim_only, named_rigid_objects_only, operator_id_recorded_without_cross_operator_claim, deterministic_retry_not_learned_recovery]
+
+non_goals:
+  - workcell_scene_implementation_in_level4_0
+  - demonstration_collection_in_level4_0
+  - full_scale_policy_training
+  - skill_qualification
+  - learned_regrasp_or_drop_recovery
+  - learned_retry_selection
+  - arbitrary_object_grasping
+  - multi_camera_calibration
+  - real_world_visual_transfer
+  - end_to_end_vlm_control
+  - language_guided_orchestration

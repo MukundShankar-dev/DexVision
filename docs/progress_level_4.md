@@ -293,18 +293,32 @@ conda run -n dexvision ruff check tests/test_level4_dataset_plan.py
 ### Pass criteria
 
 ```text
-[ ] Every Level 3 failure category is accepted, deferred, or mapped to a concrete requirement
-[ ] Every core skill has typed preconditions, goals, terminal states, and executable metrics
-[ ] Object, fixture, target, phase, session, and split vocabularies are machine-readable
-[ ] The 250–350 required-episode envelope and optional-dial treatment are explicit
-[ ] Every required coverage cell has split ownership and a per-split minimum
-[ ] Four whole sessions provide separate training, validation, and test ownership
-[ ] Requested, commanded, and applied actions are reconstructable with safety reasons
-[ ] Online phases are causal and the fixed-camera visual claim is bounded
-[ ] No collection has started under an unfrozen schema
+[x] Every Level 3 failure category is accepted, deferred, or mapped to a concrete requirement
+[x] Every core skill has typed preconditions, goals, terminal states, and executable metrics
+[x] Object, fixture, target, phase, session, and split vocabularies are machine-readable
+[x] The 250–350 required-episode envelope and optional-dial treatment are explicit
+[x] Every required coverage cell has split ownership and a per-split minimum
+[x] Four whole sessions provide separate training, validation, and test ownership
+[x] Requested, commanded, and applied actions are reconstructable with safety reasons
+[x] Online phases are causal and the fixed-camera visual claim is bounded
+[x] No collection has started under an unfrozen schema
 ```
 
 Manual verification: none.
+
+The frozen human-readable plan is in `docs/level4_dataset_plan.md`; its
+machine-readable authority is `configs/level4_dataset.yaml`. The specification
+enumerates the five required skill contracts, six rigid-object instances,
+fixture/target/reset vocabularies, 79 exclusively split-owned coverage cells,
+four whole-session slots, the exact 250-new-episode minimum and 350 planning
+maximum, complete 27-field requested/commanded/applied action records, causal
+online phases, quality/acceptance gates, and the bounded fixed-camera visual
+matrix. Every Level 3 gap is accepted, deferred with an evidence trigger, or
+explicitly unsupported. No workcell, recording, collection, policy, or dataset
+payload was added or changed. Automated checks passed on September 3, 2026
+using `conda run -n dexvision pytest -q tests/test_level4_dataset_plan.py` with
+9 passed, both the checkpoint and repository Ruff commands, and `conda run -n
+dexvision pytest -q` with 461 passed.
 
 Stop after this checkpoint. Do not build the workcell in the same change.
 
@@ -855,7 +869,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 # Level 4 Completion Checklist
 
 ```text
-[ ] 4.0 requirements and Level 3 failure traceability are frozen
+[x] 4.0 requirements and Level 3 failure traceability are frozen
 [ ] 4.1 one resettable workcell and typed world state pass manual inspection
 [ ] 4.2 session-aware append-only schema and phase labels pass
 [ ] 4.3 pilot collection freezes final counts; dial is promoted or deferred

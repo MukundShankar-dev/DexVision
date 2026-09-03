@@ -20,21 +20,18 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 3.8 — Feasibility Report and Level 4 Data Requirements
+Level 4.0 — Workcell and Dataset Requirements Freeze
 
-The final report is recorded in `docs/level3_results.md`, with compact
-machine-readable evidence and plots under `outputs/level3/feasibility_v1/`.
-The reproducible saved-data learning/evaluation pipeline is a go, but every
-validation-selected full-action policy failed its frozen closed-loop gates, so
-the Level 2-trained policies are a no-go for qualification. Level 4 should
-address measured action-space, safety, session, object, goal, failure, and
-observation gaps before Level 5. The existing Level 4 roadmap already matches
-the evidence-backed 250–350 new-episode envelope. Post-closeout roadmap
-hardening retains that envelope while requiring four split-owned sessions,
-per-cell split minima, reconstructable requested/commanded/applied actions,
-causal online phases, source-aware correction provenance, and a bounded
-fixed-camera visual-condition matrix. This does not alter the immutable Level 3
-evidence or start Level 4.0 implementation. No manual verification was required.
+The frozen human-readable plan is in `docs/level4_dataset_plan.md`, and the
+machine-readable collection authority is `configs/level4_dataset.yaml`. It
+defines five typed skill contracts, exact object/fixture/target/reset
+vocabularies, 79 split-owned coverage cells, four whole-session slots, the
+250–350 episode envelope, complete requested/commanded/applied action and
+safety records, causal online phases, a bounded fixed-camera visual matrix,
+quality/acceptance gates, and traceability from every Level 3 gap. No workcell,
+collector, policy, dataset episode, or release payload was created or changed.
+Automated checks passed with 9 focused tests, Ruff, and 461 full-suite tests.
+No manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -43,7 +40,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.0 — Workcell and Dataset Requirements Freeze
+Level 4.1 — Workcell Scene, World State, and Task Contracts
 
 ---
 
@@ -721,6 +718,15 @@ digests. It closes Level 3 with a no-go on policy qualification and a go on the
 existing Level 4 workcell-data plan. Automated checks passed on September 3,
 2026 using the focused Level 3.8/temporal/roadmap suite with 18 passed, Ruff,
 and the full suite with 451 passed.
+
+Level 4.0 — Workcell and Dataset Requirements Freeze did not require manual
+verification. The frozen plan and YAML specification define the workcell/data
+scope, typed skill and terminal-metric contracts, 79 split-owned coverage
+cells, four whole-session split slots, reconstructable action-safety records,
+causal online phases, fixed-camera visual conditions, quality gates, and Level
+3 failure traceability. Automated checks passed on September 3, 2026 with 9
+focused tests, Ruff, and the full 461-test suite. No Level 4 collection or
+workcell implementation was started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
