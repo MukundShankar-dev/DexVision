@@ -1,0 +1,144 @@
+version: level3/button-evaluation-v1
+task_id: button_press
+skill_name: button_press
+dataset_config_version: level2/button-press-dataset-split-v1
+
+# Offline supervised validation uses only clean Level 2 demonstrations from
+# the nine configured training goals. Held-out button/depth combinations are
+# rollout-only and must never enter an offline partition.
+offline_split:
+  seed: 20260903
+  strategy: stratified_episode_hash
+  train_fraction: 0.80
+  validation_fraction: 0.20
+  test_fraction: 0.0
+  normalization_source: train_only
+  group_by_episode: true
+  require_recording_session_id: false
+  claim_cross_session_generalization: false
+
+training_goals:
+  button_left_depth_010:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.010
+  button_left_depth_012:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.012
+  button_left_depth_014:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.014
+  button_center_depth_010:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.010
+  button_center_depth_012:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.012
+  button_center_depth_014:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.014
+  button_right_depth_010:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.010
+  button_right_depth_012:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.012
+  button_right_depth_014:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.014
+
+held_out_rollout_goals:
+  button_left_eval_depth_011:
+    button_id: button_left
+    button_position: [0.137, -0.08, 0.40]
+    target_press_depth: 0.011
+  button_center_eval_depth_013:
+    button_id: button_center
+    button_position: [0.137, 0.00, 0.40]
+    target_press_depth: 0.013
+  button_right_eval_depth_011:
+    button_id: button_right
+    button_position: [0.137, 0.08, 0.40]
+    target_press_depth: 0.011
+
+goal_defaults:
+  target_pressed_state: true
+
+# Apply each offset to the task's normal initial hand-base position. Five
+# millimetres is half the smallest 10 mm training press depth and exercises
+# recovery without changing button identity or the frozen depth goal.
+initial_base_position_offsets_m:
+  nominal: [0.0, 0.0, 0.0]
+  x_minus_5mm: [-0.005, 0.0, 0.0]
+  x_plus_5mm: [0.005, 0.0, 0.0]
+  y_minus_5mm: [0.0, -0.005, 0.0]
+  y_plus_5mm: [0.0, 0.005, 0.0]
+  z_minus_5mm: [0.0, 0.0, -0.005]
+  z_plus_5mm: [0.0, 0.0, 0.005]
+
+rollout:
+  repetitions_per_scenario: 1
+  use_task_success_condition: true
+  stop_on_success: true
+  stop_on_failure: true
+  stop_on_timeout: true
+
+terminal_metrics:
+  success_callable: dexvision.sim.tasks.is_button_press_success
+  success_metric_inputs:
+    - press_depth_m
+    - target_press_depth_m
+    - button_pressed
+    - target_pressed_state
+    - dwell_steps
+  required_dwell_steps: 3
+  final_task_error: press_depth_shortfall_m
+  final_task_error_definition: max(target_press_depth_m - press_depth_m, 0.0)
+  report:
+    - training_goal_success_rate
+    - held_out_goal_success_rate
+    - final_press_depth_m
+    - final_press_depth_shortfall_m
+    - completion_steps
+    - normalized_action_jerk
+    - invalid_action_count
+    - workspace_violation_count
+    - joint_limit_violation_count
+    - terminal_reason_distribution
+
+acceptance_gates:
+  minimum_training_goal_success_rate: 0.80
+  minimum_held_out_goal_success_rate: 0.80
+  maximum_mean_final_press_depth_shortfall_m: 0.001
+  maximum_mean_action_jerk: 0.20
+  maximum_invalid_action_count: 0
+  maximum_workspace_violation_count: 0
+  maximum_joint_limit_violation_count: 0
+
+baseline_evidence:
+  dataset_summary_version: level2/dataset-summary-v4
+  clean_successful_episodes: 55
+  clean_success_rate: 1.0
+  training_press_depth_range_m: [0.010, 0.014]
+  held_out_interpolation_distance_m: 0.001
+  task_success_dwell_steps: 3
+  level2_max_action_jerk_p95: 0.20
+
+freeze_policy:
+  status: frozen_before_training
+  after_first_evaluation: preserve_this_file_and_create_a_new_version
+  forbidden_without_version_bump:
+    - offline_split
+    - training_goals
+    - held_out_rollout_goals
+    - initial_base_position_offsets_m
+    - terminal_metrics
+    - acceptance_gates

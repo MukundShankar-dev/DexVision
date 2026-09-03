@@ -105,7 +105,106 @@ targets, perturbations, or thresholds.
 
 ## 6. Later Skills
 
-Button press and cube push need their own frozen rollout matrices before their
-policies are trained in Level 3.5A/3.5B. Their Level 2 held-out configurations
-remain reserved, but this checkpoint does not invent acceptance thresholds for
-models that do not yet exist.
+The button-press and cube-push protocols are now frozen before their policies
+are trained:
+
+```text
+level3/button-evaluation-v1 -> configs/level3_button_evaluation.yaml
+level3/push-evaluation-v1   -> configs/level3_push_evaluation.yaml
+```
+
+They use the same deterministic whole-episode hash split as reach: clean
+episodes are stratified by exact training goal, ordered by the SHA-256 digest
+of `20260903:<episode_id>`, assigned 80 percent to training and the remainder
+to validation, and normalized from training frames only. The legacy release
+has no genuine recording-session ids, so neither protocol supports a
+cross-session claim. There is no offline test partition; reserved conditions
+are tested only by closed-loop rollout.
+
+With the immutable Level 2 v1 release, the button split contains 37 training
+and 18 validation episodes across nine button/depth goals. The push split
+contains 80 training and 21 validation episodes across three lane goals.
+
+## 7. Frozen Button-Press Rollout Matrix
+
+The nine Level 2 training button/depth goals are copied exactly from
+`configs/button_press_dataset.yaml`. The three reserved goals are also copied
+exactly: left at 11 mm, centre at 13 mm, and right at 11 mm. They remain
+rollout-only and must not be added to training or validation.
+
+Every goal runs from nominal hand-base state and plus/minus 5 mm on each world
+axis. Five millimetres is half the smallest 10 mm training press depth: large
+enough to test closed-loop recovery, but it does not alter the selected button
+or the frozen depth threshold. With one repetition, the matrix is:
+
+```text
+training-goal scenarios: 9 goals x 7 offsets = 63
+held-out-goal scenarios: 3 goals x 7 offsets = 21
+total: 84
+```
+
+Success is computed by `dexvision.sim.tasks.is_button_press_success` from the
+saved/executed press depth, target depth, current and target pressed states,
+and three-step consecutive dwell. Each run reports final press depth, terminal
+depth shortfall `max(target - actual, 0)`, completion steps, normalized action
+jerk, invalid actions, workspace and joint-limit violations, and its explicit
+terminal reason. Failures remain in the report.
+
+The frozen button gates are 80 percent success on both training and held-out
+goals, at most 1 mm mean terminal depth shortfall, mean normalized action jerk
+at most 0.20, and zero invalid actions or safety-limit violations. The Level 2
+baseline contains 55/55 clean successful episodes across all nine training
+goals; its quality gate already required action-jerk p95 at most 0.20. The
+held-out depths interpolate the 10/12/14 mm training grid by exactly 1 mm, so
+the shortfall gate has a direct geometric interpretation. The 80 percent
+closed-loop gate allows some behavior-cloning compounding error while still
+requiring broad success rather than isolated lucky runs.
+
+## 8. Frozen Push-Cube Rollout Matrix
+
+The three Level 2 lane goals and all three held-out start/target declarations
+are copied exactly from `configs/push_cube_dataset.yaml`. In particular, the
+held-out lateral lanes at -35 mm and +35 mm and the shifted centre start/target
+remain unchanged and rollout-only.
+
+Each frozen start runs nominally and with plus/minus 1 cm along world x and y.
+The offset is applied to the cube start and to the hand-base x/y reset so their
+relative approach remains unchanged; the target stays frozen. The cube's z
+coordinate is never perturbed, keeping it on the table. One centimetre is less
+than both the 35 mm success radius and the 35 mm half-spacing between adjacent
+training and held-out lanes. With one repetition, the matrix is:
+
+```text
+training-goal scenarios: 3 goals x 5 offsets = 15
+held-out-goal scenarios: 3 goals x 5 offsets = 15
+total: 30
+```
+
+Planar distance, success, and workspace failure use the existing executable
+`push_cube_distance`, `is_push_cube_success`, and
+`push_cube_failure_reason` functions. Success requires the cube centre to stay
+within 35 mm for five consecutive control steps. Each action advances the
+saved 17-step control cadence. Reports include final planar distance,
+completion steps, normalized action jerk, invalid actions, object-workspace and
+joint-limit violations, and the explicit terminal-reason distribution.
+
+The frozen push gates are 80 percent success on both training and held-out
+goals, mean final planar distance at most the 35 mm target radius, mean
+normalized action jerk at most 0.20, and zero invalid actions or safety-limit
+violations. The Level 2 set contains 101/101 clean successful demonstrations;
+their mean and p95 final distances are 20.40 mm and 28.32 mm. The independent
+Level 2.10B counterfactual curl replay reached 0.871 success with a deterministic
+95 percent episode-bootstrap interval of [0.802, 0.931]. Thus 0.80 is a
+baseline-backed feasibility boundary rather than a post-training choice. That
+counterfactual result reused curl-recorded base trajectories and is not a
+held-out-policy result.
+
+## 9. Version and Change Control
+
+The two v1 YAML files are frozen before Level 3.5B training. Focused tests pin
+their exact SHA-256 file digests as well as every training goal, held-out goal,
+perturbation, terminal metric, and gate. Once any policy is evaluated against a
+v1 protocol, the v1 file and report must be preserved. Changing any split,
+goal, reset perturbation, metric, or threshold requires a new protocol version
+and a new config file; prior results must continue to name the original version
+and digest. A failed run is evidence, not permission to edit v1.

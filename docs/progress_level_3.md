@@ -400,12 +400,25 @@ tests/test_level3_evaluation_configs.py
 ### Pass criteria
 
 ```text
-[ ] Whole-episode offline splits are deterministic
-[ ] Existing held-out task conditions remain untouched
-[ ] Rollout perturbations and terminal metrics are executable
-[ ] Thresholds are justified from task geometry and Level 2 baselines
-[ ] Protocol versions cannot be changed silently after evaluation
+[x] Whole-episode offline splits are deterministic
+[x] Existing held-out task conditions remain untouched
+[x] Rollout perturbations and terminal metrics are executable
+[x] Thresholds are justified from task geometry and Level 2 baselines
+[x] Protocol versions cannot be changed silently after evaluation
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_level3_evaluation_configs.py` with 8 passed, the focused
+evaluation/dataset/task suite with 59 passed, `conda run -n dexvision ruff
+check dexvision tests`, and `conda run -n dexvision pytest -q` with 431 passed.
+The frozen button protocol contains 63 training-goal and 21 held-out-goal
+rollout scenarios; the frozen push protocol contains 15 of each. Both preserve
+the exact Level 2 held-out declarations, use deterministic whole-episode
+training/validation splits, bind terminal metrics to existing task callables,
+and pin their v1 YAML digests in tests. Gates are fixed from task geometry,
+the Level 2 quality threshold, dataset-summary counts, and the Level 2.10B
+push-cube baseline. No policy was trained or evaluated, and no manual
+verification was required.
 
 ---
 
@@ -592,7 +605,7 @@ estimated Level 4 collection cells and episode counts
 [x] Goal-conditioned MLP and tiny overfit test work
 [x] Behavior-cloning training is reproducible
 [x] Frozen reach rollout is evaluated honestly
-[ ] Button and push protocols are frozen before their training runs
+[x] Button and push protocols are frozen before their training runs
 [ ] Cross-task feasibility baselines are reported
 [ ] Data/action diagnostics are reported
 [ ] Temporal policy is justified by evidence or explicitly skipped

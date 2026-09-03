@@ -20,18 +20,15 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.4 — Frozen Reach Closed-Loop Rollout
+Level 3.5A — Button and Push Evaluation Freeze
 
-The checkpoint-backed policy wrapper verifies SHA-256, schema, normalization,
-and dataset provenance before CPU inference. The headless evaluator applies
-the complete Level 1.13 action through bounded MuJoCo controls, runs the exact
-35-scenario frozen reach matrix, stops on explicit terminal conditions, and
-saves successes and failures with checkpoint/protocol/config digests. Automated
-checks passed with 420 tests. The real baseline did not pass the frozen gates:
-training-target success was 0.381, held-out-target success was 0.643, mean
-normalized action jerk was 0.040596, invalid actions were 0, workspace
-violations were 7, and joint-limit violations were 14. No held-out retuning was
-performed, and no manual verification was required.
+The button and push protocols now freeze deterministic whole-episode offline
+splits, the exact Level 2 training and held-out goal declarations, executable
+rollout perturbations and terminal metrics, and geometry/baseline-backed gates.
+The button matrix contains 84 scenarios and the push matrix contains 30.
+Focused tests pin both v1 YAML digests so a protocol change requires an
+explicit new version. Automated checks passed with 431 tests. No policy was
+trained or evaluated, and no manual verification was required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -40,7 +37,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.5A — Button and Push Evaluation Freeze
+Level 3.5B — Checkpoint-Selection Repair and Cross-Task Baselines
 
 ---
 
@@ -676,6 +673,12 @@ tests, Ruff, and the full 420-test suite. The real checkpoint completed all 35
 frozen headless scenarios and saved all 17 successes and 18 failures. It failed
 the frozen success and safety gates without any held-out retuning; the exact
 results are recorded in `outputs/level3/reach_rollout_v1/report.json`.
+
+Level 3.5A — Button and Push Evaluation Freeze did not require manual
+verification. Automated checks passed on September 3, 2026 with 8 focused
+tests, 59 evaluation/dataset/task tests, Ruff, and the full 431-test suite. The
+two v1 protocols preserve all reserved Level 2 conditions and are frozen before
+any button or push policy training.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

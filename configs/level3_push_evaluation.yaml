@@ -1,0 +1,144 @@
+version: level3/push-evaluation-v1
+task_id: push_cube_to_target
+skill_name: push_cube_to_target
+dataset_config_version: level2/push-cube-dataset-split-v1
+
+# Offline supervised validation uses only the three clean Level 2 training
+# lanes. The interpolated/shifted cube starts and targets below are rollout-
+# only and must never enter an offline partition.
+offline_split:
+  seed: 20260903
+  strategy: stratified_episode_hash
+  train_fraction: 0.80
+  validation_fraction: 0.20
+  test_fraction: 0.0
+  normalization_source: train_only
+  group_by_episode: true
+  require_recording_session_id: false
+  claim_cross_session_generalization: false
+
+training_goals:
+  push_cube_left_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, -0.07, -0.015]
+    target_source: push_target_left
+    target_position: [0.09, -0.07, -0.015]
+    approach_side: left
+  push_cube_center_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.00, -0.015]
+    target_source: push_target_center
+    target_position: [0.09, 0.00, -0.015]
+    approach_side: front
+  push_cube_right_lane:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.07, -0.015]
+    target_source: push_target_right
+    target_position: [0.09, 0.07, -0.015]
+    approach_side: right
+
+held_out_rollout_goals:
+  push_cube_eval_left_center:
+    object_id: push_cube
+    initial_object_position: [-0.09, -0.035, -0.015]
+    target_source: target_pose
+    target_position: [0.09, -0.035, -0.015]
+    approach_side: left
+  push_cube_eval_center_right:
+    object_id: push_cube
+    initial_object_position: [-0.09, 0.035, -0.015]
+    target_source: target_pose
+    target_position: [0.09, 0.035, -0.015]
+    approach_side: right
+  push_cube_eval_shifted_center:
+    object_id: push_cube
+    initial_object_position: [-0.075, 0.00, -0.015]
+    target_source: target_pose
+    target_position: [0.105, 0.00, -0.015]
+    approach_side: front
+
+# Add an offset to the frozen cube start and to the hand-base x/y reset so the
+# relative approach is preserved. The table-height z coordinate is never
+# perturbed. One centimetre is below the 35 mm target radius and the 35 mm
+# half-spacing between adjacent training/held-out lanes.
+initial_state_position_offsets_m:
+  nominal: [0.0, 0.0, 0.0]
+  x_minus_1cm: [-0.01, 0.0, 0.0]
+  x_plus_1cm: [0.01, 0.0, 0.0]
+  y_minus_1cm: [0.0, -0.01, 0.0]
+  y_plus_1cm: [0.0, 0.01, 0.0]
+
+reset_semantics:
+  apply_offset_to_initial_object_position: true
+  apply_xy_offset_to_derived_initial_base_position: true
+  keep_target_position_frozen: true
+  keep_object_on_table: true
+
+rollout:
+  repetitions_per_scenario: 1
+  sim_steps_per_action: 17
+  use_task_success_condition: true
+  stop_on_success: true
+  stop_on_failure: true
+  stop_on_timeout: true
+
+task_geometry:
+  target_radius_m: 0.035
+  success_dwell_steps: 5
+  max_episode_steps: 300
+  object_workspace_min_m: [-0.18, -0.15, -0.05]
+  object_workspace_max_m: [0.18, 0.15, 0.08]
+
+terminal_metrics:
+  distance_callable: dexvision.sim.tasks.push_cube_distance
+  success_callable: dexvision.sim.tasks.is_push_cube_success
+  failure_callable: dexvision.sim.tasks.push_cube_failure_reason
+  success_metric_inputs:
+    - object_position
+    - target_position
+    - distance_m
+    - dwell_steps
+  final_task_error: final_planar_object_to_target_distance_m
+  report:
+    - training_goal_success_rate
+    - held_out_goal_success_rate
+    - final_planar_object_to_target_distance_m
+    - completion_steps
+    - normalized_action_jerk
+    - invalid_action_count
+    - object_workspace_violation_count
+    - joint_limit_violation_count
+    - terminal_reason_distribution
+
+acceptance_gates:
+  minimum_training_goal_success_rate: 0.80
+  minimum_held_out_goal_success_rate: 0.80
+  maximum_mean_final_planar_distance_m: 0.035
+  maximum_mean_action_jerk: 0.20
+  maximum_invalid_action_count: 0
+  maximum_object_workspace_violation_count: 0
+  maximum_joint_limit_violation_count: 0
+
+baseline_evidence:
+  dataset_summary_version: level2/dataset-summary-v4
+  clean_successful_episodes: 101
+  clean_success_rate: 1.0
+  level2_curl_counterfactual_success_rate: 0.8712871287128713
+  level2_curl_counterfactual_success_ci95: [0.801980198019802, 0.9306930693069307]
+  level2_mean_final_planar_distance_m: 0.020397238304179072
+  level2_p95_final_planar_distance_m: 0.028324787809719504
+  task_target_radius_m: 0.035
+  task_success_dwell_steps: 5
+  level2_max_action_jerk_p95: 0.20
+
+freeze_policy:
+  status: frozen_before_training
+  after_first_evaluation: preserve_this_file_and_create_a_new_version
+  forbidden_without_version_bump:
+    - offline_split
+    - training_goals
+    - held_out_rollout_goals
+    - initial_state_position_offsets_m
+    - reset_semantics
+    - terminal_metrics
+    - acceptance_gates
