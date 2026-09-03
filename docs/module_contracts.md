@@ -1033,6 +1033,45 @@ validation partitions merely to satisfy a test-split requirement.
 
 ---
 
+## Goal-Conditioned MLP Policy
+
+Module:
+
+```text
+dexvision/learning/models.py
+```
+
+Contract:
+
+```python
+schema = PolicySchema(
+    observation_schema_version=...,
+    action_schema_version=...,
+    observation_names=...,
+    goal_names=...,
+    dataset_action_names=...,
+    output_action_names=...,
+)
+normalized_action = model(normalized_observations, normalized_goals)
+# inputs: [batch, observation_dim], [batch, goal_dim]
+# output: [batch, len(schema.output_action_names)]
+```
+
+Rules:
+
+```text
+The model contract records exact observation, goal, dataset-action, and output-action field names plus schema versions.
+The full dataset action layout begins with named Level 1.13 base-position and quaternion-orientation fields and ends with one or more named finger-actuator fields.
+The default output layout matches the complete dataset action layout.
+An action ablation must declare a non-empty, order-preserving named subset; the model must not infer a subset from dimensions.
+The model consumes normalized values and predicts normalized action values.
+Saved checkpoints contain the model format version, schema contract, architecture config, and weights.
+Loading reconstructs the model from saved schema/config metadata and requires an exact weight match.
+Level 3.2 contains no optimizer, training loop, rollout, camera, or MuJoCo runtime.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.

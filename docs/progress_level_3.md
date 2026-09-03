@@ -224,12 +224,23 @@ policy may not silently output a different action layout from its dataset.
 ### Pass criteria
 
 ```text
-[ ] Forward pass accepts batched observations and goals
-[ ] Output dimension and field layout match the configured action schema
-[ ] Outputs are finite and deterministic in evaluation mode
-[ ] Save/load round trip preserves predictions
-[ ] CPU-only tests pass
+[x] Forward pass accepts batched observations and goals
+[x] Output dimension and field layout match the configured action schema
+[x] Outputs are finite and deterministic in evaluation mode
+[x] Save/load round trip preserves predictions
+[x] CPU-only tests pass
 ```
+
+Automated checks passed on September 3, 2026 using `conda run -n dexvision
+pytest -q tests/test_learning_models.py tests/test_learning_dataset.py
+tests/test_dataset_schema.py tests/test_replay_loader.py
+tests/test_level3_evaluation_protocol.py tests/test_imports.py` with 47 passed,
+`conda run -n dexvision ruff check dexvision/learning/models.py
+tests/test_learning_models.py`, and `conda run -n dexvision pytest -q` with 411
+passed. The model checkpoint preserves its exact observation, goal, dataset-
+action, and output-action layouts. Named action subsets are supported only as
+explicit order-preserving ablations. No training or rollout was implemented,
+and no manual verification was required.
 
 ### Codex prompt
 

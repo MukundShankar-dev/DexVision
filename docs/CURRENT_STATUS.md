@@ -20,14 +20,15 @@ Level 3 — Learning Feasibility on Existing Data
 
 ## Last Completed Checkpoint
 
-Level 3.1 — Goal-Conditioned Per-Skill Dataset Loader
+Level 3.2 — Goal-Conditioned MLP Policy
 
-The loader reads all three clean per-skill datasets from the verified immutable
-Level 2 extraction through executable named layouts, builds typed goals and
-full Level 1.13 actions, creates deterministic whole-episode splits, preserves
-genuine recording-session groups when present, and fits normalization using
-training episodes only. The legacy release remains unchanged and contains no
-recording-session ids.
+The CPU-capable baseline concatenates normalized state observations and typed
+goals, passes them through a small configurable MLP, and predicts normalized
+full actions or an explicitly declared named action subset. Its schema contract
+records exact observation, goal, complete dataset-action, and output-action
+layouts and versions. Checkpoints save and restore the schema, architecture,
+and weights together. Automated checks passed with 411 tests; no manual
+verification was required. No training or rollout has been implemented.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -36,7 +37,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 3.2 — Goal-Conditioned MLP Policy
+Level 3.3 — Behavior-Cloning Training Loop
 
 ---
 
@@ -46,7 +47,7 @@ Level 3.2 — Goal-Conditioned MLP Policy
 
 Suggested next feature branch:
 
-`codex/level3-mlp-policy`
+`codex/level3-bc-training`
 
 ---
 
