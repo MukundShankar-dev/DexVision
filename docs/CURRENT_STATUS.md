@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.8 — Retargeter B: Fingertip Target Baseline
+Level 2.9 — Retargeter C: Optimization Retargeter
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -29,7 +29,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 2.9 — Retargeter C: Optimization Retargeter
+Level 2.10 — Retargeting Benchmark
 
 ---
 
@@ -592,8 +592,19 @@ targets with a simple geometric solve, and falls back to the last valid or safe
 open targets when solving fails. Automated checks passed on September 2, 2026
 using `conda run -n dexvision pytest tests/test_fingertip_retargeter.py` with 7
 passed, `conda run -n dexvision ruff check dexvision tests`, and `conda run -n
-dexvision pytest` with 376 passed. Level 2.8 is complete. Level 2.9 is the next
-target and has not been started.
+dexvision pytest` with 376 passed. Level 2.8 is complete.
+
+Level 2.9 — Retargeter C: Optimization Retargeter did not require manual
+verification. The bounded solver minimizes palm-local 3D fingertip error,
+configured actuator-limit violations, and change from the previous finger
+controls. It uses SciPy L-BFGS-B when available, has a deterministic projected-
+gradient path when SciPy is absent, clips every output to configured limits,
+falls back to last-valid or safe-open targets, and records solve diagnostics.
+Automated checks passed on September 2, 2026 using `conda run -n dexvision
+pytest tests/test_optimization_retargeter.py` with 7 passed, the three-
+retargeter suite with 30 passed, `conda run -n dexvision ruff check dexvision
+tests`, and `conda run -n dexvision pytest` with 383 passed. Level 2.9 is
+complete. Level 2.10 is the next target and has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

@@ -254,6 +254,18 @@ All returned targets must be clipped to the configured inclusive limits.
 Missing or low-confidence tracking returns the safe open target set. If a solve
 fails after a valid frame, the fingertip baseline returns the last valid target
 set; before any valid solve it returns the safe open target set.
+The Level 2.9 optimization retargeter minimizes palm-local 3D fingertip error,
+configured actuator-limit violations, and change from the previous normalized
+finger-control solution. The non-negative objective weights and positive
+iteration limit are configurable.
+The optimization retargeter accepts a MediaPipe-compatible landmark array or a
+hand-tracking result. It uses bounded SciPy optimization when SciPy is available
+and a deterministic projected-gradient solver otherwise.
+Every optimization result is clipped to configured inclusive target limits.
+Failed solves return the last valid target set, or the safe open target set
+before the first valid solve. Each attempted solve records elapsed time,
+objective value when available, success, and optimizer backend, and successful
+solve time is logged.
 For free_space_gesture pinch collection, the curl retargeter may apply a bounded thumb-index pinch overlay from pinch_thumb_index while keeping the saved full action schema unchanged.
 The pinch overlay may use simple hand-shape gates, such as requiring index bend and open middle/ring/pinky fingers, so loose thumb-index distance thresholds do not corrupt fist demos.
 ```

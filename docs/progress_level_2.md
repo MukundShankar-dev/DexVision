@@ -1841,12 +1841,25 @@ pytest tests/test_optimization_retargeter.py
 ### Pass Criteria
 
 ```text
-[ ] Returns valid joint targets
-[ ] Respects limits
-[ ] Smoothness penalty reduces jumps
-[ ] Fallback if optimization fails
-[ ] Solve time is logged
+[x] Returns valid joint targets
+[x] Respects limits
+[x] Smoothness penalty reduces jumps
+[x] Fallback if optimization fails
+[x] Solve time is logged
 ```
+
+The optimization retargeter solves for five bounded normalized finger controls
+against palm-local 3D fingertip targets. Its objective includes configurable
+fingertip-error, actuator-limit, and previous-solution smoothness terms. SciPy
+L-BFGS-B is used when available, with a deterministic projected-gradient solver
+when SciPy is absent; failed solves fall back to the last valid clipped targets
+or the safe open pose. Solve time, objective, success, and backend diagnostics
+are retained, and successful solve time is logged. Automated checks passed on
+September 2, 2026 using `conda run -n dexvision pytest
+tests/test_optimization_retargeter.py` with 7 passed, the three-retargeter suite
+with 30 passed, `conda run -n dexvision ruff check dexvision tests`, and
+`conda run -n dexvision pytest` with 383 passed. Level 2.9 is complete and did
+not require manual verification.
 
 ### Codex Prompt
 

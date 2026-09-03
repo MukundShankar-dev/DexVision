@@ -99,7 +99,7 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.8 is complete. The three manipulation datasets currently marked Level
+Level 2.9 is complete. The three manipulation datasets currently marked Level
 3-ready are:
 
 - `reach_touch_target`: 55 clean successes with balanced target coverage
@@ -134,9 +134,18 @@ or solving fails. Run its synthetic checks with:
 pytest tests/test_fingertip_retargeter.py
 ```
 
-The next checkpoint is Level 2.9 — Retargeter C: Optimization Retargeter. No
-optimization retargeter, retargeting benchmark, policy training, or Level 5
-orchestration has been implemented.
+Level 2.9 adds an optimization retargeter that minimizes palm-local fingertip
+error, configured actuator-limit violations, and temporal changes in finger
+controls. It uses bounded SciPy optimization when available, retains a
+deterministic projected-gradient path when SciPy is absent, clips outputs, and
+falls back to last-valid or safe-open targets. Run its synthetic checks with:
+
+```bash
+pytest tests/test_optimization_retargeter.py
+```
+
+The next checkpoint is Level 2.10 — Retargeting Benchmark. No retargeting
+benchmark, policy training, or Level 5 orchestration has been implemented.
 
 ## Known Limitations
 
