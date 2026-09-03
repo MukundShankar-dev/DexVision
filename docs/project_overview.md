@@ -24,8 +24,9 @@ dataset release tracked with Git LFS.
 
 Level 3 is active. Its purpose is to test whether the existing narrow datasets
 support useful behavior-cloned policies. The Level 3.1 goal-conditioned dataset
-loader is complete; the next checkpoint is Level 3.2, the goal-conditioned MLP
-policy.
+loader, Level 3.2 schema-bound MLP, and Level 3.3 reproducible behavior-cloning
+training loop are complete. The next checkpoint is Level 3.4, frozen
+closed-loop reach-policy evaluation in MuJoCo.
 
 ## Architecture
 
@@ -167,9 +168,10 @@ while a versioned external artifact store holds the immutable payload.
 
 ## Honest project claim
 
-DexVision currently demonstrates a complete teleoperation and dataset engine.
-Level 3 will determine whether its existing data can support autonomous
-policies. Level 4 will determine whether a comprehensive dataset can be built;
-Level 5 will determine whether those data can become a compact, qualified
-workcell skill library. Language-guided multi-skill behavior remains future
-work until those evidence gates pass.
+DexVision currently demonstrates a complete teleoperation and dataset engine
+plus reproducible offline behavior-cloning training on its frozen reach split.
+Level 3 closed-loop evaluation will determine whether the learned policy is
+useful under the frozen MuJoCo protocol. Level 4 will determine whether a
+comprehensive dataset can be built; Level 5 will determine whether those data
+can become a compact, qualified workcell skill library. Language-guided
+multi-skill behavior remains future work until those evidence gates pass.

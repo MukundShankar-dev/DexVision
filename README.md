@@ -128,6 +128,21 @@ are frozen before training in the
 held-out target poses are closed-loop MuJoCo rollout conditions, not required
 demonstration samples.
 
+Level 3.1 through Level 3.3 are complete: the repository now has a
+goal-conditioned dataset loader, a schema-bound MLP, and a reproducible CPU
+behavior-cloning training loop. Train the reach baseline from the repository
+root with:
+
+```bash
+python -m dexvision.apps.train_policy --config configs/level3_bc.yaml
+```
+
+The command saves an epoch-resumable checkpoint and SHA-256 sidecar under
+`outputs/level3/reach_bc_v1/`. Checkpoint metadata includes the exact model and
+schema contract, dataset/split/normalization digests, training-only
+normalization statistics, loss history, seed, and environment information.
+Closed-loop MuJoCo policy rollout remains the next checkpoint.
+
 Project staging and checkpoint status are documented in
 [CURRENT_STATUS](docs/CURRENT_STATUS.md) and the
 [active Level 3 progress file](docs/progress_level_3.md). The later roadmap is
@@ -161,7 +176,8 @@ python -m dexvision.apps.export_skill_metadata --task button_press
 python -m dexvision.apps.export_skill_metadata --task push_cube_to_target
 ```
 
-These stubs intentionally leave `policy_checkpoint` unset for Level 3.
+These Level 2 release stubs intentionally remain policy-free; Level 3 training
+checkpoints are saved separately under `outputs/level3/`.
 
 Level 2.8 adds a second, approximate retargeting baseline alongside the existing
 curl retargeter. It converts MediaPipe-compatible hand landmarks into five
@@ -213,8 +229,9 @@ bias. No independent live fingertip/optimization trajectories were collected
 or claimed; doing so requires a new operator collection campaign.
 
 Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
-freezes the first reach-policy evaluation protocol. No policy training or
-Level 7 orchestration has been implemented.
+freezes the first reach-policy evaluation protocol. Offline reach-policy
+training is implemented through Level 3.3; closed-loop policy rollout and
+Level 7 orchestration have not been implemented.
 
 ## Known Limitations
 
