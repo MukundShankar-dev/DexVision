@@ -10,8 +10,10 @@ import pytest
 from dexvision.evaluation.benchmark_retargeters import (
     BENCHMARK_VERSION,
     BenchmarkReport,
+    ConfidenceInterval,
     RetargeterMetrics,
     RetargetingBenchmarkError,
+    bootstrap_confidence_interval,
     discover_task_episodes,
     joint_limit_violation_rate,
     mean_action_jerk,
@@ -52,6 +54,17 @@ def test_mean_fingertip_error_uses_euclidean_distance() -> None:
         mean_fingertip_error(predicted[0], target)
 
 
+def test_episode_bootstrap_interval_is_deterministic_and_contains_mean() -> None:
+    values = np.asarray([0.0, 0.0, 1.0, 1.0])
+
+    first = bootstrap_confidence_interval(values, samples=500, seed=7)
+    second = bootstrap_confidence_interval(values, samples=500, seed=7)
+
+    assert first == second
+    assert first.lower <= float(np.mean(values)) <= first.upper
+    assert bootstrap_confidence_interval([0.25]) == ConfidenceInterval(0.25, 0.25)
+
+
 def test_episode_discovery_is_sorted_and_requires_requested_count(
     tmp_path: Path,
 ) -> None:
@@ -83,6 +96,12 @@ def test_json_csv_and_svg_outputs_contain_all_required_metrics(tmp_path: Path) -
         joint_limit_violation_rate=0.0,
         mean_fingertip_error=0.2,
         task_success_rate=1.0,
+        mean_fingertip_object_distance_m=0.015,
+        fingertip_contact_frame_rate=0.4,
+        confidence_intervals={
+            "mean_latency_ms": ConfidenceInterval(0.2, 0.3),
+            "fingertip_contact_frame_rate": ConfidenceInterval(0.2, 0.6),
+        },
     )
     report = BenchmarkReport(
         benchmark_version=BENCHMARK_VERSION,
@@ -91,8 +110,11 @@ def test_json_csv_and_svg_outputs_contain_all_required_metrics(tmp_path: Path) -
         episode_ids=("a", "b"),
         config_path="configs/level1_teleop.yaml",
         success_evaluation="synthetic",
+        bootstrap_samples=2000,
+        bootstrap_seed=0,
         action_jerk_units="normalized actuator units/frame^3",
         fingertip_error_units="palm widths",
+        fingertip_object_distance_units="metres",
         metrics=(metric,),
     )
     json_path, csv_path = save_benchmark_report(
@@ -111,5 +133,8 @@ def test_json_csv_and_svg_outputs_contain_all_required_metrics(tmp_path: Path) -
     assert payload["metrics"][0]["mean_latency_ms"] == 0.25
     assert rows[0]["retargeter"] == "curl"
     assert "mean_action_jerk" in rows[0]
+    assert float(rows[0]["mean_latency_ms_ci95_low"]) == 0.2
+    assert float(rows[0]["fingertip_contact_frame_rate_ci95_high"]) == 0.6
     assert "Mean latency" in svg
     assert "Task success rate" in svg
+    assert "Fingertip-object distance" in svg

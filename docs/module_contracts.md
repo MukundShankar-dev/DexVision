@@ -288,7 +288,9 @@ report = run_benchmark(
     task_id="push_cube_to_target",
     config_path="configs/level1_teleop.yaml",
     retargeter_names=("curl", "fingertip", "optimization"),
-    success_evaluator=replay_push_cube_success,
+    success_evaluator=replay_push_cube_metrics,
+    bootstrap_samples=2000,
+    bootstrap_seed=0,
 )
 save_benchmark_report(report, json_path=..., csv_path=...)
 save_benchmark_plot(report, output_path=...)
@@ -307,6 +309,14 @@ Fingertip error is palm-width-normalized Euclidean error under the shared
 benchmark fingertip surrogate.
 For push_cube_to_target, task success is recomputed by counterfactual headless
 MuJoCo replay with recorded base actions and benchmarked finger targets.
+Aggregate means carry deterministic 95% episode-bootstrap confidence intervals.
+Push-cube replay measures signed distance from the cube geom to the five
+collidable distal-fingertip geoms and the fraction of frames with fingertip
+contact. These are actual MuJoCo geometry measurements, distinct from the
+palm-local kinematic-surrogate fingertip error.
+The recorded base trajectories were collected with curl retargeting, so the
+counterfactual comparison must disclose curl-derived trajectory bias and must
+not claim independent per-retargeter operator demonstrations.
 Recorded raw demonstrations are read-only. JSON, CSV, and SVG reports are
 written only to the requested report directory.
 No policy training or live camera access belongs in this module.

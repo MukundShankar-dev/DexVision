@@ -99,7 +99,7 @@ Project staging and checkpoint status are documented in
 
 ### Current Level 2 status
 
-Level 2.10 is complete. The three manipulation datasets currently marked Level
+Level 2.10B is complete. The three manipulation datasets currently marked Level
 3-ready are:
 
 - `reach_touch_target`: 55 clean successes with balanced target coverage
@@ -144,25 +144,34 @@ falls back to last-valid or safe-open targets. Run its synthetic checks with:
 pytest tests/test_optimization_retargeter.py
 ```
 
-Level 2.10 compares all three retargeters on identical saved episode streams.
-The following reproducible baseline used the first 10 sorted
-`push_cube_to_target` episodes, the shared Level 1 teleop mapping, and
-counterfactual headless MuJoCo replay with the recorded base actions:
+Level 2.10B validates all three retargeters on all 101 saved
+`push_cube_to_target` episodes (7,176 frames). The shared human feature and
+landmark streams feed each retargeter, and counterfactual headless MuJoCo replay
+combines each method's finger targets with the recorded base actions. Values in
+brackets are deterministic 95% episode-bootstrap intervals from 2,000 resamples
+with seed 0:
 
-| Retargeter | Mean latency (ms) | Mean action jerk | Limit violation rate | Fingertip error | Task success |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Curl | 0.0774 | 0.018819 | 0.000000 | 0.440249 | 1.00 |
-| Fingertip | 0.1019 | 0.023423 | 0.000000 | 0.401410 | 0.80 |
-| Optimization | 1.7385 | 0.022442 | 0.000000 | 0.401413 | 0.90 |
+| Retargeter | Latency ms [95% CI] | Jerk [95% CI] | Surrogate tip error [95% CI] | Success [95% CI] | Tip-cube distance m [95% CI] | Tip-contact rate [95% CI] |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Curl | 0.0766 [0.0763, 0.0768] | 0.01547 [0.01465, 0.01634] | 0.4854 [0.4767, 0.4938] | 0.871 [0.802, 0.931] | 0.10573 [0.10541, 0.10604] | 0.00867 [0.00592, 0.01168] |
+| Fingertip | 0.1014 [0.0998, 0.1041] | 0.01872 [0.01736, 0.02022] | 0.4546 [0.4454, 0.4637] | 0.832 [0.762, 0.901] | 0.10632 [0.10604, 0.10658] | 0.00574 [0.00368, 0.00815] |
+| Optimization | 1.3040 [1.2661, 1.3696] | 0.01798 [0.01668, 0.01941] | 0.4546 [0.4454, 0.4637] | 0.871 [0.802, 0.931] | 0.10585 [0.10552, 0.10616] | 0.00988 [0.00715, 0.01286] |
 
-Latency varies by machine and should be regenerated for performance claims.
-Action jerk is measured in normalized actuator units per frame cubed, and
-fingertip error is normalized by palm width. Generate JSON, CSV, and SVG
-artifacts with:
+All three methods had zero joint-limit violations. Latency varies by machine;
+action jerk is normalized actuator units per frame cubed, surrogate fingertip
+error is normalized by palm width, and tip-cube measurements use the five
+distal collision geoms in MuJoCo. Generate the versioned JSON, flattened CSV,
+and six-panel SVG artifacts with:
 
 ```bash
-python -m dexvision.apps.benchmark_retargeters --task push_cube_to_target --episodes 10
+python -m dexvision.apps.benchmark_retargeters --task push_cube_to_target --episodes 101 --bootstrap-samples 2000
 ```
+
+The original demonstrations and base trajectories were collected with curl
+retargeting. Reusing those base trajectories makes this a controlled
+counterfactual finger-retargeting comparison, but it does not remove that curl
+bias. No independent live fingertip/optimization trajectories were collected
+or claimed; doing so requires a new operator collection campaign.
 
 No policy training or Level 5 orchestration has been implemented.
 

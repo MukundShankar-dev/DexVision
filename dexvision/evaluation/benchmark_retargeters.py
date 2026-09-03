@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
-from typing import Final
+from typing import Final, TypeAlias
 
 import numpy as np
 
@@ -24,7 +24,7 @@ from dexvision.retargeting.fingertip_ik_retargeter import (
 from dexvision.retargeting.optimization_retargeter import OptimizationRetargeter
 
 
-BENCHMARK_VERSION: Final[str] = "level2.10/retargeting-benchmark-v1"
+BENCHMARK_VERSION: Final[str] = "level2.10b/retargeting-benchmark-v2"
 RETARGETER_NAMES: Final[tuple[str, ...]] = ("curl", "fingertip", "optimization")
 _FINGER_CHAINS: Final[dict[str, tuple[int, int, int, int]]] = {
     "thumb": (1, 2, 3, 4),
@@ -41,6 +41,23 @@ class RetargetingBenchmarkError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class ConfidenceInterval:
+    """Two-sided episode-bootstrap interval for an aggregate mean."""
+
+    lower: float
+    upper: float
+
+
+@dataclass(frozen=True)
+class TaskReplayMetrics:
+    """Task and contact measurements from one counterfactual replay."""
+
+    success: bool
+    mean_fingertip_object_distance_m: float
+    fingertip_contact_frame_rate: float
+
+
+@dataclass(frozen=True)
 class RetargeterMetrics:
     """Aggregate metrics for one retargeter over the same episode set."""
 
@@ -52,6 +69,9 @@ class RetargeterMetrics:
     joint_limit_violation_rate: float
     mean_fingertip_error: float | None
     task_success_rate: float
+    mean_fingertip_object_distance_m: float | None = None
+    fingertip_contact_frame_rate: float | None = None
+    confidence_intervals: Mapping[str, ConfidenceInterval] | None = None
 
 
 @dataclass(frozen=True)
@@ -64,9 +84,17 @@ class BenchmarkReport:
     episode_ids: tuple[str, ...]
     config_path: str
     success_evaluation: str
+    bootstrap_samples: int
+    bootstrap_seed: int
     action_jerk_units: str
     fingertip_error_units: str
+    fingertip_object_distance_units: str
     metrics: tuple[RetargeterMetrics, ...]
+
+
+SuccessEvaluator: TypeAlias = Callable[
+    [LoadedReplayDemo, np.ndarray], bool | TaskReplayMetrics
+]
 
 
 def mean_action_jerk(actions: np.ndarray) -> float:
@@ -114,6 +142,35 @@ def mean_fingertip_error(predicted: np.ndarray, target: np.ndarray) -> float:
     return float(np.mean(np.linalg.norm(predicted_values - target_values, axis=-1)))
 
 
+def bootstrap_confidence_interval(
+    values: Sequence[float] | np.ndarray,
+    *,
+    samples: int = 2000,
+    seed: int = 0,
+) -> ConfidenceInterval:
+    """Return a deterministic percentile 95% CI by resampling episodes."""
+
+    observations = np.asarray(values, dtype=np.float64)
+    if observations.ndim != 1 or observations.size == 0:
+        raise ValueError("bootstrap values must be a non-empty 1D sequence.")
+    if not np.all(np.isfinite(observations)):
+        raise ValueError("bootstrap values must contain only finite values.")
+    if isinstance(samples, bool) or not isinstance(samples, int) or samples <= 0:
+        raise ValueError("bootstrap samples must be a positive integer.")
+    if isinstance(seed, bool) or not isinstance(seed, int):
+        raise ValueError("bootstrap seed must be an integer.")
+    if observations.size == 1:
+        value = float(observations[0])
+        return ConfidenceInterval(value, value)
+    rng = np.random.default_rng(seed)
+    indices = rng.integers(
+        0, observations.size, size=(samples, observations.size), endpoint=False
+    )
+    means = np.mean(observations[indices], axis=1)
+    lower, upper = np.percentile(means, (2.5, 97.5))
+    return ConfidenceInterval(float(lower), float(upper))
+
+
 def discover_task_episodes(
     dataset_root: str | Path,
     *,
@@ -146,12 +203,16 @@ def run_benchmark(
     task_id: str,
     config_path: str | Path,
     retargeter_names: Sequence[str] = RETARGETER_NAMES,
-    success_evaluator: Callable[[LoadedReplayDemo, np.ndarray], bool] | None = None,
+    success_evaluator: SuccessEvaluator | None = None,
+    bootstrap_samples: int = 2000,
+    bootstrap_seed: int = 0,
 ) -> BenchmarkReport:
     """Benchmark retargeters on identical saved landmark and feature streams."""
 
     if not episode_dirs:
         raise RetargetingBenchmarkError("at least one episode is required.")
+    if bootstrap_samples <= 0:
+        raise RetargetingBenchmarkError("bootstrap_samples must be positive.")
     selected_names = tuple(retargeter_names)
     unknown = sorted(set(selected_names) - set(RETARGETER_NAMES))
     if unknown:
@@ -185,6 +246,8 @@ def run_benchmark(
             loaded_episodes,
             config_path=Path(config_path),
             success_evaluator=success_evaluator,
+            bootstrap_samples=bootstrap_samples,
+            bootstrap_seed=bootstrap_seed,
         )
         for name in selected_names
     )
@@ -202,8 +265,11 @@ def run_benchmark(
         ),
         config_path=str(config_path),
         success_evaluation=success_description,
+        bootstrap_samples=bootstrap_samples,
+        bootstrap_seed=bootstrap_seed,
         action_jerk_units="normalized actuator units/frame^3",
         fingertip_error_units="palm-width-normalized Euclidean distance",
+        fingertip_object_distance_units="metres, signed MuJoCo geom distance",
         metrics=metrics,
     )
 
@@ -222,11 +288,41 @@ def save_benchmark_report(
     csv_output.parent.mkdir(parents=True, exist_ok=True)
     payload = asdict(report)
     json_output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    fieldnames = tuple(RetargeterMetrics.__dataclass_fields__)
+    metric_names = (
+        "mean_latency_ms",
+        "mean_action_jerk",
+        "joint_limit_violation_rate",
+        "mean_fingertip_error",
+        "task_success_rate",
+        "mean_fingertip_object_distance_m",
+        "fingertip_contact_frame_rate",
+    )
+    fieldnames = (
+        "retargeter",
+        "episodes",
+        "frames",
+        *metric_names,
+        *(f"{name}_ci95_{bound}" for name in metric_names for bound in ("low", "high")),
+    )
     with csv_output.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(asdict(metric) for metric in report.metrics)
+        for metric in report.metrics:
+            row = {
+                key: value
+                for key, value in asdict(metric).items()
+                if key != "confidence_intervals"
+            }
+            intervals = metric.confidence_intervals or {}
+            for metric_name in metric_names:
+                interval = intervals.get(metric_name)
+                row[f"{metric_name}_ci95_low"] = (
+                    None if interval is None else interval.lower
+                )
+                row[f"{metric_name}_ci95_high"] = (
+                    None if interval is None else interval.upper
+                )
+            writer.writerow(row)
     return json_output, csv_output
 
 
@@ -244,8 +340,16 @@ def save_benchmark_plot(report: BenchmarkReport, output_path: str | Path) -> Pat
             [metric.joint_limit_violation_rate for metric in report.metrics],
         ),
         ("Task success rate", [metric.task_success_rate for metric in report.metrics]),
+        (
+            "Fingertip-object distance (m)",
+            [metric.mean_fingertip_object_distance_m or 0.0 for metric in report.metrics],
+        ),
+        (
+            "Fingertip contact-frame rate",
+            [metric.fingertip_contact_frame_rate or 0.0 for metric in report.metrics],
+        ),
     )
-    width, height = 960, 620
+    width, height = 960, 890
     colors = ("#2563eb", "#0f766e", "#b45309", "#7c3aed")
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
@@ -282,8 +386,10 @@ def save_benchmark_plot(report: BenchmarkReport, output_path: str | Path) -> Pat
     return path
 
 
-def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> bool:
-    """Evaluate counterfactual push-cube success with a headless MuJoCo replay."""
+def replay_push_cube_metrics(
+    loaded: LoadedReplayDemo, actions: np.ndarray
+) -> TaskReplayMetrics:
+    """Measure push-cube success and fingertip contact in headless MuJoCo."""
 
     if loaded.episode.metadata.get("task_id") != "push_cube_to_target":
         raise RetargetingBenchmarkError(
@@ -311,6 +417,8 @@ def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> b
     replay_demo = replace(loaded, episode=replay_episode)
     dwell_steps = 0
     succeeded = False
+    fingertip_distances: list[float] = []
+    contact_frames = 0
 
     with MujocoEnv(loaded.model_path) as env:
         joint_id = env._mujoco.mj_name2id(
@@ -321,9 +429,17 @@ def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> b
                 f"replay model is missing push-cube joint '{object_id}_joint'."
             )
         qpos_address = int(env.model.jnt_qposadr[joint_id])
+        object_geom_id = env._mujoco.mj_name2id(
+            env.model, env._mujoco.mjtObj.mjOBJ_GEOM, "push_cube_geom"
+        )
+        if object_geom_id < 0:
+            raise RetargetingBenchmarkError(
+                "replay model is missing named geom 'push_cube_geom'."
+            )
+        fingertip_geom_ids = _fingertip_collision_geom_ids(env)
 
         def observe(_step: object, _state: object) -> None:
-            nonlocal dwell_steps, succeeded
+            nonlocal dwell_steps, succeeded, contact_frames
             object_position = np.asarray(
                 env.data.qpos[qpos_address : qpos_address + 3], dtype=np.float64
             )
@@ -332,6 +448,23 @@ def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> b
             else:
                 dwell_steps = 0
             succeeded = succeeded or dwell_steps >= required_dwell
+            distances = [
+                float(
+                    env._mujoco.mj_geomDistance(
+                        env.model,
+                        env.data,
+                        geom_id,
+                        object_geom_id,
+                        1.0,
+                        None,
+                    )
+                )
+                for geom_id in fingertip_geom_ids
+            ]
+            minimum_distance = min(distances)
+            fingertip_distances.append(minimum_distance)
+            if minimum_distance <= 0.0:
+                contact_frames += 1
 
         sim_steps = int(
             loaded.episode.metadata.get("recording", {}).get("sim_steps_per_frame", 1)
@@ -344,7 +477,19 @@ def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> b
             sleep_fn=lambda _delay: None,
             progress_callback=observe,
         )
-    return succeeded
+    if not fingertip_distances:
+        raise RetargetingBenchmarkError("push-cube replay produced no measured frames.")
+    return TaskReplayMetrics(
+        success=succeeded,
+        mean_fingertip_object_distance_m=float(np.mean(fingertip_distances)),
+        fingertip_contact_frame_rate=contact_frames / len(fingertip_distances),
+    )
+
+
+def replay_push_cube_success(loaded: LoadedReplayDemo, actions: np.ndarray) -> bool:
+    """Compatibility wrapper returning only counterfactual task success."""
+
+    return replay_push_cube_metrics(loaded, actions).success
 
 
 def _benchmark_retargeter(
@@ -352,14 +497,17 @@ def _benchmark_retargeter(
     episodes: Sequence[LoadedReplayDemo],
     *,
     config_path: Path,
-    success_evaluator: Callable[[LoadedReplayDemo, np.ndarray], bool] | None,
+    success_evaluator: SuccessEvaluator | None,
+    bootstrap_samples: int,
+    bootstrap_seed: int,
 ) -> RetargeterMetrics:
-    latency_seconds: list[float] = []
+    episode_latencies_ms: list[float] = []
     episode_jerks: list[float] = []
-    fingertip_errors: list[float] = []
+    episode_limit_rates: list[float] = []
+    episode_fingertip_errors: list[float] = []
     successes: list[bool] = []
-    violations = 0
-    scalar_actions = 0
+    object_distances: list[float] = []
+    contact_rates: list[float] = []
     frame_count = 0
 
     for loaded in episodes:
@@ -368,6 +516,8 @@ def _benchmark_retargeter(
         feature_fields = _feature_field_indices(loaded.episode.metadata)
         landmarks = np.asarray(loaded.episode.landmarks, dtype=np.float64)
         finger_rows: list[np.ndarray] = []
+        frame_latencies: list[float] = []
+        frame_fingertip_errors: list[float] = []
         for index in range(landmarks.shape[0]):
             input_value: object
             if name == "curl":
@@ -376,14 +526,12 @@ def _benchmark_retargeter(
                 input_value = landmarks[index]
             started = perf_counter()
             targets = retargeter.map(input_value)
-            latency_seconds.append(perf_counter() - started)
+            frame_latencies.append(perf_counter() - started)
             row = np.asarray(
                 [targets[target_name] for target_name in loaded.finger_target_names],
                 dtype=np.float64,
             )
             lower, upper = limits
-            violations += int(np.count_nonzero((row < lower) | (row > upper)))
-            scalar_actions += row.size
             finger_rows.append(row)
             try:
                 target_tips, predicted_tips = _fingertip_prediction(
@@ -392,34 +540,76 @@ def _benchmark_retargeter(
             except ValueError:
                 pass
             else:
-                fingertip_errors.append(mean_fingertip_error(predicted_tips, target_tips))
+                frame_fingertip_errors.append(
+                    mean_fingertip_error(predicted_tips, target_tips)
+                )
 
         finger_actions = np.stack(finger_rows, axis=0)
         normalized_actions = _normalize_actions(finger_actions, *limits)
+        episode_latencies_ms.append(1000.0 * float(np.mean(frame_latencies)))
         episode_jerks.append(mean_action_jerk(normalized_actions))
+        episode_limit_rates.append(
+            joint_limit_violation_rate(finger_actions, *limits)
+        )
+        if frame_fingertip_errors:
+            episode_fingertip_errors.append(float(np.mean(frame_fingertip_errors)))
         full_actions = np.asarray(loaded.episode.actions, dtype=np.float64).copy()
         finger_range = loaded.action_schema.finger_actuator_targets
         finger_slice = finger_range if isinstance(finger_range, slice) else slice(*finger_range)
         full_actions[:, finger_slice] = finger_actions
-        success = (
+        replay_metrics = (
             success_evaluator(loaded, full_actions)
             if success_evaluator is not None
             else bool(loaded.episode.success)
         )
-        successes.append(success)
+        if isinstance(replay_metrics, TaskReplayMetrics):
+            successes.append(replay_metrics.success)
+            object_distances.append(replay_metrics.mean_fingertip_object_distance_m)
+            contact_rates.append(replay_metrics.fingertip_contact_frame_rate)
+        else:
+            successes.append(bool(replay_metrics))
         frame_count += finger_actions.shape[0]
 
+    metric_samples: dict[str, Sequence[float]] = {
+        "mean_latency_ms": episode_latencies_ms,
+        "mean_action_jerk": episode_jerks,
+        "joint_limit_violation_rate": episode_limit_rates,
+        "task_success_rate": [float(value) for value in successes],
+    }
+    if episode_fingertip_errors:
+        metric_samples["mean_fingertip_error"] = episode_fingertip_errors
+    if object_distances:
+        metric_samples["mean_fingertip_object_distance_m"] = object_distances
+    if contact_rates:
+        metric_samples["fingertip_contact_frame_rate"] = contact_rates
+    confidence_intervals = {
+        metric_name: bootstrap_confidence_interval(
+            values,
+            samples=bootstrap_samples,
+            seed=bootstrap_seed + index,
+        )
+        for index, (metric_name, values) in enumerate(metric_samples.items())
+    }
     return RetargeterMetrics(
         retargeter=name,
         episodes=len(episodes),
         frames=frame_count,
-        mean_latency_ms=1000.0 * float(np.mean(latency_seconds)),
+        mean_latency_ms=float(np.mean(episode_latencies_ms)),
         mean_action_jerk=float(np.mean(episode_jerks)),
-        joint_limit_violation_rate=float(violations / scalar_actions),
+        joint_limit_violation_rate=float(np.mean(episode_limit_rates)),
         mean_fingertip_error=(
-            None if not fingertip_errors else float(np.mean(fingertip_errors))
+            None
+            if not episode_fingertip_errors
+            else float(np.mean(episode_fingertip_errors))
         ),
         task_success_rate=float(np.mean(successes)),
+        mean_fingertip_object_distance_m=(
+            None if not object_distances else float(np.mean(object_distances))
+        ),
+        fingertip_contact_frame_rate=(
+            None if not contact_rates else float(np.mean(contact_rates))
+        ),
+        confidence_intervals=confidence_intervals,
     )
 
 
@@ -565,6 +755,41 @@ def _normalize_actions(
     span = upper - lower
     safe_span = np.where(span > _EPSILON, span, 1.0)
     return (actions - lower) / safe_span
+
+
+def _fingertip_collision_geom_ids(env: object) -> tuple[int, ...]:
+    """Resolve one collidable distal geom for each Shadow Hand fingertip."""
+
+    model = getattr(env, "model")
+    mujoco_module = getattr(env, "_mujoco")
+    geom_ids: list[int] = []
+    for body_name in (
+        "rh_thdistal",
+        "rh_ffdistal",
+        "rh_mfdistal",
+        "rh_rfdistal",
+        "rh_lfdistal",
+    ):
+        body_id = mujoco_module.mj_name2id(
+            model, mujoco_module.mjtObj.mjOBJ_BODY, body_name
+        )
+        if body_id < 0:
+            raise RetargetingBenchmarkError(
+                f"replay model is missing fingertip body '{body_name}'."
+            )
+        candidates = [
+            geom_id
+            for geom_id in range(model.ngeom)
+            if int(model.geom_bodyid[geom_id]) == body_id
+            and int(model.geom_contype[geom_id]) != 0
+        ]
+        if len(candidates) != 1:
+            raise RetargetingBenchmarkError(
+                f"fingertip body '{body_name}' must have exactly one collidable geom; "
+                f"found {len(candidates)}."
+            )
+        geom_ids.append(candidates[0])
+    return tuple(geom_ids)
 
 
 def _finite_matrix(value: np.ndarray, *, name: str) -> np.ndarray:

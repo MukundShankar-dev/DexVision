@@ -20,7 +20,7 @@ Level 2 — Demonstration Recording, Replay, Data Quality, and Retargeting Bench
 
 ## Last Completed Checkpoint
 
-Level 2.10 — Retargeting Benchmark
+Level 2.10B — Full-Dataset Retargeting Benchmark Validation
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -612,8 +612,20 @@ saved episode streams, saves JSON/CSV metrics and a dependency-free SVG plot,
 and recomputes push-cube task success through counterfactual headless MuJoCo
 replay. The September 2, 2026 10-episode baseline completed successfully;
 the focused metric suite passed with 5 tests, Ruff passed, and the full suite
-passed with 388 tests. Level 2 is complete. No Level 3 policy learning was
+passed with 388 tests. Level 2.10 is complete. No Level 3 policy learning was
 implemented.
+
+Level 2.10B — Full-Dataset Retargeting Benchmark Validation did not require
+manual verification. All 101 immutable push-cube episodes and 7,176 frames
+were evaluated for curl, fingertip, and optimization retargeters. Versioned
+JSON/CSV output now includes deterministic 95% episode-bootstrap intervals;
+the SVG contains six metric panels; and headless MuJoCo replay measures actual
+distal-fingertip-to-cube distance and contact-frame rate alongside task
+success. The README reports the full results and explicitly discloses that the
+shared base trajectories were originally collected with curl retargeting, so
+independent live per-retargeter trajectories are not claimed. Focused checks
+passed with 6 tests, Ruff passed, and the full suite passed with 389 tests.
+Level 2 is complete. No Level 3 policy learning was implemented.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

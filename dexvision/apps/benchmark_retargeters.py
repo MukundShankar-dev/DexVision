@@ -10,7 +10,7 @@ from dexvision.evaluation.benchmark_retargeters import (
     RETARGETER_NAMES,
     RetargetingBenchmarkError,
     discover_task_episodes,
-    replay_push_cube_success,
+    replay_push_cube_metrics,
     run_benchmark,
     save_benchmark_plot,
     save_benchmark_report,
@@ -68,12 +68,26 @@ def build_parser() -> argparse.ArgumentParser:
             "replay. Required for tasks other than push_cube_to_target."
         ),
     )
+    parser.add_argument(
+        "--bootstrap-samples",
+        type=int,
+        default=2000,
+        help="Episode-bootstrap resamples used for deterministic 95%% intervals.",
+    )
+    parser.add_argument(
+        "--bootstrap-seed",
+        type=int,
+        default=0,
+        help="Random seed for episode-bootstrap confidence intervals.",
+    )
     return parser
 
 
 def run(args: argparse.Namespace) -> int:
     if args.episodes <= 0:
         raise RetargetingBenchmarkError("--episodes must be positive.")
+    if args.bootstrap_samples <= 0:
+        raise RetargetingBenchmarkError("--bootstrap-samples must be positive.")
     if args.task != "push_cube_to_target" and not args.recorded_success:
         raise RetargetingBenchmarkError(
             "counterfactual success replay currently supports push_cube_to_target; "
@@ -93,6 +107,9 @@ def run(args: argparse.Namespace) -> int:
     print(f"Retargeters: {', '.join(args.retargeters)}")
     print(f"Config: {args.config}")
     print(
+        f"Bootstrap: samples={args.bootstrap_samples}, seed={args.bootstrap_seed}"
+    )
+    print(
         "Task success: "
         + ("recorded labels" if args.recorded_success else "headless MuJoCo replay")
     )
@@ -101,7 +118,9 @@ def run(args: argparse.Namespace) -> int:
         task_id=args.task,
         config_path=args.config,
         retargeter_names=args.retargeters,
-        success_evaluator=None if args.recorded_success else replay_push_cube_success,
+        success_evaluator=None if args.recorded_success else replay_push_cube_metrics,
+        bootstrap_samples=args.bootstrap_samples,
+        bootstrap_seed=args.bootstrap_seed,
     )
     save_benchmark_report(report, json_path=json_path, csv_path=csv_path)
     save_benchmark_plot(report, plot_path)
@@ -117,6 +136,12 @@ def run(args: argparse.Namespace) -> int:
             f"limit_rate={metric.joint_limit_violation_rate:.6f}, "
             f"fingertip_error={fingertip}, success={metric.task_success_rate:.3f}"
         )
+        if metric.mean_fingertip_object_distance_m is not None:
+            print(
+                "  MuJoCo contact: "
+                f"mean_tip_distance={metric.mean_fingertip_object_distance_m:.6f} m, "
+                f"contact_frame_rate={metric.fingertip_contact_frame_rate:.6f}"
+            )
     print(f"Saved JSON: {json_path}")
     print(f"Saved CSV: {csv_path}")
     print(f"Saved plot: {plot_path}")

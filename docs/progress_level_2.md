@@ -1938,6 +1938,72 @@ Do not add policy learning.
 
 ---
 
+## Level 2.10B — Full-Dataset Retargeting Benchmark Validation
+
+### Goal
+
+Validate the Level 2.10 comparison on the complete push-cube dataset and add
+uncertainty plus task-relevant MuJoCo contact measurements.
+
+### Files
+
+```text
+dexvision/evaluation/benchmark_retargeters.py
+dexvision/apps/benchmark_retargeters.py
+tests/test_retargeting_metrics.py
+README.md
+docs/module_contracts.md
+```
+
+### Run
+
+```bash
+python -m dexvision.apps.benchmark_retargeters --task push_cube_to_target --episodes 101 --bootstrap-samples 2000
+pytest tests/test_retargeting_metrics.py
+```
+
+### Pass Criteria
+
+```text
+[x] All 101 immutable push-cube episodes are evaluated
+[x] Episode-bootstrap 95% confidence intervals are saved
+[x] MuJoCo fingertip-to-cube distance and contact-frame rate are measured
+[x] JSON, CSV, SVG, and README results include the stronger metrics
+[x] Curl-derived base-trajectory bias is explicitly documented
+[x] Independent live per-retargeter collection is not claimed
+```
+
+The September 2, 2026 validation evaluated all 101 immutable push-cube
+episodes and 7,176 saved frames with 2,000 deterministic episode-bootstrap
+resamples. Curl/fingertip/optimization task success was 0.871/0.832/0.871,
+with overlapping 95% intervals of [0.802, 0.931], [0.762, 0.901], and
+[0.802, 0.931]. Mean distal-fingertip-to-cube distance was
+0.10573/0.10632/0.10585 m, and fingertip contact-frame rate was
+0.00867/0.00574/0.00988. Optimization matched the fingertip baseline's lower
+surrogate error and matched curl's success count, but curl remained fastest
+and smoothest; all joint-limit violation rates were zero. The JSON/CSV report
+stores intervals for every metric and the SVG contains six metric panels.
+
+The comparison intentionally reuses identical human inputs and base actions,
+but those base trajectories were originally collected with curl retargeting.
+It therefore does not claim independent per-retargeter live trajectories. A
+fair live collection campaign would require new operator recordings and is
+outside this automated validation checkpoint. Focused checks passed with 6
+tests, Ruff passed, and the full suite passed with 389 tests. Level 2.10B is
+complete and did not require manual verification.
+
+### Codex Prompt
+
+```text
+Strengthen only the retargeting benchmark validation.
+Use all existing push-cube episodes, bootstrap episodes for uncertainty, and
+measure simulated distal-fingertip proximity/contact during counterfactual
+headless replay. Preserve raw demonstrations and do not collect new live data,
+train policies, or implement Level 3.
+```
+
+---
+
 # Level 2 Completion Checklist
 
 ```text
@@ -1962,4 +2028,5 @@ Do not add policy learning.
 [x] Optimization retargeter implemented
 [x] Retargeter benchmark produces results
 [x] Level 2 README/results updated
+[x] Full-dataset benchmark validation includes uncertainty and contact metrics
 ```
