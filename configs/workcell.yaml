@@ -1,0 +1,95 @@
+version: level4/workcell-v1
+model_path: ../assets/mujoco/workcell_scene.xml
+requirements_path: level4_dataset.yaml
+world_state_version: level4/world-state-v1
+coordinate_frame: mujoco_world
+length_units: m
+time_units: s
+
+scene:
+  table_body: workcell_table
+  table_surface_z_m: 0.0
+  clearing_region: clearing_region
+  fixed_camera: workcell_fixed_v1
+  hand_base_target: dexvision_hand_base_target
+  hand_body: rh_palm
+  hand_site: grasp_site
+  hand_neutral_position_m: [-0.15, 0.0, 0.12]
+  hand_neutral_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+  object_clearance_m: 0.004
+  setup_slot_visual_radius_m: 0.015
+  viewer:
+    lookat_m: [0.0, 0.0, 0.16]
+    distance_m: 0.85
+    azimuth_deg: 45.0
+    elevation_deg: -28.0
+    entity_labels_initially_visible: true
+
+objects:
+  block_small:
+    body: block_small
+    joint: block_small_freejoint
+    geom: block_small_geom
+    resting_height_m: 0.018
+    footprint_radius_m: 0.02475
+    spawn_anchor_xy_m: [-0.108, -0.090]
+    spawn_jitter_xy_m: [0.001, 0.000]
+  block_large:
+    body: block_large
+    joint: block_large_freejoint
+    geom: block_large_geom
+    resting_height_m: 0.020
+    footprint_radius_m: 0.02916
+    spawn_anchor_xy_m: [-0.108, 0.000]
+    spawn_jitter_xy_m: [0.001, 0.000]
+  cylinder_short:
+    body: cylinder_short
+    joint: cylinder_short_freejoint
+    geom: cylinder_short_geom
+    resting_height_m: 0.018
+    footprint_radius_m: 0.022
+    spawn_anchor_xy_m: [-0.042, 0.090]
+    spawn_jitter_xy_m: [0.001, 0.000]
+  cylinder_tall:
+    body: cylinder_tall
+    joint: cylinder_tall_freejoint
+    geom: cylinder_tall_geom
+    resting_height_m: 0.030
+    footprint_radius_m: 0.018
+    spawn_anchor_xy_m: [-0.042, -0.090]
+    spawn_jitter_xy_m: [0.001, 0.000]
+  puck_light:
+    body: puck_light
+    joint: puck_light_freejoint
+    geom: puck_light_geom
+    resting_height_m: 0.008
+    footprint_radius_m: 0.030
+    spawn_anchor_xy_m: [-0.042, 0.000]
+    spawn_jitter_xy_m: [0.001, 0.000]
+  puck_heavy:
+    body: puck_heavy
+    joint: puck_heavy_freejoint
+    geom: puck_heavy_geom
+    resting_height_m: 0.008
+    footprint_radius_m: 0.026
+    spawn_anchor_xy_m: [-0.108, 0.090]
+    spawn_jitter_xy_m: [0.001, 0.000]
+
+fixtures:
+  start_button:
+    body: start_button
+    joint: start_button_joint
+    geom: start_button_geom
+    site: start_button_site
+    pressed_threshold_m: 0.008
+
+targets:
+  return_bin_left: {body: return_bin_left, geom: return_bin_left_floor}
+  return_bin_right: {body: return_bin_right, geom: return_bin_right_floor}
+  inspection_pad: {body: inspection_pad, geom: inspection_pad_geom}
+  setup_slot_a: {body: setup_slot_a, geom: setup_slot_a_geom}
+  setup_slot_b: {body: setup_slot_b, geom: setup_slot_b_geom}
+
+optional_fixtures:
+  mode_dial:
+    enabled: false

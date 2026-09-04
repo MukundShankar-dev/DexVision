@@ -372,11 +372,11 @@ python -m dexvision.apps.inspect_workcell --config configs/workcell.yaml --seed 
 ### Pass criteria
 
 ```text
-[ ] Headless tests reset every required entity and compute every task metric
-[ ] Stable ids survive an episode and reset predictably
-[ ] Frames, units, valid ranges, and stale-state behavior are explicit
-[ ] Unsupported or ambiguous ids fail with actionable errors
-[ ] One scene contains the clearing, inspection, and setup regions
+[x] Headless tests reset every required entity and compute every task metric
+[x] Stable ids survive an episode and reset predictably
+[x] Frames, units, valid ranges, and stale-state behavior are explicit
+[x] Unsupported or ambiguous ids fail with actionable errors
+[x] One scene contains the clearing, inspection, and setup regions
 ```
 
 Manual verification is required. The viewer passes when every required object,
@@ -385,8 +385,32 @@ are visible and reachable, nothing begins interpenetrating, and repeated reset
 with the same seed reproduces the layout. It fails on clipping, unreachable
 targets, unstable objects, mislabeled fixtures, or a nondeterministic reset.
 
-Stop after automated checks and request the user's manual result before marking
-4.1 complete.
+Automated implementation checks passed on September 3, 2026 using the two
+checkpoint test files with 14 passed, the checkpoint and repository-wide Ruff
+commands, the 1,200-step headless inspector, and the full suite with 475
+passed. The first interactive attempt exposed a locked fixed-camera view and a
+hard 1,200-step viewer exit. The inspector now starts with a movable overview
+camera, stays open until the viewer is closed, and provides keyboard controls
+for reset, seed changes, pause, and labels. Follow-up reviews found the
+unlabeled colors too ambiguous and then exposed that MuJoCo's default viewer
+hides site group 4. Workcell-only label anchors now use visible site group 0
+and are enabled by default without labeling every internal robot body. A later
+manual review found that the camera projection visually reversed the
+left/right return bins and that randomized object-to-anchor assignment could
+obscure the setup-slot markers. Camera-only adjustments failed re-verification
+because the frozen target coordinates themselves encoded left and right
+opposite to the operator-facing view, while the first camera-space regression
+also used a reversed horizontal-vector sign. The target centers and MuJoCo
+bodies are now corrected together so ids, labels, world state, and task metrics
+all use operator-visible left/right. The corrected regression checks both
+frozen-to-runtime coordinate equality and screen-space ordering. Objects use
+deterministic per-object spawn lanes inside the frozen reset bounds, the setup
+markers are smaller, and an automated clearance assertion prevents objects
+from starting over either slot.
+The user confirmed on September 3, 2026 that final interactive verification
+passed: operator-facing left/right labels were correct, the setup-slot overlap
+was gone, and the viewer satisfied the checkpoint criteria. Level 4.1 is
+complete. Level 4.2 was not started.
 
 ---
 
@@ -870,7 +894,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 
 ```text
 [x] 4.0 requirements and Level 3 failure traceability are frozen
-[ ] 4.1 one resettable workcell and typed world state pass manual inspection
+[x] 4.1 one resettable workcell and typed world state pass manual inspection
 [ ] 4.2 session-aware append-only schema and phase labels pass
 [ ] 4.3 pilot collection freezes final counts; dial is promoted or deferred
 [ ] 4.4 reach, push, and press coverage passes across genuine sessions

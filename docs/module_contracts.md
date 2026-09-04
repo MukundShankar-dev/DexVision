@@ -1275,7 +1275,7 @@ manifests, coverage report, and retrieval instructions.
 
 ## World State and Object Observation
 
-Planned Level 4 modules:
+Modules:
 
 ```text
 dexvision/sim/world_state.py
@@ -1296,6 +1296,17 @@ class ObjectObservation:
     confidence: float
     timestamp: float
     frame: str
+
+@dataclass(frozen=True)
+class WorldState:
+    schema_version: str
+    timestamp: float
+    frame: str
+    entities: tuple[ObjectObservation, ...]
+    relations: tuple[EntityRelation, ...]
+    fixtures: tuple[FixtureObservation, ...]
+    robot: RobotObservation
+    contacts: tuple[tuple[str, str], ...]
 ```
 
 Rules:
@@ -1308,4 +1319,15 @@ Source and confidence distinguish measured/inferred state from ground truth.
 Stale, missing, or ambiguous state must fail clearly at the skill boundary.
 A detector, tracker, or compact VLM may populate semantic/object hypotheses;
 none may bypass metric pose validation or safety checks.
+Level 4.1 simulator truth uses source=simulator_ground_truth and confidence=1.
+Future inferred observations use source=inferred_perception but the same frozen
+ObjectObservation type and validation rules.
+Workcell task factories validate goals against configs/level4_dataset.yaml and
+compute the frozen reach, pick, place-held, push, and press terminal metrics.
+The operator-facing return-bin mapping is return_bin_left=[0.10, 0.11, 0.02] m
+and return_bin_right=[0.10, -0.11, 0.02] m; scene labels and task ids must not
+swap these sides.
+Consecutive qualifying dwell is task-local and causal; a nonqualifying sample
+resets it to zero.
+The optional rotate_dial task remains disabled.
 ```

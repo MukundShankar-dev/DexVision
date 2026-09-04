@@ -114,12 +114,12 @@ workcell:
     return_bin_left:
       target_type: receptacle
       split_role: training_pool
-      center_m: [0.10, -0.11, 0.02]
+      center_m: [0.10, 0.11, 0.02]
       tolerance_radius_m: 0.025
     return_bin_right:
       target_type: receptacle
       split_role: held_out_test_only
-      center_m: [0.10, 0.11, 0.02]
+      center_m: [0.10, -0.11, 0.02]
       tolerance_radius_m: 0.025
     inspection_pad:
       target_type: planar_zone

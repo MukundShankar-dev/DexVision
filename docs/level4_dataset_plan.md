@@ -2,9 +2,11 @@
 
 Specification version: `level4/workcell-dataset-plan-v1`
 
-Status: frozen for the Level 4.1–4.3 implementation and pilot. Level 4.3 may
-replace provisional counts only by publishing a new configuration version and
-recording pilot evidence. No Level 4 collection has started under this schema.
+Status: Level 4.1 implementation and manual verification are complete; this
+specification remains frozen for the Level 4.2–4.3 implementation and pilot.
+Level 4.3 may replace provisional counts only by publishing a new configuration
+version and recording pilot evidence.
+No Level 4 collection has started under this schema.
 
 ## Decision and evidence boundary
 
@@ -52,6 +54,12 @@ The required fixture is `start_button`. The frozen targets are
 `setup_slot_b`. `return_bin_right` is a held-out goal region. The optional
 `mode_dial` is deferred and contributes zero required episodes unless Level
 4.3 promotes it in a new version after a successful pilot.
+
+Return-bin names follow the operator-facing initial viewer: `return_bin_left`
+is centered at `[0.10, 0.11, 0.02]` m and appears on screen-left;
+`return_bin_right` is centered at `[0.10, -0.11, 0.02]` m and appears on
+screen-right. Scene bodies, labels, world state, and task target ids must all
+preserve this mapping.
 
 The primary claim is limited to these named rigid bodies, the fixed camera,
 and the configured tabletop ranges. It does not imply arbitrary-object,

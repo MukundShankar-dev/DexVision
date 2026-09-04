@@ -20,18 +20,14 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.0 — Workcell and Dataset Requirements Freeze
+Level 4.1 — Workcell Scene, World State, and Task Contracts
 
-The frozen human-readable plan is in `docs/level4_dataset_plan.md`, and the
-machine-readable collection authority is `configs/level4_dataset.yaml`. It
-defines five typed skill contracts, exact object/fixture/target/reset
-vocabularies, 79 split-owned coverage cells, four whole-session slots, the
-250–350 episode envelope, complete requested/commanded/applied action and
-safety records, causal online phases, a bounded fixed-camera visual matrix,
-quality/acceptance gates, and traceability from every Level 3 gap. No workcell,
-collector, policy, dataset episode, or release payload was created or changed.
-Automated checks passed with 9 focused tests, Ruff, and 461 full-suite tests.
-No manual verification was required.
+The resettable MuJoCo workcell, typed simulator/perception world-state
+contract, five required task factories, and manual inspector are implemented.
+Automated checks passed with 14 focused tests, the 1,200-step headless
+inspector, repository-wide Ruff, and 475 full-suite tests. Manual viewer
+verification passed on September 3, 2026 after correcting viewer controls,
+labels, setup-slot clearance, and operator-facing return-bin sides.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -40,7 +36,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.1 — Workcell Scene, World State, and Task Contracts
+Level 4.2 — Session-Aware Recording and Phase-Label Schema
 
 ---
 
@@ -50,7 +46,7 @@ Level 4.1 — Workcell Scene, World State, and Task Contracts
 
 Suggested next feature branch:
 
-`codex/level4-dataset-plan`
+`codex/level4-session-schema`
 
 ---
 
@@ -727,6 +723,29 @@ causal online phases, fixed-camera visual conditions, quality gates, and Level
 3 failure traceability. Automated checks passed on September 3, 2026 with 9
 focused tests, Ruff, and the full 461-test suite. No Level 4 collection or
 workcell implementation was started.
+
+Level 4.1 — Workcell Scene, World State, and Task Contracts manually passed on
+September 3, 2026. Automated checks passed with 14 focused tests, the
+1,200-step headless inspector, repository-wide Ruff, and the full 475-test
+suite. The first manual
+attempt failed because the fixed camera was locked on an obstructed view and
+the viewer exited normally after its hard 1,200-step limit. The corrected
+inspector uses a movable overview camera, stays open until explicitly closed,
+and exposes keyboard reset, seed, pause, and label controls. The checkpoint is
+now also displaying workcell-only entity labels by default after follow-up
+review found the unlabeled colors ambiguous and showed that MuJoCo hid the
+original label anchors in disabled site group 4. The corrected anchors use
+visible site group 0. A later review found that the overview visually reversed
+the two return-bin sides and that objects could obscure the setup-slot markers. The
+user confirmed the object/setup-slot issue was fixed, but camera-only changes
+failed left/right re-verification because the frozen target coordinates encoded
+the names opposite to the operator-facing view and the first camera regression
+used a reversed horizontal-vector sign. The frozen target centers and MuJoCo
+bodies are now corrected together so ids, labels, world state, and metrics
+agree. The regression checks frozen-to-runtime coordinate equality and actual
+screen-space ordering. The user confirmed that the final viewer passed, with
+correct operator-facing return-bin sides and no object/setup-slot overlap.
+Level 4.1 is complete; Level 4.2 is the next target but has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 
