@@ -7,6 +7,153 @@ freeze:
   frozen_date: "2026-09-03"
   change_policy: create_new_version_with_compatibility_note
   level4_3_count_revision_requires_pilot_evidence: true
+  coverage_count_status: provisional_pending_level4_3_pilot
+
+pilot:
+  version: level4/collection-pilot-v1
+  status: pending_collection_and_manual_replay
+  dataset_dir: data/demos/level4_pilot
+  reach_rate_control:
+    mapping: centered_velocity_joystick
+    image_deadband: 0.035
+    image_full_scale: 0.22
+    depth_deadband: 0.05
+    depth_full_scale: 0.35
+    response_exponent: 2.0
+    max_velocity_m_s: [0.12, 0.15, 0.10]
+    transit_height_m: 0.19
+    descent_radius_m: 0.035
+  scripted_reach:
+    planner: rise_horizontal_protected_corridor_descent
+    planning_point: grasp_site
+    transit_height_m: 0.22
+    corridor_entry_height_m: 0.18
+    max_position_step_m: 0.01
+    waypoint_tolerance_m: 0.000001
+    required_goal_dwell_steps: 5
+    sim_steps_per_action: 17
+    maximum_non_target_disturbance_m: 0.005
+    joint_limit_tolerance_rad: 0.000001
+  scripted_button:
+    controller: fixed_posture_normal_press
+    planning_point: grasp_site
+    transit_height_m: 0.22
+    precontact_offset_m: [-0.15, -0.011, -0.035]
+    press_offset_m: [-0.095, -0.011, -0.035]
+    transit_step_m: 0.01
+    press_step_m: 0.002
+    retract_step_m: 0.005
+    waypoint_tolerance_m: 0.000001
+    required_press_dwell_steps: 3
+    release_depth_m: 0.002
+    release_hold_steps: 5
+    sim_steps_per_action: 17
+    maximum_non_target_disturbance_m: 0.005
+    joint_limit_tolerance_rad: 0.0005
+  scripted_push:
+    controller: fixed_index_task_axis_push
+    planning_point: grasp_site
+    posture: index_partially_flexed_others_flexed
+    trial_setup:
+      mode: selected_object_on_workcell_non_targets_on_floor_parking
+      parking_x_m: -0.35
+      parking_y_m: [-0.12, -0.06, 0.0, 0.06, 0.12]
+      parking_surface_z_m: -0.10
+    transit_height_m: 0.22
+    approach_gap_m: 0.03
+    fingertip_lateral_offset_m: 0.0325
+    family_parameters:
+      cuboid:
+        wrist_pitch_deg: 45.0
+        control_height_m: 0.09
+        fingertip_forward_offset_m: 0.0645
+        control_side: ahead
+        index_curl: 0.30
+      flat_puck:
+        wrist_pitch_deg: 78.0
+        control_height_m: 0.102
+        fingertip_forward_offset_m: 0.056
+        control_side: behind
+        index_curl: 0.0
+    transit_step_m: 0.01
+    descent_step_m: 0.005
+    push_step_m: 0.002
+    target_stop_distance_m: 0.030
+    retract_distance_m: 0.04
+    retract_step_m: 0.005
+    orientation_step_rad: 0.05
+    waypoint_tolerance_m: 0.000001
+    required_goal_dwell_steps: 5
+    release_hold_steps: 3
+    required_terminal_dwell_steps: 5
+    maximum_object_tilt_rad: 0.174533
+    maximum_push_actions: 180
+    sim_steps_per_action: 17
+    maximum_non_target_disturbance_m: 0.005
+    joint_limit_tolerance_rad: 0.01
+  scripted_grasp:
+    controller: object_relative_family_grasp_lift
+    planning_point: grasp_site
+    hand_poses:
+      open: configured_retargeter_open
+      closed: configured_retargeter_full_flexion
+    trial_setup:
+      mode: selected_object_on_workcell_non_targets_on_floor_parking
+      parking_x_m: -0.35
+      parking_y_m: [-0.12, -0.06, 0.0, 0.06, 0.12]
+      parking_surface_z_m: -0.10
+    transit_height_m: 0.22
+    transit_step_m: 0.01
+    descent_step_m: 0.005
+    lift_step_m: 0.001
+    synergy_step: 0.05
+    orientation_step_rad: 0.05
+    waypoint_tolerance_m: 0.000001
+    required_hold_steps: 10
+    maximum_retention_gap_steps: 5
+    maximum_hold_speed_m_s: 0.02
+    sim_steps_per_action: 17
+    maximum_non_target_disturbance_m: 0.005
+    joint_limit_tolerance_rad: 0.03
+    family_templates:
+      cuboid:
+        object_relative_position_m: [0.0, -0.06, 0.032]
+        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+        grasp_synergy: 0.9
+        lift_distance_m: 0.08
+      cylinder:
+        object_relative_position_m: [-0.01, -0.06, 0.032]
+        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+        grasp_synergy: 0.9
+        lift_distance_m: 0.10
+      flat_puck:
+        object_relative_position_m: [-0.04, -0.04, 0.016]
+        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+        grasp_synergy: 1.0
+        lift_distance_m: 0.11
+  minimum_genuine_sessions: 2
+  minimum_accepted_episodes:
+    reach: 5
+    pick_place: 10
+    push: 5
+    button: 5
+  ordinary_failures_preserved_separately: true
+  expert_acceptance_review_filename: pilot_review.json
+  manual_replay_manifest_filename: manual_replay_manifest.json
+  replay_requirements:
+    headless_replay_for_every_accepted_episode: true
+    recomputed_terminal_success_for_every_accepted_episode: true
+    manual_replay_one_per_required_skill: true
+  storage_projection:
+    basis: mean_pilot_episode_bytes_times_required_planning_maximum
+    git_lfs_max_projected_payload_bytes: 2147483648
+    above_threshold_payload_handling: external_object_storage
+  final_count_freeze_requires:
+    - pilot_minima_pass
+    - all_object_families_and_target_types_observed
+    - per_cell_minima_fit_required_episode_envelope
+    - storage_payload_handling_decided
+    - manual_replay_gate_confirmed_by_user
 
 evidence_sources:
   - docs/level3_results.md
@@ -44,9 +191,9 @@ workcell:
   angle_units: rad
   time_units: s
   safe_workspace:
-    min: [-0.18, -0.18, 0.08]
+    min: [-0.18, -0.18, 0.01]
     max: [0.22, 0.18, 0.24]
-    margin_m: 0.01
+    margin_m: 0.005
     coordinate_frame: mujoco_world
     units: m
   board_workspace:
@@ -107,7 +254,7 @@ workcell:
     start_button:
       fixture_type: pressable_button
       split_role: all_splits
-      position_m: [0.13, -0.11, 0.40]
+      position_m: [0.11, -0.11, 0.20]
       press_axis: [1.0, 0.0, 0.0]
       depth_range_m: [0.008, 0.014]
   targets:
@@ -234,12 +381,14 @@ skills:
     goal_fields:
       object_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, puck_light, puck_heavy]}
       target_zone: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [return_bin_left, return_bin_right, inspection_pad, setup_slot_a, setup_slot_b]}
-    terminal_state_fields: [planar_object_to_target_distance_m, object_linear_speed_mps, object_on_board, dwell_steps, terminal_reason]
+    terminal_state_fields: [planar_object_to_target_distance_m, object_linear_speed_mps, object_on_board, object_supported, object_upright_tilt_rad, dwell_steps, terminal_reason]
     success_metric:
       required_consecutive_samples: 5
       conditions:
         - {field: planar_object_to_target_distance_m, operator: less_equal, value: 0.035, units: m}
         - {field: object_on_board, operator: equals, value: true, units: bool}
+        - {field: object_supported, operator: equals, value: true, units: bool}
+        - {field: object_upright_tilt_rad, operator: less_equal, value: 0.174533, units: rad}
         - {field: object_linear_speed_mps, operator: less_equal, value: 0.020, units: m_per_s}
     failure_rules:
       - {reason: wrong_contact, predicate: non_goal_object_displaced, retryable: false}
@@ -279,6 +428,8 @@ optional_skills:
     promotion_checkpoint: Level 4.3
     promoted_budget_is_additional: true
     promotion_requires_successful_pilot: true
+    level4_3_decision: deferred
+    level4_3_decision_reason: required_skill_pilot_and_coverage_take_priority
 
 phase_contract:
   version: level4/causal-phase-v1

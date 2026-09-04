@@ -20,15 +20,12 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.2 — Session-Aware Recording and Phase-Label Schema
+Level 4.3D — Deterministic Grasp-and-Lift Expert
 
-The immutable episode extension, genuine-session manifest, causal online and
-audited phase labels, derived pick/place segments, reconstructable
-requested/commanded/applied safety records, optional aligned RGB, append-only
-resume behavior, and headless validator are implemented. Automated checks
-passed on September 4, 2026 with 31 focused tests, repository-wide Ruff, the
-validator module smoke command, and 489 full-suite tests. Manual verification
-was not required.
+The reopened Level 4.3C visual gate passed after remediation of the tipped-push
+false positive. Level 4.3D remains implemented and automated-test clean. The
+user accepted the standalone grasp-and-lift replay while identifying object
+orientation preservation as a broader placement design consideration.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -37,7 +34,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3 — Collection Pilot and Final Coverage Freeze
+Level 4.3E — Deterministic Place and Complete Pick/Place Expert
 
 ---
 
@@ -47,7 +44,7 @@ Level 4.3 — Collection Pilot and Final Coverage Freeze
 
 Suggested next feature branch:
 
-`codex/level4-collection-pilot`
+`codex/level43e-place-expert`
 
 ---
 
@@ -758,7 +755,152 @@ atomic Level 4 writes never overwrite existing episodes. Legacy Level 2
 episodes still load without invented Level 4 fields. Automated checks passed
 on September 4, 2026 with 31 focused tests, repository-wide Ruff, a validator
 module smoke run against a synthetic episode, and the full 489-test suite.
-Level 4.2 is complete; Level 4.3 is the next target and has not been started.
+Level 4.2 is complete; Level 4.3A is the next target within the revised Level
+4.3 sequence.
+
+Level 4.3 — Collection Pilot and Final Coverage Freeze has automated pilot
+recording, review, replay, and coverage-report tooling implemented, but remains incomplete. The
+tooling keeps expert acceptance evidence append-only, retains ordinary failures
+separately, reports episodes and derived pick/place segments separately, audits
+session/cell split ownership, measures phase agreement and collection/storage
+statistics, and leaves the count matrix provisional. The workcell recorder now
+resolves frozen cells for reach, complete pick/place, push, and press, creates a
+genuine append-only session per process, stores all six object states and task
+metrics, emits online phases, and restores randomized objects for replay. The
+optional dial is explicitly deferred. Automated checks passed on September 4,
+2026 with 18 checkpoint tests, 86 controller/workcell regression tests,
+repository-wide Ruff, recorder-help and coverage CLI smoke commands, and 508
+full-suite tests.
+The first manual reach attempt exposed a workcell control-frame defect: the
+long forearm root was being positioned as if it were the palm, leaving the hand
+cramped against the fixtures. That rejected episode was removed at the user's
+request. The weld now offsets the forearm outside the board, reset aligns the
+free joint without a transient, the recorder calibrates at the workcell neutral
+palm pose, and Level 4 attempts request an explicit operator label. A second
+genuine reach attempt was retained as an ordinary failure after it showed that
+copying robot palm orientation was still ergonomically infeasible. Reach now
+uses an upright, webcam-facing human neutral as a translation clutch, locks the
+robot's palm-down orientation, displays a cyan target marker, and uses a closer
+neutral plus higher translation gain so the first target does not require
+near-edge camera travel. The third reach attempt held the palm within the
+distance and orientation gates for 36 frames but displaced two neighboring
+objects by roughly 7 cm because the marker was too low in the crowded scene.
+The reach marker is now a collision-free pre-grasp target at 0.148 m, live task
+state preserves the scene-disturbance metric, and an automated regression
+proves five qualifying frames trigger recorder stop. The fourth attempt then
+exposed a timing defect: at 30 camera FPS the recorder advanced only one 2 ms
+physics step per frame, making visible hand motion about 17 times slower than
+real time. It reached only 0.0745 m from the marker and disturbed the scene by
+0.0218 m. Workcell recording now enforces 17 physics steps per frame, uses more
+responsive filtering, and permits larger safe per-frame target motion. The
+fifth retained attempt showed the timing fix was visibly better and entered the
+distance gate for 32 frames, but low translation gain forced near-edge camera
+travel and the wandering path accumulated 0.0223 m scene disturbance. The next
+attempt came no closer than 0.0400 m and displaced `block_large` by 0.1728 m,
+confirming that absolute monocular position mapping is not usable in this
+cluttered scene. The pending manual trial replaces it with a centered, nonlinear
+Cartesian velocity joystick: returning the hand to center stops the robot, a
+high transit plane prevents lateral travel through clutter, and descent is
+permitted only in a corridor over the target. The actual target object now has
+a bright emissive magenta wireframe outline; the cyan cross separately marks
+the desired palm position. `--workcell-dry-run` tests this without retaining an
+episode or modifying the session manifest. At the user's request, the five
+retained failed attempts and their manifest/report were removed from the active
+pilot directory and parked recoverably at
+`/private/tmp/dexvision_level4_pilot_pre_reset_20260904_001`; the active counter
+was reset for `pilot_train_001/episode_000001`. Four clean retained trials now
+provide the pivot evidence. Reach recomputed and visibly passed at 0.0162 m
+terminal error with the required five-frame dwell and about 0.0021 m maximum
+scene disturbance. Pick/place never qualified, moved `block_small` about
+0.0486 m and a neighboring cylinder about 0.0450 m, and confirmed that contact
+control is not usable through the current mapping. Push never moved the selected
+block toward its 0.2884 m-distant target. Button press remained at zero depth;
+the commanded base stayed near x=-0.18..-0.16 m while the wall button is near
+x=+0.13 m. The user manually judged reach usable, pick/place and push unusable,
+and button potentially viable only with a reachable planned approach. No expert
+acceptance sidecars have been created, so the collection protocol, final count
+freeze, and required visible replay checks remain pending.
+
+The architecture decision is now made: webcam teleoperation remains a usable
+reach/correction interface, while deterministic simulator-state experts become
+the nominal source for contact skills. Level 4.3 is split into 4.3A–4.3I:
+common expert plus scripted reach; button; constrained push; grasp-and-lift;
+place/complete pick-place; replay qualification; small state-only button and
+push learnability probes; and final source/count freeze. The first learned
+interface is a low-dimensional task-local delta expanded by deterministic code
+into the unchanged full action schema. Do not add RGB, an LLM/VLM, a larger
+model, a general planner, action chunking without evidence, or a bulk haul.
+Do not mark Level 4.3 complete or advance to Level 4.4 until all lettered
+checkpoints and visible replay gates pass.
+
+Level 4.3A is complete. `dexvision/sim/level4_expert.py` provides the common
+deterministic reset/step boundary and a configuration-owned four-segment reach
+through rise, horizontal transit, protected corridor entry, and descent. Every
+candidate action is first exercised in copied MuJoCo state and checked for
+workspace, joint-limit, table/fixture-contact, and non-target-disturbance
+failures. Scripted reach uses the existing `record_demo` logger and unchanged
+27-field Level 4 action schema; requested, commanded, and applied rows are
+preserved with zero safety interventions, and replay restores the same fully
+centered object cage and goal cross. Automated checks passed on September 4, 2026 with 8
+focused tests over five randomized seeds, 58 related regression tests,
+repository-wide Ruff, and the full 517-test suite. The user confirmed the
+corrected visible pre-grasp replay, which advanced work to Level 4.3B.
+
+The first visible replay review initially remained pending because `--speed 0.1`
+displayed only about three action updates per second and exposed a real target
+cue defect: the cage began at the block center and did not enclose its lower
+half. The cage geometry is now centered vertically around the selected entity,
+with an automated enclosure regression. The user then accepted the corrected
+pre-grasp reach behavior and confirmed that stopping at the cyan cross without
+cube interaction was the intended Level 4.3A result.
+
+Level 4.3B is complete. `DeterministicButtonPressExpert` uses a fixed neutral
+hand pose and orientation, a task-relative safe approach, button-normal contact
+motion, the frozen press-depth/dwell metric, and a complete retract/release
+phase. The button was moved into the declared safe workspace after the pilot
+proved its prior height unreachable. Copied-state validation and five
+randomized record/replay checks reject unintended contacts and meaningful joint
+limit excursions; all retained scripted samples have zero safety masks,
+reasons, and interventions. The listed 2-test checkpoint suite and 38 related
+regression tests passed on September 4, 2026. No manual verification was
+required. This advanced work to Level 4.3C.
+
+Level 4.3C visible replay remediation is complete. The first
+visible cuboid replay failed review because the block tipped about 45 degrees,
+briefly crossed the distance threshold, and rolled back while the recorder
+retained the transient success. The remediated controller uses a lower,
+partially flexed cuboid index posture, parks non-target objects for standalone
+skill trials, and requires table support, at most 10 degrees of tilt, and a
+still-qualified metric for five samples after hand release. Five cuboid and
+flat-puck resets pass copied-state validation and replay; the 2-test checkpoint
+suite, the 33-test combined expert/collection suite, repository-wide Ruff, and
+the full 524-test suite pass. The user confirmed on September 4, 2026 that the
+new cuboid push slides cleanly without tipping; the accompanying button and
+standalone grasp replays also passed visual review.
+
+Level 4.3D is complete. `DeterministicGraspLiftExpert` uses separate
+configuration-owned cuboid, cylinder, and flat-puck object-relative templates,
+fixed wrist orientations, deterministic retargeter open/full-flexion endpoints,
+and one scalar closure synergy per family. Standalone trials retain the selected
+object's seeded workcell pose while parking non-target objects on the lower
+floor, isolating grasp physics from the pilot-confirmed clutter limitation
+without removing objects from the schema. Copied-state and live qualification
+require initial table support, a measured two-contact held relation, at least
+0.040 m of lift, loss of table support, retention, and ten stable samples below
+0.020 m/s. Three seeds per family record and replay deterministically with
+planar neighbor disturbance below 0.005 m and zero logged safety interventions.
+The listed 2-test checkpoint suite, 52 related regression tests,
+repository-wide Ruff, and the full 524-test suite passed on September 4, 2026.
+No manual verification was originally required. Level 4.3E has not been
+implemented. Visible review noted that the cuboid rotates substantially during
+the otherwise stable grasp. Level 4.3E must explicitly decide whether and how
+to preserve object orientation during transport and placement without silently
+changing the qualified Level 4.3D grasp controller.
+
+The team-facing interim findings, four-action measurement table, adopted
+scripted-expert pivot, and revised plan are documented in
+`docs/level4_pilot_report.md` under **Interim Mini-Report — Teleoperation
+Feasibility**.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

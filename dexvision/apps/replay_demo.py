@@ -8,6 +8,8 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
+
 from dexvision.logging.replay_demo import (
     DemoReplayError,
     LoadedReplayDemo,
@@ -179,6 +181,7 @@ def _run_replay_with_viewer(
 
     try:
         with viewer.launch_passive(env.model, env.data) as viewer_handle:
+            _configure_saved_workcell_viewer(viewer_handle, loaded)
 
             def sync_viewer() -> None:
                 viewer_handle.sync()
@@ -199,6 +202,28 @@ def _run_replay_with_viewer(
         if isinstance(exc, (DemoReplayError, MujocoError)):
             raise
         raise MujocoError(f"MuJoCo viewer failed to open or run: {exc}") from exc
+
+
+def _configure_saved_workcell_viewer(
+    viewer_handle: object, loaded: LoadedReplayDemo
+) -> None:
+    """Restore the operator-facing camera saved with a Level 4 workcell demo."""
+
+    if loaded.episode.metadata.get("task_id") != "level4_workcell":
+        return
+    task_config = loaded.episode.metadata.get("task_config")
+    viewer_config = (
+        task_config.get("viewer_config") if isinstance(task_config, dict) else None
+    )
+    camera = getattr(viewer_handle, "cam", None)
+    if not isinstance(viewer_config, dict) or camera is None:
+        return
+    lookat = np.asarray(viewer_config.get("lookat_m"), dtype=np.float64)
+    if lookat.shape == (3,) and np.all(np.isfinite(lookat)):
+        camera.lookat[:] = lookat
+    camera.distance = float(viewer_config.get("distance_m", camera.distance))
+    camera.azimuth = float(viewer_config.get("azimuth_deg", camera.azimuth))
+    camera.elevation = float(viewer_config.get("elevation_deg", camera.elevation))
 
 
 def _progress_printer(print_interval: int):

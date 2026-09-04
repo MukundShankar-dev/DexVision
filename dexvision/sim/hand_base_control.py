@@ -1003,7 +1003,7 @@ def format_hand_base_status(status: HandBaseControlStatus | None) -> str:
     mode = "tracking" if status.tracking_valid else "holding"
     clamp_suffix = ",clamped" if status.clamped else ""
     limit_suffix = ",limited" if status.rate_limited else ""
-    if status.control_mode == "image_2d":
+    if status.control_mode.startswith("image_2d"):
         calibration = "cal=yes" if status.neutral_captured else "cal=no"
         palm_delta = (
             status.palm_delta
@@ -1031,7 +1031,8 @@ def format_hand_base_status(status: HandBaseControlStatus | None) -> str:
         else:
             orientation_detail = "ori=on cal=no"
         return (
-            f"base=image_2d {calibration} {mode}{clamp_suffix}{limit_suffix} "
+            f"base={status.control_mode} {calibration} "
+            f"{mode}{clamp_suffix}{limit_suffix} "
             f"{orientation} {depth} | "
             f"palm dx={palm_delta[0]:+.3f} dy={palm_delta[1]:+.3f} | "
             f"scale={scale} neutral={neutral_scale} d={depth_delta} | "

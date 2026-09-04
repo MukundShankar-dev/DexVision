@@ -502,12 +502,390 @@ started.
 Prove that every required task is recordable and measurable before the bulk
 data haul, then replace provisional counts with a frozen coverage matrix.
 
+The September 4 teleoperation pilot changed how this checkpoint must be
+completed. Free-space reach is usable, but monocular webcam control did not
+produce viable contact demonstrations for press, push, or pick/place. Do not
+solve that by collecting more failures, increasing model size, or adding an
+LLM/VLM. Level 4.3 now establishes one reliable deterministic expert for every
+promoted skill, then validates one shared small learnable interface on button
+and push before any bulk collection. Level 5 remains responsible for learning
+and qualifying the complete skill set.
+
+### Level 4.3 execution order
+
+Level 4.3 is divided into the lettered checkpoints below. Each letter is one
+checkpoint under the repository's one-checkpoint rule: implement it, run its
+checks, update status, and stop. Do not begin Level 4.4 until 4.3I passes.
+
+The fixed order is:
+
+```text
+4.3A common expert interface plus scripted reach
+4.3B scripted button press
+4.3C scripted constrained push
+4.3D scripted grasp and lift
+4.3E scripted place and complete pick/place
+4.3F expert/replay qualification audit
+4.3G small state-only button learnability probe
+4.3H small state-only push learnability probe
+4.3I source-mix, count-matrix, and storage freeze
+```
+
+The learning probes are formulation tests, not Level 5 full-scale training.
+They exist to prove that the expert data and low-dimensional control interface
+are learnable before hundreds of episodes are collected.
+
+#### Level 4.3A — Common Scripted Expert and Safe-Waypoint Reach
+
+Add a deterministic, simulator-state-only expert boundary:
+
+```python
+expert.reset(task, world_state)
+requested_action, phase, done, reason = expert.step(world_state)
+```
+
+The expert must emit the existing complete named requested-action layout before
+logging. For `source=scripted`, the stored `requested_action` is the nominal
+scripted expert output, so `applied_action - requested_action` remains a
+derivable residual without mutating the episode schema. Preserve commanded and
+applied actions, prior actions, safety masks/reasons, causal phases, and all
+existing provenance. Do not add a parallel recorder or episode format.
+
+Use the palm/grasp site, not the forearm root, as the planning point. Implement
+only a simple task-relative waypoint generator: rise to a collision-free transit
+height, move horizontally, enter a protected pre-contact corridor, then descend.
+Validate candidate segments in a scratch copy of the MuJoCo state for workspace
+bounds, joint limits, table/fixture contacts, and disturbance of non-target
+objects. Do not add OMPL, RRT, or a general-purpose planner unless this bounded
+method is measured to fail.
+
+The reference scripted reach must pass at least five randomized valid resets,
+recompute success from saved state, replay deterministically, and produce zero
+safety violations or non-target disturbance failures.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_expert.py tests/test_level4_scripted_reach.py
+```
+
+#### Pass criteria
+
+```text
+[x] Expert reset/step behavior and failure reasons are deterministic and tested
+[x] Full requested/commanded/applied action records remain schema compatible
+[x] Candidate waypoints are validated on copied state before live execution
+[x] Five randomized scripted reaches recompute and replay successfully
+[x] Workspace, joint-limit, fixture, table, and neighbor-disturbance failures are zero
+```
+
+Manual verification: visibly replay one accepted scripted reach and confirm the
+same target, path, terminal result, and absence of unintended contact.
+
+Implementation status (September 4, 2026): the common named-action expert,
+configuration-owned safe-waypoint reach, copied-state MuJoCo validator, existing
+Level 4 recorder integration, and deterministic replay cue restoration are
+implemented. The focused checkpoint suite passes with 8 tests across seeds
+0--4, repository-wide Ruff passes, the related collection/schema/replay suite
+passes with 58 tests, and the full suite passes with 517 tests. The five pass
+criteria above passed. The user confirmed the corrected visible replay on
+September 4, 2026: the scripted hand reached and dwelled at the cyan pre-grasp
+cross, the recording stopped as intended without cube interaction, and the
+target cage was corrected to fully enclose the selected block. Level 4.3A is
+complete.
+
+The first visible replay review did not pass: the intentionally requested
+`--speed 0.1` reduced a 30 Hz episode to roughly three visible pose updates per
+second, and the target cage's bottom plane was anchored at the object's center
+instead of below it. The cage is now symmetric about the selected entity and
+provably encloses `block_small`; the corrected result was accepted by the user.
+
+#### Level 4.3B — Deterministic Button-Press Expert
+
+Implement button press before the other contact skills. Keep the hand posture
+and orientation fixed, approach along the button normal, enter
+`fixture_contact`, satisfy the existing depth/dwell metric, and retract. Test
+multiple valid resets and reject any wrong-button contact, unrelated fixture or
+table collision, limit event, or safety intervention.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_button_expert.py
+```
+
+#### Pass criteria
+
+```text
+[x] Five randomized button resets recompute and replay successfully
+[x] Causal approach, fixture_contact, and retract phases are reconstructable
+[x] Wrong-button contacts, unintended collisions, and safety violations are zero
+```
+
+Implementation status (September 4, 2026):
+`DeterministicButtonPressExpert` keeps the neutral hand posture and base
+orientation fixed, reaches a configuration-owned pre-contact pose, advances
+only along the button's positive joint normal, holds the existing depth metric
+for three qualifying samples, and retracts until the button is released. The
+start button is now mounted inside the frozen safe workspace at
+`[0.11, -0.11, 0.20]` m; its passive slide has recovery travel beyond the
+largest accepted depth while the task goal range remains `0.008--0.014` m.
+Every trajectory is qualified in copied MuJoCo state before recording. Five
+randomized resets recorded and replayed deterministically with reconstructable
+`approach`, `fixture_contact`, and `retract` phases, no non-target hand
+contacts, no object disturbance above 0.005 m, and zero logged safety masks,
+reasons, or interventions. The listed checkpoint suite passes with 2 tests.
+Repository-wide Ruff and the full 519-test suite also pass. No manual
+verification is required for this headless deterministic checkpoint.
+
+#### Level 4.3C — Deterministic Constrained-Push Expert
+
+Define a task-local frame from object start to target. Approach behind the
+object through the safe transit path, descend with fixed posture/orientation,
+move straight along the task-local forward axis until the existing target/dwell
+metric passes, then retract. During contact, do not introduce lateral, height,
+orientation, or finger motion. Cover more than one object family and push
+direction without disturbing neighboring objects or leaving the board.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_push_expert.py
+```
+
+#### Pass criteria
+
+```text
+[x] Five varied push resets recompute and replay successfully
+[x] Contact motion is constrained to the frozen task-local forward axis
+[x] Board exits, neighbor disturbance, and safety violations are zero
+[x] User confirms the remediated cuboid push slides without tipping in visible replay
+```
+
+Remediation status (September 4, 2026; complete):
+`DeterministicPushExpert` derives a normalized start-to-target axis from the
+saved reset state and uses a configuration-owned, family-specific index
+posture. Standalone push trials retain the selected object in its seeded pose
+and park non-target objects on the lower floor. The expert rises through the
+safe transit plane, rotates there at a bounded rate, approaches behind the
+object, descends, and then holds height,
+orientation, and every finger target fixed while translating only along the
+task-local forward axis. It aims for 0.030 m from the target center, waits for
+the frozen 0.035 m distance/speed/dwell metric, and retracts axially. Push
+qualification now additionally requires table support and no more than 10
+degrees of object tilt for every contact/settle/retract sample and for five
+terminal samples after release. Scripted recording success uses the final push
+metric instead of latching a transient success. Copied-state
+qualification rejects workspace or board exits, joint-limit excursions beyond
+the configured solver tolerance, contact with any non-target body, and planar
+neighbor displacement above 0.005 m. Five resets across cuboid and flat-puck
+families and independently recomputed task axes record and replay
+deterministically with zero safety masks/reasons/interventions; their final
+metrics remain qualified after retraction and object tilt stays within the
+10-degree bound. The listed 2-test checkpoint suite, the 33-test combined
+push/button/grasp/collection suite, repository-wide Ruff, and the full 524-test
+suite pass. The user confirmed that the remediated push, button press, and
+standalone grasp-and-lift replays looked good. Level 4.3C is complete again.
+
+#### Level 4.3D — Deterministic Grasp-and-Lift Expert
+
+Treat grasp-and-lift as a standalone skill before placement. Define separate
+templates for cuboids, cylinders, and flat pucks. Each template uses an
+object-relative grasp transform, a fixed wrist orientation, deterministic open
+and closed hand poses, and one scalar grasp-synergy value. Execute approach,
+close, lift, and hold, with success determined from object support, lift height,
+retention, and stability—not from phase completion alone.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_grasp_lift_expert.py
+```
+
+#### Pass criteria
+
+```text
+[x] Three valid resets per object family recompute and replay successfully
+[x] Object-relative templates and scalar grasp synergy are configuration owned
+[x] Lift/hold success uses measured object physics and zero safety violations
+```
+
+Implementation status (September 4, 2026):
+`DeterministicGraspLiftExpert` resolves configuration-owned cuboid, cylinder,
+and flat-puck templates from each seeded object pose. Each template fixes the
+grasp-site offset, wrist quaternion, full-flexion endpoint, scalar grasp
+synergy, and lift distance. The expert records causal approach, acquire, lift,
+and stabilize phases while copied-state qualification checks the complete
+trajectory before live execution. Standalone grasp trials keep the selected
+object in its seeded workcell pose and park non-target objects on the lower
+floor; this isolates grasp physics from the clutter failure already established
+by the 4.3 pilot without removing any named object or changing the full object
+state schema. The manipulation workspace now includes low tabletop contact
+poses; support contact is permitted only before the object clears the 0.040 m
+lift threshold. Qualification then requires the selected object to be held by
+at least two hand bodies, unsupported by the table, lifted at least 0.040 m,
+and moving no faster than 0.020 m/s for ten consecutive samples. Three seeds
+for each of the three families record and replay deterministically with planar
+neighbor disturbance below 0.005 m and zero safety masks, reasons, or
+interventions. The listed 2-test checkpoint suite, 52 related regression tests,
+repository-wide Ruff, and the full 524-test suite pass. No manual verification
+is required for this deterministic headless checkpoint.
+Later visible review accepted the standalone grasp-and-lift behavior while
+noting that the cuboid rotates substantially in the grasp. Preserving the
+object's initial orientation is not part of this checkpoint's success metric;
+the place/complete-pick-place checkpoint must treat it as an explicit design
+decision rather than silently changing this qualified grasp controller.
+
+#### Level 4.3E — Deterministic Place and Complete Pick/Place Expert
+
+Only after grasp-and-lift qualifies, add transport, descend to a valid target,
+release, allow the object to settle, and retract. Compose this with the qualified
+grasp expert into complete pick/place without weakening the standalone pick and
+place metrics or rewriting the causal phase labels.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_place_expert.py tests/test_pick_place_segments.py
+```
+
+#### Pass criteria
+
+```text
+[ ] Place succeeds from a genuinely held object and replays deterministically
+[ ] Ten complete successes span cuboid, cylinder, and flat-puck families
+[ ] Final target, settled-state, source-object, and neighbor checks all pass
+[ ] Complete episodes still yield compatible reach, pick, and place segments
+```
+
+#### Level 4.3F — Expert Architecture and Replay Qualification
+
+Audit scripted reach, button, push, grasp-and-lift, and complete pick/place as
+one architecture. All successes must be regenerated from immutable metadata,
+recomputed from saved state, and replayed with the same result. Ordinary failures
+remain retained separately. Do not declare the architecture qualified from one
+hand-picked reset.
+
+#### Commands
+
+```bash
+conda run -n dexvision python -m dexvision.apps.summarize_level4_coverage --config configs/level4_dataset.yaml --dataset-dir data/demos/level4_pilot
+conda run -n dexvision pytest -q tests/test_level4_expert.py tests/test_level4_collection.py tests/test_level4_coverage.py
+```
+
+#### Pass criteria
+
+```text
+[ ] Every required scripted skill has repeated recomputed successes
+[ ] Every accepted trajectory replays and retains complete provenance
+[ ] Accepted trajectories have zero safety violations and zero neighbor disturbance
+[ ] Failures remain auditable and never count as expert data
+```
+
+Manual verification: visibly replay one accepted trajectory for reach, button,
+push, grasp-and-lift, and complete pick/place. Stop until the user confirms all
+five.
+
+#### Level 4.3G — Small State-Only Button Learnability Probe
+
+Collect 20 scripted button successes, freeze session-owned train/validation/test
+splits, then train one small MLP. Increase to at most 50 successes only when the
+20-episode result identifies data volume—not action semantics, normalization,
+control rate, phase handling, or rollout integration—as the limiting factor.
+
+Use simulator state only: end-effector-to-target pose, button state, relevant
+robot/base velocity, causal phase one-hot, and previous applied action or delta.
+The initial learned output is `dx, dy, dz` in the task-local frame; fixed deterministic
+posture/orientation logic expands it into the existing full requested-action
+layout. Do not add image input, action chunking, a larger network, or a new log
+schema. Freeze the pilot metric, seeds, and held-out resets before training.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_lowdim_policy.py tests/test_level4_button_learning_pilot.py
+```
+
+#### Pass criteria
+
+```text
+[ ] Exactly one frozen small-MLP recipe is evaluated before any data increase
+[ ] Held-out closed-loop button success is at least 0.80 over 20 or more resets
+[ ] Workspace, joint-limit, wrong-button, and unintended-contact violations are zero
+[ ] A failure is diagnosed before changing data volume or model class
+```
+
+#### Level 4.3H — Small State-Only Push Learnability Probe
+
+Run only if 4.3G passes. Reuse the same observation conventions, phase input,
+normalization, control rate, low-dimensional action adapter, small-model class,
+and frozen evaluation discipline for push. Keep the scripted contact constraint
+as the nominal controller; learn only the bounded task-local delta or residual.
+Action chunking is allowed later only if single-step control works offline but
+measured rollout error shows temporal ambiguity or compounding error. If that
+evidence appears, test one small ACT-style horizon of 8 or 16 as a separately
+approved checkpoint; do not silently add it here.
+
+#### Commands
+
+```bash
+conda run -n dexvision pytest -q tests/test_level4_push_learning_pilot.py
+```
+
+#### Pass criteria
+
+```text
+[ ] Push reuses the qualified low-dimensional interface without schema drift
+[ ] Held-out closed-loop push success is at least 0.70 over 20 or more resets
+[ ] Board exits, neighbor disturbance, and safety violations are zero
+[ ] Any case for action chunking is supported by measured temporal evidence
+```
+
+#### Level 4.3I — Final Source Mix and Coverage Freeze
+
+Use measured expert success rates, collection cost, replay evidence, pilot
+learning results, and storage size to replace the provisional matrix. Scripted
+expert data may supply nominal successes; working teleoperation may supply reach
+or explicitly labeled corrective interventions. Keep `scripted`,
+`teleoperation`, `policy_rollout`, and `corrective_intervention` provenance
+separate. Do not bulk collect merely to meet the current 250–350 estimate; revise
+that envelope if the qualified interfaces justify a different defensible count.
+
+#### Commands
+
+```bash
+conda run -n dexvision python -m dexvision.apps.summarize_level4_coverage --config configs/level4_dataset.yaml --dataset-dir data/demos/level4_pilot
+conda run -n dexvision pytest -q tests/test_level4_collection.py tests/test_level4_coverage.py tests/test_roadmap_docs.py
+```
+
+#### Pass criteria
+
+```text
+[ ] Final matrix states accepted minima by skill, source, object/goal cell, and split
+[ ] Source mix follows measured expert and learning evidence
+[ ] Session isolation, held-out cells, storage handling, and release rules are frozen
+[ ] Level 4.4 is still not started until the user accepts the revised matrix
+```
+
+### Level 4.3 guardrails
+
+```text
+Use privileged simulator state before RGB or learned perception.
+Use deterministic experts before imitation learning.
+Use small low-dimensional policies before action chunking or larger models.
+Use nominal successful trajectories before collecting recovery corrections.
+Do not add an LLM, VLM, general planner, RL loop, or bulk data haul in Level 4.3.
+Do not change the Level 4.2 episode schema or create a second recording path.
+Do not advance to Level 4.4 while any lettered checkpoint is incomplete.
+```
+
 ### Files
 
 ```text
 dexvision/logging/level4_collection.py
 dexvision/evaluation/dataset_coverage.py
 dexvision/apps/summarize_level4_coverage.py
+dexvision/sim/workcell_rate_control.py
 docs/level4_pilot_report.md
 configs/level4_dataset.yaml
 tests/test_level4_collection.py
@@ -557,6 +935,63 @@ object, wrong target, phase misalignment, unexplained collision, or label
 disagreement fails the checkpoint.
 
 Stop until the user confirms the manual replays.
+
+Automated Level 4.3 support was implemented on September 4, 2026. It adds a
+live workcell recorder for reach, complete pick/place, push, and press,
+append-only per-attempt pilot review evidence, read-only dataset discovery,
+session/cell split checks, separate episode and derived-segment counts,
+phase-agreement and safety/rejection summaries, collection-time and storage
+projection, randomized-object replay restoration, and a coverage-summary CLI.
+The optional dial is explicitly deferred. The first manual reach attempt found
+that the forearm root was incorrectly occupying the board as the logical palm
+control point; that rejected episode was removed at the user's request. The
+workcell now keeps the forearm outside the board, initializes the free joint at
+the weld pose, calibrates recorder motion around the workcell neutral palm, and
+prompts for the Level 4 operator label. A second genuine reach attempt was
+retained as an ordinary failure after showing that robot-orientation imitation
+was still ergonomically infeasible. Reach control now treats an upright,
+webcam-facing human palm as a translation clutch, locks robot orientation, and
+shows a cyan target cue. The neutral and translation gains were also adjusted
+after the recorded trajectory showed that the first target required excessive
+camera-frame travel. A third attempt entered the distance/orientation gates for
+36 frames but moved two neighboring objects by about 7 cm because the approach
+marker was too low. The marker is now a 0.148 m collision-free pre-grasp cue,
+the disturbance metric is retained in dense task state, and an automated test
+proves five qualifying frames trigger stop. A fourth attempt exposed a timing
+defect: one 2 ms physics step per 30 FPS camera frame made visible motion about
+17 times slower than real time. It reached only 0.0745 m and disturbed the scene
+by 0.0218 m. The recorder now enforces 17 physics steps per frame and uses more
+responsive target filtering and motion limits. Automated checks passed with 18
+checkpoint tests, 86 controller/workcell regression tests, repository-wide
+Ruff, recorder-help and pilot-summary smoke commands, and 508 full-suite tests.
+The real
+pilot directory contains five ordinary failures and no accepted episodes. The
+fifth retained attempt entered the distance gate for 32 frames but required
+near-edge camera travel and accumulated 0.0223 m scene disturbance. A further
+attempt then demonstrated the structural limit of absolute monocular mapping:
+it came no closer than 0.0400 m while displacing `block_large` by 0.1728 m.
+Absolute gain tuning is therefore retired for the reach pilot. The pending
+manual trial uses centered nonlinear Cartesian rate control, a high safe-transit
+plane, and a target-only descent corridor. The selected object is enclosed in a
+bright emissive magenta wireframe cage, while the floating cyan cross separately
+marks the desired palm position. A `--workcell-dry-run` mode discards all
+temporary frames and does not touch pilot/session evidence. At the user's
+request, all five retained failures and their manifest/report were removed from
+the active pilot directory and parked recoverably under `/private/tmp`. Four
+clean retained trials then tested every required action once. Reach visibly and
+recomputably succeeded at 0.0162 m terminal error, five-frame dwell, and about
+0.0021 m scene disturbance. Pick/place displaced the intended block and a
+neighbor without grasping; push never moved its selected block; button press
+never entered the wall fixture's reachable approach range and recorded zero
+press depth. The user judged only reach usable under the current interaction.
+These are pivot measurements, not expert acceptances; no acceptance sidecars
+were created. All
+Level 4.3 pass-criteria boxes remain unchecked, coverage counts remain
+provisional, and manual verification is still required.
+
+The team-facing interim findings and architecture-decision options are
+summarized in `docs/level4_pilot_report.md` under **Interim Mini-Report —
+Teleoperation Feasibility**.
 
 ---
 

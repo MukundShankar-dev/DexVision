@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import math
 import sys
+import tempfile
 import time
 from copy import deepcopy
 from collections.abc import Mapping
 from contextlib import ExitStack
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable, Literal
 
@@ -24,7 +28,11 @@ from dexvision.features.hand_base import (
     extract_image_palm_center_target,
     normalize_quaternion,
 )
-from dexvision.features.hand_features import HandFeatures, extract_hand_features, no_hand_features
+from dexvision.features.hand_features import (
+    HandFeatures,
+    extract_hand_features,
+    no_hand_features,
+)
 from dexvision.features.smoothing import FeatureSmoother
 from dexvision.logging.dataset_schema import (
     FREE_SPACE_GESTURE_LABELS,
@@ -40,6 +48,18 @@ from dexvision.logging.demo_logger import (
     build_level2_observation_schema,
 )
 from dexvision.logging.phase_labels import DEFAULT_PICK_PLACE_TRANSITIONS
+from dexvision.logging.level4_collection import (
+    DEFAULT_PILOT_DATASET_DIR,
+    WORKCELL_PILOT_TASK_ID,
+    WorkcellPilotState,
+    WorkcellPilotTask,
+    load_level4_collection_config,
+)
+from dexvision.logging.session_manifest import (
+    RecordingSession,
+    append_session_manifest,
+    next_episode_directory,
+)
 from dexvision.perception.hand_tracker import (
     DEFAULT_HAND_LANDMARKER_MODEL,
     HandTracker,
@@ -60,6 +80,25 @@ from dexvision.sim.hand_base_control import (
     hand_base_config_from_teleop_config,
 )
 from dexvision.sim.mujoco_env import MujocoEnv, MujocoError, MujocoState
+from dexvision.sim.level4_expert import (
+    DeterministicButtonPressConfig,
+    DeterministicButtonPressExpert,
+    DeterministicGraspLiftConfig,
+    DeterministicGraspLiftExpert,
+    DeterministicPushConfig,
+    DeterministicPushExpert,
+    SafeWaypointReachConfig,
+    SafeWaypointReachExpert,
+)
+from dexvision.sim.workcell import (
+    DEFAULT_WORKCELL_CONFIG,
+    WorkcellError,
+    load_workcell_config,
+)
+from dexvision.sim.workcell_rate_control import (
+    WorkcellRateControlConfig,
+    WorkcellRateController,
+)
 from dexvision.sim.tasks import (
     BUTTON_PRESS_TASK_ID,
     DEFAULT_TASK_BOARD_MODEL,
@@ -127,8 +166,10 @@ PUSH_CUBE_OBJECT_IDS = PushCubeConfig().object_ids
 PUSH_CUBE_TARGET_ZONES = PushCubeConfig().target_zone_sites
 PUSH_CUBE_APPROACH_SIDES = PushCubeConfig().approach_sides
 
-TaskEpisodeState = ReachTouchTargetState | ButtonPressState | PushCubeState
-TaskEpisode = ReachTouchTargetTask | ButtonPressTask | PushCubeTask
+TaskEpisodeState = (
+    ReachTouchTargetState | ButtonPressState | PushCubeState | WorkcellPilotState
+)
+TaskEpisode = ReachTouchTargetTask | ButtonPressTask | PushCubeTask | WorkcellPilotTask
 
 
 @dataclass(frozen=True)
@@ -151,9 +192,109 @@ class RecordingPreviewEvent:
     base_commands: tuple[BaseCommand, ...] = ()
 
 
+def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
+    """Resolve one append-only workcell attempt before opening devices."""
+
+    if args.task != WORKCELL_PILOT_TASK_ID:
+        return
+    if args.synthetic:
+        raise ValueError(
+            "Level 4 workcell pilot episodes must be live; --synthetic is forbidden."
+        )
+    if args.overwrite:
+        raise ValueError("Level 4 workcell pilot episodes are append-only.")
+    if not args.workcell_dry_run and (
+        args.session_id is None or not str(args.session_id).strip()
+    ):
+        raise ValueError("Level 4 workcell recording requires --session-id.")
+    if not args.workcell_dry_run and (
+        args.operator_id is None or not str(args.operator_id).strip()
+    ):
+        raise ValueError("Level 4 workcell recording requires --operator-id.")
+    if not args.workcell_dry_run and args.session_split is None:
+        raise ValueError("Level 4 workcell recording requires --session-split.")
+    if args.skill_name not in {
+        "reach_object",
+        "pick_object",
+        "pick_place_sequence",
+        "push_object_to_target",
+        "press_button",
+    }:
+        raise ValueError(
+            "Level 4 workcell --skill must be reach_object, pick_object, "
+            "pick_place_sequence, push_object_to_target, or press_button."
+        )
+    if args.source == "scripted" and args.skill_name not in {
+        "reach_object",
+        "pick_object",
+        "press_button",
+        "push_object_to_target",
+    }:
+        raise ValueError(
+            "Level 4.3A-D scripted recording supports reach_object, pick_object, "
+            "press_button, and push_object_to_target; complete pick/place is a "
+            "separate checkpoint."
+        )
+    if args.goal_condition_id is None or not str(args.goal_condition_id).strip():
+        raise ValueError("Level 4 workcell recording requires --goal-condition-id.")
+    config, _ = load_level4_collection_config(args.level4_dataset_config)
+    cell = next(
+        (
+            item
+            for item in config["coverage_cells"]
+            if item.get("id") == args.goal_condition_id
+        ),
+        None,
+    )
+    if cell is None:
+        raise ValueError(f"unknown Level 4 coverage cell: {args.goal_condition_id}")
+    if not args.workcell_dry_run and cell.get("split_owner") != args.session_split:
+        raise ValueError(
+            f"coverage cell {args.goal_condition_id!r} is owned by split "
+            f"{cell.get('split_owner')!r}, not {args.session_split!r}."
+        )
+    workcell_config = load_workcell_config(args.workcell_config)
+    args.model = workcell_config.model_path
+    args.level1_13_full = True
+    if args.workcell_dry_run:
+        return
+    if args.output == DEFAULT_OUTPUT:
+        args.output = next_episode_directory(
+            args.level4_pilot_dataset_dir,
+            recording_session_id=str(args.session_id),
+        )
+    process_start = datetime.now(UTC).isoformat()
+    calibration_record = {
+        "session_id": str(args.session_id),
+        "process_start_timestamp": process_start,
+        "camera_id": int(args.camera_id),
+        "width": int(args.width),
+        "height": int(args.height),
+        "teleop_config": str(args.config),
+        "workcell_config": str(args.workcell_config),
+    }
+    calibration_digest = hashlib.sha256(
+        json.dumps(calibration_record, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+    append_session_manifest(
+        args.level4_pilot_dataset_dir / "session_manifest.json",
+        RecordingSession(
+            recording_session_id=str(args.session_id),
+            operator_id=str(args.operator_id),
+            split=str(args.session_split),
+            process_start_timestamp=process_start,
+            reset_seed=int(args.task_seed),
+            calibration_record_digest=f"sha256:{calibration_digest}",
+        ),
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Record a Level 1 DexVision teleop run as a Level 2 demo episode."
+        description=(
+            "Record DexVision teleoperation as a Level 2 episode or a session-aware "
+            "Level 4 workcell pilot episode."
+        )
     )
     parser.add_argument(
         "--task",
@@ -286,7 +427,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--source",
-        choices=("teleoperation", "scripted", "policy_rollout", "corrective_intervention"),
+        choices=(
+            "teleoperation",
+            "scripted",
+            "policy_rollout",
+            "corrective_intervention",
+        ),
         default="teleoperation",
         help="Level 4 request provenance. Defaults to teleoperation.",
     )
@@ -295,6 +441,32 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_LEVEL4_DATASET_CONFIG,
         help="Frozen Level 4 dataset/schema config used when --session-id is set.",
+    )
+    parser.add_argument(
+        "--level4-pilot-dataset-dir",
+        type=Path,
+        default=DEFAULT_PILOT_DATASET_DIR,
+        help="Root for append-only Level 4.3 pilot sessions and episodes.",
+    )
+    parser.add_argument(
+        "--workcell-config",
+        type=Path,
+        default=DEFAULT_WORKCELL_CONFIG,
+        help="Runtime Level 4 workcell configuration.",
+    )
+    parser.add_argument(
+        "--workcell-dry-run",
+        action="store_true",
+        help=(
+            "Run an interactive Level 4 workcell control trial without keeping an "
+            "episode or changing the session manifest."
+        ),
+    )
+    parser.add_argument(
+        "--session-split",
+        choices=("train", "validation", "test"),
+        default=None,
+        help="Whole-session split required for a new Level 4 workcell pilot session.",
     )
     parser.add_argument(
         "--overwrite",
@@ -525,6 +697,7 @@ def build_parser() -> argparse.ArgumentParser:
 def run_record_demo(args: argparse.Namespace) -> int:
     """Run synthetic or live demo recording from parsed CLI args."""
 
+    _prepare_level4_workcell_recording(args)
     _apply_recording_presets(args)
     _validate_recording_args(args)
     raw_config = load_curl_retargeter_config(args.config)
@@ -537,12 +710,18 @@ def run_record_demo(args: argparse.Namespace) -> int:
         raw_config=raw_config,
     )
 
-    print("DexVision Level 2 demo recorder")
+    print(
+        "DexVision Level 4 workcell pilot recorder"
+        if args.task == WORKCELL_PILOT_TASK_ID
+        else "DexVision Level 2 demo recorder"
+    )
     print(f"Task: {args.task}")
     print(f"Skill: {args.skill_name or args.task}")
     if args.gesture_label is not None:
         print(f"Gesture label: {args.gesture_label}")
     print(f"Episode: {episode_id}")
+    if args.workcell_dry_run:
+        print("Mode: interactive dry run; all temporary frames will be discarded")
     if args.session_id is not None:
         print(f"Session: {args.session_id} (operator: {args.operator_id})")
         print(f"Goal condition: {args.goal_condition_id}")
@@ -556,7 +735,9 @@ def run_record_demo(args: argparse.Namespace) -> int:
     if args.task == "free_space_gesture":
         _print_free_space_recording_guide(args.gesture_label)
     elif args.task == REACH_TOUCH_TARGET_TASK_ID:
-        selected_target = args.target_site or f"deterministic sample from seed {args.task_seed}"
+        selected_target = (
+            args.target_site or f"deterministic sample from seed {args.task_seed}"
+        )
         print(f"Reach-touch target: {selected_target}")
         print(
             "Pilot guide: calibrate with c, make one reach-touch attempt, then press q. "
@@ -606,6 +787,17 @@ def run_record_demo(args: argparse.Namespace) -> int:
             episode_id=episode_id,
         )
 
+    if args.task == WORKCELL_PILOT_TASK_ID and args.source == "scripted":
+        return _run_scripted_workcell_recording(
+            args=args,
+            raw_config=raw_config,
+            model_path=model_path,
+            retargeter=retargeter,
+            target_names=target_names,
+            action_schema=action_schema,
+            episode_id=episode_id,
+        )
+
     return _run_live_recording(
         args=args,
         raw_config=raw_config,
@@ -615,6 +807,305 @@ def run_record_demo(args: argparse.Namespace) -> int:
         action_schema=action_schema,
         episode_id=episode_id,
     )
+
+
+def _run_scripted_workcell_recording(
+    *,
+    args: argparse.Namespace,
+    raw_config: Mapping[str, Any],
+    model_path: Path,
+    retargeter: CurlRetargeter,
+    target_names: tuple[str, ...],
+    action_schema: ActionSchema,
+    episode_id: str,
+) -> int:
+    """Record a qualified Level 4 scripted expert without camera input."""
+
+    if args.skill_name not in {
+        "reach_object",
+        "pick_object",
+        "press_button",
+        "push_object_to_target",
+    }:
+        raise DemoLoggerError(
+            "Level 4.3A-D scripted recording supports reach_object, pick_object, "
+            "press_button, and push_object_to_target."
+        )
+    with ExitStack() as stack:
+        task = stack.enter_context(
+            WorkcellPilotTask(
+                workcell_config=args.workcell_config,
+                dataset_config=args.level4_dataset_config,
+                skill_name=args.skill_name,
+                goal_condition_id=args.goal_condition_id,
+                seed=args.task_seed,
+            )
+        )
+        neutral_targets = run_level1_teleop.build_full_hand_targets(
+            retargeter, no_hand_features()
+        )
+        if args.skill_name == "reach_object":
+            print("Scripted expert: safe-waypoint reach (no webcam)")
+            expert_config = SafeWaypointReachConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_reach"]
+            )
+            expert = SafeWaypointReachExpert(
+                finger_targets=neutral_targets,
+                config=expert_config,
+            )
+            expert_settings_key = "scripted_reach"
+            controller_name = "safe_waypoint_reach"
+        elif args.skill_name == "pick_object":
+            print("Scripted expert: object-relative family grasp and lift (no webcam)")
+            closed_targets = _scripted_closed_finger_targets(
+                retargeter, neutral_targets
+            )
+            expert_config = DeterministicGraspLiftConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_grasp"]
+            )
+            expert = DeterministicGraspLiftExpert(
+                open_finger_targets=neutral_targets,
+                closed_finger_targets=closed_targets,
+                config=expert_config,
+            )
+            expert_settings_key = "scripted_grasp"
+            controller_name = "object_relative_family_grasp_lift"
+        elif args.skill_name == "press_button":
+            print("Scripted expert: fixed-posture normal button press (no webcam)")
+            expert_config = DeterministicButtonPressConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_button"]
+            )
+            expert = DeterministicButtonPressExpert(
+                finger_targets=neutral_targets,
+                config=expert_config,
+            )
+            expert_settings_key = "scripted_button"
+            controller_name = "fixed_posture_normal_press"
+        else:
+            print("Scripted expert: fixed-index task-axis push (no webcam)")
+            expert_config = DeterministicPushConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_push"]
+            )
+            object_id = str(task.goal["object_id"])
+            object_family = next(
+                spec.family
+                for spec in task.workcell.config.objects
+                if spec.object_id == object_id
+            )
+            neutral_targets = _scripted_push_finger_targets(
+                retargeter,
+                neutral_targets,
+                index_curl=float(
+                    expert_config.family_parameters[object_family]["index_curl"]
+                ),
+            )
+            expert = DeterministicPushExpert(
+                finger_targets=neutral_targets,
+                config=expert_config,
+            )
+            expert_settings_key = "scripted_push"
+            controller_name = "fixed_index_task_axis_push"
+        args.sim_steps_per_frame = expert_config.sim_steps_per_action
+        expert.reset(task, task.initial_world_state)
+        validation = expert.validation
+        if validation is None or not validation.valid:
+            reason = validation.reason if validation is not None else "unknown"
+            raise DemoLoggerError(
+                f"scripted {args.skill_name} candidate failed copied-state "
+                f"validation: {reason}"
+            )
+        print(
+            "Copied-state validation: pass "
+            f"({validation.checked_actions} actions, "
+            f"max neighbor disturbance="
+            f"{validation.maximum_non_target_disturbance_m:.6f}m)"
+        )
+
+        initial_state = task.env.get_state()
+        names = mujoco_observation_order(task.env)
+        observation_schema = build_level2_observation_schema(
+            robot_qpos_dim=initial_state.qpos.size,
+            robot_qvel_dim=initial_state.qvel.size,
+            finger_target_dim=initial_state.ctrl.size,
+            tracking_quality_dim=len(TRACKING_QUALITY_FIELDS),
+            robot_qpos_names=names[0],
+            robot_qvel_names=names[1],
+            actuator_names=names[2],
+            finger_joint_qpos_indices=names[3],
+            finger_joint_qvel_indices=names[4],
+            finger_joint_names=names[5],
+            tracking_quality_names=TRACKING_QUALITY_FIELDS,
+            object_state_dim=task.current_state.object_state.size,
+            task_state_dim=task.current_state.as_task_state().size,
+            target_state_dim=7,
+            success_metric_dim=8,
+        )
+        effective_config = deepcopy(dict(raw_config))
+        effective_config["scripted_expert"] = {
+            "controller": controller_name,
+            "planning_point": "grasp_site",
+            "waypoints_m": [point.tolist() for point in expert.waypoints],
+            "copied_state_validation": {
+                "checked_actions": validation.checked_actions,
+                "maximum_non_target_disturbance_m": (
+                    validation.maximum_non_target_disturbance_m
+                ),
+            },
+            **dict(task.collection_config["pilot"][expert_settings_key]),
+        }
+        logger = DemoLogger(
+            args.output,
+            action_schema=action_schema,
+            observation_schema=observation_schema,
+            overwrite=False,
+        )
+        logger.start_episode(
+            _metadata(
+                args=args,
+                episode_id=episode_id,
+                raw_config=effective_config,
+                model_path=model_path,
+                target_names=target_names,
+                observation_schema=observation_schema,
+                synthetic=False,
+                workcell_pilot_task=task,
+            )
+        )
+
+        viewer_handle = None
+        if args.viewer:
+            _ensure_mujoco_viewer_can_launch(args)
+            try:
+                from mujoco import viewer
+            except ImportError as exc:  # pragma: no cover - optional GUI path.
+                raise MujocoError(f"MuJoCo viewer support is unavailable: {exc}") from exc
+            viewer_handle = stack.enter_context(
+                viewer.launch_passive(task.env.model, task.env.data)
+            )
+            _configure_workcell_pilot_viewer(viewer_handle, task)
+
+        default_limit = (
+            500
+            if args.skill_name in {"push_object_to_target", "pick_object"}
+            else 300
+        )
+        limit = args.max_frames if args.max_frames > 0 else default_limit
+        terminal = task.current_state
+        achieved_success = False
+        expert_done = False
+        no_features = no_hand_features()
+        for frame_index in range(limit):
+            requested, phase, done, reason = expert.step(terminal.world_state)
+            action = requested.as_array()
+            task.env.set_mocap_pose(
+                str(task.workcell.config.scene["hand_base_target"]),
+                position=requested.base_position,
+                orientation_quat=requested.base_orientation_wxyz,
+            )
+            task.env.set_joint_targets(requested.finger_targets)
+            terminal = task.step(n_steps=expert_config.sim_steps_per_action)
+            achieved_success = achieved_success or terminal.success
+            state = task.env.get_state()
+            timestamp = float(state.time)
+            logger.append(
+                DemoStepData(
+                    features=feature_vector(no_features),
+                    action=action,
+                    robot_state=robot_state_vector(
+                        state,
+                        base_position=requested.base_position,
+                        base_orientation=requested.base_orientation_wxyz,
+                    ),
+                    tracking_quality=np.zeros(
+                        len(TRACKING_QUALITY_FIELDS), dtype=np.float64
+                    ),
+                    timestamp=timestamp,
+                    object_state=terminal.as_object_state(),
+                    task_state=terminal.as_task_state(),
+                    requested_action=action,
+                    commanded_action=action,
+                    applied_action=action,
+                    safety_mask=np.zeros(action.size, dtype=np.uint8),
+                    safety_reason=("none",) * action.size,
+                    request_source="script",
+                    online_phase=phase,
+                    audited_phase="",
+                    intervention=False,
+                    failure_reason=reason or "",
+                    action_timestamp=timestamp,
+                    task_timestamp=timestamp,
+                    state_timestamp=timestamp,
+                )
+            )
+            if viewer_handle is not None:
+                viewer_handle.sync()
+                if args.viewer_sleep > 0.0:
+                    time.sleep(args.viewer_sleep)
+                if _viewer_was_closed(viewer_handle):
+                    break
+            if frame_index == 0 or (frame_index + 1) % args.print_interval == 0:
+                print(
+                    f"scripted={frame_index + 1:03d} {terminal.status_text} "
+                    f"reason={reason or 'none'}"
+                )
+            if done:
+                expert_done = True
+                break
+
+        metric_success = (
+            terminal.success
+            if args.skill_name == "push_object_to_target"
+            else achieved_success
+        )
+        recording_success = metric_success and expert_done
+        episode = logger.close(success=recording_success)
+        print(
+            f"Saved scripted {args.skill_name} with "
+            f"{episode.timestamps.shape[0]} frames: "
+            f"{args.output}"
+        )
+        print(
+            "Terminal: "
+            f"success={recording_success} {terminal.status_text} "
+            f"failure={terminal.failure_reason or 'none'}"
+        )
+        if not recording_success:
+            raise DemoLoggerError(
+                f"scripted {args.skill_name} did not satisfy the recomputed "
+                "terminal metric and complete its scripted terminal phase."
+            )
+    return 0
+
+
+def _scripted_push_finger_targets(
+    retargeter: CurlRetargeter,
+    open_targets: Mapping[str, float],
+    *,
+    index_curl: float,
+) -> dict[str, float]:
+    """Partially flex the index and fully flex other fingers out of the path."""
+
+    if not 0.0 <= index_curl <= 1.0:
+        raise DemoLoggerError("scripted push index curl must be in [0, 1].")
+    targets = {str(name): float(value) for name, value in open_targets.items()}
+    for finger in retargeter.config.fingers:
+        curl = index_curl if finger.name == "index" else 1.0
+        for target in finger.targets:
+            targets[target.name] = target.map_control(curl)
+    return targets
+
+
+def _scripted_closed_finger_targets(
+    retargeter: CurlRetargeter,
+    open_targets: Mapping[str, float],
+) -> dict[str, float]:
+    """Return the deterministic configured full-flexion grasp endpoint."""
+
+    targets = {str(name): float(value) for name, value in open_targets.items()}
+    for finger in retargeter.config.fingers:
+        for target in finger.targets:
+            targets[target.name] = target.map_control(1.0)
+    return targets
 
 
 def _run_synthetic_recording(
@@ -695,14 +1186,20 @@ def _run_synthetic_recording(
                     base_position=base_position,
                     base_orientation=base_orientation,
                 ),
-                tracking_quality=np.asarray([1.0, 0.0, 1.0, 1.0, 0.0, 0.0], dtype=np.float64),
+                tracking_quality=np.asarray(
+                    [1.0, 0.0, 1.0, 1.0, 0.0, 0.0], dtype=np.float64
+                ),
                 timestamp=start_time + (frame_index / args.control_rate_hz),
-                landmarks=np.zeros((21, 3), dtype=np.float64) if args.save_landmarks else None,
+                landmarks=np.zeros((21, 3), dtype=np.float64)
+                if args.save_landmarks
+                else None,
             )
         )
 
     episode = logger.close(success=args.success)
-    print(f"Saved synthetic demo with {episode.timestamps.shape[0]} frames: {args.output}")
+    print(
+        f"Saved synthetic demo with {episode.timestamps.shape[0]} frames: {args.output}"
+    )
     return 0
 
 
@@ -719,7 +1216,9 @@ def _run_live_recording(
     base_config = _base_config(raw_config, args=args)
     effective_raw_config: Mapping[str, Any] = raw_config
     print(f"Camera: id={args.camera_id}, width={args.width}, height={args.height}")
-    print(f"Hand tracker model: {args.hand_landmarker_model or DEFAULT_HAND_LANDMARKER_MODEL}")
+    print(
+        f"Hand tracker model: {args.hand_landmarker_model or DEFAULT_HAND_LANDMARKER_MODEL}"
+    )
     print(f"MuJoCo model: {model_path}")
     print(
         "Base control: "
@@ -761,7 +1260,9 @@ def _run_live_recording(
     try:
         with ExitStack() as stack:
             camera = stack.enter_context(
-                OpenCVCamera(camera_id=args.camera_id, width=args.width, height=args.height)
+                OpenCVCamera(
+                    camera_id=args.camera_id, width=args.width, height=args.height
+                )
             )
             tracker = stack.enter_context(
                 HandTracker(
@@ -777,7 +1278,76 @@ def _run_live_recording(
             button_press_initial_state: ButtonPressState | None = None
             push_cube_task: PushCubeTask | None = None
             push_cube_initial_state: PushCubeState | None = None
-            if args.task == REACH_TOUCH_TARGET_TASK_ID:
+            workcell_pilot_task: WorkcellPilotTask | None = None
+            workcell_pilot_initial_state: WorkcellPilotState | None = None
+            if args.task == WORKCELL_PILOT_TASK_ID:
+                workcell_pilot_task = stack.enter_context(
+                    WorkcellPilotTask(
+                        workcell_config=args.workcell_config,
+                        dataset_config=args.level4_dataset_config,
+                        skill_name=str(args.skill_name),
+                        goal_condition_id=str(args.goal_condition_id),
+                        seed=args.task_seed,
+                    )
+                )
+                workcell_pilot_initial_state = workcell_pilot_task.current_state
+                env = workcell_pilot_task.env
+                _ensure_realtime_sim_steps(
+                    args=args,
+                    env=env,
+                    label="Level 4 workcell",
+                )
+                print(
+                    "Resolved Level 4 workcell pilot: "
+                    f"skill={args.skill_name} goal={workcell_pilot_task.goal}"
+                )
+                print(
+                    "Human neutral: face your palm toward the webcam with fingers up. "
+                    "Do not imitate the robot's palm-down pose; calibration treats your "
+                    "comfortable pose as a translation clutch origin."
+                )
+                if args.skill_name == "reach_object":
+                    print(
+                        "Reach guide: the selected object has a bright magenta outline; "
+                        "the cyan cross is the robot-palm goal. Your hand is a velocity "
+                        "joystick: move away from center to move, return to center to stop. "
+                        "Small offsets are deliberately precise. The controller travels "
+                        "above the clutter and only descends over the outlined target."
+                    )
+                elif args.skill_name == "pick_place_sequence":
+                    print(
+                        "Pick/place guide: the magenta cage marks the object to pick; "
+                        "the cyan cross marks its destination."
+                    )
+                elif args.skill_name == "push_object_to_target":
+                    print(
+                        "Push guide: the magenta cage marks the object to push; the "
+                        "cyan cross marks the destination zone."
+                    )
+                elif args.skill_name == "press_button":
+                    print(
+                        "Press guide: the magenta cage and cyan cross identify the "
+                        "button to press."
+                    )
+                print(
+                    "Press c to calibrate/start. Press q after success or a clear failure."
+                )
+                base_config = _workcell_pilot_base_config(
+                    base_config,
+                    task=workcell_pilot_task,
+                )
+                effective_raw_config = _teleop_config_with_effective_base(
+                    raw_config,
+                    base_config=base_config,
+                    neutral_orientation=np.asarray(
+                        workcell_pilot_task.workcell.config.scene[
+                            "hand_neutral_orientation_wxyz"
+                        ],
+                        dtype=np.float64,
+                    ),
+                    task_override=WORKCELL_PILOT_TASK_ID,
+                )
+            elif args.task == REACH_TOUCH_TARGET_TASK_ID:
                 reach_touch_task = stack.enter_context(ReachTouchTargetTask(model_path))
                 reach_touch_initial_state = reach_touch_task.reset(
                     seed=args.task_seed,
@@ -849,17 +1419,11 @@ def _run_live_recording(
                     ),
                 )
                 env = push_cube_task.env
-                minimum_sim_steps = _minimum_realtime_sim_steps(
-                    simulation_timestep=float(env.model.opt.timestep),
-                    control_rate_hz=float(args.control_rate_hz),
+                _ensure_realtime_sim_steps(
+                    args=args,
+                    env=env,
+                    label="Push-cube",
                 )
-                if args.sim_steps_per_frame < minimum_sim_steps:
-                    print(
-                        "Push-cube real-time simulation override: "
-                        f"{args.sim_steps_per_frame} -> {minimum_sim_steps} "
-                        "MuJoCo steps per camera frame."
-                    )
-                    args.sim_steps_per_frame = minimum_sim_steps
                 base_config = _push_cube_base_config(
                     base_config,
                     initial_state=push_cube_initial_state,
@@ -901,26 +1465,41 @@ def _run_live_recording(
                 env.reset()
 
             active_task: TaskEpisode | None = (
-                reach_touch_task
-                if reach_touch_task is not None
-                else (
-                    button_press_task
-                    if button_press_task is not None
-                    else push_cube_task
-                )
+                workcell_pilot_task
+                or reach_touch_task
+                or button_press_task
+                or push_cube_task
             )
             initial_task_state: TaskEpisodeState | None = (
-                reach_touch_initial_state
-                if reach_touch_initial_state is not None
-                else (
-                    button_press_initial_state
-                    if button_press_initial_state is not None
-                    else push_cube_initial_state
+                workcell_pilot_initial_state
+                or reach_touch_initial_state
+                or button_press_initial_state
+                or push_cube_initial_state
+            )
+            if (
+                base_config.enabled
+                and workcell_pilot_task is not None
+                and workcell_pilot_task.skill_name == "reach_object"
+            ):
+                rate_config = _workcell_rate_control_config(
+                    workcell_pilot_task,
+                    control_rate_hz=args.control_rate_hz,
                 )
-            )
-            base_controller = (
-                HandBaseMocapController(env, base_config) if base_config.enabled else None
-            )
+                base_controller = WorkcellRateController(
+                    env,
+                    base_config,
+                    rate_config,
+                )
+                effective_raw_config = _teleop_config_with_workcell_rate_control(
+                    effective_raw_config,
+                    rate_config=rate_config,
+                )
+            else:
+                base_controller = (
+                    HandBaseMocapController(env, base_config)
+                    if base_config.enabled
+                    else None
+                )
             base_smoother = (
                 HandBaseTargetSmoother(
                     alpha=base_config.base_smoothing_alpha,
@@ -961,12 +1540,18 @@ def _run_live_recording(
                 finger_joint_names=finger_joint_names,
                 tracking_quality_names=TRACKING_QUALITY_FIELDS,
                 object_state_dim=(
-                    3
-                    if reach_touch_initial_state is not None
+                    workcell_pilot_initial_state.object_state.size
+                    if workcell_pilot_initial_state is not None
                     else (
-                        4
-                        if button_press_initial_state is not None
-                        else 13 if push_cube_initial_state is not None else None
+                        3
+                        if reach_touch_initial_state is not None
+                        else (
+                            4
+                            if button_press_initial_state is not None
+                            else 13
+                            if push_cube_initial_state is not None
+                            else None
+                        )
                     )
                 ),
                 task_state_dim=(
@@ -975,26 +1560,44 @@ def _run_live_recording(
                     else None
                 ),
                 target_state_dim=(
-                    3
-                    if reach_touch_initial_state is not None
+                    7
+                    if workcell_pilot_initial_state is not None
                     else (
-                        13
-                        if button_press_initial_state is not None
-                        else 7 if push_cube_initial_state is not None else None
+                        3
+                        if reach_touch_initial_state is not None
+                        else (
+                            13
+                            if button_press_initial_state is not None
+                            else 7
+                            if push_cube_initial_state is not None
+                            else None
+                        )
                     )
                 ),
                 success_metric_dim=(
                     8
-                    if reach_touch_initial_state is not None
+                    if workcell_pilot_initial_state is not None
                     else (
-                        5
-                        if button_press_initial_state is not None
-                        else 8 if push_cube_initial_state is not None else None
+                        8
+                        if reach_touch_initial_state is not None
+                        else (
+                            5
+                            if button_press_initial_state is not None
+                            else 8
+                            if push_cube_initial_state is not None
+                            else None
+                        )
                     )
                 ),
             )
+            logger_output = args.output
+            if args.workcell_dry_run:
+                temporary_root = stack.enter_context(
+                    tempfile.TemporaryDirectory(prefix="dexvision_level4_dry_run_")
+                )
+                logger_output = Path(temporary_root) / "episode"
             logger = DemoLogger(
-                args.output,
+                logger_output,
                 action_schema=action_schema,
                 observation_schema=observation_schema,
                 overwrite=args.overwrite,
@@ -1014,6 +1617,7 @@ def _run_live_recording(
                     button_press_initial_state=button_press_initial_state,
                     push_cube_task=push_cube_task,
                     push_cube_initial_state=push_cube_initial_state,
+                    workcell_pilot_task=workcell_pilot_task,
                 )
             )
             try:
@@ -1091,9 +1695,31 @@ def _run_live_recording(
                 )
                 if args.success is None and preview is not None:
                     preview.close()
-            operator_success = _resolve_operator_success_label(args)
+            elif workcell_pilot_task is not None:
+                final_task_state = workcell_pilot_task.current_state
+                print(
+                    "Level 4 workcell terminal state: "
+                    f"{final_task_state.status_text} "
+                    f"failure={final_task_state.failure_reason or 'none'}"
+                )
+                if args.success is None and preview is not None:
+                    preview.close()
+            operator_success = (
+                final_task_state.success
+                if args.workcell_dry_run and final_task_state is not None
+                else _resolve_operator_success_label(args)
+            )
             episode = logger.close(success=operator_success)
-            print(f"Saved demo with {episode.timestamps.shape[0]} frames: {args.output}")
+            if args.workcell_dry_run:
+                print(
+                    "Dry run complete: "
+                    f"{episode.timestamps.shape[0]} temporary frames discarded; "
+                    "session manifest and pilot dataset were not changed."
+                )
+            else:
+                print(
+                    f"Saved demo with {episode.timestamps.shape[0]} frames: {args.output}"
+                )
             return 0
     finally:
         if preview is not None:
@@ -1144,6 +1770,8 @@ def _record_live_with_optional_viewer(
         with viewer.launch_passive(env.model, env.data) as viewer_handle:
             if isinstance(task, PushCubeTask):
                 _configure_push_cube_viewer(viewer_handle)
+            elif isinstance(task, WorkcellPilotTask):
+                _configure_workcell_pilot_viewer(viewer_handle, task)
             return _record_live_loop(
                 args=args,
                 env=env,
@@ -1193,7 +1821,11 @@ def _record_live_loop(
     recording_start_time = start_time if recording_started else None
 
     while True:
-        if recording_started and args.max_frames > 0 and recorded_frame_index >= args.max_frames:
+        if (
+            recording_started
+            and args.max_frames > 0
+            and recorded_frame_index >= args.max_frames
+        ):
             break
         if (
             recording_started
@@ -1214,7 +1846,9 @@ def _record_live_loop(
         )
         raw_features = extract_hand_features(tracking_result)
         smoothed_features = smoother.update(raw_features)
-        targets = run_level1_teleop.build_full_hand_targets(retargeter, smoothed_features)
+        targets = run_level1_teleop.build_full_hand_targets(
+            retargeter, smoothed_features
+        )
         env.set_joint_targets(targets)
         applied_base_commands = pending_base_commands
         pending_base_commands = ()
@@ -1236,13 +1870,10 @@ def _record_live_loop(
             base_smoother=base_smoother,
             commands=applied_base_commands,
         )
-        if (
-            not recording_started
-            and _calibration_started_recording(
-                commands=applied_base_commands,
-                base_status=base_status,
-                base_control_enabled=base_controller is not None,
-            )
+        if not recording_started and _calibration_started_recording(
+            commands=applied_base_commands,
+            base_status=base_status,
+            base_control_enabled=base_controller is not None,
         ):
             recording_started = True
             recording_start_time = time.monotonic()
@@ -1275,15 +1906,16 @@ def _record_live_loop(
             base_status=base_status,
         )
         if recording_started:
+            recorded_action = action_vector(
+                base_position=base_position,
+                base_orientation=base_orientation,
+                targets=targets,
+                target_names=target_names,
+            )
             logger.append(
                 DemoStepData(
                     features=feature_vector(smoothed_features),
-                    action=action_vector(
-                        base_position=base_position,
-                        base_orientation=base_orientation,
-                        targets=targets,
-                        target_names=target_names,
-                    ),
+                    action=recorded_action,
                     robot_state=robot_state_vector(
                         state,
                         base_position=base_position,
@@ -1307,17 +1939,43 @@ def _record_live_loop(
                         else None
                     ),
                     object_state=(
-                        task_step_state.target_position
-                        if isinstance(task_step_state, ReachTouchTargetState)
+                        task_step_state.as_object_state()
+                        if isinstance(task_step_state, WorkcellPilotState)
                         else (
-                            task_step_state.as_object_state()
-                            if isinstance(
-                                task_step_state,
-                                (ButtonPressState, PushCubeState),
+                            task_step_state.target_position
+                            if isinstance(task_step_state, ReachTouchTargetState)
+                            else (
+                                task_step_state.as_object_state()
+                                if isinstance(
+                                    task_step_state,
+                                    (ButtonPressState, PushCubeState),
+                                )
+                                else None
                             )
-                            else None
                         )
                     ),
+                    requested_action=recorded_action,
+                    commanded_action=recorded_action,
+                    applied_action=recorded_action,
+                    safety_mask=np.zeros(recorded_action.size, dtype=np.uint8),
+                    safety_reason=("none",) * recorded_action.size,
+                    request_source="operator",
+                    online_phase=(
+                        task_step_state.online_phase
+                        if isinstance(task_step_state, WorkcellPilotState)
+                        else None
+                    ),
+                    audited_phase="",
+                    intervention=False,
+                    failure_reason=(
+                        task_step_state.failure_reason
+                        if isinstance(task_step_state, WorkcellPilotState)
+                        else ""
+                    )
+                    or "",
+                    action_timestamp=camera_result.timestamp,
+                    task_timestamp=camera_result.timestamp,
+                    state_timestamp=camera_result.timestamp,
                 )
             )
             if tracking_result.detected:
@@ -1376,9 +2034,7 @@ def _record_live_loop(
                 time.sleep(args.viewer_sleep)
             if _viewer_was_closed(viewer_handle):
                 break
-        if task_step_state is not None and _task_should_stop_recording(
-            task_step_state
-        ):
+        if task_step_state is not None and _task_should_stop_recording(task_step_state):
             terminal_label = (
                 "success" if task_step_state.success else task_step_state.failure_reason
             )
@@ -1397,10 +2053,7 @@ def _task_should_stop_recording(state: TaskEpisodeState) -> bool:
 
     return bool(
         state.success
-        or (
-            state.failure_reason is not None
-            and state.failure_reason != "timeout"
-        )
+        or (state.failure_reason is not None and state.failure_reason != "timeout")
     )
 
 
@@ -1479,6 +2132,8 @@ def _format_recording_status(
 def _format_task_status(state: TaskEpisodeState | None) -> str:
     if state is None:
         return ""
+    if isinstance(state, WorkcellPilotState):
+        return state.status_text
     if isinstance(state, ReachTouchTargetState):
         return (
             f"palm_contact={'yes' if state.palm_contact else 'no'} "
@@ -1504,13 +2159,19 @@ def _format_task_status(state: TaskEpisodeState | None) -> str:
 
 def _print_free_space_recording_guide(gesture_label: str | None) -> None:
     print("Free-space gesture recording plan:")
-    print("  Start each clip from a neutral upright palm in frame, press c to calibrate/center, perform/hold 3-5 seconds, then press q.")
+    print(
+        "  Start each clip from a neutral upright palm in frame, press c to calibrate/center, perform/hold 3-5 seconds, then press q."
+    )
     if gesture_label is not None:
         print(f"  This clip label: {gesture_label}")
         print(f"  What to record: {FREE_SPACE_GESTURE_INSTRUCTIONS[gesture_label]}")
         return
-    print("  Suggested 10-demo set: open_palm x2, fist x2, pinch x2, wave x2, point x1, peace_sign x1.")
-    print("  Use --gesture-label open_palm|fist|point|pinch|peace_sign|wave for labeled clips.")
+    print(
+        "  Suggested 10-demo set: open_palm x2, fist x2, pinch x2, wave x2, point x1, peace_sign x1."
+    )
+    print(
+        "  Use --gesture-label open_palm|fist|point|pinch|peace_sign|wave for labeled clips."
+    )
 
 
 class RecordingPreview:
@@ -1596,7 +2257,9 @@ def feature_vector(features: HandFeatures) -> np.ndarray:
     )
 
 
-def ordered_targets(targets: dict[str, float], target_names: tuple[str, ...]) -> np.ndarray:
+def ordered_targets(
+    targets: dict[str, float], target_names: tuple[str, ...]
+) -> np.ndarray:
     """Return actuator targets in the metadata/action-schema order."""
 
     return np.asarray([float(targets[name]) for name in target_names], dtype=np.float64)
@@ -1614,10 +2277,16 @@ def action_vector(
     position = np.asarray(base_position, dtype=np.float64)
     orientation = normalize_quaternion(np.asarray(base_orientation, dtype=np.float64))
     if position.shape != (3,):
-        raise DemoLoggerError(f"base_position must have shape [3], got {position.shape}.")
+        raise DemoLoggerError(
+            f"base_position must have shape [3], got {position.shape}."
+        )
     if orientation.shape != (4,):
-        raise DemoLoggerError(f"base_orientation must have shape [4], got {orientation.shape}.")
-    return np.concatenate((position, orientation, ordered_targets(targets, target_names)))
+        raise DemoLoggerError(
+            f"base_orientation must have shape [4], got {orientation.shape}."
+        )
+    return np.concatenate(
+        (position, orientation, ordered_targets(targets, target_names))
+    )
 
 
 def robot_state_vector(
@@ -1762,7 +2431,9 @@ def landmarks_array(tracking_result: HandTrackingResult) -> np.ndarray:
         return np.zeros((21, 3), dtype=np.float64)
     landmarks = np.asarray(tracking_result.image_landmarks, dtype=np.float64)
     if landmarks.shape != (21, 3):
-        raise DemoLoggerError(f"image landmarks must have shape [21, 3], got {landmarks.shape}.")
+        raise DemoLoggerError(
+            f"image landmarks must have shape [21, 3], got {landmarks.shape}."
+        )
     return landmarks
 
 
@@ -1781,8 +2452,11 @@ def _metadata(
     button_press_initial_state: ButtonPressState | None = None,
     push_cube_task: PushCubeTask | None = None,
     push_cube_initial_state: PushCubeState | None = None,
+    workcell_pilot_task: WorkcellPilotTask | None = None,
 ) -> dict[str, Any]:
-    if reach_touch_task is not None and reach_touch_initial_state is not None:
+    if workcell_pilot_task is not None:
+        task_config = workcell_pilot_task.metadata_task_config()
+    elif reach_touch_task is not None and reach_touch_initial_state is not None:
         task_config = _reach_touch_task_config(
             args=args,
             task=reach_touch_task,
@@ -1952,12 +2626,16 @@ def _level4_metadata(
         initial_phase = machine.get("initial_phase")
         transitions = machine.get("transitions")
         if not isinstance(initial_phase, str) or not isinstance(transitions, list):
-            raise DemoLoggerError(f"invalid causal phase machine for skill '{skill_name}'.")
+            raise DemoLoggerError(
+                f"invalid causal phase machine for skill '{skill_name}'."
+            )
 
     named_layout = action_config.get("named_layout")
     grouped_masks = phase_config.get("action_relevance_masks")
     if not isinstance(named_layout, list) or not isinstance(grouped_masks, Mapping):
-        raise DemoLoggerError("Level 4 action layout and phase relevance masks are required.")
+        raise DemoLoggerError(
+            "Level 4 action layout and phase relevance masks are required."
+        )
     ordered_layout = sorted(named_layout, key=lambda field: int(field["index"]))
     if len(ordered_layout) != action_dim:
         raise DemoLoggerError(
@@ -1968,7 +2646,8 @@ def _level4_metadata(
         if not isinstance(group_mask, Mapping):
             raise DemoLoggerError(f"phase mask for '{phase}' must be a mapping.")
         relevance_masks[str(phase)] = [
-            int(bool(group_mask.get(str(field["group"]), False))) for field in ordered_layout
+            int(bool(group_mask.get(str(field["group"]), False)))
+            for field in ordered_layout
         ]
     raw_reason_codes = action_config.get("safety_reason_codes")
     if not isinstance(raw_reason_codes, list):
@@ -1979,7 +2658,23 @@ def _level4_metadata(
         if isinstance(item, Mapping) and item.get("code")
     ]
     typed_goal = task_config.get("parameters", task_config)
-    object_ids = [args.object_id] if args.object_id else []
+    configured_objects = (
+        payload.get("workcell", {}).get("objects", {})
+        if isinstance(payload.get("workcell"), Mapping)
+        else {}
+    )
+    goal_object_id = (
+        typed_goal.get("object_id") if isinstance(typed_goal, Mapping) else None
+    )
+    goal_entity_id = (
+        typed_goal.get("entity_id") if isinstance(typed_goal, Mapping) else None
+    )
+    object_ids = [
+        str(value)
+        for value in (args.object_id, goal_object_id, goal_entity_id)
+        if isinstance(value, str) and value in configured_objects
+    ]
+    object_ids = list(dict.fromkeys(object_ids))
     dataset_config = payload.get("dataset")
     config_version = (
         str(dataset_config.get("name"))
@@ -1995,7 +2690,9 @@ def _level4_metadata(
         "typed_goal": typed_goal,
         "object_instance_ids": object_ids,
         "goal_condition_id": args.goal_condition_id,
-        "reset_state": task_config.get("initial_state", {"random_seed": args.task_seed}),
+        "reset_state": task_config.get(
+            "initial_state", {"random_seed": args.task_seed}
+        ),
         "random_seed": int(args.task_seed),
         "camera_or_render_config": None,
         "code_version": "working-tree",
@@ -2100,9 +2797,7 @@ def _button_press_task_config(
         "target_visual_cue": "bright_green",
         "non_target_visual_cue": "dark_gray",
         "approach_pose": (
-            initial_state.approach_pose
-            if initial_state.approach_pose_present
-            else None
+            initial_state.approach_pose if initial_state.approach_pose_present else None
         ),
         "approach_pose_frame": "MuJoCo world",
         "initial_button_depth": initial_state.initial_button_depth,
@@ -2199,6 +2894,86 @@ def _push_cube_base_config(
     )
 
 
+def _workcell_pilot_base_config(
+    config: HandBaseControlConfig,
+    *,
+    task: WorkcellPilotTask,
+) -> HandBaseControlConfig:
+    """Center calibrated control on the workcell's collision-free palm pose."""
+
+    neutral = np.asarray(
+        task.workcell.config.scene["hand_neutral_position_m"], dtype=np.float64
+    )
+    workspace = task.workcell.config.requirements["workcell"]["safe_workspace"]
+    return replace(
+        config,
+        enable_base_orientation=(
+            False
+            if task.skill_name == "reach_object"
+            else config.enable_base_orientation
+        ),
+        base_fixed_z=float(neutral[2]),
+        position_offset=np.asarray([neutral[0], neutral[1], 0.0], dtype=np.float64),
+        base_position_scale_x=0.75,
+        base_position_scale_y=0.70,
+        base_smoothing_alpha=0.80,
+        depth_scale=0.55,
+        depth_smoothing_alpha=0.80,
+        depth_deadband=0.02,
+        depth_min=float(workspace["min"][0]),
+        depth_max=float(workspace["max"][0]),
+        max_position_step=0.06,
+        workspace_limits=WorkspaceLimits(
+            minimum=np.asarray(workspace["min"], dtype=np.float64),
+            maximum=np.asarray(workspace["max"], dtype=np.float64),
+        ),
+    )
+
+
+def _workcell_rate_control_config(
+    task: WorkcellPilotTask, *, control_rate_hz: float
+) -> WorkcellRateControlConfig:
+    """Build the single Level 4.3 reach-trial rate controller."""
+
+    raw = task.collection_config["pilot"]["reach_rate_control"]
+    return WorkcellRateControlConfig(
+        goal_position=np.asarray(task.goal["approach_pose"][:3], dtype=np.float64),
+        control_rate_hz=float(control_rate_hz),
+        image_deadband=float(raw["image_deadband"]),
+        image_full_scale=float(raw["image_full_scale"]),
+        depth_deadband=float(raw["depth_deadband"]),
+        depth_full_scale=float(raw["depth_full_scale"]),
+        response_exponent=float(raw["response_exponent"]),
+        max_velocity_m_s=np.asarray(raw["max_velocity_m_s"], dtype=np.float64),
+        transit_height_m=float(raw["transit_height_m"]),
+        descent_radius_m=float(raw["descent_radius_m"]),
+    )
+
+
+def _teleop_config_with_workcell_rate_control(
+    raw_config: Mapping[str, Any],
+    *,
+    rate_config: WorkcellRateControlConfig,
+) -> dict[str, Any]:
+    """Record the rate law and virtual fixture used by a retained episode."""
+
+    snapshot = deepcopy(dict(raw_config))
+    snapshot["workcell_rate_control"] = {
+        "mapping": "centered_velocity_joystick",
+        "goal_position": rate_config.goal_position,
+        "control_rate_hz": rate_config.control_rate_hz,
+        "image_deadband": rate_config.image_deadband,
+        "image_full_scale": rate_config.image_full_scale,
+        "depth_deadband": rate_config.depth_deadband,
+        "depth_full_scale": rate_config.depth_full_scale,
+        "response_exponent": rate_config.response_exponent,
+        "max_velocity_m_s": rate_config.max_velocity_m_s,
+        "transit_height_m": rate_config.transit_height_m,
+        "descent_radius_m": rate_config.descent_radius_m,
+    }
+    return snapshot
+
+
 def _minimum_realtime_sim_steps(
     *,
     simulation_timestep: float,
@@ -2213,11 +2988,34 @@ def _minimum_realtime_sim_steps(
     return max(1, math.ceil((1.0 / control_rate_hz) / simulation_timestep))
 
 
+def _ensure_realtime_sim_steps(
+    *,
+    args: argparse.Namespace,
+    env: MujocoEnv,
+    label: str,
+) -> None:
+    """Keep physics time aligned with the nominal camera/control interval."""
+
+    minimum_sim_steps = _minimum_realtime_sim_steps(
+        simulation_timestep=float(env.model.opt.timestep),
+        control_rate_hz=float(args.control_rate_hz),
+    )
+    if args.sim_steps_per_frame >= minimum_sim_steps:
+        return
+    print(
+        f"{label} real-time simulation override: "
+        f"{args.sim_steps_per_frame} -> {minimum_sim_steps} "
+        "MuJoCo steps per camera frame."
+    )
+    args.sim_steps_per_frame = minimum_sim_steps
+
+
 def _teleop_config_with_effective_base(
     raw_config: Mapping[str, Any],
     *,
     base_config: HandBaseControlConfig,
     neutral_orientation: np.ndarray,
+    task_override: str = PUSH_CUBE_TASK_ID,
 ) -> dict[str, Any]:
     """Snapshot task-specific base overrides used by recording and quality checks."""
 
@@ -2239,9 +3037,7 @@ def _teleop_config_with_effective_base(
             "depth_deadband": base_config.depth_deadband,
             "depth_min": base_config.depth_min,
             "depth_max": base_config.depth_max,
-            "orientation_smoothing_alpha": (
-                base_config.orientation_smoothing_alpha
-            ),
+            "orientation_smoothing_alpha": (base_config.orientation_smoothing_alpha),
             "orientation_deadband_deg": base_config.orientation_deadband_deg,
             "max_position_step": base_config.max_position_step,
             "workspace_limits": {
@@ -2249,7 +3045,7 @@ def _teleop_config_with_effective_base(
                 "max": base_config.workspace_limits.maximum,
             },
             "neutral_mocap_orientation": neutral_orientation,
-            "task_override": PUSH_CUBE_TASK_ID,
+            "task_override": task_override,
         }
     )
     snapshot["base_control"] = base_payload
@@ -2263,11 +3059,15 @@ def _resolve_recording_model_path(
 ) -> Path:
     """Select the task-board scene for implemented task pilots."""
 
-    if args.task in {
-        REACH_TOUCH_TARGET_TASK_ID,
-        BUTTON_PRESS_TASK_ID,
-        PUSH_CUBE_TASK_ID,
-    } and args.model is None:
+    if (
+        args.task
+        in {
+            REACH_TOUCH_TARGET_TASK_ID,
+            BUTTON_PRESS_TASK_ID,
+            PUSH_CUBE_TASK_ID,
+        }
+        and args.model is None
+    ):
         return DEFAULT_TASK_BOARD_MODEL
     return run_level1_teleop.resolve_mujoco_model_path(
         raw_config,
@@ -2289,6 +3089,7 @@ def _resolve_operator_success_label(
             REACH_TOUCH_TARGET_TASK_ID,
             BUTTON_PRESS_TASK_ID,
             PUSH_CUBE_TASK_ID,
+            WORKCELL_PILOT_TASK_ID,
         }
         or args.success is not None
     ):
@@ -2326,7 +3127,9 @@ def _base_config(
     if args.enable_base_orientation:
         base_config = replace(base_config, enable_base_orientation=True)
     if args.enable_depth_control is not None:
-        base_config = replace(base_config, enable_depth_control=args.enable_depth_control)
+        base_config = replace(
+            base_config, enable_depth_control=args.enable_depth_control
+        )
     return base_config
 
 
@@ -2360,18 +3163,29 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
         if args.goal_condition_id is None or not str(args.goal_condition_id).strip():
             raise ValueError("--goal-condition-id is required with --session-id.")
         if args.overwrite:
-            raise ValueError("--overwrite is forbidden for append-only Level 4 episodes.")
+            raise ValueError(
+                "--overwrite is forbidden for append-only Level 4 episodes."
+            )
         if args.source == "corrective_intervention":
             raise ValueError(
                 "corrective_intervention recording is deferred to Level 4.6; "
                 "record_demo cannot create it in Level 4.2."
             )
-    elif args.operator_id is not None or args.goal_condition_id is not None:
+    elif (
+        not args.workcell_dry_run
+        and (args.operator_id is not None or args.goal_condition_id is not None)
+    ):
         raise ValueError("--operator-id and --goal-condition-id require --session-id.")
+    if args.workcell_dry_run and args.task != WORKCELL_PILOT_TASK_ID:
+        raise ValueError("--workcell-dry-run requires --task level4_workcell.")
     if args.gesture_label is not None and args.task != "free_space_gesture":
-        raise ValueError("--gesture-label is only supported with --task free_space_gesture.")
+        raise ValueError(
+            "--gesture-label is only supported with --task free_space_gesture."
+        )
     if args.target_site is not None and args.task != REACH_TOUCH_TARGET_TASK_ID:
-        raise ValueError("--target-site is only supported with --task reach_touch_target.")
+        raise ValueError(
+            "--target-site is only supported with --task reach_touch_target."
+        )
     if args.button_id is not None and args.task != BUTTON_PRESS_TASK_ID:
         raise ValueError("--button-id is only supported with --task button_press.")
     if args.target_press_depth is not None and args.task != BUTTON_PRESS_TASK_ID:
@@ -2381,24 +3195,32 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
     if args.approach_pose is not None and args.task != BUTTON_PRESS_TASK_ID:
         raise ValueError("--approach-pose is only supported with --task button_press.")
     if args.object_id is not None and args.task != PUSH_CUBE_TASK_ID:
-        raise ValueError("--object-id is only supported with --task push_cube_to_target.")
+        raise ValueError(
+            "--object-id is only supported with --task push_cube_to_target."
+        )
     if args.target_zone_id is not None and args.task != PUSH_CUBE_TASK_ID:
         raise ValueError(
             "--target-zone-id is only supported with --task push_cube_to_target."
         )
     if args.target_pose is not None and args.task != PUSH_CUBE_TASK_ID:
-        raise ValueError("--target-pose is only supported with --task push_cube_to_target.")
+        raise ValueError(
+            "--target-pose is only supported with --task push_cube_to_target."
+        )
     if args.approach_side is not None and args.task != PUSH_CUBE_TASK_ID:
         raise ValueError(
             "--approach-side is only supported with --task push_cube_to_target."
         )
     if args.target_press_depth is not None and args.target_press_depth <= 0.0:
         raise ValueError("--target-press-depth must be positive.")
-    if args.task in {
-        REACH_TOUCH_TARGET_TASK_ID,
-        BUTTON_PRESS_TASK_ID,
-        PUSH_CUBE_TASK_ID,
-    } and args.synthetic:
+    if (
+        args.task
+        in {
+            REACH_TOUCH_TARGET_TASK_ID,
+            BUTTON_PRESS_TASK_ID,
+            PUSH_CUBE_TASK_ID,
+        }
+        and args.synthetic
+    ):
         raise ValueError(
             f"--synthetic is not supported for {args.task} because pilot "
             "episodes must contain live task state and one operator-reviewed attempt."
@@ -2406,7 +3228,9 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
     if args.start_on_calibration is None:
         args.start_on_calibration = False
     if args.start_on_calibration and not args.show_camera_window:
-        raise ValueError("--start-on-calibration requires --show-camera-window so c can be pressed.")
+        raise ValueError(
+            "--start-on-calibration requires --show-camera-window so c can be pressed."
+        )
     if args.max_frames < 0:
         raise ValueError("max_frames must be non-negative.")
     if args.duration_seconds < 0.0:
@@ -2425,6 +3249,15 @@ def _validate_recording_args(args: argparse.Namespace) -> None:
 
 def _apply_recording_presets(args: argparse.Namespace) -> None:
     if not args.level1_13_full:
+        return
+    if args.task == WORKCELL_PILOT_TASK_ID and args.source == "scripted":
+        args.show_camera_window = False
+        args.enable_base_control = False
+        args.enable_base_orientation = False
+        args.auto_calibrate_base = False
+        args.start_on_calibration = False
+        args.enable_depth_control = False
+        args.require_hand_detected = False
         return
     args.show_camera_window = True
     args.viewer = True
@@ -2457,7 +3290,11 @@ def _validate_detection_guard(
 
 def _detected_frames_from_logger(logger: DemoLogger) -> int:
     steps = getattr(logger, "_steps", ())
-    return sum(1 for step in steps if step.tracking_quality.size and step.tracking_quality[0] >= 0.5)
+    return sum(
+        1
+        for step in steps
+        if step.tracking_quality.size and step.tracking_quality[0] >= 0.5
+    )
 
 
 def _preview_event_from_key(key: int) -> RecordingPreviewEvent:
@@ -2515,7 +3352,9 @@ def _ensure_mujoco_viewer_can_launch(args: argparse.Namespace) -> None:
             command.append("--disable-depth-control")
     if args.require_hand_detected:
         command.append("--require-hand-detected")
-        command.extend(["--min-hand-detected-frames", str(args.min_hand_detected_frames)])
+        command.extend(
+            ["--min-hand-detected-frames", str(args.min_hand_detected_frames)]
+        )
     if args.max_frames:
         command.extend(["--max-frames", str(args.max_frames)])
     if args.gesture_label is not None:
@@ -2527,7 +3366,9 @@ def _ensure_mujoco_viewer_can_launch(args: argparse.Namespace) -> None:
     if args.target_press_depth is not None:
         command.extend(["--target-press-depth", str(args.target_press_depth)])
     if args.approach_pose is not None:
-        command.extend(["--approach-pose", *(str(value) for value in args.approach_pose)])
+        command.extend(
+            ["--approach-pose", *(str(value) for value in args.approach_pose)]
+        )
     if args.task_seed != 0:
         command.extend(["--task-seed", str(args.task_seed)])
     if args.success is True:
@@ -2558,6 +3399,22 @@ def _configure_push_cube_viewer(viewer_handle: object) -> None:
     camera.distance = 0.62
     camera.azimuth = 35.0
     camera.elevation = -25.0
+
+
+def _configure_workcell_pilot_viewer(
+    viewer_handle: object,
+    task: WorkcellPilotTask,
+) -> None:
+    """Use the verified Level 4.1 operator-facing workcell overview."""
+
+    camera = getattr(viewer_handle, "cam", None)
+    if camera is None:
+        return
+    viewer = task.workcell.config.scene["viewer"]
+    camera.lookat[:] = np.asarray(viewer["lookat_m"], dtype=np.float64)
+    camera.distance = float(viewer["distance_m"])
+    camera.azimuth = float(viewer["azimuth_deg"])
+    camera.elevation = float(viewer["elevation_deg"])
 
 
 def _default_episode_id(task_id: str) -> str:
@@ -2608,6 +3465,7 @@ def main(argv: list[str] | None = None) -> int:
         MujocoError,
         TaskError,
         ValueError,
+        WorkcellError,
     ) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

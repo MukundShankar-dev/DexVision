@@ -32,6 +32,8 @@
     <material name="slot_a_material" rgba="0.12 0.88 0.88 0.55"/>
     <material name="slot_b_material" rgba="0.08 0.58 0.66 0.55"/>
     <material name="button_material" rgba="0.12 0.95 0.22 1"/>
+    <material name="pilot_target_outline_material" rgba="1 0.02 0.55 1"
+      emission="1"/>
   </asset>
 
   <worldbody>
@@ -143,8 +145,8 @@
       <geom name="fixture_wall_geom" type="box" size="0.010 0.15 0.22"
         material="table_material"/>
     </body>
-    <body name="start_button" pos="0.130 -0.110 0.400">
-      <joint name="start_button_joint" type="slide" axis="1 0 0" range="0 0.014"
+    <body name="start_button" pos="0.110 -0.110 0.200">
+      <joint name="start_button_joint" type="slide" axis="1 0 0" range="0 0.022"
         limited="true" damping="2" stiffness="40" springref="0"/>
       <geom name="start_button_geom" type="cylinder" size="0.018 0.008"
         euler="0 1.57079632679 0" mass="0.04" material="button_material"/>
@@ -152,6 +154,55 @@
         rgba="0 0 0 0"/>
       <site name="start_button" pos="-0.020 0 0.025" size="0.001"
         rgba="1 1 1 0.20" group="0"/>
+    </body>
+
+    <body name="pilot_goal_marker" mocap="true" pos="0 0 -1">
+      <geom name="pilot_goal_marker_x" type="box" size="0.025 0.003 0.003"
+        rgba="0.05 0.95 1 0.85" contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_goal_marker_y" type="box" size="0.003 0.025 0.003"
+        rgba="0.05 0.95 1 0.85" contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_goal_marker_z" type="box" size="0.003 0.003 0.025"
+        rgba="0.05 0.95 1 0.85" contype="0" conaffinity="0" group="1"/>
+    </body>
+
+    <!-- Bright non-colliding cage around the selected object. -->
+    <body name="pilot_target_outline" mocap="true" pos="0 0 -1">
+      <geom name="pilot_outline_bottom_xn" type="box" pos="0 -0.032 -0.035"
+        size="0.035 0.003 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_bottom_xp" type="box" pos="0 0.032 -0.035"
+        size="0.035 0.003 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_bottom_yn" type="box" pos="-0.032 0 -0.035"
+        size="0.003 0.035 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_bottom_yp" type="box" pos="0.032 0 -0.035"
+        size="0.003 0.035 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_top_xn" type="box" pos="0 -0.032 0.035"
+        size="0.035 0.003 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_top_xp" type="box" pos="0 0.032 0.035"
+        size="0.035 0.003 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_top_yn" type="box" pos="-0.032 0 0.035"
+        size="0.003 0.035 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_top_yp" type="box" pos="0.032 0 0.035"
+        size="0.003 0.035 0.003" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_vertical_nn" type="box" pos="-0.032 -0.032 0"
+        size="0.003 0.003 0.035" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_vertical_np" type="box" pos="-0.032 0.032 0"
+        size="0.003 0.003 0.035" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_vertical_pn" type="box" pos="0.032 -0.032 0"
+        size="0.003 0.003 0.035" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
+      <geom name="pilot_outline_vertical_pp" type="box" pos="0.032 0.032 0"
+        size="0.003 0.003 0.035" material="pilot_target_outline_material"
+        contype="0" conaffinity="0" group="1"/>
     </body>
 
     <body name="dexvision_hand_base_target" mocap="true" pos="-0.15 0 0.12"
@@ -165,6 +216,8 @@
 
   <equality>
     <weld name="dexvision_hand_base_weld" body1="dexvision_hand_base_target"
-      body2="rh_forearm" solref="0.02 1" solimp="0.9 0.95 0.001"/>
+      body2="rh_forearm"
+      relpose="-0.33701 0 0.045 0.7071067811865476 0 0.7071067811865476 0"
+      solref="0.02 1" solimp="0.9 0.95 0.001"/>
   </equality>
 </mujoco>

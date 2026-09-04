@@ -11,7 +11,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_to_level43_after_session_schema() -> None:
+def test_current_status_advances_after_level43c_visual_remediation() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
@@ -19,8 +19,9 @@ def test_current_status_advances_to_level43_after_session_schema() -> None:
         "Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.2" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.3" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.3D" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.3E" in status
+    assert "orientation preservation" in status
 
 
 def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
@@ -97,11 +98,31 @@ def test_level4_checkpoints_are_execution_ready() -> None:
     checkpoints = re.findall(r"^## Level 4\.(\d+) —", level4, flags=re.MULTILINE)
 
     assert checkpoints == [str(index) for index in range(10)]
-    assert level4.count("### Commands") == 10
-    assert level4.count("### Pass criteria") == 10
+    assert len(re.findall(r"^### Commands$", level4, flags=re.MULTILINE)) == 10
+    assert len(re.findall(r"^### Pass criteria$", level4, flags=re.MULTILINE)) == 10
     assert "Level 3 failure -> Level 4 requirement traceability table" in level4
     assert "Stop until the user confirms" in level4
     assert "Clean-clone retrieval and SHA-256 verification" in level4
+
+
+def test_level43_pivot_is_incremental_and_learning_gated() -> None:
+    level4 = read("docs/progress_level_4.md")
+    status = read("docs/CURRENT_STATUS.md")
+    contracts = read("docs/module_contracts.md")
+
+    subcheckpoints = re.findall(
+        r"^#### Level 4\.3([A-I]) —", level4, flags=re.MULTILINE
+    )
+    assert subcheckpoints == list("ABCDEFGHI")
+    assert "Level 4.3D — Deterministic Grasp-and-Lift Expert" in status
+    assert "expert.reset(task, world_state)" in level4
+    assert "applied_action - requested_action" in level4
+    assert "20 scripted button successes" in level4
+    assert "small MLP" in level4
+    assert "simulator state only" in level4
+    assert "Do not add OMPL, RRT" in level4
+    assert "Do not add an LLM, VLM" in level4
+    assert "requested_action is the nominal scripted action" in contracts
 
 
 def test_level5_checkpoints_freeze_training_and_qualification() -> None:

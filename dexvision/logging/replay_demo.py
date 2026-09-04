@@ -433,6 +433,9 @@ def _restore_task_replay_state(
     """Restore task objects that are not part of the recorded action vector."""
 
     metadata = loaded_demo.episode.metadata
+    if metadata.get("task_id") == "level4_workcell":
+        _restore_level4_workcell_replay_state(loaded_demo, env)
+        return
     if metadata.get("task_id") == BUTTON_PRESS_TASK_ID:
         configure_button_press_scene(env)  # type: ignore[arg-type]
         task_config = _mapping_value(
@@ -584,6 +587,183 @@ def _restore_push_cube_replay_state(
         orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0], dtype=np.float64),
     )
     _forward_env(env)
+
+
+def _restore_level4_workcell_replay_state(
+    loaded_demo: LoadedReplayDemo,
+    env: ReplayEnv,
+) -> None:
+    """Restore every randomized workcell object from immutable episode metadata."""
+
+    task_config = _mapping_value(
+        loaded_demo.episode.metadata,
+        "task_config",
+        message="level4_workcell metadata is missing task_config.",
+    )
+    initial_state = _mapping_value(
+        task_config,
+        "initial_state",
+        message="level4_workcell task_config is missing initial_state.",
+    )
+    objects = _mapping_value(
+        initial_state,
+        "objects",
+        message="level4_workcell initial_state is missing objects.",
+    )
+    if not objects:
+        raise DemoReplayError("level4_workcell initial_state.objects must not be empty.")
+    entity_positions = initial_state.get("entity_positions_m")
+    if isinstance(entity_positions, Mapping) and "start_button" in entity_positions:
+        _set_world_body_position(
+            env,
+            body_name="start_button",
+            position=_finite_vector(
+                entity_positions["start_button"],
+                size=3,
+                field_name="initial_state.entity_positions_m.start_button",
+            ),
+        )
+    for object_id, raw_state in objects.items():
+        if not isinstance(object_id, str) or not isinstance(raw_state, Mapping):
+            raise DemoReplayError(
+                "level4_workcell initial object states must map ids to mappings."
+            )
+        joint_name = raw_state.get("joint_name")
+        if not isinstance(joint_name, str) or not joint_name:
+            raise DemoReplayError(
+                f"level4_workcell object {object_id!r} is missing joint_name."
+            )
+        _set_free_joint_state(
+            env,
+            joint_name=joint_name,
+            position=_finite_vector(
+                raw_state.get("position_m"),
+                size=3,
+                field_name=f"initial_state.objects.{object_id}.position_m",
+            ),
+            orientation=_normalized_quaternion(
+                _finite_vector(
+                    raw_state.get("orientation_wxyz"),
+                    size=4,
+                    field_name=(
+                        f"initial_state.objects.{object_id}.orientation_wxyz"
+                    ),
+                )
+            ),
+            linear_velocity=_finite_vector(
+                raw_state.get("linear_velocity_mps"),
+                size=3,
+                field_name=(
+                    f"initial_state.objects.{object_id}.linear_velocity_mps"
+                ),
+            ),
+            angular_velocity=_finite_vector(
+                raw_state.get("angular_velocity_radps"),
+                size=3,
+                field_name=(
+                    f"initial_state.objects.{object_id}.angular_velocity_radps"
+                ),
+            ),
+        )
+    typed_goal = loaded_demo.episode.metadata.get("typed_goal")
+    skill_name = loaded_demo.episode.metadata.get("skill_name")
+    if skill_name in {
+        "reach_object",
+        "pick_object",
+        "press_button",
+        "push_object_to_target",
+    } and isinstance(
+        typed_goal, Mapping
+    ):
+        if skill_name == "reach_object":
+            entity_id = typed_goal.get("entity_id")
+        elif skill_name == "pick_object":
+            entity_id = typed_goal.get("object_id")
+        elif skill_name == "press_button":
+            entity_id = typed_goal.get("button_id")
+        else:
+            entity_id = typed_goal.get("object_id")
+        entity_positions = initial_state.get("entity_positions_m")
+        raw_entity_position = (
+            entity_positions.get(entity_id)
+            if isinstance(entity_id, str) and isinstance(entity_positions, Mapping)
+            else None
+        )
+        if raw_entity_position is None and isinstance(entity_id, str):
+            entity_state = objects.get(entity_id)
+            if isinstance(entity_state, Mapping):
+                raw_entity_position = entity_state.get("position_m")
+        if raw_entity_position is None:
+            raise DemoReplayError(
+                "scripted replay goal entity position is missing from initial state."
+            )
+        entity_position = _finite_vector(
+            raw_entity_position,
+            size=3,
+            field_name=f"initial_state.entity_positions_m.{entity_id}",
+        )
+        env.set_mocap_pose(
+            "pilot_target_outline",
+            position=entity_position,
+            orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0]),
+        )
+        goal_position = entity_position
+        if skill_name == "reach_object":
+            goal_position = _finite_vector(
+                typed_goal.get("approach_pose"),
+                size=7,
+                field_name="typed_goal.approach_pose",
+            )[:3]
+        elif skill_name == "pick_object":
+            goal_position = entity_position.copy()
+            goal_position[2] += 0.08
+        elif skill_name == "push_object_to_target":
+            target_id = typed_goal.get("target_zone")
+            raw_target_position = (
+                entity_positions.get(target_id)
+                if isinstance(target_id, str) and isinstance(entity_positions, Mapping)
+                else None
+            )
+            if raw_target_position is None:
+                raise DemoReplayError(
+                    "scripted push replay target position is missing from initial state."
+                )
+            goal_position = _finite_vector(
+                raw_target_position,
+                size=3,
+                field_name=f"initial_state.entity_positions_m.{target_id}",
+            )
+        env.set_mocap_pose(
+            "pilot_goal_marker",
+            position=goal_position,
+            orientation_quat=np.asarray([1.0, 0.0, 0.0, 0.0]),
+        )
+    _forward_env(env)
+
+
+def _set_world_body_position(
+    env: ReplayEnv, *, body_name: str, position: np.ndarray
+) -> None:
+    """Restore a direct world child whose pose changed between scene revisions."""
+
+    model = getattr(env, "model", None)
+    mujoco_module = getattr(env, "_mujoco", None)
+    if model is None or mujoco_module is None:
+        raise DemoReplayError(
+            "Level 4 fixture replay requires a MuJoCo model and module handle."
+        )
+    body_id = int(
+        mujoco_module.mj_name2id(
+            model, mujoco_module.mjtObj.mjOBJ_BODY, body_name
+        )
+    )
+    if body_id < 0:
+        raise DemoReplayError(f"Level 4 replay model is missing body {body_name!r}.")
+    if int(model.body_parentid[body_id]) != 0:
+        raise DemoReplayError(
+            f"Level 4 replay body {body_name!r} must be a direct world child."
+        )
+    model.body_pos[body_id] = position
 
 
 def _set_free_joint_state(

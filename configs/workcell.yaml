@@ -11,16 +11,20 @@ scene:
   table_surface_z_m: 0.0
   clearing_region: clearing_region
   fixed_camera: workcell_fixed_v1
+  pilot_goal_marker: pilot_goal_marker
+  pilot_target_outline: pilot_target_outline
   hand_base_target: dexvision_hand_base_target
+  hand_base_weld: dexvision_hand_base_weld
+  hand_base_free_joint: rh_base_freejoint
   hand_body: rh_palm
   hand_site: grasp_site
-  hand_neutral_position_m: [-0.15, 0.0, 0.12]
+  hand_neutral_position_m: [-0.16, 0.0, 0.20]
   hand_neutral_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
   object_clearance_m: 0.004
   setup_slot_visual_radius_m: 0.015
   viewer:
-    lookat_m: [0.0, 0.0, 0.16]
-    distance_m: 0.85
+    lookat_m: [0.0, 0.0, 0.10]
+    distance_m: 0.78
     azimuth_deg: 45.0
     elevation_deg: -28.0
     entity_labels_initially_visible: true

@@ -157,6 +157,7 @@ class Workcell:
         self._seed: int | None = None
         self._initial_state: WorldState | None = None
         self._validate_model_names()
+        self._configure_operator_visuals()
 
     def reset(self, *, seed: int) -> WorldState:
         """Deterministically reset all movable entities for ``seed``."""
@@ -199,6 +200,7 @@ class Workcell:
             position=self.config.scene["hand_neutral_position_m"],
             orientation_quat=self.config.scene["hand_neutral_orientation_wxyz"],
         )
+        self._align_hand_free_joint_to_weld()
         self.env._mujoco.mj_forward(self.env.model, self.env.data)
         self._seed = int(seed)
         state = self.get_world_state()
@@ -211,6 +213,82 @@ class Workcell:
         self._require_reset()
         self.env.step(n_steps=n_steps)
         return self.get_world_state()
+
+    def prepare_single_object_trial(
+        self,
+        *,
+        object_id: str,
+        parking_x_m: float,
+        parking_y_m: Sequence[float],
+        parking_surface_z_m: float,
+    ) -> WorldState:
+        """Move non-target objects to stable floor parking for one-object trials."""
+
+        self._require_reset()
+        if object_id not in self.config.object_ids:
+            raise WorkcellError(f"Unknown single-object trial target: {object_id!r}.")
+        parking_y = tuple(float(value) for value in parking_y_m)
+        if len(parking_y) != len(self.config.objects) - 1:
+            raise WorkcellError(
+                "single-object trial parking_y_m must provide one slot per "
+                "non-target object."
+            )
+        if not all(
+            math.isfinite(value)
+            for value in (float(parking_x_m), float(parking_surface_z_m), *parking_y)
+        ):
+            raise WorkcellError("single-object trial parking coordinates must be finite.")
+        initial = self.get_world_state()
+        slots = iter(parking_y)
+        for spec in self.config.objects:
+            if spec.object_id == object_id:
+                continue
+            entity = initial.require_entity(spec.object_id)
+            self._set_free_joint(
+                spec.joint,
+                np.asarray(
+                    [
+                        float(parking_x_m),
+                        next(slots),
+                        float(parking_surface_z_m) + spec.resting_height_m,
+                    ],
+                    dtype=np.float64,
+                ),
+                np.asarray(entity.orientation_wxyz, dtype=np.float64),
+            )
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+        state = self.get_world_state()
+        self._initial_state = state
+        return state
+
+    def set_pilot_goal_marker(self, position: Sequence[float]) -> None:
+        """Place the non-colliding operator cue at one resolved task target."""
+
+        self._require_reset()
+        marker_position = np.asarray(position, dtype=np.float64)
+        if marker_position.shape != (3,) or not np.all(np.isfinite(marker_position)):
+            raise WorkcellError("Pilot goal marker position must be a finite 3-vector.")
+        self.env.set_mocap_pose(
+            str(self.config.scene["pilot_goal_marker"]),
+            position=marker_position,
+            orientation_quat=(1.0, 0.0, 0.0, 0.0),
+        )
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+
+    def set_pilot_task_cue(
+        self, *, entity_id: str, goal_position: Sequence[float]
+    ) -> None:
+        """Outline the selected entity and place a separate task-goal cross."""
+
+        state = self.get_world_state()
+        entity = state.require_entity(entity_id)
+        outline_position = np.asarray(entity.position, dtype=np.float64)
+        self.env.set_mocap_pose(
+            str(self.config.scene["pilot_target_outline"]),
+            position=outline_position,
+            orientation_quat=(1.0, 0.0, 0.0, 0.0),
+        )
+        self.set_pilot_goal_marker(goal_position)
 
     def get_world_state(self) -> WorldState:
         """Extract all named entities through the shared observation schema."""
@@ -330,8 +408,53 @@ class Workcell:
         self._require_mujoco_name("body", str(self.config.scene["clearing_region"]))
         self._require_mujoco_name("body", str(self.config.scene["hand_body"]))
         self._require_mujoco_name("body", str(self.config.scene["hand_base_target"]))
+        self._require_mujoco_name("body", str(self.config.scene["pilot_goal_marker"]))
+        self._require_mujoco_name(
+            "body", str(self.config.scene["pilot_target_outline"])
+        )
+        self._require_mujoco_name("equality", str(self.config.scene["hand_base_weld"]))
+        self._require_mujoco_name(
+            "joint", str(self.config.scene["hand_base_free_joint"])
+        )
         self._require_mujoco_name("site", str(self.config.scene["hand_site"]))
         self._require_mujoco_name("camera", str(self.config.scene["fixed_camera"]))
+
+    def _align_hand_free_joint_to_weld(self) -> None:
+        """Start the dynamic hand at the mocap weld pose without a violent transient."""
+
+        target_position = np.asarray(
+            self.config.scene["hand_neutral_position_m"], dtype=np.float64
+        )
+        target_orientation = np.asarray(
+            self.config.scene["hand_neutral_orientation_wxyz"], dtype=np.float64
+        )
+        equality_id = self._require_mujoco_name(
+            "equality", str(self.config.scene["hand_base_weld"])
+        )
+        relative_pose = np.asarray(
+            self.env.model.eq_data[equality_id, 3:10], dtype=np.float64
+        )
+        rotated_offset = np.empty(3, dtype=np.float64)
+        self.env._mujoco.mju_rotVecQuat(
+            rotated_offset, relative_pose[:3], target_orientation
+        )
+        free_joint_orientation = np.empty(4, dtype=np.float64)
+        self.env._mujoco.mju_mulQuat(
+            free_joint_orientation, target_orientation, relative_pose[3:]
+        )
+        self._set_free_joint(
+            str(self.config.scene["hand_base_free_joint"]),
+            target_position + rotated_offset,
+            free_joint_orientation,
+        )
+
+    def _configure_operator_visuals(self) -> None:
+        """Hide the attached control site so only the task target is emphasized."""
+
+        hand_site_id = self._require_mujoco_name(
+            "site", str(self.config.scene["hand_site"])
+        )
+        self.env.model.site_rgba[hand_site_id, 3] = 0.0
 
     def _require_mujoco_name(self, kind: str, name: str) -> int:
         enum = {
@@ -340,6 +463,7 @@ class Workcell:
             "geom": self.env._mujoco.mjtObj.mjOBJ_GEOM,
             "site": self.env._mujoco.mjtObj.mjOBJ_SITE,
             "camera": self.env._mujoco.mjtObj.mjOBJ_CAMERA,
+            "equality": self.env._mujoco.mjtObj.mjOBJ_EQUALITY,
         }[kind]
         object_id = int(self.env._mujoco.mj_name2id(self.env.model, enum, name))
         if object_id < 0:
@@ -370,7 +494,11 @@ class Workcell:
 
     def _scalar_joint_position(self, joint_name: str) -> float:
         joint_id = self._require_mujoco_name("joint", joint_name)
-        return float(self.env.data.qpos[int(self.env.model.jnt_qposadr[joint_id])])
+        value = float(self.env.data.qpos[int(self.env.model.jnt_qposadr[joint_id])])
+        if bool(self.env.model.jnt_limited[joint_id]):
+            lower, upper = self.env.model.jnt_range[joint_id]
+            value = float(np.clip(value, lower, upper))
+        return value
 
     def _body_observation(
         self,
@@ -411,7 +539,9 @@ class Workcell:
         base_id = self._require_mujoco_name("body", base_name)
         hand_id = self._require_mujoco_name("body", str(self.config.scene["hand_body"]))
         site_id = self._require_mujoco_name("site", str(self.config.scene["hand_site"]))
-        neutral = np.asarray(self.config.scene["hand_neutral_position_m"], dtype=np.float64)
+        neutral = np.asarray(
+            self.config.scene["hand_neutral_position_m"], dtype=np.float64
+        )
         base_position = np.asarray(self.env.data.xpos[base_id], dtype=np.float64)
         return RobotObservation(
             base_position=tuple(float(value) for value in base_position),
@@ -493,9 +623,13 @@ class Workcell:
         for index, first in enumerate(self.config.objects):
             for second in self.config.objects[index + 1 :]:
                 distance = float(
-                    np.linalg.norm(positions[first.object_id] - positions[second.object_id])
+                    np.linalg.norm(
+                        positions[first.object_id] - positions[second.object_id]
+                    )
                 )
-                minimum = first.footprint_radius_m + second.footprint_radius_m + clearance
+                minimum = (
+                    first.footprint_radius_m + second.footprint_radius_m + clearance
+                )
                 if distance < minimum:
                     raise WorkcellError(
                         f"Deterministic reset overlaps '{first.object_id}' and "
@@ -523,7 +657,9 @@ class Workcell:
 
     def _require_reset(self) -> None:
         if self._seed is None:
-            raise WorkcellError("Call Workcell.reset(seed=...) before reading or stepping.")
+            raise WorkcellError(
+                "Call Workcell.reset(seed=...) before reading or stepping."
+            )
 
     def _initial_state_or_raise(self) -> WorldState:
         if self._initial_state is None:
@@ -578,7 +714,9 @@ def load_workcell_config(config_path: str | Path) -> WorkcellConfig:
         raise WorkcellError("Runtime and frozen workcell length units disagree.")
     skills = _mapping(requirements, "skills")
     if set(skills) != set(REQUIRED_SKILLS):
-        raise WorkcellError("Frozen config does not contain exactly the five required skills.")
+        raise WorkcellError(
+            "Frozen config does not contain exactly the five required skills."
+        )
     optional = _mapping(_mapping(requirements, "optional_skills"), "rotate_dial")
     runtime_optional = _mapping(_mapping(raw, "optional_fixtures"), "mode_dial")
     if bool(optional.get("enabled")) or bool(runtime_optional.get("enabled")):
@@ -614,7 +752,9 @@ def load_workcell_config(config_path: str | Path) -> WorkcellConfig:
         spec.resting_height_m <= 0.0 or spec.footprint_radius_m <= 0.0
         for spec in object_specs
     ):
-        raise WorkcellError("Object resting heights and footprint radii must be positive.")
+        raise WorkcellError(
+            "Object resting heights and footprint radii must be positive."
+        )
 
     return WorkcellConfig(
         version=str(raw.get("version")),
@@ -702,7 +842,9 @@ def _compute_task_metrics(
         entity_id = str(goal["entity_id"])
         state.require_entity(entity_id)
         pose = np.asarray(goal["approach_pose"], dtype=np.float64)
-        distance = float(np.linalg.norm(np.asarray(state.robot.base_position) - pose[:3]))
+        distance = float(
+            np.linalg.norm(np.asarray(state.robot.base_position) - pose[:3])
+        )
         orientation_error = _quaternion_angle(
             state.robot.base_orientation_wxyz, pose[3:]
         )
@@ -723,8 +865,7 @@ def _compute_task_metrics(
             distance <= float(conditions["approach_distance_m"]["value"])
             and orientation_error
             <= float(conditions["approach_orientation_error_rad"]["value"])
-            and disturbance
-            <= float(conditions["maximum_scene_disturbance_m"]["value"])
+            and disturbance <= float(conditions["maximum_scene_disturbance_m"]["value"])
         )
         return values, qualifies
 
@@ -754,9 +895,7 @@ def _compute_task_metrics(
         distance = math.dist(observation.position, target.position)
         speed = _speed(observation.linear_velocity)
         tolerance = float(
-            config.requirements["workcell"]["targets"][target_id][
-                "tolerance_radius_m"
-            ]
+            config.requirements["workcell"]["targets"][target_id]["tolerance_radius_m"]
         )
         held_object_id = object_id if relation.held_by == "rh_palm" else None
         inside = distance <= tolerance
@@ -779,9 +918,12 @@ def _compute_task_metrics(
         object_id = str(goal["object_id"])
         target_id = str(goal["target_zone"])
         observation = state.require_entity(object_id)
+        relation = state.relation_for(object_id)
         target = state.require_entity(target_id)
         distance = math.dist(observation.position[:2], target.position[:2])
         speed = _speed(observation.linear_velocity)
+        supported = relation.supported_by == str(config.scene["table_body"])
+        upright_tilt = _upright_tilt_rad(observation.orientation_wxyz)
         board = config.requirements["workcell"]["board_workspace"]
         margin = float(board["safe_edge_margin_m"])
         minimum = np.asarray(board["min_xy_m"], dtype=np.float64) + margin
@@ -792,12 +934,16 @@ def _compute_task_metrics(
             "planar_object_to_target_distance_m": distance,
             "object_linear_speed_mps": speed,
             "object_on_board": on_board,
+            "object_supported": supported,
+            "object_upright_tilt_rad": upright_tilt,
             "terminal_reason": None,
         }
         qualifies = (
-            distance
-            <= float(conditions["planar_object_to_target_distance_m"]["value"])
+            distance <= float(conditions["planar_object_to_target_distance_m"]["value"])
             and on_board
+            and supported
+            and upright_tilt
+            <= float(conditions["object_upright_tilt_rad"]["value"])
             and speed <= float(conditions["object_linear_speed_mps"]["value"])
         )
         return values, qualifies
@@ -808,7 +954,9 @@ def _compute_task_metrics(
         target_depth = float(goal["target_press_depth_m"])
         target_pressed = bool(goal["target_pressed_state"])
         other_depths = [
-            item.press_depth_m for item in state.fixtures if item.fixture_id != button_id
+            item.press_depth_m
+            for item in state.fixtures
+            if item.fixture_id != button_id
         ]
         other_max = max(other_depths, default=0.0)
         values = {
@@ -870,9 +1018,9 @@ def _validate_goal(
                         f"Task '{skill_name}' goal '{name}' must be scalar."
                     )
                 numeric_range = field.get("range")
-                if numeric_range and not float(numeric_range[0]) <= float(array) <= float(
-                    numeric_range[1]
-                ):
+                if numeric_range and not float(numeric_range[0]) <= float(
+                    array
+                ) <= float(numeric_range[1]):
                     raise WorkcellError(
                         f"Task '{skill_name}' goal '{name}' is outside frozen range "
                         f"{numeric_range}."
@@ -937,6 +1085,18 @@ def _quaternion_angle(first: Sequence[float], second: Sequence[float]) -> float:
         raise WorkcellError("Approach orientation must be a non-zero wxyz quaternion.")
     dot = float(np.dot(first_array, second_array / second_norm))
     return 2.0 * math.acos(float(np.clip(abs(dot), 0.0, 1.0)))
+
+
+def _upright_tilt_rad(quaternion_wxyz: Sequence[float]) -> float:
+    """Return the angle between an object's local up axis and world up."""
+
+    quaternion = np.asarray(quaternion_wxyz, dtype=np.float64)
+    norm = float(np.linalg.norm(quaternion))
+    if quaternion.shape != (4,) or not math.isfinite(norm) or norm <= 0.0:
+        raise WorldStateError("Object orientation must be a finite quaternion.")
+    _, x, y, _ = quaternion / norm
+    world_up_dot = 1.0 - 2.0 * (x * x + y * y)
+    return math.acos(float(np.clip(world_up_dot, -1.0, 1.0)))
 
 
 def _speed(velocity: Sequence[float] | None) -> float:

@@ -97,6 +97,56 @@ def test_scene_loads_every_required_entity_in_one_model() -> None:
     assert model.site_rgba[helper_site_id, 3] == pytest.approx(0.0)
 
 
+def test_hand_neutral_places_palm_at_control_point_and_forearm_outside_board() -> None:
+    pytest.importorskip("mujoco")
+
+    with Workcell(CONFIG_PATH) as workcell:
+        state = workcell.reset(seed=0)
+        workcell.step(n_steps=100)
+        forearm_id = workcell.env._mujoco.mj_name2id(
+            workcell.env.model,
+            workcell.env._mujoco.mjtObj.mjOBJ_BODY,
+            "rh_forearm",
+        )
+        grasp_id = workcell.env._mujoco.mj_name2id(
+            workcell.env.model,
+            workcell.env._mujoco.mjtObj.mjOBJ_SITE,
+            "grasp_site",
+        )
+        forearm_position = workcell.env.data.xpos[forearm_id].copy()
+        grasp_position = workcell.env.data.site_xpos[grasp_id].copy()
+        grasp_alpha = float(workcell.env.model.site_rgba[grasp_id, 3])
+        marker_id = workcell.env._mujoco.mj_name2id(
+            workcell.env.model,
+            workcell.env._mujoco.mjtObj.mjOBJ_BODY,
+            workcell.config.scene["pilot_goal_marker"],
+        )
+        marker_geom_count = int(
+            np.count_nonzero(workcell.env.model.geom_bodyid == marker_id)
+        )
+        outline_id = workcell.env._mujoco.mj_name2id(
+            workcell.env.model,
+            workcell.env._mujoco.mjtObj.mjOBJ_BODY,
+            workcell.config.scene["pilot_target_outline"],
+        )
+        outline_geom_ids = np.flatnonzero(
+            workcell.env.model.geom_bodyid == outline_id
+        )
+
+    neutral = np.asarray(workcell.config.scene["hand_neutral_position_m"])
+    board_min_x = float(
+        workcell.config.requirements["workcell"]["board_workspace"]["min_xy_m"][0]
+    )
+    assert state.robot.base_position == pytest.approx(neutral)
+    assert forearm_position[0] < board_min_x
+    assert np.linalg.norm(grasp_position - neutral) < 0.025
+    assert grasp_alpha == pytest.approx(0.0)
+    assert marker_geom_count == 3
+    assert outline_geom_ids.size == 12
+    assert np.all(workcell.env.model.geom_contype[outline_geom_ids] == 0)
+    assert np.all(workcell.env.model.geom_conaffinity[outline_geom_ids] == 0)
+
+
 def test_reset_is_deterministic_bounded_and_collision_free() -> None:
     pytest.importorskip("mujoco")
 
@@ -138,15 +188,16 @@ def test_reset_is_deterministic_bounded_and_collision_free() -> None:
                 target_position = np.asarray(
                     second.require_entity(target_id).position[:2]
                 )
-                minimum = (
-                    spec.footprint_radius_m
-                    + float(workcell.config.scene["setup_slot_visual_radius_m"])
+                minimum = spec.footprint_radius_m + float(
+                    workcell.config.scene["setup_slot_visual_radius_m"]
                 )
                 assert np.linalg.norm(position[:2] - target_position) >= minimum
 
         for index, first_spec in enumerate(workcell.config.objects):
             for second_spec in workcell.config.objects[index + 1 :]:
-                first_xy = np.asarray(second.require_entity(first_spec.object_id).position[:2])
+                first_xy = np.asarray(
+                    second.require_entity(first_spec.object_id).position[:2]
+                )
                 second_xy = np.asarray(
                     second.require_entity(second_spec.object_id).position[:2]
                 )
@@ -220,8 +271,7 @@ def test_manual_inspector_defaults_to_open_ended_viewer() -> None:
         CONFIG_PATH, seed=0, steps=0, viewer_sleep=inspect_workcell.DEFAULT_VIEWER_SLEEP
     )
     assert command == (
-        "mjpython -m dexvision.apps.inspect_workcell "
-        f"--config {CONFIG_PATH} --seed 0"
+        f"mjpython -m dexvision.apps.inspect_workcell --config {CONFIG_PATH} --seed 0"
     )
     with pytest.raises(ValueError, match="positive in headless mode"):
         inspect_workcell.run_inspection(

@@ -737,6 +737,129 @@ Per-frame action-relevance masks must exactly match the versioned mask for the s
 
 ---
 
+## Level 4 Collection Pilot and Coverage
+
+Modules:
+
+```text
+dexvision/logging/level4_collection.py
+dexvision/evaluation/dataset_coverage.py
+dexvision/apps/record_demo.py
+```
+
+Contract:
+
+```python
+episodes = discover_pilot_episodes(dataset_dir)
+report = summarize_level4_coverage(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4_pilot",
+)
+save_coverage_report(report, output_path)
+```
+
+Rules:
+
+```text
+Pilot acceptance evidence is an append-only sidecar and never rewrites episode metadata or arrays.
+Later user-confirmed visible replays append to a separate dataset-level manual replay manifest.
+The level4_workcell recorder resolves a frozen coverage cell into one reach, complete pick/place, push, or press task and records all six object states plus task metrics.
+Its logical base control point is the palm/grasp site; the weld offset keeps the long forearm outside the task board, and reset aligns the dynamic free joint to that weld before simulation advances.
+Standalone reach uses an upright webcam-facing human palm as a calibrated, centered velocity joystick and keeps robot base orientation fixed. Returning the hand to its calibrated center stops motion; displacement outside a deadband commands nonlinear bounded Cartesian velocity so small offsets retain precision while sustained offsets provide arbitrary travel.
+The reach marker is a pre-grasp cue high enough to keep the Shadow Hand clear of staged objects; dense reach task state preserves distance, orientation error, and scene disturbance separately from dwell.
+The selected reach entity is enclosed by a bright emissive magenta non-colliding wireframe cage, while a separate floating three-axis cyan cross marks the desired palm position. The hand-attached grasp site is hidden.
+The reach rate controller enforces a safe transit height until the palm is horizontally aligned with the target, permits descent only inside the configured target corridor, clamps descent at the goal height, and holds its last command on tracking loss. Its tunable deadbands, response exponent, velocities, transit height, and corridor radius come from the Level 4 dataset config and are saved in retained episode metadata.
+`--workcell-dry-run` exercises a resolved workcell cell through temporary logger storage without adding a session-manifest entry or retaining an episode.
+Live workcell recording advances enough MuJoCo steps per camera sample to cover the nominal control interval; at 30 Hz with a 2 ms model timestep this is 17 steps, not one.
+Each recorder invocation creates one genuine process/calibration session manifest entry and one collision-free append-only episode path.
+An expert-accepted episode passes every frozen acceptance gate, has matching operator and recomputed success labels, and carries no rejection reason.
+Ordinary failures and rejected attempts remain visible and never count as expert successes.
+Session split ownership must agree with both the session manifest and coverage cell.
+Complete pick/place episodes count once as episodes and yield separate reach, pick, and place segment counts.
+Coverage reports include pilot rates, phase agreement, replay/recomputation evidence, object families, target types, rejection reasons, collection time, and storage projection.
+Headless replay evidence does not satisfy the manual replay gate.
+Coverage counts remain provisional until the pilot passes and the user confirms one visible replay of every required skill.
+```
+
+Level 4.3 scripted-expert contract:
+
+```python
+class ExpertController:
+    def reset(self, task: object, world_state: WorldState) -> None: ...
+
+    def step(
+        self, world_state: WorldState
+    ) -> tuple[RequestedAction, str, bool, str | None]: ...
+```
+
+Rules:
+
+```text
+Expert controllers use privileged simulator WorldState and causal current/prior state only.
+The common expert boundary is deterministic for a frozen task, reset state, config, and seed.
+Experts produce the existing complete named requested-action layout before the recorder sees the sample; there is no parallel expert episode format.
+For source=scripted, requested_action is the nominal scripted action. A bounded learning residual is derived read-only as applied_action - requested_action.
+Commanded/applied actions, prior actions, per-field safety masks/reasons, phases, timestamps, and provenance retain the Level 4.2 contract.
+The logical motion point is the palm/grasp site. Candidate waypoint segments are checked in a copied MuJoCo state before execution.
+The first planner is only rise, horizontal transit, protected pre-contact approach, and corridor descent. A general planner is evidence-triggered, not part of the initial contract.
+Button press fixes posture/orientation and moves along the fixture normal; push fixes posture/orientation/fingers and moves along a task-local forward axis during contact.
+Grasp templates are object-family-specific and expose one scalar open-to-closed synergy. Place begins only from a verified held object.
+Causal phases may be policy inputs but audited future knowledge may not be used online.
+The initial learned adapter consumes simulator state and emits a bounded task-local Cartesian delta or residual. Deterministic code expands it to the full requested-action layout before logging.
+The first learned model is a small MLP. RGB, VLMs, LLMs, larger models, and action chunking are outside the initial Level 4.3 learning probes.
+```
+
+Levels 4.3A--D implement this boundary in
+`dexvision/sim/level4_expert.py`. `SafeWaypointReachExpert` emits the existing
+27-field named action and validates rise/horizontal/corridor/descent candidates
+in copied MuJoCo state. `DeterministicButtonPressExpert` retains one fixed
+neutral finger posture and base orientation, reaches a task-relative
+pre-contact pose, moves only along the button's positive joint normal during
+contact, satisfies the existing depth/dwell metric, and retracts through the
+same corridor until contact is released. Its copied-state qualification rejects
+workspace or robot-joint-limit violations, non-target object disturbance,
+table contact, and any hand contact other than hand self-contact or contact with
+the requested button. `DeterministicPushExpert` constructs a task-local planar
+axis from the saved object start and target, uses a family-specific partial
+index curl with the other fingers flexed, rotates only at the safe transit
+plane, and then freezes height, orientation, and finger targets throughout
+contact. Standalone push trials park non-target objects on the lower floor.
+Contact translation is positive along that axis until the distance, speed,
+table-support, upright-tilt, and dwell metric passes, followed by an axial
+retract. The final metric must remain qualified for five released samples;
+transient success is not latched. Its copied-state validator rejects board or
+workspace exits, tilt above 10 degrees, non-target contacts, limit violations,
+and planar neighbor disturbance. `record_demo --source scripted` routes `reach_object`,
+`press_button`, `push_object_to_target`, and standalone `pick_object` through
+these experts and the existing Level 4 logger. `DeterministicGraspLiftExpert`
+uses configuration-owned cuboid, cylinder, and flat-puck object-relative
+templates, deterministic retargeter open/full-flexion endpoints, and one scalar
+closure synergy per family. Standalone grasp qualification retains the selected
+object's seeded pose and parks non-target objects on the lower floor so the
+known clutter limitation does not masquerade as a grasp failure. Its copied
+trajectory and live controller require initial table support, two or more hand
+contacts for the held relation, at least 0.040 m lift, loss of table support,
+retention, and ten stable samples at no more than 0.020 m/s. Table contact is
+allowed during acquisition and early lift only; after the lift threshold,
+wrong-object, fixture, or table contact fails qualification. Complete
+pick/place and placement remain explicitly deferred.
+
+The button body pose is stored in every Level 4 initial-state entity map and is
+restored before replay, so episodes remain deterministic across the reachable
+fixture placement introduced for 4.3B. A scripted button episode is labeled a
+success if the causal metric succeeds at any press sample, while recording
+continues through the required retract/release phase. Its final released state
+therefore need not itself satisfy the transient press metric.
+
+All scripted episodes must both attain their metric and finish the expert's
+declared terminal phase before they can be labeled successful; reaching a frame
+limit after a transient success is a failed/incomplete recording. Reach ends at
+its qualified goal, button finishes after a latched press and complete release,
+push finishes only while its final released state remains qualified, and
+standalone grasp ends only after the stable held-object dwell.
+
+---
+
 ## Success Relabeling
 
 Module:
