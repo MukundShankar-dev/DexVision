@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import shutil
+import tempfile
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -16,8 +17,10 @@ from dexvision.logging.dataset_schema import (
     DemoEpisode,
     ObservationFieldLayout,
     ObservationSchema,
+    is_level4_episode,
     validate_demo,
 )
+from dexvision.logging.phase_labels import phases_to_intervals
 
 
 DEFAULT_ACTION_SCHEMA_VERSION = "level1.13/full-action-v1"
@@ -47,6 +50,24 @@ class DemoStepData:
     landmarks: np.ndarray | None = None
     object_state: np.ndarray | None = None
     task_state: np.ndarray | None = None
+    requested_action: np.ndarray | None = None
+    commanded_action: np.ndarray | None = None
+    applied_action: np.ndarray | None = None
+    prior_commanded_action: np.ndarray | None = None
+    prior_applied_action: np.ndarray | None = None
+    safety_mask: np.ndarray | None = None
+    safety_reason: Sequence[str] | None = None
+    request_source: str | None = None
+    online_phase: str | None = None
+    audited_phase: str | None = None
+    phase_relevance_mask: np.ndarray | None = None
+    intervention: bool | None = None
+    failure_reason: str | None = None
+    action_timestamp: float | None = None
+    task_timestamp: float | None = None
+    state_timestamp: float | None = None
+    rgb_frame: np.ndarray | None = None
+    rgb_timestamp: float | None = None
 
 
 class DemoLogger:
@@ -96,6 +117,8 @@ class DemoLogger:
             raise DemoLoggerError("start_episode() must be called before append().")
         if self._closed:
             raise DemoLoggerError("cannot append after close().")
+        if is_level4_episode(self._metadata):
+            step_data = self._complete_level4_step(step_data)
 
         self._steps.append(
             DemoStepData(
@@ -123,7 +146,175 @@ class DemoLogger:
                     name="task_state",
                     ndim=1,
                 ),
+                requested_action=_copy_optional_step_array(
+                    step_data.requested_action,
+                    name="requested_action",
+                    ndim=1,
+                ),
+                commanded_action=_copy_optional_step_array(
+                    step_data.commanded_action,
+                    name="commanded_action",
+                    ndim=1,
+                ),
+                applied_action=_copy_optional_step_array(
+                    step_data.applied_action,
+                    name="applied_action",
+                    ndim=1,
+                ),
+                prior_commanded_action=_copy_optional_step_array(
+                    step_data.prior_commanded_action,
+                    name="prior_commanded_action",
+                    ndim=1,
+                ),
+                prior_applied_action=_copy_optional_step_array(
+                    step_data.prior_applied_action,
+                    name="prior_applied_action",
+                    ndim=1,
+                ),
+                safety_mask=_copy_optional_step_array(
+                    step_data.safety_mask,
+                    name="safety_mask",
+                    ndim=1,
+                ),
+                safety_reason=_copy_optional_strings(
+                    step_data.safety_reason,
+                    name="safety_reason",
+                ),
+                request_source=_copy_optional_string(
+                    step_data.request_source,
+                    name="request_source",
+                ),
+                online_phase=_copy_optional_string(
+                    step_data.online_phase,
+                    name="online_phase",
+                ),
+                audited_phase=_copy_optional_string(
+                    step_data.audited_phase,
+                    name="audited_phase",
+                    allow_empty=True,
+                ),
+                phase_relevance_mask=_copy_optional_step_array(
+                    step_data.phase_relevance_mask,
+                    name="phase_relevance_mask",
+                    ndim=1,
+                ),
+                intervention=(
+                    bool(step_data.intervention)
+                    if step_data.intervention is not None
+                    else None
+                ),
+                failure_reason=_copy_optional_string(
+                    step_data.failure_reason,
+                    name="failure_reason",
+                    allow_empty=True,
+                ),
+                action_timestamp=_copy_optional_timestamp(step_data.action_timestamp),
+                task_timestamp=_copy_optional_timestamp(step_data.task_timestamp),
+                state_timestamp=_copy_optional_timestamp(step_data.state_timestamp),
+                rgb_frame=_copy_optional_rgb_frame(step_data.rgb_frame),
+                rgb_timestamp=_copy_optional_timestamp(step_data.rgb_timestamp),
             )
+        )
+
+    def _complete_level4_step(self, step_data: DemoStepData) -> DemoStepData:
+        """Fill lossless Level 4 fields when adapting an existing recorder loop."""
+
+        action = _copy_step_array(step_data.action, name="action", ndim=1)
+        requested = step_data.requested_action if step_data.requested_action is not None else action
+        commanded = step_data.commanded_action if step_data.commanded_action is not None else action
+        applied = step_data.applied_action if step_data.applied_action is not None else action
+        if self._steps:
+            previous = self._steps[-1]
+            prior_commanded = (
+                step_data.prior_commanded_action
+                if step_data.prior_commanded_action is not None
+                else previous.commanded_action
+            )
+            prior_applied = (
+                step_data.prior_applied_action
+                if step_data.prior_applied_action is not None
+                else previous.applied_action
+            )
+        else:
+            prior_commanded = (
+                step_data.prior_commanded_action
+                if step_data.prior_commanded_action is not None
+                else commanded
+            )
+            prior_applied = (
+                step_data.prior_applied_action
+                if step_data.prior_applied_action is not None
+                else applied
+            )
+            assert self._metadata is not None
+            self._metadata.setdefault(
+                "initial_commanded_action", np.asarray(prior_commanded).tolist()
+            )
+            self._metadata.setdefault(
+                "initial_applied_action", np.asarray(prior_applied).tolist()
+            )
+        assert self._metadata is not None
+        phase = step_data.online_phase or self._metadata.get("initial_online_phase")
+        if not isinstance(phase, str) or not phase:
+            raise DemoLoggerError(
+                "Level 4 steps require online_phase or metadata initial_online_phase."
+            )
+        phase_contract = self._metadata.get("phase_contract")
+        if not isinstance(phase_contract, Mapping):
+            raise DemoLoggerError("Level 4 metadata phase_contract must be a mapping.")
+        masks = phase_contract.get("action_relevance_masks")
+        if not isinstance(masks, Mapping) or phase not in masks:
+            raise DemoLoggerError(f"Level 4 phase '{phase}' has no action relevance mask.")
+        relevance = (
+            step_data.phase_relevance_mask
+            if step_data.phase_relevance_mask is not None
+            else np.asarray(masks[phase], dtype=np.uint8)
+        )
+        request_source = step_data.request_source
+        if request_source is None:
+            request_source = {
+                "teleoperation": "operator",
+                "scripted": "script",
+                "policy_rollout": "policy",
+                "corrective_intervention": "operator",
+            }.get(str(self._metadata.get("source")))
+        return replace(
+            step_data,
+            requested_action=requested,
+            commanded_action=commanded,
+            applied_action=applied,
+            prior_commanded_action=prior_commanded,
+            prior_applied_action=prior_applied,
+            safety_mask=(
+                step_data.safety_mask
+                if step_data.safety_mask is not None
+                else np.zeros(action.shape, dtype=np.uint8)
+            ),
+            safety_reason=(
+                step_data.safety_reason
+                if step_data.safety_reason is not None
+                else ("none",) * action.size
+            ),
+            request_source=request_source,
+            online_phase=phase,
+            phase_relevance_mask=relevance,
+            intervention=(step_data.intervention if step_data.intervention is not None else False),
+            failure_reason=(step_data.failure_reason if step_data.failure_reason is not None else ""),
+            action_timestamp=(
+                step_data.action_timestamp
+                if step_data.action_timestamp is not None
+                else step_data.timestamp
+            ),
+            task_timestamp=(
+                step_data.task_timestamp
+                if step_data.task_timestamp is not None
+                else step_data.timestamp
+            ),
+            state_timestamp=(
+                step_data.state_timestamp
+                if step_data.state_timestamp is not None
+                else step_data.timestamp
+            ),
         )
 
     def close(self, *, success: bool | None = None) -> DemoEpisode:
@@ -159,8 +350,17 @@ class DemoLogger:
         tracking_quality = np.stack([step.tracking_quality for step in self._steps], axis=0)
         timestamps = np.asarray([step.timestamp for step in self._steps], dtype=np.float64)
 
+        metadata = dict(self._metadata or {})
+        online_phases = _stack_optional_strings(
+            [step.online_phase for step in self._steps],
+            name="online_phases",
+        )
+        if online_phases is not None:
+            metadata["phase_intervals"] = [
+                interval.to_dict() for interval in phases_to_intervals(online_phases.tolist())
+            ]
         return DemoEpisode(
-            metadata=dict(self._metadata or {}),
+            metadata=metadata,
             landmarks=_stack_optional_steps(
                 [step.landmarks for step in self._steps],
                 name="landmarks",
@@ -179,9 +379,102 @@ class DemoLogger:
             tracking_quality=tracking_quality,
             timestamps=timestamps,
             success=success,
+            requested_actions=_stack_optional_steps(
+                [step.requested_action for step in self._steps],
+                name="requested_actions",
+            ),
+            commanded_actions=_stack_optional_steps(
+                [step.commanded_action for step in self._steps],
+                name="commanded_actions",
+            ),
+            applied_actions=_stack_optional_steps(
+                [step.applied_action for step in self._steps],
+                name="applied_actions",
+            ),
+            prior_commanded_actions=_stack_optional_steps(
+                [step.prior_commanded_action for step in self._steps],
+                name="prior_commanded_actions",
+            ),
+            prior_applied_actions=_stack_optional_steps(
+                [step.prior_applied_action for step in self._steps],
+                name="prior_applied_actions",
+            ),
+            safety_masks=_stack_optional_steps(
+                [step.safety_mask for step in self._steps],
+                name="safety_masks",
+            ),
+            safety_reasons=_stack_optional_string_rows(
+                [step.safety_reason for step in self._steps],
+                name="safety_reasons",
+            ),
+            request_sources=_stack_optional_strings(
+                [step.request_source for step in self._steps],
+                name="request_sources",
+            ),
+            online_phases=online_phases,
+            audited_phases=_stack_optional_strings(
+                [step.audited_phase for step in self._steps],
+                name="audited_phases",
+            ),
+            phase_relevance_masks=_stack_optional_steps(
+                [step.phase_relevance_mask for step in self._steps],
+                name="phase_relevance_masks",
+            ),
+            intervention_flags=_stack_optional_scalars(
+                [step.intervention for step in self._steps],
+                name="intervention_flags",
+                dtype=np.uint8,
+            ),
+            failure_reasons=_stack_optional_strings(
+                [step.failure_reason for step in self._steps],
+                name="failure_reasons",
+            ),
+            action_timestamps=_stack_optional_scalars(
+                [step.action_timestamp for step in self._steps],
+                name="action_timestamps",
+                dtype=np.float64,
+            ),
+            task_timestamps=_stack_optional_scalars(
+                [step.task_timestamp for step in self._steps],
+                name="task_timestamps",
+                dtype=np.float64,
+            ),
+            state_timestamps=_stack_optional_scalars(
+                [step.state_timestamp for step in self._steps],
+                name="state_timestamps",
+                dtype=np.float64,
+            ),
+            rgb_frames=_stack_optional_steps(
+                [step.rgb_frame for step in self._steps],
+                name="rgb_frames",
+            ),
+            rgb_timestamps=_stack_optional_scalars(
+                [step.rgb_timestamp for step in self._steps],
+                name="rgb_timestamps",
+                dtype=np.float64,
+            ),
         )
 
     def _write_episode(self, episode: DemoEpisode) -> None:
+        if is_level4_episode(episode.metadata):
+            if self.output_dir.exists():
+                raise DemoLoggerError(
+                    f"append-only Level 4 episode already exists: {self.output_dir}"
+                )
+            self.output_dir.parent.mkdir(parents=True, exist_ok=True)
+            temporary_dir = Path(
+                tempfile.mkdtemp(
+                    prefix=f".{self.output_dir.name}.writing-",
+                    dir=self.output_dir.parent,
+                )
+            )
+            try:
+                _write_episode_files(temporary_dir, episode)
+                temporary_dir.replace(self.output_dir)
+            except Exception:
+                shutil.rmtree(temporary_dir, ignore_errors=True)
+                raise
+            return
         if self.output_dir.exists():
             if not self.output_dir.is_dir():
                 raise DemoLoggerError(f"output path exists but is not a directory: {self.output_dir}")
@@ -194,24 +487,7 @@ class DemoLogger:
                 shutil.rmtree(self.output_dir)
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        metadata = dict(episode.metadata)
-        metadata["success"] = episode.success
-        metadata["num_steps"] = int(episode.timestamps.shape[0])
-        (self.output_dir / "metadata.json").write_text(
-            json.dumps(_to_jsonable(metadata), indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
-        np.save(self.output_dir / "features.npy", episode.features)
-        np.save(self.output_dir / "actions.npy", episode.actions)
-        np.save(self.output_dir / "robot_states.npy", episode.robot_states)
-        np.save(self.output_dir / "tracking_quality.npy", episode.tracking_quality)
-        np.save(self.output_dir / "timestamps.npy", episode.timestamps)
-        if episode.landmarks is not None:
-            np.save(self.output_dir / "landmarks.npy", episode.landmarks)
-        if episode.object_states is not None:
-            np.save(self.output_dir / "object_states.npy", episode.object_states)
-        if episode.task_states is not None:
-            np.save(self.output_dir / "task_states.npy", episode.task_states)
+        _write_episode_files(self.output_dir, episode)
 
 
 def build_level1_action_schema(finger_target_names: Sequence[str]) -> ActionSchema:
@@ -491,6 +767,24 @@ def load_logged_demo(output_dir: str | Path) -> DemoEpisode:
         tracking_quality=_load_required_npy(path / "tracking_quality.npy"),
         timestamps=_load_required_npy(path / "timestamps.npy"),
         success=metadata.get("success"),
+        requested_actions=_load_optional_npy(path / "requested_actions.npy"),
+        commanded_actions=_load_optional_npy(path / "commanded_actions.npy"),
+        applied_actions=_load_optional_npy(path / "applied_actions.npy"),
+        prior_commanded_actions=_load_optional_npy(path / "prior_commanded_actions.npy"),
+        prior_applied_actions=_load_optional_npy(path / "prior_applied_actions.npy"),
+        safety_masks=_load_optional_npy(path / "safety_masks.npy"),
+        safety_reasons=_load_optional_npy(path / "safety_reasons.npy"),
+        request_sources=_load_optional_npy(path / "request_sources.npy"),
+        online_phases=_load_optional_npy(path / "online_phases.npy"),
+        audited_phases=_load_optional_npy(path / "audited_phases.npy"),
+        phase_relevance_masks=_load_optional_npy(path / "phase_relevance_masks.npy"),
+        intervention_flags=_load_optional_npy(path / "intervention_flags.npy"),
+        failure_reasons=_load_optional_npy(path / "failure_reasons.npy"),
+        action_timestamps=_load_optional_npy(path / "action_timestamps.npy"),
+        task_timestamps=_load_optional_npy(path / "task_timestamps.npy"),
+        state_timestamps=_load_optional_npy(path / "state_timestamps.npy"),
+        rgb_frames=_load_optional_npy(path / "rgb_frames.npy"),
+        rgb_timestamps=_load_optional_npy(path / "rgb_timestamps.npy"),
     )
 
 
@@ -514,6 +808,74 @@ def observation_schema_to_metadata(observation_schema: ObservationSchema) -> dic
         name: tuple(shape) for name, shape in observation_schema.shapes.items()
     }
     return payload
+
+
+def action_schema_from_metadata(metadata: Mapping[str, Any]) -> ActionSchema:
+    """Reconstruct a saved action schema without importing runtime control code."""
+
+    payload = metadata.get("action_schema")
+    if not isinstance(payload, Mapping):
+        raise DemoLoggerError("metadata action_schema must be a mapping.")
+    try:
+        return ActionSchema(
+            version=str(payload["version"]),
+            base_position_target=_metadata_range(payload["base_position_target"]),
+            base_orientation_target=_metadata_range(payload["base_orientation_target"]),
+            finger_actuator_targets=_metadata_range(payload["finger_actuator_targets"]),
+            representation_notes=dict(payload.get("representation_notes", {})),
+        )
+    except KeyError as exc:
+        raise DemoLoggerError(f"action_schema is missing field: {exc.args[0]}") from exc
+
+
+def observation_schema_from_metadata(metadata: Mapping[str, Any]) -> ObservationSchema:
+    """Reconstruct a saved executable observation schema."""
+
+    payload = metadata.get("observation_schema")
+    if not isinstance(payload, Mapping):
+        raise DemoLoggerError("metadata observation_schema must be a mapping.")
+    raw_layouts = payload.get("layouts", {})
+    if not isinstance(raw_layouts, Mapping):
+        raise DemoLoggerError("observation_schema layouts must be a mapping.")
+    layouts: dict[str, ObservationFieldLayout] = {}
+    for name, raw in raw_layouts.items():
+        if not isinstance(raw, Mapping):
+            raise DemoLoggerError(f"observation layout '{name}' must be a mapping.")
+        layouts[str(name)] = ObservationFieldLayout(
+            source_array=str(raw["source_array"]),
+            shape=tuple(int(item) for item in raw["shape"]),
+            dtype=str(raw["dtype"]),
+            units=str(raw["units"]),
+            coordinate_frame=str(raw["coordinate_frame"]),
+            normalization=str(raw["normalization"]),
+            column_range=(
+                _metadata_range(raw["column_range"])
+                if raw.get("column_range") is not None
+                else None
+            ),
+            column_indices=tuple(int(item) for item in raw.get("column_indices", ())),
+            names=tuple(str(item) for item in raw.get("names", ())),
+            optional=bool(raw.get("optional", False)),
+            absence_rule=raw.get("absence_rule"),
+            mask_field=raw.get("mask_field"),
+        )
+    try:
+        shapes = {
+            str(name): tuple(int(item) for item in shape)
+            for name, shape in payload["shapes"].items()
+        }
+        return ObservationSchema(
+            version=str(payload["version"]),
+            fields=tuple(str(item) for item in payload["fields"]),
+            shapes=shapes,
+            optional_fields=tuple(str(item) for item in payload.get("optional_fields", ())),
+            layouts=layouts,
+            compatibility_notes=tuple(
+                str(item) for item in payload.get("compatibility_notes", ())
+            ),
+        )
+    except KeyError as exc:
+        raise DemoLoggerError(f"observation_schema is missing field: {exc.args[0]}") from exc
 
 
 def _copy_step_array(
@@ -549,6 +911,49 @@ def _copy_optional_step_array(
     return array.copy()
 
 
+def _copy_optional_strings(
+    value: Sequence[str] | None,
+    *,
+    name: str,
+) -> np.ndarray | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        raise DemoLoggerError(f"{name} must be a sequence of strings, not one string.")
+    values = tuple(value)
+    if not values or any(not isinstance(item, str) or not item for item in values):
+        raise DemoLoggerError(f"{name} must contain non-empty strings.")
+    return np.asarray(values, dtype=np.str_)
+
+
+def _copy_optional_string(
+    value: str | None,
+    *,
+    name: str,
+    allow_empty: bool = False,
+) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or (not allow_empty and not value):
+        raise DemoLoggerError(f"{name} must be a string{' or empty' if allow_empty else ''}.")
+    return value
+
+
+def _copy_optional_timestamp(value: float | None) -> float | None:
+    return None if value is None else _coerce_timestamp(value)
+
+
+def _copy_optional_rgb_frame(value: np.ndarray | None) -> np.ndarray | None:
+    if value is None:
+        return None
+    frame = np.asarray(value)
+    if frame.ndim != 3 or frame.shape[-1] != 3:
+        raise DemoLoggerError(f"rgb_frame must have shape [H, W, 3], got {frame.shape}.")
+    if frame.dtype != np.uint8:
+        raise DemoLoggerError("rgb_frame must use uint8 RGB pixels.")
+    return frame.copy()
+
+
 def _coerce_timestamp(timestamp: float) -> float:
     value = float(timestamp)
     if not np.isfinite(value):
@@ -570,6 +975,90 @@ def _stack_optional_steps(
         return np.stack([value for value in values if value is not None], axis=0)
     except ValueError as exc:
         raise DemoLoggerError(f"{name} shapes must match across timesteps.") from exc
+
+
+def _stack_optional_strings(
+    values: Sequence[str | None],
+    *,
+    name: str,
+) -> np.ndarray | None:
+    present = [value is not None for value in values]
+    if not any(present):
+        return None
+    if not all(present):
+        raise DemoLoggerError(f"{name} must be provided for every step or no steps.")
+    return np.asarray([value for value in values if value is not None], dtype=np.str_)
+
+
+def _stack_optional_string_rows(
+    values: Sequence[Sequence[str] | np.ndarray | None],
+    *,
+    name: str,
+) -> np.ndarray | None:
+    present = [value is not None for value in values]
+    if not any(present):
+        return None
+    if not all(present):
+        raise DemoLoggerError(f"{name} must be provided for every step or no steps.")
+    try:
+        return np.stack([np.asarray(value, dtype=np.str_) for value in values], axis=0)
+    except ValueError as exc:
+        raise DemoLoggerError(f"{name} widths must match across timesteps.") from exc
+
+
+def _stack_optional_scalars(
+    values: Sequence[float | bool | None],
+    *,
+    name: str,
+    dtype: np.dtype[Any] | type,
+) -> np.ndarray | None:
+    present = [value is not None for value in values]
+    if not any(present):
+        return None
+    if not all(present):
+        raise DemoLoggerError(f"{name} must be provided for every step or no steps.")
+    return np.asarray([value for value in values if value is not None], dtype=dtype)
+
+
+def _write_episode_files(output_dir: Path, episode: DemoEpisode) -> None:
+    metadata = dict(episode.metadata)
+    metadata["success"] = episode.success
+    metadata["num_steps"] = int(episode.timestamps.shape[0])
+    (output_dir / "metadata.json").write_text(
+        json.dumps(_to_jsonable(metadata), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    arrays = {
+        "features": episode.features,
+        "actions": episode.actions,
+        "robot_states": episode.robot_states,
+        "tracking_quality": episode.tracking_quality,
+        "timestamps": episode.timestamps,
+        "landmarks": episode.landmarks,
+        "object_states": episode.object_states,
+        "task_states": episode.task_states,
+        "requested_actions": episode.requested_actions,
+        "commanded_actions": episode.commanded_actions,
+        "applied_actions": episode.applied_actions,
+        "prior_commanded_actions": episode.prior_commanded_actions,
+        "prior_applied_actions": episode.prior_applied_actions,
+        "safety_masks": episode.safety_masks,
+        "safety_reasons": episode.safety_reasons,
+        "request_sources": episode.request_sources,
+        "online_phases": episode.online_phases,
+        "audited_phases": episode.audited_phases,
+        "phase_relevance_masks": episode.phase_relevance_masks,
+        "intervention_flags": episode.intervention_flags,
+        "failure_reasons": episode.failure_reasons,
+        "action_timestamps": episode.action_timestamps,
+        "task_timestamps": episode.task_timestamps,
+        "state_timestamps": episode.state_timestamps,
+        "rgb_frames": episode.rgb_frames,
+        "rgb_timestamps": episode.rgb_timestamps,
+    }
+    for name, value in arrays.items():
+        if value is not None:
+            np.save(output_dir / f"{name}.npy", value, allow_pickle=False)
 
 
 def _positive_dim(value: int, field_name: str) -> int:
@@ -654,6 +1143,15 @@ def _range_to_tuple(index_range: object) -> tuple[int, int]:
     if isinstance(index_range, tuple) and len(index_range) == 2:
         return (int(index_range[0]), int(index_range[1]))
     raise DemoLoggerError("schema ranges must be slices or (start, stop) tuples.")
+
+
+def _metadata_range(value: Any) -> tuple[int, int]:
+    if isinstance(value, str) or not isinstance(value, Sequence) or len(value) != 2:
+        raise DemoLoggerError("saved schema ranges must contain [start, stop].")
+    start, stop = value
+    if not isinstance(start, int) or not isinstance(stop, int):
+        raise DemoLoggerError("saved schema range bounds must be integers.")
+    return start, stop
 
 
 def _load_required_npy(path: Path) -> np.ndarray:

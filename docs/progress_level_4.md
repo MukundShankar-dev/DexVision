@@ -467,17 +467,31 @@ python -m dexvision.apps.validate_level4_episode --episode <episode-directory>
 ### Pass criteria
 
 ```text
-[ ] Missing or duplicate session ids fail clearly
-[ ] Phase transitions are valid and reconstructable from saved indices/state
-[ ] Online phases use no future frames and disagreements with annotations are reportable
-[ ] A complete pick/place episode yields compatible reach, pick, and place segments
-[ ] Requested, commanded, and applied actions reproduce safety handling exactly
-[ ] RGB is optional, but enabled frames align to timestamps and state
-[ ] Legacy Level 2 episodes still load without invented Level 4 fields
-[ ] Resume behavior never overwrites an existing episode
+[x] Missing or duplicate session ids fail clearly
+[x] Phase transitions are valid and reconstructable from saved indices/state
+[x] Online phases use no future frames and disagreements with annotations are reportable
+[x] A complete pick/place episode yields compatible reach, pick, and place segments
+[x] Requested, commanded, and applied actions reproduce safety handling exactly
+[x] RGB is optional, but enabled frames align to timestamps and state
+[x] Legacy Level 2 episodes still load without invented Level 4 fields
+[x] Resume behavior never overwrites an existing episode
 ```
 
 Manual verification: none; use synthetic episodes.
+
+The Level 4 episode extension stores genuine session/operator provenance,
+typed goals and reset state, five reconstructable action stages, per-field
+safety evidence, causal online/audited phases, optional aligned RGB, and
+separate state/action/task/image timestamps while leaving legacy Level 2
+episodes unchanged. Session manifests reject duplicate ids, resumed episode
+allocation skips existing directories, and Level 4 episode writes are atomic
+and append-only even when the legacy overwrite option is supplied. Complete
+pick/place phase intervals derive compatible reach, pick, and place segments
+without changing episode counts. Automated checks passed on September 4, 2026
+using the three checkpoint test files with 31 passed, the checkpoint and
+repository-wide Ruff commands, the module validator against a synthetic saved
+episode, and the full suite with 489 passed. Level 4.3 collection was not
+started.
 
 ---
 
@@ -895,7 +909,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 ```text
 [x] 4.0 requirements and Level 3 failure traceability are frozen
 [x] 4.1 one resettable workcell and typed world state pass manual inspection
-[ ] 4.2 session-aware append-only schema and phase labels pass
+[x] 4.2 session-aware append-only schema and phase labels pass
 [ ] 4.3 pilot collection freezes final counts; dial is promoted or deferred
 [ ] 4.4 reach, push, and press coverage passes across genuine sessions
 [ ] 4.5 complete pick/place coverage and phase replays pass

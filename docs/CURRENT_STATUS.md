@@ -20,14 +20,15 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.1 — Workcell Scene, World State, and Task Contracts
+Level 4.2 — Session-Aware Recording and Phase-Label Schema
 
-The resettable MuJoCo workcell, typed simulator/perception world-state
-contract, five required task factories, and manual inspector are implemented.
-Automated checks passed with 14 focused tests, the 1,200-step headless
-inspector, repository-wide Ruff, and 475 full-suite tests. Manual viewer
-verification passed on September 3, 2026 after correcting viewer controls,
-labels, setup-slot clearance, and operator-facing return-bin sides.
+The immutable episode extension, genuine-session manifest, causal online and
+audited phase labels, derived pick/place segments, reconstructable
+requested/commanded/applied safety records, optional aligned RGB, append-only
+resume behavior, and headless validator are implemented. Automated checks
+passed on September 4, 2026 with 31 focused tests, repository-wide Ruff, the
+validator module smoke command, and 489 full-suite tests. Manual verification
+was not required.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -36,7 +37,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.2 — Session-Aware Recording and Phase-Label Schema
+Level 4.3 — Collection Pilot and Final Coverage Freeze
 
 ---
 
@@ -46,7 +47,7 @@ Level 4.2 — Session-Aware Recording and Phase-Label Schema
 
 Suggested next feature branch:
 
-`codex/level4-session-schema`
+`codex/level4-collection-pilot`
 
 ---
 
@@ -745,7 +746,19 @@ bodies are now corrected together so ids, labels, world state, and metrics
 agree. The regression checks frozen-to-runtime coordinate equality and actual
 screen-space ordering. The user confirmed that the final viewer passed, with
 correct operator-facing return-bin sides and no object/setup-slot overlap.
-Level 4.1 is complete; Level 4.2 is the next target but has not been started.
+Level 4.1 is complete.
+
+Level 4.2 — Session-Aware Recording and Phase-Label Schema did not require
+manual verification. New Level 4 episodes preserve genuine session/operator
+provenance, typed goal/reset metadata, requested/commanded/applied and prior
+actions, per-field safety masks/reasons, causal online phases, audited labels,
+phase intervals, synchronized state/action/task timestamps, and optional
+aligned RGB. Session manifests reject duplicate ids; resumed allocation and
+atomic Level 4 writes never overwrite existing episodes. Legacy Level 2
+episodes still load without invented Level 4 fields. Automated checks passed
+on September 4, 2026 with 31 focused tests, repository-wide Ruff, a validator
+module smoke run against a synthetic episode, and the full 489-test suite.
+Level 4.2 is complete; Level 4.3 is the next target and has not been started.
 
 For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
 

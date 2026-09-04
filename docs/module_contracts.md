@@ -612,6 +612,26 @@ class DemoEpisode:
     tracking_quality: np.ndarray
     timestamps: np.ndarray
     success: bool | None
+
+    # Present only when episode_schema_version == level4/episode-v1:
+    requested_actions: np.ndarray | None
+    commanded_actions: np.ndarray | None
+    applied_actions: np.ndarray | None
+    prior_commanded_actions: np.ndarray | None
+    prior_applied_actions: np.ndarray | None
+    safety_masks: np.ndarray | None
+    safety_reasons: np.ndarray | None
+    request_sources: np.ndarray | None
+    online_phases: np.ndarray | None
+    audited_phases: np.ndarray | None
+    phase_relevance_masks: np.ndarray | None
+    intervention_flags: np.ndarray | None
+    failure_reasons: np.ndarray | None
+    action_timestamps: np.ndarray | None
+    task_timestamps: np.ndarray | None
+    state_timestamps: np.ndarray | None
+    rgb_frames: np.ndarray | None
+    rgb_timestamps: np.ndarray | None
 ```
 
 Rules:
@@ -622,6 +642,10 @@ free_space_gesture demos may include an optional gesture_label metadata field: o
 actions must preserve base_position_target, base_orientation_target, and finger_actuator_targets.
 robot/task/object state must preserve inputs needed for replay, quality filtering, and task-specific success relabeling.
 DemoEpisode validation should use synthetic arrays and should not require camera, GUI, or learning code.
+Level 4 fields remain absent for legacy Level 2 episodes; loaders must not invent session or provenance values.
+For Level 4, actions.npy exactly mirrors applied_actions.npy while requested, commanded, prior, and safety arrays preserve the reconstructable control path.
+Level 4 phase intervals use inclusive start and exclusive end frame indices and must reconstruct online_phases.npy without gaps or overlaps.
+Level 4 state, task, action, and optional RGB timestamps must satisfy the frozen alignment tolerances.
 ```
 
 ---
@@ -652,6 +676,63 @@ Must record skill_name/task_id when logging task demos.
 Must preserve the full Level 1.13 action schema: base position target, base orientation target, and finger actuator targets.
 Manual free_space_gesture recording should not append live frames until c successfully calibrates/centers the hand.
 Should save task/object state and success metric inputs when present.
+When Level 4 metadata is declared, missing per-sample requested/commanded/applied fields may be losslessly adapted from an unchanged legacy action, but explicit safety changes must carry matching masks and stable reasons.
+Level 4 writes are atomic and append-only. The overwrite flag cannot replace an existing Level 4 episode.
+```
+
+---
+
+## Level 4 Session Manifest
+
+Module:
+
+```text
+dexvision/logging/session_manifest.py
+```
+
+Contract:
+
+```python
+manifest = append_session_manifest(path, recording_session)
+episode_dir = next_episode_directory(dataset_dir, recording_session_id=session_id)
+```
+
+Rules:
+
+```text
+Each recording_session_id identifies one genuine process/calibration block and is unique in the manifest.
+Each session records operator_id, whole-session split, process-start timestamp, reset seed, and calibration-record digest.
+Appending a duplicate session id fails; resuming episode allocation skips every existing directory and never overwrites it.
+Legacy Level 2 episodes are not added to a Level 4 session manifest.
+```
+
+---
+
+## Level 4 Phase Labels
+
+Module:
+
+```text
+dexvision/logging/phase_labels.py
+```
+
+Contract:
+
+```python
+phase = tracker.update(current_state)
+intervals = phases_to_intervals(online_phases)
+segments = derive_pick_place_segments(intervals, frame_count=frame_count)
+report = phase_disagreement_report(online_phases, audited_phases)
+```
+
+Rules:
+
+```text
+The tracker evaluates ordered transitions from only current and prior state and takes at most one edge per control sample.
+Audited annotations are stored separately and never influence an online transition.
+Saved intervals are monotonic, non-overlapping, gap-free, and exactly reconstruct the per-frame online labels.
+A complete pick/place sequence derives reach_object, pick_object, and place_held_object segments without counting them as new episodes.
+Per-frame action-relevance masks must exactly match the versioned mask for the saved online phase.
 ```
 
 ---

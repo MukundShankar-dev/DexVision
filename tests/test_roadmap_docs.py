@@ -11,7 +11,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_to_level42_after_workcell_verification() -> None:
+def test_current_status_advances_to_level43_after_session_schema() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
@@ -19,8 +19,8 @@ def test_current_status_advances_to_level42_after_workcell_verification() -> Non
         "Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.1" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.2" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.2" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.3" in status
 
 
 def test_seven_level_roadmap_has_distinct_responsibilities() -> None:

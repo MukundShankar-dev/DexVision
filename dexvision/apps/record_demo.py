@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Callable, Literal
 
 import numpy as np
+import yaml
 
 from dexvision.apps import run_level1_teleop
 from dexvision.camera.opencv_camera import CameraOpenError, OpenCVCamera
@@ -38,6 +39,7 @@ from dexvision.logging.demo_logger import (
     build_level1_action_schema,
     build_level2_observation_schema,
 )
+from dexvision.logging.phase_labels import DEFAULT_PICK_PLACE_TRANSITIONS
 from dexvision.perception.hand_tracker import (
     DEFAULT_HAND_LANDMARKER_MODEL,
     HandTracker,
@@ -86,6 +88,7 @@ DEFAULT_CAMERA_HEIGHT = run_level1_teleop.DEFAULT_CAMERA_HEIGHT
 DEFAULT_CONTROL_RATE_HZ = 30.0
 DEFAULT_PRINT_INTERVAL = 30
 DEFAULT_CAMERA_WINDOW_NAME = "DexVision Demo Recorder"
+DEFAULT_LEVEL4_DATASET_CONFIG = Path("configs/level4_dataset.yaml")
 FEATURE_FIELDS = (
     "thumb_curl",
     "index_curl",
@@ -159,6 +162,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--skill-name",
+        "--skill",
+        dest="skill_name",
         default=None,
         help="Skill name to store in metadata. Defaults to --task.",
     )
@@ -263,6 +268,33 @@ def build_parser() -> argparse.ArgumentParser:
         "--episode-id",
         default=None,
         help="Episode id. Defaults to a timestamped id.",
+    )
+    parser.add_argument(
+        "--session-id",
+        default=None,
+        help="Genuine Level 4 recording session id; enables the Level 4 episode schema.",
+    )
+    parser.add_argument(
+        "--operator-id",
+        default=None,
+        help="Stable pseudonymous operator id required with --session-id.",
+    )
+    parser.add_argument(
+        "--goal-condition-id",
+        default=None,
+        help="Frozen Level 4 coverage-cell id required with --session-id.",
+    )
+    parser.add_argument(
+        "--source",
+        choices=("teleoperation", "scripted", "policy_rollout", "corrective_intervention"),
+        default="teleoperation",
+        help="Level 4 request provenance. Defaults to teleoperation.",
+    )
+    parser.add_argument(
+        "--level4-dataset-config",
+        type=Path,
+        default=DEFAULT_LEVEL4_DATASET_CONFIG,
+        help="Frozen Level 4 dataset/schema config used when --session-id is set.",
     )
     parser.add_argument(
         "--overwrite",
@@ -511,6 +543,9 @@ def run_record_demo(args: argparse.Namespace) -> int:
     if args.gesture_label is not None:
         print(f"Gesture label: {args.gesture_label}")
     print(f"Episode: {episode_id}")
+    if args.session_id is not None:
+        print(f"Session: {args.session_id} (operator: {args.operator_id})")
+        print(f"Goal condition: {args.goal_condition_id}")
     print(f"Output: {args.output}")
     print(f"Retargeter: {args.retargeter} ({args.config})")
     print(f"Action schema: {action_schema.version}, dim={action_schema.action_dim}")
@@ -1813,6 +1848,15 @@ def _metadata(
     }
     if args.gesture_label is not None:
         metadata["gesture_label"] = args.gesture_label
+    if args.session_id is not None:
+        metadata.update(
+            _level4_metadata(
+                args=args,
+                task_config=task_config,
+                observation_schema=observation_schema,
+                action_dim=7 + len(target_names),
+            )
+        )
     return metadata
 
 
@@ -1831,6 +1875,154 @@ def _default_task_config(task_id: str) -> dict[str, Any]:
         "requires_success_metric_inputs": False,
         "required_observation_fields": (),
         "note": "No task object/state provider is implemented in Level 2.2.",
+    }
+
+
+def _level4_metadata(
+    *,
+    args: argparse.Namespace,
+    task_config: Mapping[str, Any],
+    observation_schema: ObservationSchema,
+    action_dim: int,
+) -> dict[str, Any]:
+    """Build the frozen Level 4 provenance and causal phase snapshot."""
+
+    try:
+        payload = yaml.safe_load(args.level4_dataset_config.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise DemoLoggerError(
+            f"could not read Level 4 dataset config {args.level4_dataset_config}: {exc}"
+        ) from exc
+    except yaml.YAMLError as exc:
+        raise DemoLoggerError(
+            f"could not parse Level 4 dataset config {args.level4_dataset_config}: {exc}"
+        ) from exc
+    if not isinstance(payload, Mapping):
+        raise DemoLoggerError("Level 4 dataset config root must be a mapping.")
+    schema_versions = payload.get("schema_versions")
+    phase_config = payload.get("phase_contract")
+    machine_config = payload.get("online_phase_state_machine")
+    action_config = payload.get("action_contract")
+    quality_config = payload.get("quality_thresholds")
+    if not all(
+        isinstance(value, Mapping)
+        for value in (
+            schema_versions,
+            phase_config,
+            machine_config,
+            action_config,
+            quality_config,
+        )
+    ):
+        raise DemoLoggerError(
+            "Level 4 config must define schema_versions, phase_contract, "
+            "online_phase_state_machine, and action_contract mappings."
+        )
+    coverage_cells = payload.get("coverage_cells")
+    if not isinstance(coverage_cells, list):
+        raise DemoLoggerError("Level 4 config coverage_cells must be a list.")
+    if not any(
+        isinstance(cell, Mapping) and cell.get("id") == args.goal_condition_id
+        for cell in coverage_cells
+    ):
+        raise DemoLoggerError(
+            f"unknown Level 4 goal condition id: {args.goal_condition_id}"
+        )
+
+    skill_name = args.skill_name or {
+        REACH_TOUCH_TARGET_TASK_ID: "reach_object",
+        BUTTON_PRESS_TASK_ID: "press_button",
+        PUSH_CUBE_TASK_ID: "push_object_to_target",
+    }.get(args.task, args.task)
+    machines = machine_config.get("machines")
+    if not isinstance(machines, Mapping):
+        raise DemoLoggerError("Level 4 online phase machines must be a mapping.")
+    if skill_name == "pick_place_sequence":
+        initial_phase = "approach"
+        transitions = [
+            {"from": item.source, "to": item.target, "predicate": item.predicate}
+            for item in DEFAULT_PICK_PLACE_TRANSITIONS
+        ]
+    else:
+        machine = machines.get(skill_name)
+        if not isinstance(machine, Mapping):
+            raise DemoLoggerError(
+                f"Level 4 has no causal phase machine for skill '{skill_name}'."
+            )
+        initial_phase = machine.get("initial_phase")
+        transitions = machine.get("transitions")
+        if not isinstance(initial_phase, str) or not isinstance(transitions, list):
+            raise DemoLoggerError(f"invalid causal phase machine for skill '{skill_name}'.")
+
+    named_layout = action_config.get("named_layout")
+    grouped_masks = phase_config.get("action_relevance_masks")
+    if not isinstance(named_layout, list) or not isinstance(grouped_masks, Mapping):
+        raise DemoLoggerError("Level 4 action layout and phase relevance masks are required.")
+    ordered_layout = sorted(named_layout, key=lambda field: int(field["index"]))
+    if len(ordered_layout) != action_dim:
+        raise DemoLoggerError(
+            f"Level 4 action layout width {len(ordered_layout)} does not match {action_dim}."
+        )
+    relevance_masks: dict[str, list[int]] = {}
+    for phase, group_mask in grouped_masks.items():
+        if not isinstance(group_mask, Mapping):
+            raise DemoLoggerError(f"phase mask for '{phase}' must be a mapping.")
+        relevance_masks[str(phase)] = [
+            int(bool(group_mask.get(str(field["group"]), False))) for field in ordered_layout
+        ]
+    raw_reason_codes = action_config.get("safety_reason_codes")
+    if not isinstance(raw_reason_codes, list):
+        raise DemoLoggerError("Level 4 safety_reason_codes must be a list.")
+    reason_codes = [
+        str(item["code"])
+        for item in raw_reason_codes
+        if isinstance(item, Mapping) and item.get("code")
+    ]
+    typed_goal = task_config.get("parameters", task_config)
+    object_ids = [args.object_id] if args.object_id else []
+    dataset_config = payload.get("dataset")
+    config_version = (
+        str(dataset_config.get("name"))
+        if isinstance(dataset_config, Mapping) and dataset_config.get("name")
+        else "level4-dataset-v1"
+    )
+    return {
+        "skill_name": skill_name,
+        "episode_schema_version": str(schema_versions["episode"]),
+        "recording_session_id": args.session_id,
+        "operator_id": args.operator_id,
+        "source": args.source,
+        "typed_goal": typed_goal,
+        "object_instance_ids": object_ids,
+        "goal_condition_id": args.goal_condition_id,
+        "reset_state": task_config.get("initial_state", {"random_seed": args.task_seed}),
+        "random_seed": int(args.task_seed),
+        "camera_or_render_config": None,
+        "code_version": "working-tree",
+        "config_version": config_version,
+        "schema_versions": {
+            **dict(schema_versions),
+            "observation": observation_schema.version,
+        },
+        "phase_contract": {
+            "version": phase_config.get("version"),
+            "vocabulary": list(phase_config["vocabulary"]),
+            "transitions": transitions,
+            "action_relevance_masks": relevance_masks,
+        },
+        "action_contract": {
+            "version": action_config.get("version"),
+            "layout_version": action_config.get("layout_version"),
+            "named_layout": ordered_layout,
+            "safety_reason_codes": reason_codes,
+            "nominal_control_interval_s": action_config.get(
+                "nominal_control_interval_s"
+            ),
+            "max_state_action_timestamp_skew_s": quality_config.get(
+                "max_state_action_timestamp_skew_s"
+            ),
+        },
+        "initial_online_phase": initial_phase,
     }
 
 
@@ -2160,6 +2352,22 @@ def _recorded_base_pose(
 
 def _validate_recording_args(args: argparse.Namespace) -> None:
     args.gesture_label = _normalize_gesture_label(args.gesture_label)
+    if args.session_id is not None:
+        if not str(args.session_id).strip():
+            raise ValueError("--session-id must be non-empty.")
+        if args.operator_id is None or not str(args.operator_id).strip():
+            raise ValueError("--operator-id is required with --session-id.")
+        if args.goal_condition_id is None or not str(args.goal_condition_id).strip():
+            raise ValueError("--goal-condition-id is required with --session-id.")
+        if args.overwrite:
+            raise ValueError("--overwrite is forbidden for append-only Level 4 episodes.")
+        if args.source == "corrective_intervention":
+            raise ValueError(
+                "corrective_intervention recording is deferred to Level 4.6; "
+                "record_demo cannot create it in Level 4.2."
+            )
+    elif args.operator_id is not None or args.goal_condition_id is not None:
+        raise ValueError("--operator-id and --goal-condition-id require --session-id.")
     if args.gesture_label is not None and args.task != "free_space_gesture":
         raise ValueError("--gesture-label is only supported with --task free_space_gesture.")
     if args.target_site is not None and args.task != REACH_TOUCH_TARGET_TASK_ID:
