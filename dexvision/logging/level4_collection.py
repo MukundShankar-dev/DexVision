@@ -343,12 +343,16 @@ class WorkcellPilotTask:
         self.workcell = Workcell(workcell_config)
         self.env = self.workcell.env
         self.initial_world_state = self.workcell.reset(seed=seed)
-        if self.skill_name in {"pick_object", "push_object_to_target"}:
-            settings_key = (
-                "scripted_grasp"
-                if self.skill_name == "pick_object"
-                else "scripted_push"
-            )
+        if self.skill_name in {
+            "pick_object",
+            "pick_place_sequence",
+            "push_object_to_target",
+        }:
+            settings_key = {
+                "pick_object": "scripted_grasp",
+                "pick_place_sequence": "scripted_place",
+                "push_object_to_target": "scripted_push",
+            }[self.skill_name]
             setup = config["pilot"][settings_key]["trial_setup"]
             self.initial_world_state = self.workcell.prepare_single_object_trial(
                 object_id=str(self.coverage_cell["object_id"]),
@@ -356,6 +360,12 @@ class WorkcellPilotTask:
                 parking_y_m=setup["parking_y_m"],
                 parking_surface_z_m=float(setup["parking_surface_z_m"]),
             )
+            if self.skill_name in {"pick_object", "pick_place_sequence"}:
+                contact = config["pilot"]["scripted_grasp"]["contact_dynamics"]
+                self.workcell.configure_contact_dynamics(
+                    table_condim=int(contact["table_condim"]),
+                    family_friction=contact["family_friction"],
+                )
         self.goal = self._resolve_goal()
         self._configure_pilot_cue()
         self._phase = "approach"
@@ -389,7 +399,7 @@ class WorkcellPilotTask:
 
     def metadata_task_config(self) -> dict[str, Any]:
         object_ids = [self.goal["object_id"]] if "object_id" in self.goal else []
-        return {
+        task_config = {
             "required_objects": object_ids,
             "requires_task_state": True,
             "requires_success_metric_inputs": True,
@@ -443,6 +453,21 @@ class WorkcellPilotTask:
             ),
             "object_state_fields": "six objects x position/quaternion/linear/angular velocity",
         }
+        if self.skill_name in {"pick_object", "pick_place_sequence"}:
+            contact = self.collection_config["pilot"]["scripted_grasp"][
+                "contact_dynamics"
+            ]
+            family_friction = contact["family_friction"]
+            task_config["contact_dynamics"] = {
+                "table_geom_name": "workcell_table_geom",
+                "table_condim": int(contact["table_condim"]),
+                "geom_friction": {
+                    spec.geom: list(family_friction[spec.family])
+                    for spec in self.workcell.config.objects
+                    if spec.family in family_friction
+                },
+            }
+        return task_config
 
     def _resolve_goal(self) -> dict[str, object]:
         cell = self.coverage_cell

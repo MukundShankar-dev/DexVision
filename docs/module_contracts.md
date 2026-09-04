@@ -809,7 +809,7 @@ The initial learned adapter consumes simulator state and emits a bounded task-lo
 The first learned model is a small MLP. RGB, VLMs, LLMs, larger models, and action chunking are outside the initial Level 4.3 learning probes.
 ```
 
-Levels 4.3A--D implement this boundary in
+Levels 4.3A--E implement this boundary in
 `dexvision/sim/level4_expert.py`. `SafeWaypointReachExpert` emits the existing
 27-field named action and validates rise/horizontal/corridor/descent candidates
 in copied MuJoCo state. `DeterministicButtonPressExpert` retains one fixed
@@ -842,7 +842,30 @@ contacts for the held relation, at least 0.040 m lift, loss of table support,
 retention, and ten stable samples at no more than 0.020 m/s. Table contact is
 allowed during acquisition and early lift only; after the lift threshold,
 wrong-object, fixture, or table contact fails qualification. Complete
-pick/place and placement remain explicitly deferred.
+pick/place composes the shared grasp stage through the same expert and
+action/logger boundary. For the 4.3E orientation requirement, each family uses
+a configuration-owned 80--90 degree side-on wrist pose analogous to a
+hammer-curl grip. Cuboid wrist yaw is conditioned on the object's seeded yaw;
+axially symmetric objects ignore irrelevant spin. A declared rotation-only
+world-orientation hold is applied during lift, stabilize, transport, and place;
+it does not set object position or linear velocity, and it ends before release.
+`DeterministicPlaceExpert` accepts only a genuinely held selected object,
+preserves the seeded object orientation, transports the grasp site above the
+resolved target, descends to a configuration-owned release height, opens the
+same scalar synergy, clears the released object vertically, waits for supported
+linear and angular settling, and retracts. Family-specific planar release
+offsets compensate deterministic post-release drift without weakening the
+frozen 0.025 m three-dimensional place metric. Standalone pick and composed
+pick/place apply task-local six-dimensional table contact and explicit
+round-object rolling friction; push retains the baseline model contact
+parameters. These exact overrides, the initial object quaternion, and the
+source/destination cues are recorded in immutable metadata and restored by
+replay. Replay reapplies the rotation-only hold at a bounded internal cadence
+so visible and headless trajectories retain the same orientation. Copied-state
+validation rejects premature release, unsafe hand contact,
+workspace or joint-limit violations, and non-target disturbance. Complete
+episodes retain the existing phase vocabulary and derive compatible reach,
+pick, and place segments from the stored causal intervals.
 
 The button body pose is stored in every Level 4 initial-state entity map and is
 restored before replay, so episodes remain deterministic across the reachable

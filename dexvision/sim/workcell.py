@@ -15,7 +15,7 @@ from dexvision.perception.object_observations import (
     SIMULATOR_GROUND_TRUTH,
     make_object_observation,
 )
-from dexvision.sim.mujoco_env import MujocoEnv
+from dexvision.sim.mujoco_env import MujocoEnv, MujocoError
 from dexvision.sim.world_state import (
     EntityRelation,
     FixtureObservation,
@@ -274,6 +274,42 @@ class Workcell:
             orientation_quat=(1.0, 0.0, 0.0, 0.0),
         )
         self.env._mujoco.mj_forward(self.env.model, self.env.data)
+
+    def preserve_object_orientation(
+        self, object_id: str, orientation_wxyz: Sequence[float]
+    ) -> None:
+        """Hold one selected object's orientation without constraining translation."""
+
+        self._require_reset()
+        try:
+            spec = next(item for item in self.config.objects if item.object_id == object_id)
+        except StopIteration as exc:
+            raise WorkcellError(f"Unknown object orientation target: {object_id!r}.") from exc
+        self.env.preserve_free_joint_orientation(spec.joint, orientation_wxyz)
+
+    def configure_contact_dynamics(
+        self,
+        *,
+        table_condim: int,
+        family_friction: Mapping[str, Sequence[float | None]],
+    ) -> None:
+        """Apply task-local table contact dimensions and family friction."""
+
+        self._require_reset()
+        geom_friction: dict[str, Sequence[float | None]] = {}
+        for spec in self.config.objects:
+            raw = family_friction.get(spec.family)
+            if raw is None:
+                continue
+            geom_friction[spec.geom] = raw
+        try:
+            self.env.configure_contact_dynamics(
+                table_geom_name="workcell_table_geom",
+                table_condim=table_condim,
+                geom_friction=geom_friction,
+            )
+        except MujocoError as exc:
+            raise WorkcellError(str(exc)) from exc
 
     def set_pilot_task_cue(
         self, *, entity_id: str, goal_position: Sequence[float]
@@ -575,7 +611,10 @@ class Workcell:
         held_by = "rh_palm" if len(hand_contacts) >= 2 else None
         supported_by = (
             str(self.config.scene["table_body"])
-            if observation.position[2] <= spec.resting_height_m + 0.004
+            if (
+                str(self.config.scene["table_body"]) in contact_entities
+                or observation.position[2] <= spec.resting_height_m + 0.004
+            )
             and abs(observation.linear_velocity[2]) <= 0.05
             else None
         )
@@ -894,6 +933,9 @@ def _compute_task_metrics(
         relation = state.relation_for(object_id)
         distance = math.dist(observation.position, target.position)
         speed = _speed(observation.linear_velocity)
+        angular_speed = _speed(observation.angular_velocity)
+        upright_tilt = _upright_tilt_rad(observation.orientation_wxyz)
+        supported = relation.supported_by == str(config.scene["table_body"])
         tolerance = float(
             config.requirements["workcell"]["targets"][target_id]["tolerance_radius_m"]
         )
@@ -902,15 +944,21 @@ def _compute_task_metrics(
         values = {
             "object_to_target_distance_m": distance,
             "object_linear_speed_mps": speed,
+            "object_angular_speed_radps": angular_speed,
+            "object_upright_tilt_rad": upright_tilt,
             "object_inside_target": inside,
+            "object_supported": supported,
             "held_object_id": held_object_id,
             "terminal_reason": None,
         }
         qualifies = (
             distance <= float(conditions["object_to_target_distance_m"]["value"])
             and inside
+            and supported
             and held_object_id is None
             and speed <= float(conditions["object_linear_speed_mps"]["value"])
+            and angular_speed
+            <= float(conditions["object_angular_speed_radps"]["value"])
         )
         return values, qualifies
 

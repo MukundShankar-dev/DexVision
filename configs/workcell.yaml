@@ -25,7 +25,7 @@ scene:
   viewer:
     lookat_m: [0.0, 0.0, 0.10]
     distance_m: 0.78
-    azimuth_deg: 45.0
+    azimuth_deg: 300.0
     elevation_deg: -28.0
     entity_labels_initially_visible: true
 

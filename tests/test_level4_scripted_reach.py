@@ -151,7 +151,7 @@ def test_scripted_source_does_not_enable_camera_or_viewer_preset() -> None:
     assert not args.require_hand_detected
 
 
-def test_scripted_complete_pick_place_remains_explicitly_deferred() -> None:
+def test_scripted_complete_pick_place_is_enabled_at_4_3e() -> None:
     args = record_demo.build_parser().parse_args(
         [
             "--task",
@@ -165,5 +165,7 @@ def test_scripted_complete_pick_place_remains_explicitly_deferred() -> None:
             "--workcell-dry-run",
         ]
     )
-    with pytest.raises(ValueError, match="complete pick/place is a separate checkpoint"):
-        record_demo._prepare_level4_workcell_recording(args)
+    record_demo._prepare_level4_workcell_recording(args)
+
+    assert args.level1_13_full
+    assert args.model.name == "workcell_scene.xml"

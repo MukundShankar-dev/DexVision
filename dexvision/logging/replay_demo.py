@@ -56,6 +56,22 @@ class ReplayEnv(Protocol):
     def set_joint_targets(self, joint_targets: Mapping[str, float]) -> None:
         """Apply recorded finger actuator targets by actuator name."""
 
+    def preserve_free_joint_orientation(
+        self,
+        joint_name: str,
+        orientation_quat: Sequence[float] | np.ndarray,
+    ) -> None:
+        """Restore one free joint's orientation without constraining translation."""
+
+    def configure_contact_dynamics(
+        self,
+        *,
+        table_geom_name: str,
+        table_condim: int,
+        geom_friction: Mapping[str, Sequence[float | None]],
+    ) -> None:
+        """Restore task-local contact parameters recorded in episode metadata."""
+
     def step(self, *, n_steps: int = 1) -> object:
         """Advance the simulation."""
 
@@ -400,12 +416,26 @@ def replay_loaded_demo(
             if delay > 0.0:
                 sleep_fn(delay)
 
-        state = apply_replay_step(
-            env,
-            step,
-            mocap_body_name=loaded_demo.mocap_body_name,
-            sim_steps_per_action=sim_steps_per_action,
-        )
+        if _apply_level4_orientation_hold(loaded_demo, env, step.index):
+            remaining = sim_steps_per_action
+            while remaining > 0:
+                chunk_steps = min(8, remaining)
+                state = apply_replay_step(
+                    env,
+                    step,
+                    mocap_body_name=loaded_demo.mocap_body_name,
+                    sim_steps_per_action=chunk_steps,
+                )
+                remaining -= chunk_steps
+                if remaining > 0:
+                    _apply_level4_orientation_hold(loaded_demo, env, step.index)
+        else:
+            state = apply_replay_step(
+                env,
+                step,
+                mocap_body_name=loaded_demo.mocap_body_name,
+                sim_steps_per_action=sim_steps_per_action,
+            )
         final_sim_time = _state_time(state)
         steps_replayed += 1
         previous_timestamp = step.timestamp
@@ -424,6 +454,96 @@ def replay_loaded_demo(
         final_sim_time=final_sim_time,
         stopped_early=stopped_early,
     )
+
+
+def _apply_level4_orientation_hold(
+    loaded_demo: LoadedReplayDemo,
+    env: ReplayEnv,
+    step_index: int,
+) -> bool:
+    """Replay the declared rotation-only hold for scripted grasp phases."""
+
+    metadata = loaded_demo.episode.metadata
+    if (
+        metadata.get("task_id") != "level4_workcell"
+        or metadata.get("source") != "scripted"
+        or metadata.get("skill_name") not in {"pick_object", "pick_place_sequence"}
+    ):
+        return False
+    phases = loaded_demo.episode.online_phases
+    if phases is None or str(phases[step_index]) not in {
+        "lift",
+        "stabilize",
+        "transport",
+        "place",
+    }:
+        return False
+    teleop_config = _mapping_value(
+        metadata,
+        "teleop_config",
+        message="scripted Level 4 replay is missing teleop_config.",
+    )
+    scripted_expert = _mapping_value(
+        teleop_config,
+        "scripted_expert",
+        message="scripted Level 4 replay is missing scripted_expert metadata.",
+    )
+    grasp = scripted_expert
+    if metadata.get("skill_name") == "pick_place_sequence":
+        grasp = _mapping_value(
+            scripted_expert,
+            "grasp",
+            message="scripted pick/place replay is missing grasp metadata.",
+        )
+    if (
+        grasp.get("orientation_preservation_policy")
+        != "shape_aware_hammer_grip_with_world_orientation_hold"
+    ):
+        return False
+    typed_goal = _mapping_value(
+        metadata,
+        "typed_goal",
+        message="scripted grasp replay is missing typed_goal metadata.",
+    )
+    object_id = typed_goal.get("object_id")
+    if not isinstance(object_id, str) or not object_id:
+        raise DemoReplayError(
+            "scripted grasp replay typed_goal.object_id must be a non-empty string."
+        )
+    task_config = _mapping_value(
+        metadata,
+        "task_config",
+        message="scripted grasp replay is missing task_config metadata.",
+    )
+    initial_state = _mapping_value(
+        task_config,
+        "initial_state",
+        message="scripted grasp replay is missing initial_state metadata.",
+    )
+    objects = _mapping_value(
+        initial_state,
+        "objects",
+        message="scripted grasp replay is missing initial object metadata.",
+    )
+    object_state = _mapping_value(
+        objects,
+        object_id,
+        message=f"scripted grasp replay is missing state for object {object_id!r}.",
+    )
+    joint_name = object_state.get("joint_name")
+    if not isinstance(joint_name, str) or not joint_name:
+        raise DemoReplayError(
+            f"scripted grasp replay object {object_id!r} is missing joint_name."
+        )
+    orientation = _normalized_quaternion(
+        _finite_vector(
+            object_state.get("orientation_wxyz"),
+            size=4,
+            field_name=f"initial_state.objects.{object_id}.orientation_wxyz",
+        )
+    )
+    env.preserve_free_joint_orientation(joint_name, orientation)
+    return True
 
 
 def _restore_task_replay_state(
@@ -612,6 +732,30 @@ def _restore_level4_workcell_replay_state(
     )
     if not objects:
         raise DemoReplayError("level4_workcell initial_state.objects must not be empty.")
+    contact = task_config.get("contact_dynamics")
+    if contact is not None:
+        if not isinstance(contact, Mapping):
+            raise DemoReplayError("level4_workcell contact_dynamics must be a mapping.")
+        table_geom_name = contact.get("table_geom_name")
+        table_condim = contact.get("table_condim")
+        geom_friction = contact.get("geom_friction")
+        if not isinstance(table_geom_name, str) or not table_geom_name:
+            raise DemoReplayError(
+                "level4_workcell contact_dynamics.table_geom_name is invalid."
+            )
+        if not isinstance(table_condim, int) or isinstance(table_condim, bool):
+            raise DemoReplayError(
+                "level4_workcell contact_dynamics.table_condim must be an integer."
+            )
+        if not isinstance(geom_friction, Mapping):
+            raise DemoReplayError(
+                "level4_workcell contact_dynamics.geom_friction must be a mapping."
+            )
+        env.configure_contact_dynamics(
+            table_geom_name=table_geom_name,
+            table_condim=table_condim,
+            geom_friction=geom_friction,
+        )
     entity_positions = initial_state.get("entity_positions_m")
     if isinstance(entity_positions, Mapping) and "start_button" in entity_positions:
         _set_world_body_position(
@@ -670,6 +814,7 @@ def _restore_level4_workcell_replay_state(
     if skill_name in {
         "reach_object",
         "pick_object",
+        "pick_place_sequence",
         "press_button",
         "push_object_to_target",
     } and isinstance(
@@ -677,7 +822,7 @@ def _restore_level4_workcell_replay_state(
     ):
         if skill_name == "reach_object":
             entity_id = typed_goal.get("entity_id")
-        elif skill_name == "pick_object":
+        elif skill_name in {"pick_object", "pick_place_sequence"}:
             entity_id = typed_goal.get("object_id")
         elif skill_name == "press_button":
             entity_id = typed_goal.get("button_id")
@@ -717,6 +862,24 @@ def _restore_level4_workcell_replay_state(
         elif skill_name == "pick_object":
             goal_position = entity_position.copy()
             goal_position[2] += 0.08
+        elif skill_name == "pick_place_sequence":
+            target_id = typed_goal.get("target_id")
+            raw_target_position = (
+                entity_positions.get(target_id)
+                if isinstance(target_id, str) and isinstance(entity_positions, Mapping)
+                else None
+            )
+            if raw_target_position is None:
+                raise DemoReplayError(
+                    "scripted pick/place replay target position is missing from "
+                    "initial state."
+                )
+            goal_position = _finite_vector(
+                raw_target_position,
+                size=3,
+                field_name=f"initial_state.entity_positions_m.{target_id}",
+            )
+            goal_position[2] = max(0.06, goal_position[2] + 0.05)
         elif skill_name == "push_object_to_target":
             target_id = typed_goal.get("target_zone")
             raw_target_position = (

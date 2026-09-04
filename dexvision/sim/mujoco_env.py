@@ -153,6 +153,71 @@ class MujocoEnv:
             np.asarray(self.data.mocap_quat[mocap_id], dtype=np.float64).copy(),
         )
 
+    def preserve_free_joint_orientation(
+        self,
+        joint_name: str,
+        orientation_quat: Sequence[float] | np.ndarray,
+    ) -> None:
+        """Set one free joint's orientation and cancel only angular velocity."""
+
+        joint_id = self._mujoco.mj_name2id(
+            self.model, self._mujoco.mjtObj.mjOBJ_JOINT, joint_name
+        )
+        if joint_id < 0:
+            raise MujocoError(f"Unknown MuJoCo free joint: {joint_name}")
+        if self.model.jnt_type[joint_id] != self._mujoco.mjtJoint.mjJNT_FREE:
+            raise MujocoError(f"MuJoCo joint '{joint_name}' is not a free joint.")
+        quaternion = np.asarray(orientation_quat, dtype=np.float64)
+        if quaternion.shape != (4,) or not np.all(np.isfinite(quaternion)):
+            raise MujocoError("Free-joint orientation must be a finite quaternion.")
+        norm = float(np.linalg.norm(quaternion))
+        if norm <= 0.0:
+            raise MujocoError("Free-joint orientation must be non-zero.")
+        qpos_address = int(self.model.jnt_qposadr[joint_id])
+        dof_address = int(self.model.jnt_dofadr[joint_id])
+        self.data.qpos[qpos_address + 3 : qpos_address + 7] = quaternion / norm
+        self.data.qvel[dof_address + 3 : dof_address + 6] = 0.0
+        self._mujoco.mj_forward(self.model, self.data)
+
+    def configure_contact_dynamics(
+        self,
+        *,
+        table_geom_name: str,
+        table_condim: int,
+        geom_friction: Mapping[str, Sequence[float | None]],
+    ) -> None:
+        """Apply replayable task-local contact dimensions and friction."""
+
+        if table_condim not in {1, 3, 4, 6}:
+            raise MujocoError("Table contact dimension must be one of 1, 3, 4, or 6.")
+        table_geom = self._mujoco.mj_name2id(
+            self.model, self._mujoco.mjtObj.mjOBJ_GEOM, table_geom_name
+        )
+        if table_geom < 0:
+            raise MujocoError(
+                f"Unknown MuJoCo table geom for contact dynamics: {table_geom_name}"
+            )
+        self.model.geom_condim[table_geom] = table_condim
+        for geom_name, raw_values in geom_friction.items():
+            values = tuple(raw_values)
+            if len(values) != 3:
+                raise MujocoError("Geom friction must contain exactly three values.")
+            geom_id = self._mujoco.mj_name2id(
+                self.model, self._mujoco.mjtObj.mjOBJ_GEOM, geom_name
+            )
+            if geom_id < 0:
+                raise MujocoError(
+                    f"Unknown MuJoCo geom for friction target: {geom_name}"
+                )
+            friction = self.model.geom_friction[geom_id]
+            for index, value in enumerate(values):
+                if value is None:
+                    continue
+                numeric = float(value)
+                if not np.isfinite(numeric) or numeric < 0.0:
+                    raise MujocoError("Geom friction values must be non-negative.")
+                friction[index] = numeric
+
     def get_state(self) -> MujocoState:
         """Return a copy of the current simulation state."""
 

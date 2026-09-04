@@ -11,7 +11,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_after_level43c_visual_remediation() -> None:
+def test_current_status_advances_after_level43e_visual_verification() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
@@ -19,9 +19,9 @@ def test_current_status_advances_after_level43c_visual_remediation() -> None:
         "Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.3D" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.3E" in status
-    assert "orientation preservation" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.3E" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.3F" in status
+    assert "hammer-curl" in status
 
 
 def test_seven_level_roadmap_has_distinct_responsibilities() -> None:
@@ -114,7 +114,7 @@ def test_level43_pivot_is_incremental_and_learning_gated() -> None:
         r"^#### Level 4\.3([A-I]) —", level4, flags=re.MULTILINE
     )
     assert subcheckpoints == list("ABCDEFGHI")
-    assert "Level 4.3D — Deterministic Grasp-and-Lift Expert" in status
+    assert "Level 4.3E — Deterministic Place and Complete Pick/Place Expert" in status
     assert "expert.reset(task, world_state)" in level4
     assert "applied_action - requested_action" in level4
     assert "20 scripted button successes" in level4

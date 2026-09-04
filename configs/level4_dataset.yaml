@@ -99,7 +99,7 @@ pilot:
       closed: configured_retargeter_full_flexion
     trial_setup:
       mode: selected_object_on_workcell_non_targets_on_floor_parking
-      parking_x_m: -0.35
+      parking_x_m: 0.40
       parking_y_m: [-0.12, -0.06, 0.0, 0.06, 0.12]
       parking_surface_z_m: -0.10
     transit_height_m: 0.22
@@ -108,29 +108,85 @@ pilot:
     lift_step_m: 0.001
     synergy_step: 0.05
     orientation_step_rad: 0.05
+    orientation_preservation_policy: shape_aware_hammer_grip_with_world_orientation_hold
+    orientation_correction_step_rad: 0.02
+    maximum_object_orientation_deviation_rad: 0.523599
+    maximum_terminal_orientation_error_rad: 0.104720
     waypoint_tolerance_m: 0.000001
     required_hold_steps: 10
+    maximum_closed_acquisition_actions: 30
     maximum_retention_gap_steps: 5
     maximum_hold_speed_m_s: 0.02
     sim_steps_per_action: 17
     maximum_non_target_disturbance_m: 0.005
     joint_limit_tolerance_rad: 0.03
+    contact_dynamics:
+      table_condim: 6
+      family_friction:
+        cylinder: [null, null, 0.05]
+        flat_puck: [1.50, 0.01, 0.02]
     family_templates:
       cuboid:
-        object_relative_position_m: [0.0, -0.06, 0.032]
-        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
-        grasp_synergy: 0.9
+        object_relative_position_m: [0.0075, 0.0, 0.020]
+        wrist_orientation_wxyz: [0.743144825, 0.669130606, 0.0, 0.0]
+        negative_object_yaw_to_wrist_yaw_gain: -1.0
+        orientation_symmetry: none
+        orientation_feedback_enabled: true
+        transport_orientation_feedback_enabled: true
+        grasp_synergy: 1.0
         lift_distance_m: 0.08
       cylinder:
-        object_relative_position_m: [-0.01, -0.06, 0.032]
-        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
-        grasp_synergy: 0.9
+        object_relative_position_m: [0.0, 0.0, 0.020]
+        wrist_orientation_wxyz: [0.7071067811865476, 0.7071067811865475, 0.0, 0.0]
+        negative_object_yaw_to_wrist_yaw_gain: 0.0
+        orientation_symmetry: axial_z
+        orientation_feedback_enabled: true
+        transport_orientation_feedback_enabled: true
+        grasp_synergy: 1.0
         lift_distance_m: 0.10
       flat_puck:
-        object_relative_position_m: [-0.04, -0.04, 0.016]
-        wrist_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+        object_relative_position_m: [0.0, 0.0, 0.030]
+        wrist_orientation_wxyz: [0.766044443, 0.642787610, 0.0, 0.0]
+        negative_object_yaw_to_wrist_yaw_gain: 0.0
+        orientation_symmetry: axial_z
+        orientation_feedback_enabled: false
+        transport_orientation_feedback_enabled: false
         grasp_synergy: 1.0
         lift_distance_m: 0.11
+  scripted_place:
+    controller: held_offset_transport_place_release_settle_retract
+    planning_point: grasp_site
+    orientation_policy: keep_qualified_grasp_orientation
+    trial_setup:
+      mode: selected_object_on_workcell_non_targets_on_floor_parking
+      parking_x_m: 0.40
+      parking_y_m: [-0.12, -0.06, 0.0, 0.06, 0.12]
+      parking_surface_z_m: -0.10
+    transport_object_height_m: 0.12
+    placement_clearance_m: 0.070
+    maximum_placement_center_x_m: 0.01
+    transport_step_m: 0.002
+    descent_step_m: 0.001
+    release_synergy_step: 0.05
+    release_clearance_height_m: 0.04
+    family_release_backoff_x_m:
+      cuboid: 0.025
+      cylinder: 0.025
+      flat_puck: 0.015
+    family_target_offset_xy_m:
+      cuboid: [-0.010, 0.0]
+      cylinder: [-0.010, 0.0]
+      flat_puck: [-0.020, 0.009]
+    retract_height_m: 0.08
+    retract_step_m: 0.010
+    waypoint_tolerance_m: 0.000001
+    release_position_tolerance_m: 0.050
+    required_terminal_dwell_steps: 5
+    maximum_settle_actions: 300
+    maximum_total_actions: 700
+    sim_steps_per_action: 17
+    maximum_non_target_disturbance_m: 0.005
+    joint_limit_tolerance_rad: 0.03
   minimum_genuine_sessions: 2
   minimum_accepted_episodes:
     reach: 5
@@ -357,14 +413,16 @@ skills:
     goal_fields:
       object_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]}
       target_id: {type: string, shape: scalar, units: id, coordinate_frame: none, required: true, allowed_ids: [return_bin_left, return_bin_right, inspection_pad, setup_slot_a, setup_slot_b]}
-    terminal_state_fields: [object_to_target_distance_m, object_linear_speed_mps, object_inside_target, held_object_id, settle_steps, terminal_reason]
+    terminal_state_fields: [object_to_target_distance_m, object_linear_speed_mps, object_angular_speed_radps, object_upright_tilt_rad, object_inside_target, object_supported, held_object_id, settle_steps, terminal_reason]
     success_metric:
       required_consecutive_samples: 10
       conditions:
         - {field: object_to_target_distance_m, operator: less_equal, value: 0.025, units: m}
         - {field: object_inside_target, operator: equals, value: true, units: bool}
+        - {field: object_supported, operator: equals, value: true, units: bool}
         - {field: held_object_id, operator: equals, value: null, units: id}
         - {field: object_linear_speed_mps, operator: less_equal, value: 0.020, units: m_per_s}
+        - {field: object_angular_speed_radps, operator: less_equal, value: 0.200, units: rad_per_s}
     failure_rules:
       - {reason: placement_miss, predicate: released_outside_target, retryable: true}
       - {reason: premature_release, predicate: released_before_place_phase, retryable: false}

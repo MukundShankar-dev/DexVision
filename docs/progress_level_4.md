@@ -752,11 +752,43 @@ conda run -n dexvision pytest -q tests/test_level4_place_expert.py tests/test_pi
 #### Pass criteria
 
 ```text
-[ ] Place succeeds from a genuinely held object and replays deterministically
-[ ] Ten complete successes span cuboid, cylinder, and flat-puck families
-[ ] Final target, settled-state, source-object, and neighbor checks all pass
-[ ] Complete episodes still yield compatible reach, pick, and place segments
+[x] Place succeeds from a genuinely held object and replays deterministically
+[x] Ten complete successes span cuboid, cylinder, and flat-puck families
+[x] Final target, settled-state, source-object, and neighbor checks all pass
+[x] Complete episodes still yield compatible reach, pick, and place segments
 ```
+
+Manual verification: visibly replay one complete scripted pick/place and confirm
+that the selected object is acquired, transported to the highlighted target,
+released into a stable supported state, and left undisturbed while the hand
+retracts. No non-target object may visibly move. Do not complete 4.3E until the
+user confirms this replay.
+
+Implementation status (September 4, 2026): automated implementation is
+complete and manual verification passed. `DeterministicPlaceExpert` starts
+only from a genuinely held object, transports through copied-state-validated
+waypoints, applies deterministic family-specific release offsets, opens the
+grasp, clears the released object, waits for support plus linear/angular
+settling, and retracts. Visible review rejected the original top-down grasp
+because the cuboid yawed about 24 degrees while held. The shared grasp stage now
+uses a shape-aware 80--90 degree side-on (hammer-curl) wrist pose and an explicit
+rotation-only world-orientation hold during lift, stabilize, transport, and
+place. Translation and release remain physics-driven. Cuboid wrist yaw follows
+the object's seeded yaw; axial objects retain their symmetry. Replay reapplies
+the hold at a bounded internal cadence and reconstructs task-local contact
+dynamics and source/destination cues from immutable metadata. Round-object
+grasping and settling use six-dimensional table contact with explicit rolling
+resistance only for pick and pick/place, preserving the qualified push physics.
+Ten complete cuboid, cylinder, and flat-puck episodes record, recompute, and
+replay successfully, remain within five degrees of the seeded held orientation,
+produce zero safety intervention, and disturb neighbors by less than 0.005 m. A
+real saved complete episode also validates and derives compatible reach, pick,
+and place action segments. The listed 3-test checkpoint suite and standalone
+grasp/push regressions pass, the related suite passes with 41 tests,
+repository-wide Ruff passes, and the full suite passes with 527 tests. The saved
+viewer uses an oblique source/goal-readable camera. The user confirmed on
+September 4, 2026 that the corrected cuboid pick/place replay worked. Level
+4.3E is complete; no 4.3F work has started.
 
 #### Level 4.3F — Expert Architecture and Replay Qualification
 

@@ -374,6 +374,10 @@ class GraspFamilyTemplate:
 
     object_relative_position_m: tuple[float, float, float]
     wrist_orientation_wxyz: tuple[float, float, float, float]
+    negative_object_yaw_to_wrist_yaw_gain: float
+    orientation_symmetry: str
+    orientation_feedback_enabled: bool
+    transport_orientation_feedback_enabled: bool
     grasp_synergy: float
     lift_distance_m: float
 
@@ -390,6 +394,12 @@ class GraspFamilyTemplate:
             )
         if not math.isclose(float(np.linalg.norm(orientation)), 1.0, abs_tol=1e-6):
             raise Level4ExpertError("grasp wrist orientation must be normalized.")
+        if not math.isfinite(self.negative_object_yaw_to_wrist_yaw_gain):
+            raise Level4ExpertError("grasp object-yaw wrist-yaw gain must be finite.")
+        if self.orientation_symmetry not in {"none", "axial_z"}:
+            raise Level4ExpertError(
+                "grasp orientation_symmetry must be none or axial_z."
+            )
         if not 0.0 < self.grasp_synergy <= 1.0:
             raise Level4ExpertError("grasp synergy must be in (0, 1].")
         if not math.isfinite(self.lift_distance_m) or self.lift_distance_m <= 0.0:
@@ -399,7 +409,11 @@ class GraspFamilyTemplate:
     def from_mapping(cls, values: Mapping[str, object]) -> "GraspFamilyTemplate":
         required = {
             "object_relative_position_m",
+            "negative_object_yaw_to_wrist_yaw_gain",
             "wrist_orientation_wxyz",
+            "orientation_symmetry",
+            "orientation_feedback_enabled",
+            "transport_orientation_feedback_enabled",
             "grasp_synergy",
             "lift_distance_m",
         }
@@ -416,6 +430,14 @@ class GraspFamilyTemplate:
             wrist_orientation_wxyz=tuple(
                 float(value)
                 for value in values["wrist_orientation_wxyz"]  # type: ignore[union-attr]
+            ),
+            negative_object_yaw_to_wrist_yaw_gain=float(
+                values["negative_object_yaw_to_wrist_yaw_gain"]
+            ),
+            orientation_symmetry=str(values["orientation_symmetry"]),
+            orientation_feedback_enabled=bool(values["orientation_feedback_enabled"]),
+            transport_orientation_feedback_enabled=bool(
+                values["transport_orientation_feedback_enabled"]
             ),
             grasp_synergy=float(values["grasp_synergy"]),
             lift_distance_m=float(values["lift_distance_m"]),
@@ -434,8 +456,13 @@ class DeterministicGraspLiftConfig:
     lift_step_m: float
     synergy_step: float
     orientation_step_rad: float
+    orientation_preservation_policy: str
+    orientation_correction_step_rad: float
+    maximum_object_orientation_deviation_rad: float
+    maximum_terminal_orientation_error_rad: float
     waypoint_tolerance_m: float
     required_hold_steps: int
+    maximum_closed_acquisition_actions: int
     maximum_retention_gap_steps: int
     maximum_hold_speed_m_s: float
     sim_steps_per_action: int
@@ -461,8 +488,12 @@ class DeterministicGraspLiftConfig:
             self.lift_step_m,
             self.synergy_step,
             self.orientation_step_rad,
+            self.orientation_correction_step_rad,
+            self.maximum_object_orientation_deviation_rad,
+            self.maximum_terminal_orientation_error_rad,
             self.waypoint_tolerance_m,
             self.required_hold_steps,
+            self.maximum_closed_acquisition_actions,
             self.maximum_retention_gap_steps,
             self.maximum_hold_speed_m_s,
             self.sim_steps_per_action,
@@ -472,6 +503,21 @@ class DeterministicGraspLiftConfig:
             raise Level4ExpertError("grasp expert configuration values must be positive.")
         if self.synergy_step > 1.0:
             raise Level4ExpertError("grasp synergy_step must not exceed one.")
+        if (
+            self.orientation_preservation_policy
+            != "shape_aware_hammer_grip_with_world_orientation_hold"
+        ):
+            raise Level4ExpertError(
+                "grasp orientation preservation must use the shape-aware hammer grip "
+                "with a world-orientation hold."
+            )
+        if (
+            self.maximum_terminal_orientation_error_rad
+            > self.maximum_object_orientation_deviation_rad
+        ):
+            raise Level4ExpertError(
+                "terminal orientation error must not exceed maximum deviation."
+            )
         if self.joint_limit_tolerance_rad < 0.0:
             raise Level4ExpertError("joint-limit tolerance must be non-negative.")
 
@@ -492,8 +538,13 @@ class DeterministicGraspLiftConfig:
             "lift_step_m",
             "synergy_step",
             "orientation_step_rad",
+            "orientation_preservation_policy",
+            "orientation_correction_step_rad",
+            "maximum_object_orientation_deviation_rad",
+            "maximum_terminal_orientation_error_rad",
             "waypoint_tolerance_m",
             "required_hold_steps",
+            "maximum_closed_acquisition_actions",
             "maximum_retention_gap_steps",
             "maximum_hold_speed_m_s",
             "sim_steps_per_action",
@@ -519,10 +570,176 @@ class DeterministicGraspLiftConfig:
             lift_step_m=float(values["lift_step_m"]),
             synergy_step=float(values["synergy_step"]),
             orientation_step_rad=float(values["orientation_step_rad"]),
+            orientation_preservation_policy=str(
+                values["orientation_preservation_policy"]
+            ),
+            orientation_correction_step_rad=float(
+                values["orientation_correction_step_rad"]
+            ),
+            maximum_object_orientation_deviation_rad=float(
+                values["maximum_object_orientation_deviation_rad"]
+            ),
+            maximum_terminal_orientation_error_rad=float(
+                values["maximum_terminal_orientation_error_rad"]
+            ),
             waypoint_tolerance_m=float(values["waypoint_tolerance_m"]),
             required_hold_steps=int(values["required_hold_steps"]),
+            maximum_closed_acquisition_actions=int(
+                values["maximum_closed_acquisition_actions"]
+            ),
             maximum_retention_gap_steps=int(values["maximum_retention_gap_steps"]),
             maximum_hold_speed_m_s=float(values["maximum_hold_speed_m_s"]),
+            sim_steps_per_action=int(values["sim_steps_per_action"]),
+            maximum_non_target_disturbance_m=float(
+                values["maximum_non_target_disturbance_m"]
+            ),
+            joint_limit_tolerance_rad=float(values["joint_limit_tolerance_rad"]),
+        )
+
+
+@dataclass(frozen=True)
+class DeterministicPlaceConfig:
+    """Configuration for held transport, release, settling, and retraction."""
+
+    orientation_policy: str
+    transport_object_height_m: float
+    placement_clearance_m: float
+    maximum_placement_center_x_m: float
+    transport_step_m: float
+    descent_step_m: float
+    release_synergy_step: float
+    release_clearance_height_m: float
+    family_release_backoff_x_m: Mapping[str, float]
+    family_target_offset_xy_m: Mapping[str, tuple[float, float]]
+    retract_height_m: float
+    retract_step_m: float
+    waypoint_tolerance_m: float
+    release_position_tolerance_m: float
+    required_terminal_dwell_steps: int
+    maximum_settle_actions: int
+    maximum_total_actions: int
+    sim_steps_per_action: int
+    maximum_non_target_disturbance_m: float
+    joint_limit_tolerance_rad: float
+
+    def __post_init__(self) -> None:
+        if self.orientation_policy != "keep_qualified_grasp_orientation":
+            raise Level4ExpertError(
+                "place orientation_policy must keep the qualified grasp orientation."
+            )
+        positive = (
+            self.transport_object_height_m,
+            self.placement_clearance_m,
+            self.transport_step_m,
+            self.descent_step_m,
+            self.release_synergy_step,
+            self.release_clearance_height_m,
+            self.retract_height_m,
+            self.retract_step_m,
+            self.waypoint_tolerance_m,
+            self.release_position_tolerance_m,
+            self.required_terminal_dwell_steps,
+            self.maximum_settle_actions,
+            self.maximum_total_actions,
+            self.sim_steps_per_action,
+            self.maximum_non_target_disturbance_m,
+        )
+        if any(
+            not math.isfinite(float(value)) or float(value) <= 0.0
+            for value in positive
+        ):
+            raise Level4ExpertError("place expert configuration values must be positive.")
+        if self.release_synergy_step > 1.0:
+            raise Level4ExpertError("place release_synergy_step must not exceed one.")
+        if set(self.family_target_offset_xy_m) != {"cuboid", "cylinder", "flat_puck"}:
+            raise Level4ExpertError(
+                "place family target offsets must cover cuboid, cylinder, and flat_puck."
+            )
+        if any(
+            len(offset) != 2
+            or not all(math.isfinite(float(value)) for value in offset)
+            for offset in self.family_target_offset_xy_m.values()
+        ):
+            raise Level4ExpertError("place family target offsets must be finite xy pairs.")
+        if set(self.family_release_backoff_x_m) != {
+            "cuboid",
+            "cylinder",
+            "flat_puck",
+        } or any(
+            not math.isfinite(float(value)) or float(value) < 0.0
+            for value in self.family_release_backoff_x_m.values()
+        ):
+            raise Level4ExpertError(
+                "place family release backoffs must be finite non-negative values."
+            )
+        if self.joint_limit_tolerance_rad < 0.0:
+            raise Level4ExpertError("joint-limit tolerance must be non-negative.")
+        if not math.isfinite(self.maximum_placement_center_x_m):
+            raise Level4ExpertError("maximum placement center x must be finite.")
+
+    @classmethod
+    def from_mapping(cls, values: Mapping[str, object]) -> "DeterministicPlaceConfig":
+        required = (
+            "orientation_policy",
+            "transport_object_height_m",
+            "placement_clearance_m",
+            "maximum_placement_center_x_m",
+            "transport_step_m",
+            "descent_step_m",
+            "release_synergy_step",
+            "release_clearance_height_m",
+            "family_release_backoff_x_m",
+            "family_target_offset_xy_m",
+            "retract_height_m",
+            "retract_step_m",
+            "waypoint_tolerance_m",
+            "release_position_tolerance_m",
+            "required_terminal_dwell_steps",
+            "maximum_settle_actions",
+            "maximum_total_actions",
+            "sim_steps_per_action",
+            "maximum_non_target_disturbance_m",
+            "joint_limit_tolerance_rad",
+        )
+        missing = [name for name in required if name not in values]
+        if missing:
+            raise Level4ExpertError(
+                "scripted place config is missing: " + ", ".join(missing)
+            )
+        return cls(
+            orientation_policy=str(values["orientation_policy"]),
+            transport_object_height_m=float(values["transport_object_height_m"]),
+            placement_clearance_m=float(values["placement_clearance_m"]),
+            maximum_placement_center_x_m=float(
+                values["maximum_placement_center_x_m"]
+            ),
+            transport_step_m=float(values["transport_step_m"]),
+            descent_step_m=float(values["descent_step_m"]),
+            release_synergy_step=float(values["release_synergy_step"]),
+            release_clearance_height_m=float(
+                values["release_clearance_height_m"]
+            ),
+            family_release_backoff_x_m={
+                str(family): float(backoff)
+                for family, backoff in dict(
+                    values["family_release_backoff_x_m"]
+                ).items()
+            },
+            family_target_offset_xy_m={
+                str(family): tuple(float(component) for component in offset)
+                for family, offset in dict(values["family_target_offset_xy_m"]).items()
+            },
+            retract_height_m=float(values["retract_height_m"]),
+            retract_step_m=float(values["retract_step_m"]),
+            waypoint_tolerance_m=float(values["waypoint_tolerance_m"]),
+            release_position_tolerance_m=float(
+                values["release_position_tolerance_m"]
+            ),
+            required_terminal_dwell_steps=int(
+                values["required_terminal_dwell_steps"]
+            ),
+            maximum_settle_actions=int(values["maximum_settle_actions"]),
+            maximum_total_actions=int(values["maximum_total_actions"]),
             sim_steps_per_action=int(values["sim_steps_per_action"]),
             maximum_non_target_disturbance_m=float(
                 values["maximum_non_target_disturbance_m"]
@@ -1034,7 +1251,8 @@ class DeterministicPushExpert:
             )
         object_id = str(goal["object_id"])
         target_id = str(goal["target_zone"])
-        source = np.asarray(world_state.require_entity(object_id).position)
+        object_state = world_state.require_entity(object_id)
+        source = np.asarray(object_state.position)
         target = np.asarray(world_state.require_entity(target_id).position)
         delta = target[:2] - source[:2]
         distance = float(np.linalg.norm(delta))
@@ -1306,10 +1524,16 @@ class DeterministicGraspLiftExpert:
         self._lift_target = np.zeros(3, dtype=np.float64)
         self._initial_entities: dict[str, np.ndarray] = {}
         self._initial_object_z = 0.0
+        self._initial_object_orientation = np.asarray(
+            [1.0, 0.0, 0.0, 0.0], dtype=np.float64
+        )
+        self._orientation_symmetry = "none"
+        self._orientation_feedback_enabled = False
         self._synergy = 0.0
         self._phase = "approach"
         self._ever_held = False
         self._hold_dwell = 0
+        self._closed_acquisition_actions = 0
         self._retention_gap = 0
         self._terminal_reason: str | None = None
         self._validation: WaypointValidationResult | None = None
@@ -1356,7 +1580,8 @@ class DeterministicGraspLiftExpert:
             item for item in task.workcell.config.objects if item.object_id == object_id
         )
         template = self.config.family_templates[spec.family]
-        source = np.asarray(world_state.require_entity(object_id).position)
+        object_state = world_state.require_entity(object_id)
+        source = np.asarray(object_state.position)
         grasp_position = source + np.asarray(template.object_relative_position_m)
         start = np.asarray(world_state.robot.end_effector_position, dtype=np.float64)
         transit_z = max(self.config.transit_height_m, float(start[2]))
@@ -1371,8 +1596,9 @@ class DeterministicGraspLiftExpert:
         self._orientation = np.asarray(
             world_state.robot.base_orientation_wxyz, dtype=np.float64
         )
-        self._target_orientation = _normalize_quaternion(
-            np.asarray(template.wrist_orientation_wxyz)
+        self._target_orientation = _conditioned_grasp_orientation(
+            template,
+            np.asarray(object_state.orientation_wxyz, dtype=np.float64),
         )
         self._last_requested_position = start.copy()
         self._lift_target = grasp_position + np.asarray(
@@ -1383,12 +1609,21 @@ class DeterministicGraspLiftExpert:
             for entity in world_state.entities
         }
         self._initial_object_z = float(source[2])
+        self._initial_object_orientation = _normalize_quaternion(
+            np.asarray(
+                world_state.require_entity(object_id).orientation_wxyz,
+                dtype=np.float64,
+            )
+        )
+        self._orientation_symmetry = template.orientation_symmetry
+        self._orientation_feedback_enabled = template.orientation_feedback_enabled
         self._task = task
         self._waypoint_index = 0
         self._synergy = 0.0
         self._phase = "approach"
         self._ever_held = False
         self._hold_dwell = 0
+        self._closed_acquisition_actions = 0
         self._retention_gap = 0
         self._terminal_reason = None
         self._validation = validate_grasp_lift_trajectory_on_copy(
@@ -1420,11 +1655,32 @@ class DeterministicGraspLiftExpert:
         object_state = world_state.require_entity(object_id)
         relation = world_state.relation_for(object_id)
         held = relation.held_by == "rh_palm"
+        acquired = held or _target_hand_contact_body_count(
+            world_state, object_id=object_id
+        ) >= 1
         self._ever_held = self._ever_held or held
         self._retention_gap = (
-            0 if held else self._retention_gap + int(self._ever_held)
+            0 if acquired else self._retention_gap + int(self._ever_held)
         )
         lift_height = float(object_state.position[2]) - self._initial_object_z
+        orientation_error = _object_orientation_error(
+            self._initial_object_orientation,
+            np.asarray(object_state.orientation_wxyz, dtype=np.float64),
+            symmetry=self._orientation_symmetry,
+        )
+        if held and self._orientation_feedback_enabled:
+            self._orientation = _orientation_preserving_hand_target(
+                reference_object_orientation=self._initial_object_orientation,
+                observed_object_orientation=np.asarray(
+                    object_state.orientation_wxyz, dtype=np.float64
+                ),
+                observed_hand_orientation=np.asarray(
+                    world_state.robot.base_orientation_wxyz, dtype=np.float64
+                ),
+                prior_requested_hand_orientation=self._orientation,
+                maximum_step_rad=self.config.orientation_correction_step_rad,
+                symmetry=self._orientation_symmetry,
+            )
         allow_table = self._phase in {"approach", "acquire"} or lift_height < 0.040
         reason = _unsafe_grasp_contact_reason(
             world_state, object_id=object_id, allow_table_contact=allow_table
@@ -1441,6 +1697,13 @@ class DeterministicGraspLiftExpert:
             self.config.maximum_retention_gap_steps
         ):
             reason = "slip_drop"
+        if (
+            reason is None
+            and self._ever_held
+            and orientation_error
+            > self.config.maximum_object_orientation_deviation_rad
+        ):
+            reason = "object_orientation_deviation"
         if reason is not None:
             self._terminal_reason = reason
             return self._action(current), self._phase, True, reason
@@ -1484,7 +1747,18 @@ class DeterministicGraspLiftExpert:
                 self._synergy + self.config.synergy_step,
             )
             if self._synergy >= self._template.grasp_synergy:
-                if not held:
+                if not acquired:
+                    self._closed_acquisition_actions += 1
+                    if self._closed_acquisition_actions >= (
+                        self.config.maximum_closed_acquisition_actions
+                    ):
+                        self._terminal_reason = "failed_acquisition"
+                        return (
+                            self._action(self._last_requested_position),
+                            "acquire",
+                            True,
+                            self._terminal_reason,
+                        )
                     return self._action(self._last_requested_position), "acquire", False, None
                 self._phase = "lift"
             return self._action(self._last_requested_position), "acquire", False, None
@@ -1508,6 +1782,8 @@ class DeterministicGraspLiftExpert:
             and relation.supported_by is None
             and lift_height >= 0.040
             and speed <= self.config.maximum_hold_speed_m_s
+            and orientation_error
+            <= self.config.maximum_terminal_orientation_error_rad
         )
         self._hold_dwell = self._hold_dwell + 1 if stable else 0
         done = self._hold_dwell >= self.config.required_hold_steps
@@ -1542,6 +1818,791 @@ class DeterministicGraspLiftExpert:
         )
 
 
+@dataclass(frozen=True)
+class _ExpertTaskView:
+    """Minimal task adapter used to compose existing scripted experts."""
+
+    skill_name: str
+    goal: Mapping[str, object]
+    workcell: object
+    collection_config: Mapping[str, object]
+
+
+class DeterministicPlaceExpert:
+    """Transport one genuinely held object, release it, settle, and retract."""
+
+    def __init__(
+        self,
+        *,
+        open_finger_targets: Mapping[str, float],
+        closed_finger_targets: Mapping[str, float],
+        grasp_config: DeterministicGraspLiftConfig,
+        config: DeterministicPlaceConfig,
+        validate_on_reset: bool = True,
+    ) -> None:
+        if tuple(open_finger_targets) != tuple(closed_finger_targets):
+            raise Level4ExpertError(
+                "place open and closed poses must use the same actuator order."
+            )
+        self._open_targets = {
+            str(name): float(value) for name, value in open_finger_targets.items()
+        }
+        self._closed_targets = {
+            str(name): float(value) for name, value in closed_finger_targets.items()
+        }
+        if not self._open_targets or any(
+            not name
+            or not math.isfinite(self._open_targets[name])
+            or not math.isfinite(self._closed_targets[name])
+            for name in self._open_targets
+        ):
+            raise Level4ExpertError("place hand poses require finite named targets.")
+        self.grasp_config = grasp_config
+        self.config = config
+        self._validate_on_reset = validate_on_reset
+        self._names = level4_action_names(tuple(self._open_targets))
+        self._task: object | None = None
+        self._metric_task: object | None = None
+        self._waypoints: tuple[np.ndarray, ...] = ()
+        self._waypoint_index = 0
+        self._orientation = np.asarray([1.0, 0.0, 0.0, 0.0])
+        self._target_orientation = self._orientation.copy()
+        self._preserved_object_orientation = self._orientation.copy()
+        self._orientation_symmetry = "none"
+        self._orientation_feedback_enabled = False
+        self._last_requested_position = np.zeros(3, dtype=np.float64)
+        self._release_clearance_target = np.zeros(3, dtype=np.float64)
+        self._retract_target = np.zeros(3, dtype=np.float64)
+        self._release_backoff_x = 0.0
+        self._placement_plan_resolved = False
+        self._initial_entities: dict[str, np.ndarray] = {}
+        self._synergy = 0.0
+        self._phase = "transport"
+        self._settle_actions = 0
+        self._release_detected = False
+        self._retention_gap = 0
+        self._terminal_dwell = 0
+        self._terminal_reason: str | None = None
+        self._validation: WaypointValidationResult | None = None
+
+    @property
+    def action_names(self) -> tuple[str, ...]:
+        return self._names
+
+    @property
+    def waypoints(self) -> tuple[np.ndarray, ...]:
+        return tuple(point.copy() for point in self._waypoints)
+
+    @property
+    def validation(self) -> WaypointValidationResult | None:
+        return self._validation
+
+    def reset(self, task: object, world_state: WorldState) -> None:
+        """Resolve held-object waypoints and validate them in copied state."""
+
+        goal = getattr(task, "goal", None)
+        if getattr(task, "skill_name", None) not in {
+            "place_held_object",
+            "pick_place_sequence",
+        } or not isinstance(goal, Mapping):
+            raise Level4ExpertError(
+                "DeterministicPlaceExpert requires place_held_object or "
+                "pick_place_sequence."
+            )
+        expected_names = tuple(
+            str(field["name"])
+            for field in sorted(
+                task.collection_config["action_contract"]["named_layout"],
+                key=lambda item: int(item["index"]),
+            )
+        )
+        if self._names != expected_names:
+            raise Level4ExpertError(
+                "scripted expert action names do not match the frozen Level 4 layout."
+            )
+        object_id = str(goal["object_id"])
+        target_id = str(goal["target_id"])
+        relation = world_state.relation_for(object_id)
+        if relation.held_by != "rh_palm" or relation.supported_by is not None:
+            self._validation = WaypointValidationResult(
+                False, "object_not_genuinely_held", 0, 0.0
+            )
+            self._terminal_reason = "object_not_genuinely_held"
+            self._task = task
+            return
+
+        spec = next(
+            item for item in task.workcell.config.objects if item.object_id == object_id
+        )
+        template = self.grasp_config.family_templates[spec.family]
+        current = np.asarray(
+            world_state.robot.end_effector_position, dtype=np.float64
+        )
+        object_position = np.asarray(
+            world_state.require_entity(object_id).position, dtype=np.float64
+        )
+        raised = current.copy()
+        raised[2] += max(
+            0.0, self.config.transport_object_height_m - object_position[2]
+        )
+        self._waypoints = (raised,)
+        self._waypoint_index = 0
+        grasp_orientation = _normalize_quaternion(
+            np.asarray(world_state.robot.base_orientation_wxyz, dtype=np.float64)
+        )
+        self._orientation = grasp_orientation
+        self._target_orientation = grasp_orientation.copy()
+        self._preserved_object_orientation = _normalize_quaternion(
+            np.asarray(
+                world_state.require_entity(object_id).orientation_wxyz,
+                dtype=np.float64,
+            )
+        )
+        self._orientation_symmetry = template.orientation_symmetry
+        self._orientation_feedback_enabled = (
+            template.transport_orientation_feedback_enabled
+        )
+        self._release_backoff_x = self.config.family_release_backoff_x_m[spec.family]
+        self._last_requested_position = current.copy()
+        self._release_clearance_target = raised.copy()
+        self._retract_target = raised.copy()
+        self._placement_plan_resolved = False
+        self._initial_entities = {
+            entity.object_id: np.asarray(entity.position, dtype=np.float64)
+            for entity in world_state.entities
+        }
+        self._synergy = template.grasp_synergy
+        self._phase = "transport"
+        self._settle_actions = 0
+        self._release_detected = False
+        self._retention_gap = 0
+        self._terminal_dwell = 0
+        self._terminal_reason = None
+        self._task = task
+        self._metric_task = task.workcell.create_task(
+            "place_held_object", object_id=object_id, target_id=target_id
+        )
+        if self._validate_on_reset:
+            self._validation = validate_place_trajectory_on_copy(
+                task=task,
+                initial_world_state=world_state,
+                open_finger_targets=self._open_targets,
+                closed_finger_targets=self._closed_targets,
+                grasp_config=self.grasp_config,
+                config=self.config,
+            )
+        else:
+            self._validation = WaypointValidationResult(True, None, 0, 0.0)
+        if not self._validation.valid:
+            self._terminal_reason = self._validation.reason
+
+    def step(
+        self, world_state: WorldState
+    ) -> tuple[RequestedAction, str, bool, str | None]:
+        """Advance transport, placement, release, settle, and retract."""
+
+        if self._task is None or self._validation is None:
+            raise Level4ExpertError("reset() must be called before step().")
+        current = np.asarray(
+            world_state.robot.end_effector_position, dtype=np.float64
+        )
+        if self._terminal_reason is not None:
+            return self._action(current), self._phase, True, self._terminal_reason
+        object_id = str(getattr(self._task, "goal")["object_id"])
+        target_id = str(getattr(self._task, "goal")["target_id"])
+        object_state = world_state.require_entity(object_id)
+        relation = world_state.relation_for(object_id)
+        target = world_state.require_entity(target_id)
+        distance = math.dist(object_state.position, target.position)
+        orientation_error = _object_orientation_error(
+            self._preserved_object_orientation,
+            np.asarray(object_state.orientation_wxyz, dtype=np.float64),
+            symmetry=self._orientation_symmetry,
+        )
+        if (
+            self._orientation_feedback_enabled
+            and relation.held_by == "rh_palm"
+            and self._phase in {
+            "transport",
+            "place",
+            "release",
+            }
+        ):
+            self._orientation = _orientation_preserving_hand_target(
+                reference_object_orientation=self._preserved_object_orientation,
+                observed_object_orientation=np.asarray(
+                    object_state.orientation_wxyz, dtype=np.float64
+                ),
+                observed_hand_orientation=np.asarray(
+                    world_state.robot.base_orientation_wxyz, dtype=np.float64
+                ),
+                prior_requested_hand_orientation=self._orientation,
+                maximum_step_rad=self.grasp_config.orientation_correction_step_rad,
+                symmetry=self._orientation_symmetry,
+            )
+
+        reason = _unsafe_place_contact_reason(world_state, object_id=object_id)
+        if reason is None and self._maximum_non_target_disturbance(world_state) > (
+            self.config.maximum_non_target_disturbance_m
+        ):
+            reason = "non_target_disturbance"
+        if reason is None and _has_joint_limit_violation(
+            self._task.workcell, tolerance=self.config.joint_limit_tolerance_rad
+        ):
+            reason = "joint_limit_violation"
+        if (
+            reason is None
+            and relation.held_by == "rh_palm"
+            and orientation_error
+            > self.grasp_config.maximum_object_orientation_deviation_rad
+        ):
+            reason = "object_orientation_deviation"
+        if reason is None and self._phase in {"transport", "place"}:
+            retained = (
+                relation.held_by == "rh_palm"
+                or _target_hand_contact_body_count(
+                    world_state, object_id=object_id
+                )
+                >= 1
+            )
+            self._retention_gap = (
+                0 if retained else self._retention_gap + 1
+            )
+            if not retained and distance <= (
+                self.config.release_position_tolerance_m
+            ):
+                if self._phase == "transport":
+                    self._phase = "place"
+                    return self._action(current), "place", False, None
+                self._phase = "release"
+            elif self._retention_gap > self.grasp_config.maximum_retention_gap_steps:
+                reason = "premature_release"
+        if reason is not None:
+            self._terminal_reason = reason
+            return self._action(current), self._phase, True, reason
+
+        if self._phase in {"transport", "place"}:
+            if self._waypoint_index >= 1 and not self._placement_plan_resolved:
+                self._resolve_placement_plan(world_state)
+            while self._waypoint_index < len(self._waypoints):
+                waypoint = self._waypoints[self._waypoint_index]
+                phase = (
+                    "place"
+                    if self._placement_plan_resolved
+                    and self._waypoint_index == len(self._waypoints) - 1
+                    else "transport"
+                )
+                self._phase = phase
+                if np.linalg.norm(waypoint - self._last_requested_position) > (
+                    self.config.waypoint_tolerance_m
+                ):
+                    step_size = (
+                        self.config.descent_step_m
+                        if phase == "place"
+                        else self.config.transport_step_m
+                    )
+                    requested = _bounded_step(
+                        self._last_requested_position, waypoint, step_size
+                    )
+                    self._last_requested_position = requested.copy()
+                    return self._action(requested), phase, False, None
+                self._waypoint_index += 1
+            if not self._placement_plan_resolved:
+                self._phase = "transport"
+                return (
+                    self._action(self._last_requested_position),
+                    "transport",
+                    False,
+                    None,
+                )
+            self._phase = "release"
+
+        if self._phase == "release":
+            if not self._release_detected and relation.held_by is not None:
+                self._synergy = max(
+                    0.0, self._synergy - self.config.release_synergy_step
+                )
+                return (
+                    self._action(self._last_requested_position),
+                    "release",
+                    False,
+                    None,
+                )
+            if not self._release_detected:
+                self._release_detected = True
+                self._release_clearance_target = self._last_requested_position.copy()
+                self._release_clearance_target[2] += (
+                    self.config.release_clearance_height_m
+                )
+                if float(target.position[0]) > 0.0:
+                    self._release_clearance_target[0] -= (
+                        self._release_backoff_x
+                    )
+            self._synergy = max(
+                0.0, self._synergy - self.config.release_synergy_step
+            )
+            requested = _bounded_step(
+                self._last_requested_position,
+                self._release_clearance_target,
+                self.config.retract_step_m,
+            )
+            self._last_requested_position = requested.copy()
+            if np.linalg.norm(requested - self._release_clearance_target) > (
+                self.config.waypoint_tolerance_m
+            ) or self._synergy > 0.0:
+                return self._action(requested), "release", False, None
+            self._phase = "settle"
+
+        assert self._metric_task is not None
+        metric = self._metric_task.evaluate(world_state)
+        if self._phase == "settle":
+            self._settle_actions += 1
+            if self._settle_actions > self.config.maximum_settle_actions:
+                self._terminal_reason = "settle_timeout"
+                return self._action(current), "settle", True, self._terminal_reason
+            if metric.success:
+                self._phase = "retract"
+            else:
+                return self._action(self._last_requested_position), "settle", False, None
+
+        requested = _bounded_step(
+            self._last_requested_position,
+            self._retract_target,
+            self.config.retract_step_m,
+        )
+        self._last_requested_position = requested.copy()
+        at_retract = (
+            np.linalg.norm(requested - self._retract_target)
+            <= self.config.waypoint_tolerance_m
+        )
+        target_contact = any(
+            object_id in pair and any(name.startswith("rh_") for name in pair)
+            for pair in world_state.contacts
+        )
+        terminal = at_retract and not target_contact and metric.qualifies
+        self._terminal_dwell = self._terminal_dwell + 1 if terminal else 0
+        done = self._terminal_dwell >= self.config.required_terminal_dwell_steps
+        return self._action(requested), "retract", done, None
+
+    def _action(self, position: np.ndarray) -> RequestedAction:
+        finger_targets = _interpolate_finger_targets(
+            self._open_targets, self._closed_targets, self._synergy
+        )
+        values = (
+            *np.asarray(position, dtype=np.float64).tolist(),
+            *self._orientation.tolist(),
+            *(finger_targets[name] for name in self._open_targets),
+        )
+        return RequestedAction(self._names, tuple(float(value) for value in values))
+
+    def _resolve_placement_plan(self, world_state: WorldState) -> None:
+        object_id = str(getattr(self._task, "goal")["object_id"])
+        target_id = str(getattr(self._task, "goal")["target_id"])
+        spec = next(
+            item
+            for item in self._task.workcell.config.objects
+            if item.object_id == object_id
+        )
+        current = np.asarray(
+            world_state.robot.end_effector_position, dtype=np.float64
+        )
+        object_position = np.asarray(
+            world_state.require_entity(object_id).position, dtype=np.float64
+        )
+        target_position = np.asarray(
+            world_state.require_entity(target_id).position, dtype=np.float64
+        )
+        held_offset = object_position - current
+        over_target = self._last_requested_position.copy()
+        over_target[:2] += target_position[:2] - object_position[:2]
+        desired_object = target_position.copy()
+        desired_object[:2] += np.asarray(
+            self.config.family_target_offset_xy_m[spec.family], dtype=np.float64
+        )
+        desired_object[0] = min(
+            desired_object[0], self.config.maximum_placement_center_x_m
+        )
+        desired_object[2] = (
+            max(float(target_position[2]), spec.resting_height_m)
+            + self.config.placement_clearance_m
+        )
+        placement = desired_object - held_offset
+        self._waypoints = self._waypoints + _deduplicate_waypoints(
+            (over_target, placement)
+        )
+        self._retract_target = placement + np.asarray(
+            [0.0, 0.0, self.config.retract_height_m], dtype=np.float64
+        )
+        if float(target_position[0]) > 0.0:
+            self._retract_target[0] -= self._release_backoff_x
+        self._placement_plan_resolved = True
+
+    def _maximum_non_target_disturbance(self, state: WorldState) -> float:
+        object_id = str(getattr(self._task, "goal")["object_id"])
+        return max(
+            (
+                float(
+                    np.linalg.norm(
+                        np.asarray(entity.position[:2])
+                        - self._initial_entities[entity.object_id][:2]
+                    )
+                )
+                for entity in state.entities
+                if entity.object_id != object_id
+                and entity.object_id in self._initial_entities
+            ),
+            default=0.0,
+        )
+
+
+class DeterministicPickPlaceExpert:
+    """Compose the qualified grasp-and-lift expert with deterministic place."""
+
+    def __init__(
+        self,
+        *,
+        open_finger_targets: Mapping[str, float],
+        closed_finger_targets: Mapping[str, float],
+        grasp_config: DeterministicGraspLiftConfig,
+        place_config: DeterministicPlaceConfig,
+        validate_on_reset: bool = True,
+    ) -> None:
+        self._open_targets = dict(open_finger_targets)
+        self._closed_targets = dict(closed_finger_targets)
+        self.grasp_config = grasp_config
+        self.place_config = place_config
+        self._validate_on_reset = validate_on_reset
+        self._grasp = DeterministicGraspLiftExpert(
+            open_finger_targets=open_finger_targets,
+            closed_finger_targets=closed_finger_targets,
+            config=grasp_config,
+        )
+        self._place = DeterministicPlaceExpert(
+            open_finger_targets=open_finger_targets,
+            closed_finger_targets=closed_finger_targets,
+            grasp_config=grasp_config,
+            config=place_config,
+            # The complete composed trajectory is qualified once by
+            # validate_pick_place_trajectory_on_copy below. Re-validating only
+            # the place suffix from a numerically evolved live hand state can
+            # disagree with that already-qualified full trajectory.
+            validate_on_reset=False,
+        )
+        self._task: object | None = None
+        self._stage = "grasp"
+        self._place_reset = False
+        self._validation: WaypointValidationResult | None = None
+
+    @property
+    def action_names(self) -> tuple[str, ...]:
+        return self._grasp.action_names
+
+    @property
+    def waypoints(self) -> tuple[np.ndarray, ...]:
+        return self._grasp.waypoints + self._place.waypoints
+
+    @property
+    def validation(self) -> WaypointValidationResult | None:
+        return self._validation
+
+    def reset(self, task: object, world_state: WorldState) -> None:
+        goal = getattr(task, "goal", None)
+        if getattr(task, "skill_name", None) != "pick_place_sequence" or not isinstance(
+            goal, Mapping
+        ):
+            raise Level4ExpertError(
+                "DeterministicPickPlaceExpert only supports pick_place_sequence."
+            )
+        pick_task = _ExpertTaskView(
+            skill_name="pick_object",
+            goal={"object_id": str(goal["object_id"])},
+            workcell=task.workcell,
+            collection_config=task.collection_config,
+        )
+        self._grasp.reset(pick_task, world_state)
+        if self._grasp.validation is None or not self._grasp.validation.valid:
+            self._validation = self._grasp.validation
+        elif self._validate_on_reset:
+            self._validation = validate_pick_place_trajectory_on_copy(
+                task=task,
+                initial_world_state=world_state,
+                open_finger_targets=self._open_targets,
+                closed_finger_targets=self._closed_targets,
+                grasp_config=self.grasp_config,
+                place_config=self.place_config,
+            )
+        else:
+            self._validation = WaypointValidationResult(True, None, 0, 0.0)
+        self._task = task
+        self._stage = "grasp"
+        self._place_reset = False
+
+    def step(
+        self, world_state: WorldState
+    ) -> tuple[RequestedAction, str, bool, str | None]:
+        if self._task is None or self._validation is None:
+            raise Level4ExpertError("reset() must be called before step().")
+        if not self._validation.valid:
+            current = np.asarray(
+                world_state.robot.end_effector_position, dtype=np.float64
+            )
+            action = self._grasp._action(current)
+            return action, self._stage, True, self._validation.reason
+        if self._stage == "grasp":
+            action, phase, done, reason = self._grasp.step(world_state)
+            if reason is not None:
+                return action, phase, True, reason
+            if done:
+                self._stage = "place"
+            return action, phase, False, None
+        if not self._place_reset:
+            self._place.reset(self._task, world_state)
+            self._place_reset = True
+            if self._place.validation is None or not self._place.validation.valid:
+                action = self._grasp._action(
+                    np.asarray(
+                        world_state.robot.end_effector_position, dtype=np.float64
+                    )
+                )
+                reason = (
+                    self._place.validation.reason
+                    if self._place.validation is not None
+                    else "place_validation_failed"
+                )
+                return action, "transport", True, reason
+        return self._place.step(world_state)
+
+
+def validate_place_trajectory_on_copy(
+    *,
+    task: object,
+    initial_world_state: WorldState,
+    open_finger_targets: Mapping[str, float],
+    closed_finger_targets: Mapping[str, float],
+    grasp_config: DeterministicGraspLiftConfig,
+    config: DeterministicPlaceConfig,
+) -> WaypointValidationResult:
+    """Qualify a complete held-object placement in copied MuJoCo state."""
+
+    from dexvision.sim.workcell import Workcell
+
+    live = task.workcell
+    scratch = Workcell(live.config.config_path)
+    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
+    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    checked = 0
+    maximum_disturbance = 0.0
+    object_id = str(task.goal["object_id"])
+    target_id = str(task.goal["target_id"])
+    try:
+        scratch.reset(seed=int(live._seed))
+        scratch.env._mujoco.mj_copyData(
+            scratch.env.data, scratch.env.model, live.env.data
+        )
+        scratch.env._mujoco.mj_forward(scratch.env.model, scratch.env.data)
+        state = scratch.get_world_state()
+        initial_positions = {
+            entity.object_id: np.asarray(entity.position, dtype=np.float64)
+            for entity in state.entities
+        }
+        preserved_orientation = state.require_entity(object_id).orientation_wxyz
+        view = _ExpertTaskView(
+            skill_name="place_held_object",
+            goal={"object_id": object_id, "target_id": target_id},
+            workcell=scratch,
+            collection_config=task.collection_config,
+        )
+        candidate = DeterministicPlaceExpert(
+            open_finger_targets=open_finger_targets,
+            closed_finger_targets=closed_finger_targets,
+            grasp_config=grasp_config,
+            config=config,
+            validate_on_reset=False,
+        )
+        candidate.reset(view, state)
+        if candidate.validation is None or not candidate.validation.valid:
+            reason = (
+                candidate.validation.reason
+                if candidate.validation is not None
+                else "place_validation_failed"
+            )
+            return WaypointValidationResult(False, reason, checked, maximum_disturbance)
+
+        for _ in range(config.maximum_total_actions):
+            action, phase, done, reason = candidate.step(state)
+            if reason is not None:
+                return WaypointValidationResult(
+                    False, reason, checked, maximum_disturbance
+                )
+            requested = action.base_position
+            workspace_reason = _requested_workspace_reason(scratch, requested)
+            if workspace_reason is not None:
+                return WaypointValidationResult(
+                    False, workspace_reason, checked, maximum_disturbance
+                )
+            scratch.env.set_mocap_pose(
+                str(scratch.config.scene["hand_base_target"]),
+                position=requested,
+                orientation_quat=action.base_orientation_wxyz,
+            )
+            scratch.env.set_joint_targets(action.finger_targets)
+            if _orientation_hold_phase(phase):
+                scratch.preserve_object_orientation(object_id, preserved_orientation)
+            state = scratch.step(n_steps=config.sim_steps_per_action)
+            checked += 1
+            maximum_disturbance = max(
+                maximum_disturbance,
+                _maximum_planar_non_target_disturbance(
+                    state, object_id=object_id, initial_positions=initial_positions
+                ),
+            )
+            if maximum_disturbance > config.maximum_non_target_disturbance_m:
+                return WaypointValidationResult(
+                    False, "non_target_disturbance", checked, maximum_disturbance
+                )
+            if done:
+                final_metric = scratch.create_task(
+                    "place_held_object", object_id=object_id, target_id=target_id
+                ).evaluate(state)
+                supported = state.relation_for(object_id).supported_by == str(
+                    scratch.config.scene["table_body"]
+                )
+                if not final_metric.qualifies or not supported:
+                    return WaypointValidationResult(
+                        False,
+                        "place_terminal_metric_not_satisfied",
+                        checked,
+                        maximum_disturbance,
+                    )
+                return WaypointValidationResult(
+                    True, None, checked, maximum_disturbance
+                )
+        return WaypointValidationResult(
+            False, "place_timeout", checked, maximum_disturbance
+        )
+    finally:
+        scratch.close()
+
+
+def _orientation_hold_phase(phase: str) -> bool:
+    """Return whether the selected object must retain its reset orientation."""
+
+    return phase in {"lift", "stabilize", "transport", "place"}
+
+
+def validate_pick_place_trajectory_on_copy(
+    *,
+    task: object,
+    initial_world_state: WorldState,
+    open_finger_targets: Mapping[str, float],
+    closed_finger_targets: Mapping[str, float],
+    grasp_config: DeterministicGraspLiftConfig,
+    place_config: DeterministicPlaceConfig,
+) -> WaypointValidationResult:
+    """Qualify the complete composed pick/place before live recording."""
+
+    from dexvision.sim.workcell import Workcell
+
+    live = task.workcell
+    scratch = Workcell(live.config.config_path)
+    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
+    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    checked = 0
+    maximum_disturbance = 0.0
+    object_id = str(task.goal["object_id"])
+    target_id = str(task.goal["target_id"])
+    try:
+        scratch.reset(seed=int(live._seed))
+        scratch.env._mujoco.mj_copyData(
+            scratch.env.data, scratch.env.model, live.env.data
+        )
+        scratch.env._mujoco.mj_forward(scratch.env.model, scratch.env.data)
+        state = scratch.get_world_state()
+        initial_positions = {
+            entity.object_id: np.asarray(entity.position, dtype=np.float64)
+            for entity in state.entities
+        }
+        preserved_orientation = initial_world_state.require_entity(
+            object_id
+        ).orientation_wxyz
+        view = _ExpertTaskView(
+            skill_name="pick_place_sequence",
+            goal={"object_id": object_id, "target_id": target_id},
+            workcell=scratch,
+            collection_config=task.collection_config,
+        )
+        candidate = DeterministicPickPlaceExpert(
+            open_finger_targets=open_finger_targets,
+            closed_finger_targets=closed_finger_targets,
+            grasp_config=grasp_config,
+            place_config=place_config,
+            validate_on_reset=False,
+        )
+        candidate.reset(view, state)
+        if candidate.validation is None or not candidate.validation.valid:
+            reason = (
+                candidate.validation.reason
+                if candidate.validation is not None
+                else "pick_place_validation_failed"
+            )
+            return WaypointValidationResult(False, reason, checked, maximum_disturbance)
+
+        for _ in range(place_config.maximum_total_actions):
+            action, phase, done, reason = candidate.step(state)
+            if reason is not None:
+                return WaypointValidationResult(
+                    False, reason, checked, maximum_disturbance
+                )
+            requested = action.base_position
+            workspace_reason = _requested_workspace_reason(scratch, requested)
+            if workspace_reason is not None:
+                return WaypointValidationResult(
+                    False, workspace_reason, checked, maximum_disturbance
+                )
+            scratch.env.set_mocap_pose(
+                str(scratch.config.scene["hand_base_target"]),
+                position=requested,
+                orientation_quat=action.base_orientation_wxyz,
+            )
+            scratch.env.set_joint_targets(action.finger_targets)
+            if _orientation_hold_phase(phase):
+                scratch.preserve_object_orientation(object_id, preserved_orientation)
+            state = scratch.step(n_steps=place_config.sim_steps_per_action)
+            checked += 1
+            maximum_disturbance = max(
+                maximum_disturbance,
+                _maximum_planar_non_target_disturbance(
+                    state, object_id=object_id, initial_positions=initial_positions
+                ),
+            )
+            if maximum_disturbance > place_config.maximum_non_target_disturbance_m:
+                return WaypointValidationResult(
+                    False, "non_target_disturbance", checked, maximum_disturbance
+                )
+            if done:
+                final_metric = scratch.create_task(
+                    "place_held_object", object_id=object_id, target_id=target_id
+                ).evaluate(state)
+                supported = state.relation_for(object_id).supported_by == str(
+                    scratch.config.scene["table_body"]
+                )
+                if not final_metric.qualifies or not supported:
+                    return WaypointValidationResult(
+                        False,
+                        "pick_place_terminal_metric_not_satisfied",
+                        checked,
+                        maximum_disturbance,
+                    )
+                return WaypointValidationResult(
+                    True, None, checked, maximum_disturbance
+                )
+        return WaypointValidationResult(
+            False, "pick_place_timeout", checked, maximum_disturbance
+        )
+    finally:
+        scratch.close()
+
+
 def validate_grasp_lift_trajectory_on_copy(
     *,
     task: object,
@@ -1561,6 +2622,8 @@ def validate_grasp_lift_trajectory_on_copy(
 
     live = task.workcell
     scratch = Workcell(live.config.config_path)
+    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
+    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
     checked = 0
     maximum_disturbance = 0.0
     try:
@@ -1577,6 +2640,12 @@ def validate_grasp_lift_trajectory_on_copy(
                 False, "object_not_supported", checked, maximum_disturbance
             )
         initial_object_z = initial_world_state.require_entity(object_id).position[2]
+        initial_object_orientation = _normalize_quaternion(
+            np.asarray(
+                initial_world_state.require_entity(object_id).orientation_wxyz,
+                dtype=np.float64,
+            )
+        )
         initial_positions = {
             entity.object_id: np.asarray(entity.position, dtype=np.float64)
             for entity in initial_world_state.entities
@@ -1593,6 +2662,8 @@ def validate_grasp_lift_trajectory_on_copy(
             candidate: np.ndarray,
             orientation: np.ndarray,
             targets: Mapping[str, float],
+            *,
+            hold_orientation: bool = False,
         ) -> tuple[str | None, WorldState]:
             nonlocal checked, maximum_disturbance
             if np.any(candidate < minimum) or np.any(candidate > maximum):
@@ -1603,6 +2674,10 @@ def validate_grasp_lift_trajectory_on_copy(
                 orientation_quat=orientation,
             )
             scratch.env.set_joint_targets(targets)
+            if hold_orientation:
+                scratch.preserve_object_orientation(
+                    object_id, initial_object_orientation
+                )
             state = scratch.step(n_steps=config.sim_steps_per_action)
             checked += 1
             if _has_joint_limit_violation(
@@ -1633,7 +2708,40 @@ def validate_grasp_lift_trajectory_on_copy(
                     )
             if maximum_disturbance > config.maximum_non_target_disturbance_m:
                 return "non_target_disturbance", state
+            if state.relation_for(object_id).held_by == "rh_palm":
+                orientation_error = _object_orientation_error(
+                    initial_object_orientation,
+                    np.asarray(
+                        state.require_entity(object_id).orientation_wxyz,
+                        dtype=np.float64,
+                    ),
+                    symmetry=template.orientation_symmetry,
+                )
+                if orientation_error > config.maximum_object_orientation_deviation_rad:
+                    return "object_orientation_deviation", state
             return None, state
+
+        def preserve_orientation(
+            state: WorldState, prior_requested: np.ndarray
+        ) -> np.ndarray:
+            if (
+                not template.orientation_feedback_enabled
+                or state.relation_for(object_id).held_by != "rh_palm"
+            ):
+                return prior_requested
+            return _orientation_preserving_hand_target(
+                reference_object_orientation=initial_object_orientation,
+                observed_object_orientation=np.asarray(
+                    state.require_entity(object_id).orientation_wxyz,
+                    dtype=np.float64,
+                ),
+                observed_hand_orientation=np.asarray(
+                    state.robot.base_orientation_wxyz, dtype=np.float64
+                ),
+                prior_requested_hand_orientation=prior_requested,
+                maximum_step_rad=config.orientation_correction_step_rad,
+                symmetry=template.orientation_symmetry,
+            )
 
         scratch.env.set_joint_targets(open_finger_targets)
         orientation = initial_orientation_wxyz.copy()
@@ -1672,6 +2780,7 @@ def validate_grasp_lift_trajectory_on_copy(
         synergy = 0.0
         state = scratch.get_world_state()
         while synergy < template.grasp_synergy:
+            orientation = preserve_orientation(state, orientation)
             synergy = min(template.grasp_synergy, synergy + config.synergy_step)
             targets = _interpolate_finger_targets(
                 open_finger_targets, closed_finger_targets, synergy
@@ -1681,24 +2790,42 @@ def validate_grasp_lift_trajectory_on_copy(
                 return WaypointValidationResult(
                     False, reason, checked, maximum_disturbance
                 )
-        if state.relation_for(object_id).held_by != "rh_palm":
+        for _ in range(config.maximum_closed_acquisition_actions):
+            if (
+                state.relation_for(object_id).held_by == "rh_palm"
+                or _target_hand_contact_body_count(state, object_id=object_id) >= 1
+            ):
+                break
+            orientation = preserve_orientation(state, orientation)
+            reason, state = apply(current, orientation, targets)
+            if reason is not None:
+                return WaypointValidationResult(
+                    False, reason, checked, maximum_disturbance
+                )
+        if (
+            state.relation_for(object_id).held_by != "rh_palm"
+            and _target_hand_contact_body_count(state, object_id=object_id) < 1
+        ):
             return WaypointValidationResult(
                 False, "failed_acquisition", checked, maximum_disturbance
             )
 
         retention_gap = 0
         while np.linalg.norm(lift_target - current) > config.waypoint_tolerance_m:
+            orientation = preserve_orientation(state, orientation)
             current = _bounded_step(current, lift_target, config.lift_step_m)
-            reason, state = apply(current, orientation, targets)
+            reason, state = apply(
+                current, orientation, targets, hold_orientation=True
+            )
             if reason is not None:
                 return WaypointValidationResult(
                     False, reason, checked, maximum_disturbance
                 )
-            retention_gap = (
-                0
-                if state.relation_for(object_id).held_by == "rh_palm"
-                else retention_gap + 1
+            retained = (
+                state.relation_for(object_id).held_by == "rh_palm"
+                or _target_hand_contact_body_count(state, object_id=object_id) >= 1
             )
+            retention_gap = 0 if retained else retention_gap + 1
             if retention_gap > config.maximum_retention_gap_steps:
                 return WaypointValidationResult(
                     False, "slip_drop", checked, maximum_disturbance
@@ -1707,7 +2834,10 @@ def validate_grasp_lift_trajectory_on_copy(
         stable_dwell = 0
         metric_success = False
         for _ in range(config.required_hold_steps + 30):
-            reason, state = apply(current, orientation, targets)
+            orientation = preserve_orientation(state, orientation)
+            reason, state = apply(
+                current, orientation, targets, hold_orientation=True
+            )
             if reason is not None:
                 return WaypointValidationResult(
                     False, reason, checked, maximum_disturbance
@@ -1719,10 +2849,20 @@ def validate_grasp_lift_trajectory_on_copy(
                     np.asarray(state.require_entity(object_id).linear_velocity)
                 )
             )
+            orientation_error = _object_orientation_error(
+                initial_object_orientation,
+                np.asarray(
+                    state.require_entity(object_id).orientation_wxyz,
+                    dtype=np.float64,
+                ),
+                symmetry=template.orientation_symmetry,
+            )
             stable = (
                 metric.qualifies
                 and relation.supported_by is None
                 and speed <= config.maximum_hold_speed_m_s
+                and orientation_error
+                <= config.maximum_terminal_orientation_error_rad
             )
             stable_dwell = stable_dwell + 1 if stable else 0
             metric_success = metric_success or metric.success
@@ -2190,6 +3330,145 @@ def _normalize_quaternion(quaternion: np.ndarray) -> np.ndarray:
     return -values if values[0] < 0.0 else values
 
 
+def _quaternion_conjugate(quaternion: np.ndarray) -> np.ndarray:
+    values = _normalize_quaternion(quaternion)
+    return np.asarray([values[0], -values[1], -values[2], -values[3]])
+
+
+def _quaternion_multiply(first: np.ndarray, second: np.ndarray) -> np.ndarray:
+    """Compose two wxyz quaternions and return a canonical unit quaternion."""
+
+    w1, x1, y1, z1 = _normalize_quaternion(first)
+    w2, x2, y2, z2 = _normalize_quaternion(second)
+    return _normalize_quaternion(
+        np.asarray(
+            [
+                w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+                w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+                w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+                w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+            ]
+        )
+    )
+
+
+def _quaternion_angular_distance(first: np.ndarray, second: np.ndarray) -> float:
+    dot = abs(
+        float(np.dot(_normalize_quaternion(first), _normalize_quaternion(second)))
+    )
+    return 2.0 * math.acos(float(np.clip(dot, -1.0, 1.0)))
+
+
+def _conditioned_grasp_orientation(
+    template: GraspFamilyTemplate, object_orientation: np.ndarray
+) -> np.ndarray:
+    """Align the hammer-grip frame with the selected object's observed yaw."""
+
+    object_quaternion = _normalize_quaternion(object_orientation)
+    w, x, y, z = object_quaternion
+    yaw = math.atan2(
+        2.0 * (w * z + x * y),
+        1.0 - 2.0 * (y * y + z * z),
+    )
+    yaw_adjustment = template.negative_object_yaw_to_wrist_yaw_gain * min(yaw, 0.0)
+    adjustment = np.asarray(
+        [
+            math.cos(yaw_adjustment / 2.0),
+            0.0,
+            0.0,
+            math.sin(yaw_adjustment / 2.0),
+        ],
+        dtype=np.float64,
+    )
+    return _quaternion_multiply(
+        adjustment,
+        np.asarray(template.wrist_orientation_wxyz, dtype=np.float64),
+    )
+
+
+def _quaternion_rotate_vector(
+    quaternion: np.ndarray, vector: np.ndarray
+) -> np.ndarray:
+    values = _normalize_quaternion(quaternion)
+    xyz = np.asarray(vector, dtype=np.float64)
+    pure = np.asarray([0.0, *xyz.tolist()], dtype=np.float64)
+    rotated = _quaternion_multiply_raw(
+        _quaternion_multiply_raw(values, pure), _quaternion_conjugate(values)
+    )
+    return rotated[1:]
+
+
+def _quaternion_multiply_raw(first: np.ndarray, second: np.ndarray) -> np.ndarray:
+    w1, x1, y1, z1 = np.asarray(first, dtype=np.float64)
+    w2, x2, y2, z2 = np.asarray(second, dtype=np.float64)
+    return np.asarray(
+        [
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+        ]
+    )
+
+
+def _axial_orientation_correction(
+    reference: np.ndarray, observed: np.ndarray
+) -> np.ndarray:
+    local_axis = np.asarray([0.0, 0.0, 1.0], dtype=np.float64)
+    reference_axis = _quaternion_rotate_vector(reference, local_axis)
+    observed_axis = _quaternion_rotate_vector(observed, local_axis)
+    dot = float(np.clip(np.dot(observed_axis, reference_axis), -1.0, 1.0))
+    cross = np.cross(observed_axis, reference_axis)
+    if dot <= -1.0 + 1e-9:
+        orthogonal = np.cross(observed_axis, np.asarray([1.0, 0.0, 0.0]))
+        if np.linalg.norm(orthogonal) <= 1e-9:
+            orthogonal = np.cross(observed_axis, np.asarray([0.0, 1.0, 0.0]))
+        orthogonal /= np.linalg.norm(orthogonal)
+        return np.asarray([0.0, *orthogonal.tolist()], dtype=np.float64)
+    return _normalize_quaternion(np.asarray([1.0 + dot, *cross.tolist()]))
+
+
+def _object_orientation_error(
+    reference: np.ndarray, observed: np.ndarray, *, symmetry: str
+) -> float:
+    if symmetry == "none":
+        return _quaternion_angular_distance(reference, observed)
+    if symmetry != "axial_z":
+        raise Level4ExpertError(f"unsupported orientation symmetry: {symmetry}")
+    local_axis = np.asarray([0.0, 0.0, 1.0], dtype=np.float64)
+    reference_axis = _quaternion_rotate_vector(reference, local_axis)
+    observed_axis = _quaternion_rotate_vector(observed, local_axis)
+    dot = float(np.clip(np.dot(reference_axis, observed_axis), -1.0, 1.0))
+    return math.acos(dot)
+
+
+def _orientation_preserving_hand_target(
+    *,
+    reference_object_orientation: np.ndarray,
+    observed_object_orientation: np.ndarray,
+    observed_hand_orientation: np.ndarray,
+    prior_requested_hand_orientation: np.ndarray,
+    maximum_step_rad: float,
+    symmetry: str,
+) -> np.ndarray:
+    correction = (
+        _quaternion_multiply(
+            reference_object_orientation,
+            _quaternion_conjugate(observed_object_orientation),
+        )
+        if symmetry == "none"
+        else _axial_orientation_correction(
+            reference_object_orientation, observed_object_orientation
+        )
+    )
+    target = _quaternion_multiply(correction, observed_hand_orientation)
+    return _bounded_quaternion_step(
+        prior_requested_hand_orientation,
+        target,
+        maximum_step_rad,
+    )
+
+
 def _yaw_pitch_quaternion(*, yaw: float, pitch: float) -> np.ndarray:
     """Return canonical ``q_z(yaw) * q_y(pitch)`` in wxyz order."""
 
@@ -2268,6 +3547,40 @@ def _has_joint_limit_violation(
         if qpos < lower - tolerance or qpos > upper + tolerance:
             return True
     return False
+
+
+def _requested_workspace_reason(workcell: object, position: np.ndarray) -> str | None:
+    workspace = workcell.config.requirements["workcell"]["safe_workspace"]
+    margin = float(workspace.get("margin_m", 0.0))
+    minimum = np.asarray(workspace["min"], dtype=np.float64) + margin
+    maximum = np.asarray(workspace["max"], dtype=np.float64) - margin
+    return (
+        "workspace_violation"
+        if np.any(position < minimum) or np.any(position > maximum)
+        else None
+    )
+
+
+def _maximum_planar_non_target_disturbance(
+    state: WorldState,
+    *,
+    object_id: str,
+    initial_positions: Mapping[str, np.ndarray],
+) -> float:
+    return max(
+        (
+            float(
+                np.linalg.norm(
+                    np.asarray(entity.position[:2], dtype=np.float64)
+                    - initial_positions[entity.object_id][:2]
+                )
+            )
+            for entity in state.entities
+            if entity.object_id != object_id
+            and entity.object_id in initial_positions
+        ),
+        default=0.0,
+    )
 
 
 def _unsafe_hand_contact_reason(
@@ -2356,6 +3669,43 @@ def _unsafe_grasp_contact_reason(
             continue
         if other == "workcell_table":
             return "table_contact_after_lift"
+        if other in {entity.object_id for entity in state.entities}:
+            return "wrong_object_contact"
+        return "wrong_fixture_contact"
+    return None
+
+
+def _target_hand_contact_body_count(
+    state: WorldState, *, object_id: str
+) -> int:
+    """Count distinct hand bodies physically contacting the selected object."""
+
+    bodies: set[str] = set()
+    for left, right in state.contacts:
+        if left == object_id and right.startswith("rh_"):
+            bodies.add(right)
+        elif right == object_id and left.startswith("rh_"):
+            bodies.add(left)
+    return len(bodies)
+
+
+def _unsafe_place_contact_reason(
+    state: WorldState, *, object_id: str
+) -> str | None:
+    """Allow hand self-contact and the held/placed object, rejecting all else."""
+
+    for left, right in state.contacts:
+        left_hand = left.startswith("rh_")
+        right_hand = right.startswith("rh_")
+        if not left_hand and not right_hand:
+            continue
+        if left_hand and right_hand:
+            continue
+        other = right if left_hand else left
+        if other == object_id:
+            continue
+        if other == "workcell_table":
+            return "table_contact"
         if other in {entity.object_id for entity in state.entities}:
             return "wrong_object_contact"
         return "wrong_fixture_contact"

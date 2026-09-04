@@ -85,6 +85,8 @@ from dexvision.sim.level4_expert import (
     DeterministicButtonPressExpert,
     DeterministicGraspLiftConfig,
     DeterministicGraspLiftExpert,
+    DeterministicPickPlaceExpert,
+    DeterministicPlaceConfig,
     DeterministicPushConfig,
     DeterministicPushExpert,
     SafeWaypointReachConfig,
@@ -227,13 +229,13 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
     if args.source == "scripted" and args.skill_name not in {
         "reach_object",
         "pick_object",
+        "pick_place_sequence",
         "press_button",
         "push_object_to_target",
     }:
         raise ValueError(
-            "Level 4.3A-D scripted recording supports reach_object, pick_object, "
-            "press_button, and push_object_to_target; complete pick/place is a "
-            "separate checkpoint."
+            "Level 4.3A-E scripted recording supports reach_object, pick_object, "
+            "pick_place_sequence, press_button, and push_object_to_target."
         )
     if args.goal_condition_id is None or not str(args.goal_condition_id).strip():
         raise ValueError("Level 4 workcell recording requires --goal-condition-id.")
@@ -824,12 +826,13 @@ def _run_scripted_workcell_recording(
     if args.skill_name not in {
         "reach_object",
         "pick_object",
+        "pick_place_sequence",
         "press_button",
         "push_object_to_target",
     }:
         raise DemoLoggerError(
-            "Level 4.3A-D scripted recording supports reach_object, pick_object, "
-            "press_button, and push_object_to_target."
+            "Level 4.3A-E scripted recording supports reach_object, pick_object, "
+            "pick_place_sequence, press_button, and push_object_to_target."
         )
     with ExitStack() as stack:
         task = stack.enter_context(
@@ -870,6 +873,25 @@ def _run_scripted_workcell_recording(
             )
             expert_settings_key = "scripted_grasp"
             controller_name = "object_relative_family_grasp_lift"
+        elif args.skill_name == "pick_place_sequence":
+            print("Scripted expert: composed grasp, transport, place, and release")
+            closed_targets = _scripted_closed_finger_targets(
+                retargeter, neutral_targets
+            )
+            grasp_config = DeterministicGraspLiftConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_grasp"]
+            )
+            expert_config = DeterministicPlaceConfig.from_mapping(
+                task.collection_config["pilot"]["scripted_place"]
+            )
+            expert = DeterministicPickPlaceExpert(
+                open_finger_targets=neutral_targets,
+                closed_finger_targets=closed_targets,
+                grasp_config=grasp_config,
+                place_config=expert_config,
+            )
+            expert_settings_key = "scripted_place"
+            controller_name = "composed_grasp_transport_place_release"
         elif args.skill_name == "press_button":
             print("Scripted expert: fixed-posture normal button press (no webcam)")
             expert_config = DeterministicButtonPressConfig.from_mapping(
@@ -953,6 +975,10 @@ def _run_scripted_workcell_recording(
             },
             **dict(task.collection_config["pilot"][expert_settings_key]),
         }
+        if args.skill_name == "pick_place_sequence":
+            effective_config["scripted_expert"]["grasp"] = dict(
+                task.collection_config["pilot"]["scripted_grasp"]
+            )
         logger = DemoLogger(
             args.output,
             action_schema=action_schema,
@@ -985,9 +1011,13 @@ def _run_scripted_workcell_recording(
             _configure_workcell_pilot_viewer(viewer_handle, task)
 
         default_limit = (
-            500
-            if args.skill_name in {"push_object_to_target", "pick_object"}
-            else 300
+            700
+            if args.skill_name == "pick_place_sequence"
+            else (
+                500
+                if args.skill_name in {"push_object_to_target", "pick_object"}
+                else 300
+            )
         )
         limit = args.max_frames if args.max_frames > 0 else default_limit
         terminal = task.current_state
@@ -1003,6 +1033,7 @@ def _run_scripted_workcell_recording(
                 orientation_quat=requested.base_orientation_wxyz,
             )
             task.env.set_joint_targets(requested.finger_targets)
+            _apply_scripted_object_orientation_hold(task, phase=phase)
             terminal = task.step(n_steps=expert_config.sim_steps_per_action)
             achieved_success = achieved_success or terminal.success
             state = task.env.get_state()
@@ -1054,7 +1085,7 @@ def _run_scripted_workcell_recording(
 
         metric_success = (
             terminal.success
-            if args.skill_name == "push_object_to_target"
+            if args.skill_name in {"push_object_to_target", "pick_place_sequence"}
             else achieved_success
         )
         recording_success = metric_success and expert_done
@@ -1074,7 +1105,30 @@ def _run_scripted_workcell_recording(
                 f"scripted {args.skill_name} did not satisfy the recomputed "
                 "terminal metric and complete its scripted terminal phase."
             )
-    return 0
+        return 0
+
+
+def _apply_scripted_object_orientation_hold(
+    task: WorkcellPilotTask, *, phase: str
+) -> None:
+    """Apply the declared rotation-only grasp hold before one simulator step."""
+
+    if task.skill_name not in {"pick_object", "pick_place_sequence"} or phase not in {
+        "lift",
+        "stabilize",
+        "transport",
+        "place",
+    }:
+        return
+    grasp = task.collection_config["pilot"]["scripted_grasp"]
+    if (
+        grasp.get("orientation_preservation_policy")
+        != "shape_aware_hammer_grip_with_world_orientation_hold"
+    ):
+        return
+    object_id = str(task.goal["object_id"])
+    orientation = task.initial_world_state.require_entity(object_id).orientation_wxyz
+    task.workcell.preserve_object_orientation(object_id, orientation)
 
 
 def _scripted_push_finger_targets(

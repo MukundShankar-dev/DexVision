@@ -20,12 +20,13 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3D — Deterministic Grasp-and-Lift Expert
+Level 4.3E — Deterministic Place and Complete Pick/Place Expert
 
-The reopened Level 4.3C visual gate passed after remediation of the tipped-push
-false positive. Level 4.3D remains implemented and automated-test clean. The
-user accepted the standalone grasp-and-lift replay while identifying object
-orientation preservation as a broader placement design consideration.
+The complete scripted controller now uses a shape-aware side-on hammer-curl
+grasp, preserves the selected object's seeded orientation during held phases,
+and completes deterministic transport, release, settle, and retract. Automated
+qualification spans cuboid, cylinder, and flat-puck families. The user accepted
+the corrected cuboid replay on September 4, 2026.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -34,7 +35,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3E — Deterministic Place and Complete Pick/Place Expert
+Level 4.3F — Expert Architecture and Replay Qualification
 
 ---
 
@@ -44,7 +45,7 @@ Level 4.3E — Deterministic Place and Complete Pick/Place Expert
 
 Suggested next feature branch:
 
-`codex/level43e-place-expert`
+`codex/level43f-expert-audit`
 
 ---
 
@@ -891,11 +892,31 @@ require initial table support, a measured two-contact held relation, at least
 planar neighbor disturbance below 0.005 m and zero logged safety interventions.
 The listed 2-test checkpoint suite, 52 related regression tests,
 repository-wide Ruff, and the full 524-test suite passed on September 4, 2026.
-No manual verification was originally required. Level 4.3E has not been
-implemented. Visible review noted that the cuboid rotates substantially during
-the otherwise stable grasp. Level 4.3E must explicitly decide whether and how
-to preserve object orientation during transport and placement without silently
-changing the qualified Level 4.3D grasp controller.
+No manual verification was originally required. Visible review noted that the
+cuboid rotates substantially during the otherwise stable grasp.
+
+Level 4.3E is complete. The complete controller uses copied-state-validated transport,
+descent, release, settle, and retract behavior. After visible review exposed
+about 24 degrees of cuboid yaw in the prior top-down grasp, the shared grasp
+stage was revised to a shape-aware side-on (hammer-curl) wrist pose. A declared
+rotation-only hold keeps the seeded object orientation through lift, stabilize,
+transport, and place without constraining translation or release. Cuboid wrist
+yaw follows the seeded object yaw; axial objects use their rotational symmetry.
+Family release offsets remain configuration-owned, and success requires the
+released object to stay within 0.025 m of its target while supported, unheld,
+and below linear and angular speed limits. Task-local six-dimensional table
+contact and rolling resistance apply only to standalone pick and composed
+pick/place, preserving push behavior; the exact overrides and source/target
+cues are restored from episode metadata. Ten complete successes span cuboid,
+cylinder, and flat-puck families; all recompute and replay within five degrees
+of the seeded held orientation, with compatible reach/pick/place segments, zero
+safety intervention, and less than 0.005 m neighbor disturbance. Focused place,
+segment, standalone grasp, and push suites pass after this remediation; the
+related suite passes with 41 tests, repository-wide Ruff passes, and the full
+suite passes with 527 tests. The saved viewer now uses an oblique camera that
+keeps the hand, object, and named goal sides readable. The user confirmed on
+September 4, 2026 that the corrected cuboid pick/place replay worked. Last
+Completed is now 4.3E and Next Target is 4.3F; no 4.3F work has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in
