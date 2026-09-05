@@ -20,14 +20,15 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3F — Expert Architecture and Replay Qualification
+Level 4.3G — Small State-Only Button Learnability Probe
 
-The versioned cross-skill audit regenerates tasks from immutable metadata,
-headlessly replays saved actions, recomputes task success, and separates
-ordinary failures from accepted expert data. Two independently seeded episodes
-for each of reach, button, push, standalone grasp-and-lift, and complete
-pick/place qualified automatically. The user accepted one visible replay for
-all five skills on September 5, 2026.
+The frozen state-only button probe collected exactly 20 scripted successes in
+whole-session 14/3/3 splits and trained one 64-by-64 tanh MLP to emit only
+fixture-frame XYZ deltas. Twenty physically varied held-out test-cell resets
+completed at 100% success with zero workspace, joint-limit, wrong-button,
+unintended-contact, or invalid-action events. Contact-induced joint-limit
+failures were diagnosed before correcting the deterministic fixed posture; the
+dataset size and model recipe were not changed.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -36,7 +37,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3G — Small State-Only Button Learnability Probe
+Level 4.3H — Small State-Only Push Learnability Probe
 
 ---
 
@@ -46,7 +47,7 @@ Level 4.3G — Small State-Only Button Learnability Probe
 
 Suggested next feature branch:
 
-`codex/level43g-button-learning`
+`codex/level43h-push-learning`
 
 ---
 
@@ -928,7 +929,20 @@ expert counts. The required 25-test checkpoint suite passes. The existing
 operator-owned pilot directory remains intentionally unchanged and below its
 later collection minima. The user confirmed on September 5, 2026 that one
 visible replay for all five skills looked good. Last Completed is now 4.3F and
-Next Target is 4.3G; no 4.3G work has started.
+Next Target is 4.3G.
+
+Level 4.3G is complete. Exactly 20 scripted button successes were collected in
+whole-session 14/3/3 train/validation/test splits. One frozen 64-by-64 tanh MLP
+uses only causal simulator state and emits fixture-frame XYZ deltas through a
+deterministic full-action adapter. Physically varied held-out hand resets first
+exposed contact-induced `rh_MFJ1` and then `rh_FFJ1` limit failures; both were
+diagnosed before changing data volume or model class, and corrected with a
+minimal fixed-posture interior margin. The unchanged 20-episode, one-model
+recipe then passed all 20 held-out press-and-release rollouts with zero safety,
+contact, or invalid-action violations. The listed 5-test checkpoint suite and
+37 related regressions pass; repository-wide Ruff and the full 533-test suite
+also pass. No manual verification was required. Last Completed is now 4.3G and
+Next Target is 4.3H; no 4.3H work has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in

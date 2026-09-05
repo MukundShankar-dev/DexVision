@@ -275,6 +275,35 @@ class Workcell:
         )
         self.env._mujoco.mj_forward(self.env.model, self.env.data)
 
+    def set_hand_base_reset_pose(
+        self,
+        position: Sequence[float],
+        orientation_wxyz: Sequence[float],
+    ) -> WorldState:
+        """Directly align the welded hand and mocap target for a reset variant."""
+
+        self._require_reset()
+        target_position = np.asarray(position, dtype=np.float64)
+        target_orientation = np.asarray(orientation_wxyz, dtype=np.float64)
+        if target_position.shape != (3,) or not np.all(np.isfinite(target_position)):
+            raise WorkcellError("hand base reset position must be a finite 3-vector.")
+        if target_orientation.shape != (4,) or not np.all(
+            np.isfinite(target_orientation)
+        ):
+            raise WorkcellError("hand base reset orientation must be finite wxyz.")
+        norm = float(np.linalg.norm(target_orientation))
+        if norm <= 0.0:
+            raise WorkcellError("hand base reset orientation must be non-zero.")
+        target_orientation = target_orientation / norm
+        self.env.set_mocap_pose(
+            str(self.config.scene["hand_base_target"]),
+            position=target_position,
+            orientation_quat=target_orientation,
+        )
+        self._align_hand_free_joint_to_target(target_position, target_orientation)
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+        return self.get_world_state()
+
     def preserve_object_orientation(
         self, object_id: str, orientation_wxyz: Sequence[float]
     ) -> None:
@@ -464,6 +493,15 @@ class Workcell:
         target_orientation = np.asarray(
             self.config.scene["hand_neutral_orientation_wxyz"], dtype=np.float64
         )
+        self._align_hand_free_joint_to_target(target_position, target_orientation)
+
+    def _align_hand_free_joint_to_target(
+        self,
+        target_position: np.ndarray,
+        target_orientation: np.ndarray,
+    ) -> None:
+        """Resolve the weld-relative free-joint pose for one mocap target."""
+
         equality_id = self._require_mujoco_name(
             "equality", str(self.config.scene["hand_base_weld"])
         )

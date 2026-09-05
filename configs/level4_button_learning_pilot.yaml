@@ -1,0 +1,121 @@
+version: level4/button-learning-pilot-v1
+
+dataset:
+  successful_episodes: 20
+  sessions:
+    - session_id: level43g_button_train
+      split: train
+      seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+      coverage_cells:
+        - press_008_centered_nominal
+        - press_010_centered_nominal
+        - press_012_centered_nominal
+        - press_014_centered_nominal
+        - press_010_oblique_interior
+        - press_012_oblique_interior
+    - session_id: level43g_button_validation
+      split: validation
+      seeds: [100, 101, 102]
+      coverage_cells:
+        - press_009_centered_boundary
+        - press_013_oblique_boundary
+    - session_id: level43g_button_test
+      split: test
+      seeds: [200, 201, 202]
+      coverage_cells:
+        - press_011_left_offset_test
+        - press_013_right_offset_test
+
+reset:
+  approach_offset_by_class_m:
+    centered: [0.0, 0.0, 0.0]
+    oblique: [-0.010, 0.025, 0.008]
+    left_offset: [0.005, -0.035, 0.0]
+    right_offset: [0.005, 0.035, 0.0]
+  seed_jitter_half_range_m: [0.008, 0.008, 0.004]
+  settle_simulation_steps: 1
+
+observation:
+  schema_version: level4/button-lowdim-observation-v1
+  simulator_state_only: true
+  fields:
+    - ee_to_button_position/x
+    - ee_to_button_position/y
+    - ee_to_button_position/z
+    - ee_to_target_orientation/qw
+    - ee_to_target_orientation/qx
+    - ee_to_target_orientation/qy
+    - ee_to_target_orientation/qz
+    - button/press_depth
+    - button/pressed
+    - base_velocity/vx
+    - base_velocity/vy
+    - base_velocity/vz
+    - base_velocity/wx
+    - base_velocity/wy
+    - base_velocity/wz
+    - phase/approach
+    - phase/fixture_contact
+    - phase/retract
+    - previous_applied_delta/dx
+    - previous_applied_delta/dy
+    - previous_applied_delta/dz
+    - goal/target_press_depth
+
+action:
+  schema_version: level4/button-task-local-delta-v1
+  output_fields: [dx, dy, dz]
+  coordinate_frame: button_fixture
+  maximum_absolute_delta_m: [0.012, 0.012, 0.012]
+  maximum_absolute_delta_by_phase_m:
+    approach: [0.012, 0.012, 0.012]
+    fixture_contact: [0.0025, 0.0, 0.0]
+    retract: [0.006, 0.003, 0.003]
+  fixed_finger_synergy:
+    index: 0.01
+    middle: 0.01
+    ring: 0.01
+    pinky: 0.01
+  contact_posture_press_offset_adjustment_m: [0.005, 0.0, 0.0]
+  expansion: fixed_orientation_and_finger_posture
+
+model:
+  recipe_count: 1
+  class: small_mlp
+  hidden_dims: [64, 64]
+  activation: tanh
+
+training:
+  epochs: 220
+  batch_size: 64
+  learning_rate: 0.002
+  weight_decay: 0.0
+  seed: 20260905
+  device: cpu
+  loss: phase_balanced_mse
+
+rollout:
+  held_out_coverage_cells:
+    - press_011_left_offset_test
+    - press_013_right_offset_test
+  held_out_seeds: [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019]
+  maximum_steps: 180
+  sim_steps_per_action: 17
+  required_release_steps: 5
+  minimum_success_rate: 0.80
+
+safety:
+  workspace_min_m: [-0.18, -0.18, 0.08]
+  workspace_max_m: [0.22, 0.18, 0.24]
+  joint_limit_tolerance_rad: 0.0005
+  maximum_workspace_violations: 0
+  maximum_joint_limit_violations: 0
+  maximum_wrong_button_contacts: 0
+  maximum_unintended_contacts: 0
+
+change_control:
+  maximum_successes_before_diagnosis: 20
+  require_failure_diagnosis_before_more_data: true
+  require_failure_diagnosis_before_model_change: true
+  allow_action_chunking: false
+  allow_image_input: false

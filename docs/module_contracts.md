@@ -913,6 +913,39 @@ Generated JSON reports are written atomically outside immutable episode director
 Visible replay remains a separate manual gate and cannot be satisfied by this headless audit.
 ```
 
+Level 4.3G state-only button learning modules:
+
+```text
+configs/level4_button_learning_pilot.yaml
+dexvision/learning/level4_lowdim.py
+dexvision/evaluation/level4_button_learning.py
+```
+
+Contract:
+
+```python
+config, digest = load_button_learning_config(path)
+trajectories = collect_button_expert_trajectories(config)
+training = train_button_delta_policy(trajectories, config)
+rollouts = evaluate_button_policy(training.policy, config)
+report = run_button_learning_pilot(config_path=path)
+```
+
+Rules:
+
+```text
+The pilot contains exactly 20 scripted successes owned by one train, one validation, and one untouched test session in a 14/3/3 episode split.
+Approach-class offsets and deterministic seed jitter alter the physical hand reset while remaining inside the frozen safe workspace.
+Workcell.set_hand_base_reset_pose aligns both the mocap target and welded free hand base directly, avoiding a reset-only dynamic transient.
+The observation is simulator-state-only and causal: end-effector-to-button relative pose, button state, six-dimensional base velocity, current phase one-hot, previous applied XYZ delta, and target press depth.
+The learned output is only fixture-frame dx/dy/dz. Deterministic code supplies the complete fixed orientation and finger posture and applies frozen phase-local delta limits before producing the existing full named action.
+Exactly one 64-by-64 tanh MLP with phase-balanced MSE, training-only normalization, and validation-loss epoch selection is allowed before any diagnosis.
+Training consumes only the train session, selects by validation, and reports the untouched test loss separately.
+Closed-loop qualification uses 20 separately seeded test-owned resets, requires at least 0.80 success, and counts workspace, joint-limit, wrong-button, unintended-contact, and invalid-action violations explicitly.
+Rollout failures must receive a causal diagnostic category before increasing the 20-success dataset or changing the model class. RGB, action chunking, larger models, and expert fallback are prohibited.
+The qualified formulation retains the same 20 episodes and MLP after diagnosing contact-induced open-finger joint-limit failures and correcting only the deterministic fixed posture and contact-axis adapter.
+```
+
 ---
 
 ## Success Relabeling

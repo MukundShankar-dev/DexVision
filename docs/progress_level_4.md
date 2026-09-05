@@ -857,11 +857,35 @@ conda run -n dexvision pytest -q tests/test_level4_lowdim_policy.py tests/test_l
 #### Pass criteria
 
 ```text
-[ ] Exactly one frozen small-MLP recipe is evaluated before any data increase
-[ ] Held-out closed-loop button success is at least 0.80 over 20 or more resets
-[ ] Workspace, joint-limit, wrong-button, and unintended-contact violations are zero
-[ ] A failure is diagnosed before changing data volume or model class
+[x] Exactly one frozen small-MLP recipe is evaluated before any data increase
+[x] Held-out closed-loop button success is at least 0.80 over 20 or more resets
+[x] Workspace, joint-limit, wrong-button, and unintended-contact violations are zero
+[x] A failure is diagnosed before changing data volume or model class
 ```
+
+Implementation status: `configs/level4_button_learning_pilot.yaml` freezes
+exactly 20 scripted successes in whole-session 14/3/3 train/validation/test
+splits, one 64-by-64 tanh MLP, one phase-balanced MSE recipe, and 20 separately
+seeded held-out test-cell rollouts. Deterministic approach-class offsets plus
+seed jitter make the held-out hand starts physically distinct rather than
+moving only irrelevant objects. The 22-value causal observation contains only
+end-effector-to-button pose, button state, hand-base velocity, causal phase,
+previous applied XYZ delta, and requested depth. The model emits only fixture-
+frame `dx, dy, dz`; a deterministic adapter supplies fixed orientation and
+finger posture and bounded per-phase motion in the existing full action layout.
+
+The first varied-reset run failed 10 of 20 rollouts when open-finger contact
+pushed `rh_MFJ1` past its limit. This was diagnosed before any data or model
+change. A minimal fixed-posture interior margin removed that mechanism; three
+remaining right-offset failures then identified the same endpoint issue on
+`rh_FFJ1`. Applying the same one-percent index margin produced 20/20 successful
+held-out press-and-release rollouts with zero workspace, joint-limit,
+wrong-button, unintended-contact, or invalid-action events. The dataset remains
+20 episodes and the original MLP recipe remains the only model evaluated. The
+listed checkpoint suite passes with 5 tests and 37 related workcell/learning
+regressions pass. Repository-wide Ruff passes and the full suite passes with
+533 tests. No manual verification is required. Level 4.3G is complete; no
+4.3H work has started.
 
 #### Level 4.3H — Small State-Only Push Learnability Probe
 
