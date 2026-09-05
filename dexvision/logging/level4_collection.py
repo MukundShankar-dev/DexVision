@@ -52,6 +52,12 @@ GROUP_BY_PILOT_SKILL = {
     "push_object_to_target": "push",
     "press_button": "button",
 }
+LEVEL4_EPISODE_SOURCES = (
+    "scripted",
+    "teleoperation",
+    "policy_rollout",
+    "corrective_intervention",
+)
 
 
 class Level4CollectionError(ValueError):
@@ -245,6 +251,10 @@ class PilotEpisode:
     @property
     def goal_condition_id(self) -> str:
         return str(self.metadata["goal_condition_id"])
+
+    @property
+    def source(self) -> str:
+        return str(self.metadata.get("source", ""))
 
     @property
     def expert_accepted(self) -> bool:
@@ -730,6 +740,7 @@ def load_level4_collection_config(
         or len(set(ids)) != len(ids)
     ):
         raise Level4CollectionError("Level 4 coverage cell ids must be unique strings.")
+    _validate_final_coverage_matrix(payload, coverage_cells=coverage_cells)
     review_filename = pilot.get("expert_acceptance_review_filename")
     if review_filename != PILOT_REVIEW_FILENAME:
         raise Level4CollectionError(
@@ -766,6 +777,141 @@ def load_level4_collection_config(
             "pilot expert architecture audit must require every recordable skill."
         )
     return payload, PilotProtocol(sessions, counts, str(decision))
+
+
+def _validate_final_coverage_matrix(
+    payload: Mapping[str, Any],
+    *,
+    coverage_cells: Sequence[Any],
+) -> None:
+    """Reject drift between the final cell, source, group, and envelope totals."""
+
+    source_mix = _mapping(payload, "source_mix")
+    categories = source_mix.get("categories")
+    if list(categories or ()) != list(LEVEL4_EPISODE_SOURCES):
+        raise Level4CollectionError(
+            "source_mix.categories must preserve the four frozen provenance classes."
+        )
+    if source_mix.get("provenance_must_remain_separate") is not True:
+        raise Level4CollectionError("Level 4 source provenance must remain separate.")
+    source_minima = _mapping(source_mix, "minimum_accepted_by_source")
+    if set(source_minima) != set(LEVEL4_EPISODE_SOURCES):
+        raise Level4CollectionError(
+            "source_mix.minimum_accepted_by_source must cover every source category."
+        )
+    budget = _mapping(payload, "episode_budget")
+    groups = _mapping(budget, "groups")
+    totals_by_group: Counter[str] = Counter()
+    totals_by_source: Counter[str] = Counter()
+    for raw_cell in coverage_cells:
+        if not isinstance(raw_cell, Mapping):
+            raise Level4CollectionError("Level 4 coverage cells must be mappings.")
+        cell_id = str(raw_cell["id"])
+        group = raw_cell.get("data_group")
+        source = raw_cell.get("required_source")
+        split_owner = raw_cell.get("split_owner")
+        if group not in groups:
+            raise Level4CollectionError(
+                f"coverage cell {cell_id!r} has unknown data_group {group!r}."
+            )
+        if source not in LEVEL4_EPISODE_SOURCES:
+            raise Level4CollectionError(
+                f"coverage cell {cell_id!r} must name one frozen required_source."
+            )
+        if split_owner not in {"train", "validation", "test"}:
+            raise Level4CollectionError(
+                f"coverage cell {cell_id!r} has invalid split_owner."
+            )
+        minima = _mapping(raw_cell, "minimum_accepted_by_split")
+        if set(minima) != {"train", "validation", "test"}:
+            raise Level4CollectionError(
+                f"coverage cell {cell_id!r} must state all three split minima."
+            )
+        positive: set[str] = set()
+        minimum = 0
+        for split, value in minima.items():
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise Level4CollectionError(
+                    f"coverage cell {cell_id!r} split minima must be nonnegative integers."
+                )
+            minimum += value
+            if value:
+                positive.add(str(split))
+        if positive != {split_owner}:
+            raise Level4CollectionError(
+                f"coverage cell {cell_id!r} minimum must belong only to its split owner."
+            )
+        totals_by_group[str(group)] += minimum
+        totals_by_source[str(source)] += minimum
+
+    # minimum_new_accepted is the authority; keep this separate from the
+    # planning range so malformed YAML cannot silently change a minimum.
+    expected_groups = {
+        str(group): int(values["minimum_new_accepted"])
+        for group, values in groups.items()
+        if isinstance(values, Mapping)
+    }
+    if dict(totals_by_group) != expected_groups:
+        raise Level4CollectionError(
+            "coverage cell totals do not match episode_budget group minima."
+        )
+    observed_source_totals = {
+        source: int(totals_by_source[source]) for source in LEVEL4_EPISODE_SOURCES
+    }
+    expected_source_totals = {
+        source: int(source_minima[source]) for source in LEVEL4_EPISODE_SOURCES
+    }
+    if observed_source_totals != expected_source_totals:
+        raise Level4CollectionError(
+            "coverage cell totals do not match source_mix minima."
+        )
+    required_total = int(budget["required_total_minimum"])
+    planning_maximum = int(budget["required_total_planning_maximum"])
+    if sum(totals_by_group.values()) != required_total:
+        raise Level4CollectionError(
+            "coverage cell totals do not match required_total_minimum."
+        )
+    planning_sum = sum(
+        int(values["planning_range"][1])
+        for values in groups.values()
+        if isinstance(values, Mapping)
+    )
+    if planning_sum != planning_maximum or planning_maximum < required_total:
+        raise Level4CollectionError(
+            "episode budget planning maximum must equal the group planning maxima."
+        )
+
+    exclusions = _mapping(payload, "coverage_exclusions").get("cells")
+    if not isinstance(exclusions, Sequence) or isinstance(exclusions, str):
+        raise Level4CollectionError("coverage_exclusions.cells must be a sequence.")
+    excluded_ids = [
+        item.get("id") for item in exclusions if isinstance(item, Mapping)
+    ]
+    if (
+        len(excluded_ids) != len(exclusions)
+        or any(not isinstance(cell_id, str) or not cell_id for cell_id in excluded_ids)
+        or len(set(excluded_ids)) != len(excluded_ids)
+        or any(
+            not isinstance(item.get("reason"), str) or not item["reason"]
+            for item in exclusions
+            if isinstance(item, Mapping)
+        )
+    ):
+        raise Level4CollectionError("coverage exclusion ids must be unique strings.")
+    if set(excluded_ids) & {str(item["id"]) for item in coverage_cells}:
+        raise Level4CollectionError("coverage exclusions cannot also be required cells.")
+
+    storage = _mapping(_mapping(payload, "pilot"), "storage_projection")
+    if (
+        storage.get("frozen_payload_handling") != "git_lfs"
+        or storage.get("working_data_git_policy") != "ignored_never_force_added"
+        or storage.get("existing_release_overwrite_allowed") is not False
+        or list(storage.get("release_artifacts", ()))
+        != ["immutable_tar_gz", "sha256", "manifest"]
+    ):
+        raise Level4CollectionError(
+            "Level 4 storage and immutable release rules must remain frozen."
+        )
 
 
 def discover_pilot_episodes(dataset_dir: str | Path) -> tuple[PilotEpisode, ...]:

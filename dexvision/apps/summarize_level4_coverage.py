@@ -77,6 +77,16 @@ def main(argv: list[str] | None = None) -> int:
             f"  {group}: {counts['accepted']}/{counts['minimum']} "
             f"({'PASS' if counts['passed'] else 'INCOMPLETE'})"
         )
+    matrix = report["coverage_matrix"]
+    print(
+        "Final matrix: "
+        f"{matrix['minimum_episode_total']} required episodes across "
+        f"{matrix['cell_count']} cells, planning envelope "
+        f"{matrix['required_envelope'][0]}-{matrix['required_envelope'][1]}"
+    )
+    print("Required source mix:")
+    for source, counts in report["source_mix"]["sources"].items():
+        print(f"  {source}: {counts['observed']}/{counts['minimum']}")
     print(
         "Sessions: "
         f"{report['genuine_session_requirement']['observed']}/"

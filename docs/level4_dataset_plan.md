@@ -1,12 +1,11 @@
 # Level 4 Workcell and Dataset Requirements Freeze
 
-Specification version: `level4/workcell-dataset-plan-v1`
+Specification version: `level4/workcell-dataset-plan-v2`
 
-Status: Level 4.1 implementation and manual verification are complete; this
-specification remains frozen for the Level 4.2–4.3 implementation and pilot.
-Level 4.3 may replace provisional counts only by publishing a new configuration
-version and recording pilot evidence.
-No Level 4 collection has started under this schema.
+Status: Level 4.3I final matrix accepted by the user on September 5, 2026 and
+frozen for Level 4.4 collection. The v2 change leaves the episode schema intact
+and revises only counts, source ownership, one target split role, and qualified
+push cells. No full-scale Level 4 collection has started under this schema.
 
 ## Decision and evidence boundary
 
@@ -127,26 +126,45 @@ This record makes both absolute actions and bounded residual targets
 deterministically derivable. Unsafe requested or commanded motion may be kept
 as failure evidence, but only the safe applied action may be an expert target.
 
-## Coverage and split ownership
+## Coverage, source, and split ownership
 
-The required minimum is exactly 250 new accepted episodes, with a planning
-maximum of 350:
+The evidence-based minimum is 114 new accepted episodes, with a planning
+maximum of 140. The old 250–350 estimate is retired rather than filled with
+duplicative nominal trajectories:
 
-| Data group | Required minimum | Planning range |
-|---|---:|---:|
-| Reach/object-or-fixture approach | 30 | 30–40 |
-| Complete pick/place sequences | 120 | 120–150 |
-| Push-to-zone | 40 | 40–55 |
-| Button press | 30 | 30–40 |
-| Ordinary failures and safe corrections | 30 | 30–50 |
-| **Required total** | **250** | **250–350** |
+| Data group | Required minimum | Planning range | Required source mix |
+|---|---:|---:|---|
+| Reach/object-or-fixture approach | 20 | 20–24 | 10 teleoperation, 10 scripted |
+| Complete pick/place sequences | 42 | 42–50 | 42 scripted |
+| Push-to-zone | 20 | 20–24 | 20 scripted |
+| Button press | 20 | 20–24 | 20 scripted |
+| Ordinary failures and safe corrections | 12 | 12–18 | 3 teleoperation, 6 scripted, 3 corrective interventions |
+| **Required total** | **114** | **114–140** | **98 scripted, 13 teleoperation, 0 policy rollout, 3 corrective interventions** |
 
-The YAML enumerates 79 required coverage cells: 10 reach, 30 complete
-pick/place, 20 push, 10 press, and nine failure/correction cells. Every cell
-has exactly one split owner and a `minimum_accepted_by_split` map. Global
-surplus cannot repair a missing cell. A complete pick/place sequence is one
-episode even though it can produce reach, pick, and place segments; reports
-must publish episode and segment counts separately.
+The YAML enumerates 74 required cells: 10 reach, 30 complete pick/place, 12
+push, 10 press, and 12 failure/correction cells. Every cell declares one
+required source, one split owner, and all three split minima. Global surplus
+or a surplus from another source cannot repair a missing cell. A complete
+pick/place sequence is one episode even though it can produce reach, pick, and
+place segments; reports publish episode and segment counts separately.
+
+Teleoperation is required only for the five training-owned reach cells where
+the operator found the interface usable, plus one example each of three
+operator-visible failure mechanisms. Contact-skill nominal successes use the
+replayed scripted experts. Policy rollouts remain separate qualification
+evidence and have a zero collection minimum; they cannot be relabeled as
+expert data. Corrective interventions are three explicitly linked safe
+corrections and remain distinct from both their trigger episodes and nominal
+expert demonstrations.
+
+Push uses only the 12 conditions qualified in Level 4.3H: the six training,
+two validation, and four untouched-test condition cells exercised by its
+dataset or held-out rollouts. Eight provisional push cells are retained in an
+explicit exclusion list. The two right-bin cuboid routes intersect the fixture
+region and the two right-bin puck pre-contact routes leave the safe workspace;
+the other four cuboid cells were outside the qualified Level 4.3H condition
+set. This narrows the push claim honestly without removing the held-out object
+and right-bin coverage supplied by reach and complete pick/place.
 
 Sessions `session_a` and `session_b` are training-owned, `session_c` is
 validation-only, and `session_d` is untouched test. These are collection-slot
@@ -156,9 +174,10 @@ to one split for its entire lifetime. Additional sessions must be assigned to
 one split before any episode from them is inspected or accepted.
 
 The held-out instances (`block_large`, `cylinder_tall`, `puck_heavy`) and the
-held-out goal region (`return_bin_right`) have zero training ownership. Test
-data cannot influence tuning, normalization, checkpoint selection, thresholds,
-or the Level 4.3 count revision.
+held-out goal region (`return_bin_right`) have zero training ownership.
+`setup_slot_b` is validation-owned for pick/place and may also define untouched
+push test conditions, matching the qualified Level 4.3H split. Test data cannot
+influence tuning, normalization, checkpoint selection, or thresholds.
 
 ## Streams and fixed-camera claim
 
@@ -172,8 +191,18 @@ The only visual claim uses `workcell_fixed_v1`, a fixed 640×480 camera with
 frozen pose and intrinsics. The matrix covers nominal rendering, mild
 illumination, partial occlusion, and bounded distractors. Each condition has
 train, validation, and test minima and explicit entity coverage. These are
-source-episode requirements within the 250-episode budget, not additional
+source-episode requirements within the 114-episode minimum, not additional
 episodes and not duplicate samples across splits.
+
+## Storage and release handling
+
+The pilot mean episode size projected over the 140-episode planning maximum is
+below the frozen 2 GiB threshold, so the release payload uses Git LFS. Working
+episodes remain ignored under `data/demos/` and must never be force-added.
+Each immutable release under `datasets/` contains a new `.tar.gz`, its SHA-256
+sidecar, and a manifest; an existing release archive is never overwritten. If
+the projection exceeds 2 GiB before collection or packaging, collection stops
+for a new config version that selects external object storage.
 
 ## Acceptance workflow
 
@@ -210,7 +239,9 @@ part of checkpoint 4.0.
 
 ## Change control
 
-The specification is immutable by convention once collection begins. Changes
+The v1 specification remains available in Git history; v2 is its explicit
+count/source compatibility revision. The specification is immutable by
+convention once collection begins. Changes
 to ids, layouts, bounds, phase transitions, safety codes, coverage ownership,
 quality thresholds, or visual conditions require a new config version and a
 migration/compatibility note. Level 4.3 may freeze revised counts only from

@@ -977,6 +977,20 @@ The provisional right-bin coverage cells are excluded because copied-state quali
 The initial learned-only delta formulation failed 0/20 from compounding approach error. That measured diagnosis justified the already-specified nominal-plus-residual formulation; it did not justify action chunking. No image input, chunking, larger model, extra recipe, or data increase is permitted by this checkpoint.
 ```
 
+Level 4.3I final source/count freeze:
+
+```text
+configs/level4_dataset.yaml is level4/workcell-dataset-plan-v2 while the episode schema remains level4/episode-v1.
+Every required coverage row has one required_source, one split_owner, and explicit train/validation/test accepted minima.
+The matrix minimum is 114 and the planning maximum is 140: reach 20, pick/place 42, push 20, button 20, and failure/correction 12.
+The frozen source minimum is scripted 98, teleoperation 13, policy_rollout 0, and corrective_intervention 3; provenance classes may never be merged or relabeled.
+Teleoperation is limited to qualified training-owned reach cells and three preserved operator failure mechanisms. Scripted experts supply nominal contact-skill successes and held-out reach.
+Push coverage is restricted to the 12 Level 4.3H-qualified condition cells. The eight removed provisional cells remain named with evidence-backed exclusion reasons.
+Whole-session split ownership, held-out object/goal rules, train-only normalization, and untouched test restrictions remain mandatory.
+Projected release payload at the 140-episode planning maximum uses Git LFS below 2 GiB; working data stays ignored and releases require a new archive, checksum, and manifest without overwriting an existing release.
+Level 4.4 cannot start until the user accepts this matrix and Level 4.3I is marked complete.
+```
+
 ---
 
 ## Success Relabeling

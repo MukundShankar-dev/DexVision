@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 
 from dexvision.logging.level4_collection import (
+    LEVEL4_EPISODE_SOURCES,
     Level4CollectionError,
     PilotEpisode,
     discover_pilot_episodes,
@@ -23,7 +24,7 @@ from dexvision.logging.phase_labels import phase_disagreement_report
 from dexvision.logging.session_manifest import SessionManifestError, load_session_manifest
 
 
-COVERAGE_REPORT_VERSION = "level4/pilot-coverage-report-v1"
+COVERAGE_REPORT_VERSION = "level4/pilot-coverage-report-v2"
 DEFAULT_SESSION_MANIFEST = "session_manifest.json"
 DEFAULT_REPORT_NAME = "level4_coverage_report.json"
 GROUP_BY_SKILL = {
@@ -64,6 +65,7 @@ def summarize_level4_coverage(
     issues = list(session_issues)
     accepted = tuple(episode for episode in episodes if episode.expert_accepted)
     accepted_by_group: Counter[str] = Counter()
+    accepted_by_source: Counter[str] = Counter()
     accepted_by_cell_split: dict[str, Counter[str]] = defaultdict(Counter)
     family_counts: Counter[str] = Counter()
     target_type_counts: Counter[str] = Counter()
@@ -104,7 +106,20 @@ def summarize_level4_coverage(
                 f"match cell owner {cell.get('split_owner')!r}"
             )
             continue
+        source = episode.source
+        if source not in LEVEL4_EPISODE_SOURCES:
+            issues.append(
+                f"episode {episode.episode_id} has unknown source {source!r}"
+            )
+            continue
+        if source != cell.get("required_source"):
+            issues.append(
+                f"episode {episode.episode_id} source {source!r} does not match "
+                f"cell requirement {cell.get('required_source')!r}"
+            )
+            continue
         accepted_by_group[group] += 1
+        accepted_by_source[source] += 1
         accepted_by_cell_split[episode.goal_condition_id][session_split] += 1
         object_id = _episode_object_id(episode)
         if object_id is not None and object_id in object_specs:
@@ -140,6 +155,7 @@ def summarize_level4_coverage(
         accepted_by_cell_split=accepted_by_cell_split,
     )
     storage = _storage_summary(config, episodes=episodes, accepted=accepted)
+    source_mix = _source_mix_summary(config, accepted_by_source=accepted_by_source)
     phase_limit = float(
         _mapping(config, "quality_thresholds")[
             "max_phase_annotation_disagreement_fraction"
@@ -202,6 +218,7 @@ def summarize_level4_coverage(
         "acceptance_evidence": _acceptance_evidence(episodes),
         "collection_time": _collection_time(accepted),
         "storage": storage,
+        "source_mix": source_mix,
         "coverage_matrix": matrix,
         "optional_dial_decision": protocol.optional_dial_decision,
         "issues": sorted(set(issues)),
@@ -355,6 +372,8 @@ def _coverage_matrix_summary(
         rows.append(
             {
                 "cell_id": cell_id,
+                "data_group": cell.get("data_group"),
+                "required_source": cell.get("required_source"),
                 "split_owner": cell.get("split_owner"),
                 "minimum": minimum_total,
                 "observed": sum(observed.values()),
@@ -375,6 +394,31 @@ def _coverage_matrix_summary(
         "fits_required_envelope": minimum <= frozen_total <= maximum,
         "complete_cell_count": sum(1 for row in rows if row["complete"]),
         "cells": rows,
+    }
+
+
+def _source_mix_summary(
+    config: Mapping[str, Any],
+    *,
+    accepted_by_source: Counter[str],
+) -> Mapping[str, Any]:
+    source_mix = _mapping(config, "source_mix")
+    minima = _mapping(source_mix, "minimum_accepted_by_source")
+    rows = {
+        source: {
+            "observed": int(accepted_by_source[source]),
+            "minimum": int(minima[source]),
+            "passed": int(accepted_by_source[source]) >= int(minima[source]),
+        }
+        for source in LEVEL4_EPISODE_SOURCES
+    }
+    return {
+        "version": source_mix.get("version"),
+        "provenance_must_remain_separate": bool(
+            source_mix.get("provenance_must_remain_separate")
+        ),
+        "sources": rows,
+        "complete": all(item["passed"] for item in rows.values()),
     }
 
 

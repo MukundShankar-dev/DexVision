@@ -133,7 +133,14 @@ def test_level4_config_freezes_pilot_protocol_and_defers_dial() -> None:
             "pick_place_sequence",
         ],
     }
-    assert config["freeze"]["coverage_count_status"].startswith("provisional")
+    assert config["version"] == "level4/workcell-dataset-plan-v2"
+    assert config["freeze"]["coverage_count_status"] == "final_accepted"
+    assert config["source_mix"]["minimum_accepted_by_source"] == {
+        "scripted": 98,
+        "teleoperation": 13,
+        "policy_rollout": 0,
+        "corrective_intervention": 3,
+    }
 
 
 def test_pilot_review_is_append_only_and_discovery_keeps_failures(
@@ -225,7 +232,7 @@ def test_manual_replay_manifest_appends_without_rewriting_episode_review(
         ),
         (
             "push_object_to_target",
-            "push_cuboid_return_bin_left_interior",
+            "push_cuboid_setup_slot_a_interior",
             "target_zone",
         ),
         ("press_button", "press_008_centered_nominal", "button_id"),

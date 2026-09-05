@@ -69,6 +69,7 @@ def _write_episode(
     skill_name: str,
     cell_id: str,
     typed_goal: dict[str, object],
+    source: str | None = None,
     manual: bool = False,
     success: bool = True,
 ) -> Path:
@@ -85,6 +86,8 @@ def _write_episode(
         "episode_id": episode_id,
         "recording_session_id": session_id,
         "skill_name": skill_name,
+        "source": source
+        or ("teleoperation" if skill_name == "reach_object" else "scripted"),
         "goal_condition_id": cell_id,
         "typed_goal": typed_goal,
         "object_instance_ids": (
@@ -175,8 +178,8 @@ def _write_complete_synthetic_pilot(dataset_dir: Path) -> None:
             index=index,
             session_id="session_a" if offset < 3 else "session_b",
             skill_name="push_object_to_target",
-            cell_id="push_cuboid_return_bin_left_interior",
-            typed_goal={"object_id": "block_small", "target_zone": "return_bin_left"},
+            cell_id="push_cuboid_setup_slot_a_interior",
+            typed_goal={"object_id": "block_small", "target_zone": "setup_slot_a"},
             manual=offset == 0,
         )
     for offset in range(5):
@@ -231,8 +234,14 @@ def test_report_separates_episodes_segments_failures_and_manual_gate(
     assert report["automated_pilot_requirements_passed"] is True
     assert report["manual_replay_gate_passed"] is True
     assert report["checkpoint_complete"] is True
-    assert report["coverage_matrix"]["minimum_episode_total"] == 250
+    assert report["coverage_matrix"]["minimum_episode_total"] == 114
     assert report["coverage_matrix"]["fits_required_envelope"] is True
+    assert report["source_mix"]["sources"]["teleoperation"] == {
+        "observed": 5,
+        "minimum": 13,
+        "passed": False,
+    }
+    assert report["source_mix"]["sources"]["scripted"]["observed"] == 20
     assert report["storage"]["payload_handling"] == "git_lfs"
 
 
@@ -259,3 +268,30 @@ def test_cli_writes_incomplete_empty_report_without_mutating_dataset(
     assert report["storage"]["payload_handling"] == "undetermined_no_pilot_data"
     assert "missing session manifest" in report["issues"][0]
     assert "Pilot status: incomplete" in capsys.readouterr().out
+
+
+def test_source_mismatch_cannot_satisfy_a_frozen_cell(tmp_path: Path) -> None:
+    _add_session(tmp_path, "session_a")
+    _write_episode(
+        tmp_path,
+        index=1,
+        session_id="session_a",
+        skill_name="reach_object",
+        cell_id="reach_block_small_interior",
+        typed_goal={"entity_id": "block_small"},
+        source="scripted",
+    )
+
+    report = summarize_level4_coverage(
+        config_path=CONFIG_PATH,
+        dataset_dir=tmp_path,
+    )
+
+    assert any("does not match cell requirement" in issue for issue in report["issues"])
+    assert report["source_mix"]["sources"]["scripted"]["observed"] == 0
+    cell = next(
+        row
+        for row in report["coverage_matrix"]["cells"]
+        if row["cell_id"] == "reach_block_small_interior"
+    )
+    assert cell["observed"] == 0

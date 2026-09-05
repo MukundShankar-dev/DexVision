@@ -1,13 +1,15 @@
-version: level4/workcell-dataset-plan-v1
+version: level4/workcell-dataset-plan-v2
 
 freeze:
-  checkpoint: Level 4.0
+  checkpoint: Level 4.3I
   status: requirements_frozen
   collection_started: false
-  frozen_date: "2026-09-03"
+  frozen_date: "2026-09-05"
   change_policy: create_new_version_with_compatibility_note
   level4_3_count_revision_requires_pilot_evidence: true
-  coverage_count_status: provisional_pending_level4_3_pilot
+  coverage_count_status: final_accepted
+  supersedes: level4/workcell-dataset-plan-v1
+  compatibility_note: episode_schema_unchanged_counts_sources_and_push_cells_revised_from_level4_3_evidence
 
 pilot:
   version: level4/collection-pilot-v1
@@ -208,12 +210,25 @@ pilot:
     basis: mean_pilot_episode_bytes_times_required_planning_maximum
     git_lfs_max_projected_payload_bytes: 2147483648
     above_threshold_payload_handling: external_object_storage
+    frozen_payload_handling: git_lfs
+    working_data_location: data/demos
+    working_data_git_policy: ignored_never_force_added
+    release_location: datasets
+    release_artifacts: [immutable_tar_gz, sha256, manifest]
+    existing_release_overwrite_allowed: false
+    over_threshold_change_policy: publish_new_config_version_before_collection
   final_count_freeze_requires:
     - pilot_minima_pass
     - all_object_families_and_target_types_observed
     - per_cell_minima_fit_required_episode_envelope
     - storage_payload_handling_decided
     - manual_replay_gate_confirmed_by_user
+  count_revision_evidence:
+    teleoperation: docs/level4_pilot_report.md
+    scripted_experts: docs/progress_level_4.md#level-43--collection-and-control-pilot
+    button_learning: configs/level4_button_learning_pilot.yaml
+    push_learning: configs/level4_push_learning_pilot.yaml
+    storage: data/demos/level4_pilot/reports/level4_coverage_report.json
 
 evidence_sources:
   - docs/level3_results.md
@@ -243,7 +258,7 @@ schema_versions:
   phase: level4/causal-phase-v1
   safety: level4/action-safety-v1
   rgb: level4/fixed-camera-rgb-v1
-  coverage: level4/coverage-matrix-v1
+  coverage: level4/coverage-matrix-v2
 
 workcell:
   coordinate_frame: mujoco_world
@@ -340,7 +355,7 @@ workcell:
       tolerance_radius_m: 0.025
     setup_slot_b:
       target_type: placement_slot
-      split_role: validation_only
+      split_role: validation_and_test
       center_m: [-0.07, 0.06, 0.01]
       tolerance_radius_m: 0.025
 
@@ -658,17 +673,38 @@ streams:
     annotations: [object_id, class_id, visibility, box_2d, segmentation_mask, pose_6d, camera_intrinsics, camera_extrinsics]
 
 episode_budget:
-  required_total_minimum: 250
-  required_total_planning_maximum: 350
+  required_total_minimum: 114
+  required_total_planning_maximum: 140
   optional_dial_minimum: 0
   optional_dial_planning_range_if_promoted: [30, 40]
   optional_dial_is_additional: true
   groups:
-    reach: {minimum_new_accepted: 30, planning_range: [30, 40]}
-    pick_place: {minimum_new_accepted: 120, planning_range: [120, 150]}
-    push: {minimum_new_accepted: 40, planning_range: [40, 55]}
-    button: {minimum_new_accepted: 30, planning_range: [30, 40]}
-    failure_correction: {minimum_new_accepted: 30, planning_range: [30, 50]}
+    reach: {minimum_new_accepted: 20, planning_range: [20, 24]}
+    pick_place: {minimum_new_accepted: 42, planning_range: [42, 50]}
+    push: {minimum_new_accepted: 20, planning_range: [20, 24]}
+    button: {minimum_new_accepted: 20, planning_range: [20, 24]}
+    failure_correction: {minimum_new_accepted: 12, planning_range: [12, 18]}
+
+source_mix:
+  version: level4/source-mix-v1
+  categories: [scripted, teleoperation, policy_rollout, corrective_intervention]
+  provenance_must_remain_separate: true
+  minimum_accepted_by_source:
+    scripted: 98
+    teleoperation: 13
+    policy_rollout: 0
+    corrective_intervention: 3
+  policy_rollout_role: qualification_evidence_only_not_expert_minimum
+  teleoperation_role: reachable_training_cells_and_observed_failure_mechanisms_only
+  scripted_role: nominal_successes_for_contact_skills_and_held_out_reach
+  corrective_intervention_role: explicitly_linked_safe_corrections_only
+  evidence:
+    reach_teleoperation: manually_observed_usable_in_level4_3_pilot
+    contact_teleoperation: pick_place_and_push_not_usable_button_not_required
+    scripted_experts: repeated_replay_and_terminal_recomputation_passed_for_all_required_skills
+    button_policy: 20_of_20_held_out_rollouts_after_fixed_posture_margin
+    push_policy: 20_of_20_held_out_rollouts_with_nominal_plus_bounded_residual
+    push_exclusions: right_bin_infeasible_and_only_level4_3h_qualified_conditions_retained
 
 counting_rules:
   pick_place_sequence_is_one_episode: true
@@ -702,94 +738,105 @@ split_policy:
   default_cross_operator_claim: false
 
 coverage_cells:
-  # Reach: 10 cells x 3 accepted episodes = 30.
-  - {id: reach_block_small_interior, data_group: reach, entity_id: block_small, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: reach_cylinder_short_interior, data_group: reach, entity_id: cylinder_short, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: reach_puck_light_near_boundary, data_group: reach, entity_id: puck_light, approach_class: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: reach_start_button_centered, data_group: reach, entity_id: start_button, approach_class: centered, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: reach_inspection_pad_centered, data_group: reach, entity_id: inspection_pad, approach_class: centered, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: reach_setup_slot_a_oblique, data_group: reach, entity_id: setup_slot_a, approach_class: oblique, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: reach_setup_slot_b_oblique, data_group: reach, entity_id: setup_slot_b, approach_class: oblique, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: reach_block_large_held_out, data_group: reach, entity_id: block_large, object_id: block_large, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
-  - {id: reach_cylinder_tall_held_out, data_group: reach, entity_id: cylinder_tall, object_id: cylinder_tall, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
-  - {id: reach_puck_heavy_held_out, data_group: reach, entity_id: puck_heavy, object_id: puck_heavy, approach_class: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  # Reach: two accepted demonstrations per cell. Teleoperation is restricted to
+  # the five training-owned cells for which the interface was visibly usable.
+  - {id: reach_block_small_interior, data_group: reach, required_source: teleoperation, entity_id: block_small, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_cylinder_short_interior, data_group: reach, required_source: teleoperation, entity_id: cylinder_short, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_puck_light_near_boundary, data_group: reach, required_source: teleoperation, entity_id: puck_light, approach_class: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_start_button_centered, data_group: reach, required_source: scripted, entity_id: start_button, approach_class: centered, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: reach_inspection_pad_centered, data_group: reach, required_source: teleoperation, entity_id: inspection_pad, approach_class: centered, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_setup_slot_a_oblique, data_group: reach, required_source: teleoperation, entity_id: setup_slot_a, approach_class: oblique, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_setup_slot_b_oblique, data_group: reach, required_source: scripted, entity_id: setup_slot_b, approach_class: oblique, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: reach_block_large_held_out, data_group: reach, required_source: scripted, entity_id: block_large, object_id: block_large, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: reach_cylinder_tall_held_out, data_group: reach, required_source: scripted, entity_id: cylinder_tall, object_id: cylinder_tall, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: reach_puck_heavy_held_out, data_group: reach, required_source: scripted, entity_id: puck_heavy, object_id: puck_heavy, approach_class: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
 
-  # Pick/place: every one of 6 instances x 5 targets owns 4 episodes = 120.
-  - {id: pp_block_small_return_bin_left, data_group: pick_place, object_id: block_small, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_block_small_inspection_pad, data_group: pick_place, object_id: block_small, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_block_small_setup_slot_a, data_group: pick_place, object_id: block_small, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_block_small_setup_slot_b, data_group: pick_place, object_id: block_small, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
-  - {id: pp_block_small_return_bin_right, data_group: pick_place, object_id: block_small, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_short_return_bin_left, data_group: pick_place, object_id: cylinder_short, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_cylinder_short_inspection_pad, data_group: pick_place, object_id: cylinder_short, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_cylinder_short_setup_slot_a, data_group: pick_place, object_id: cylinder_short, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_cylinder_short_setup_slot_b, data_group: pick_place, object_id: cylinder_short, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
-  - {id: pp_cylinder_short_return_bin_right, data_group: pick_place, object_id: cylinder_short, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_light_return_bin_left, data_group: pick_place, object_id: puck_light, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_puck_light_inspection_pad, data_group: pick_place, object_id: puck_light, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_puck_light_setup_slot_a, data_group: pick_place, object_id: puck_light, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: pp_puck_light_setup_slot_b, data_group: pick_place, object_id: puck_light, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 4, test: 0}}
-  - {id: pp_puck_light_return_bin_right, data_group: pick_place, object_id: puck_light, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_block_large_return_bin_left, data_group: pick_place, object_id: block_large, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_block_large_inspection_pad, data_group: pick_place, object_id: block_large, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_block_large_setup_slot_a, data_group: pick_place, object_id: block_large, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_block_large_setup_slot_b, data_group: pick_place, object_id: block_large, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_block_large_return_bin_right, data_group: pick_place, object_id: block_large, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_tall_return_bin_left, data_group: pick_place, object_id: cylinder_tall, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_tall_inspection_pad, data_group: pick_place, object_id: cylinder_tall, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_tall_setup_slot_a, data_group: pick_place, object_id: cylinder_tall, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_tall_setup_slot_b, data_group: pick_place, object_id: cylinder_tall, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_cylinder_tall_return_bin_right, data_group: pick_place, object_id: cylinder_tall, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_heavy_return_bin_left, data_group: pick_place, object_id: puck_heavy, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_heavy_inspection_pad, data_group: pick_place, object_id: puck_heavy, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_heavy_setup_slot_a, data_group: pick_place, object_id: puck_heavy, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_heavy_setup_slot_b, data_group: pick_place, object_id: puck_heavy, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
-  - {id: pp_puck_heavy_return_bin_right, data_group: pick_place, object_id: puck_heavy, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 4}}
+  # Pick/place: all 30 object/goal cells remain. Train/validation cells require
+  # two scripted successes; held-out test cells require one, for 42 total.
+  - {id: pp_block_small_return_bin_left, data_group: pick_place, required_source: scripted, object_id: block_small, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_block_small_inspection_pad, data_group: pick_place, required_source: scripted, object_id: block_small, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_block_small_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: block_small, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_block_small_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: block_small, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: pp_block_small_return_bin_right, data_group: pick_place, required_source: scripted, object_id: block_small, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_short_return_bin_left, data_group: pick_place, required_source: scripted, object_id: cylinder_short, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_inspection_pad, data_group: pick_place, required_source: scripted, object_id: cylinder_short, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: cylinder_short, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_cylinder_short_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: cylinder_short, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: pp_cylinder_short_return_bin_right, data_group: pick_place, required_source: scripted, object_id: cylinder_short, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_light_return_bin_left, data_group: pick_place, required_source: scripted, object_id: puck_light, target_id: return_bin_left, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_puck_light_inspection_pad, data_group: pick_place, required_source: scripted, object_id: puck_light, target_id: inspection_pad, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_puck_light_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: puck_light, target_id: setup_slot_a, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: pp_puck_light_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: puck_light, target_id: setup_slot_b, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: pp_puck_light_return_bin_right, data_group: pick_place, required_source: scripted, object_id: puck_light, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_block_large_return_bin_left, data_group: pick_place, required_source: scripted, object_id: block_large, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_block_large_inspection_pad, data_group: pick_place, required_source: scripted, object_id: block_large, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_block_large_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: block_large, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_block_large_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: block_large, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_block_large_return_bin_right, data_group: pick_place, required_source: scripted, object_id: block_large, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_tall_return_bin_left, data_group: pick_place, required_source: scripted, object_id: cylinder_tall, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_tall_inspection_pad, data_group: pick_place, required_source: scripted, object_id: cylinder_tall, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_tall_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: cylinder_tall, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_tall_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: cylinder_tall, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_cylinder_tall_return_bin_right, data_group: pick_place, required_source: scripted, object_id: cylinder_tall, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_heavy_return_bin_left, data_group: pick_place, required_source: scripted, object_id: puck_heavy, target_id: return_bin_left, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_heavy_inspection_pad, data_group: pick_place, required_source: scripted, object_id: puck_heavy, target_id: inspection_pad, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_heavy_setup_slot_a, data_group: pick_place, required_source: scripted, object_id: puck_heavy, target_id: setup_slot_a, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_heavy_setup_slot_b, data_group: pick_place, required_source: scripted, object_id: puck_heavy, target_id: setup_slot_b, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: pp_puck_heavy_return_bin_right, data_group: pick_place, required_source: scripted, object_id: puck_heavy, target_id: return_bin_right, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
 
-  # Push: 2 families x 5 targets x 2 reset/direction bands x 2 episodes = 40.
-  - {id: push_cuboid_return_bin_left_interior, data_group: push, family: cuboid, object_id: block_small, target_id: return_bin_left, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_return_bin_left_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: return_bin_left, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_inspection_pad_interior, data_group: push, family: cuboid, object_id: block_small, target_id: inspection_pad, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_inspection_pad_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: inspection_pad, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_setup_slot_a_interior, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_setup_slot_a_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_cuboid_setup_slot_b_interior, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: interior, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
-  - {id: push_cuboid_setup_slot_b_boundary, data_group: push, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
-  - {id: push_cuboid_return_bin_right_interior, data_group: push, family: cuboid, object_id: block_large, target_id: return_bin_right, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
-  - {id: push_cuboid_return_bin_right_boundary, data_group: push, family: cuboid, object_id: block_large, target_id: return_bin_right, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
-  - {id: push_flat_puck_return_bin_left_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_return_bin_left_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_inspection_pad_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_inspection_pad_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_setup_slot_a_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_setup_slot_a_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: push_flat_puck_setup_slot_b_interior, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: interior, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
-  - {id: push_flat_puck_setup_slot_b_boundary, data_group: push, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
-  - {id: push_flat_puck_return_bin_right_interior, data_group: push, family: flat_puck, object_id: puck_heavy, target_id: return_bin_right, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
-  - {id: push_flat_puck_return_bin_right_boundary, data_group: push, family: flat_puck, object_id: puck_heavy, target_id: return_bin_right, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  # Push: exactly the 12 Level 4.3H-qualified conditions. The 20-success
+  # minimum mirrors the successful learning probe's train/validation/test size.
+  - {id: push_cuboid_setup_slot_a_interior, data_group: push, required_source: scripted, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_cuboid_setup_slot_a_boundary, data_group: push, required_source: scripted, family: cuboid, object_id: block_small, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_return_bin_left_interior, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_return_bin_left_boundary, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: return_bin_left, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_a_interior, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_a_boundary, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: setup_slot_a, reset_band: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: push_flat_puck_setup_slot_b_interior, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: interior, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_flat_puck_setup_slot_b_boundary, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: setup_slot_b, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: push_cuboid_setup_slot_b_interior, data_group: push, required_source: scripted, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: push_cuboid_setup_slot_b_boundary, data_group: push, required_source: scripted, family: cuboid, object_id: block_small, target_id: setup_slot_b, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: push_flat_puck_inspection_pad_interior, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: push_flat_puck_inspection_pad_boundary, data_group: push, required_source: scripted, family: flat_puck, object_id: puck_light, target_id: inspection_pad, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
 
-  # Button: 10 depth/approach/reset cells x 3 episodes = 30.
-  - {id: press_008_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.008, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_010_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.010, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_012_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.012, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_014_centered_nominal, data_group: button, button_id: start_button, target_depth_m: 0.014, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_010_oblique_interior, data_group: button, button_id: start_button, target_depth_m: 0.010, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_012_oblique_interior, data_group: button, button_id: start_button, target_depth_m: 0.012, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: press_009_centered_boundary, data_group: button, button_id: start_button, target_depth_m: 0.009, approach_class: centered, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: press_013_oblique_boundary, data_group: button, button_id: start_button, target_depth_m: 0.013, approach_class: oblique, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: press_011_left_offset_test, data_group: button, button_id: start_button, target_depth_m: 0.011, approach_class: left_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
-  - {id: press_013_right_offset_test, data_group: button, button_id: start_button, target_depth_m: 0.013, approach_class: right_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  # Button: 10 qualified cells x 2 scripted successes = 20.
+  - {id: press_008_centered_nominal, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.008, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_010_centered_nominal, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.010, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_012_centered_nominal, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.012, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_014_centered_nominal, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.014, approach_class: centered, reset_band: nominal, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_010_oblique_interior, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.010, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_012_oblique_interior, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.012, approach_class: oblique, reset_band: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: press_009_centered_boundary, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.009, approach_class: centered, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: press_013_oblique_boundary, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.013, approach_class: oblique, reset_band: near_boundary, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
+  - {id: press_011_left_offset_test, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.011, approach_class: left_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
+  - {id: press_013_right_offset_test, data_group: button, required_source: scripted, button_id: start_button, target_depth_m: 0.013, approach_class: right_offset, reset_band: near_boundary, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
 
-  # Failures/corrections: nine required classes, 30 accepted evidence episodes.
-  - {id: failure_approach_miss, data_group: failure_correction, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: failure_wrong_contact, data_group: failure_correction, failure_class: wrong_contact, retryability: task_dependent, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: failure_failed_acquisition, data_group: failure_correction, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: failure_slip_drop, data_group: failure_correction, failure_class: slip_drop, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 4, validation: 0, test: 0}}
-  - {id: failure_placement_miss, data_group: failure_correction, failure_class: placement_miss, retryability: retry_once_if_still_held, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: failure_premature_release, data_group: failure_correction, failure_class: premature_release, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 3, validation: 0, test: 0}}
-  - {id: failure_timeout, data_group: failure_correction, failure_class: timeout, retryability: task_dependent, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 3, test: 0}}
-  - {id: failure_workspace_violation, data_group: failure_correction, failure_class: workspace_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
-  - {id: failure_joint_limit_violation, data_group: failure_correction, failure_class: joint_limit_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 3}}
+  # One preserved example of every failure mechanism plus three explicitly
+  # linked safe corrections. These are provenance classes, not expert successes.
+  - {id: failure_approach_miss, data_group: failure_correction, required_source: teleoperation, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_wrong_contact, data_group: failure_correction, required_source: teleoperation, failure_class: wrong_contact, retryability: task_dependent, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_failed_acquisition, data_group: failure_correction, required_source: teleoperation, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_slip_drop, data_group: failure_correction, required_source: scripted, failure_class: slip_drop, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_placement_miss, data_group: failure_correction, required_source: scripted, failure_class: placement_miss, retryability: retry_once_if_still_held, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 1, test: 0}}
+  - {id: failure_premature_release, data_group: failure_correction, required_source: scripted, failure_class: premature_release, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_timeout, data_group: failure_correction, required_source: scripted, failure_class: timeout, retryability: task_dependent, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 1, test: 0}}
+  - {id: failure_workspace_violation, data_group: failure_correction, required_source: scripted, failure_class: workspace_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: failure_joint_limit_violation, data_group: failure_correction, required_source: scripted, failure_class: joint_limit_violation, retryability: abort, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 1}}
+  - {id: correction_approach_miss, data_group: failure_correction, required_source: corrective_intervention, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: correction_failed_acquisition, data_group: failure_correction, required_source: corrective_intervention, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: correction_placement_miss, data_group: failure_correction, required_source: corrective_intervention, failure_class: placement_miss, retryability: retry_once_if_still_held, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 1, test: 0}}
+
+coverage_exclusions:
+  version: level4/coverage-exclusions-v1
+  cells:
+    - {id: push_cuboid_return_bin_left_interior, reason: outside_level4_3h_qualified_condition_set}
+    - {id: push_cuboid_return_bin_left_boundary, reason: outside_level4_3h_qualified_condition_set}
+    - {id: push_cuboid_inspection_pad_interior, reason: outside_level4_3h_qualified_condition_set}
+    - {id: push_cuboid_inspection_pad_boundary, reason: outside_level4_3h_qualified_condition_set}
+    - {id: push_cuboid_return_bin_right_interior, reason: fixture_path_intersection_measured_in_level4_3h}
+    - {id: push_cuboid_return_bin_right_boundary, reason: fixture_path_intersection_measured_in_level4_3h}
+    - {id: push_flat_puck_return_bin_right_interior, reason: precontact_waypoint_outside_safe_workspace_measured_in_level4_3h}
+    - {id: push_flat_puck_return_bin_right_boundary, reason: precontact_waypoint_outside_safe_workspace_measured_in_level4_3h}
 
 failure_and_correction_contract:
   streams: [expert_success, ordinary_failure, policy_rollout, corrective_intervention]

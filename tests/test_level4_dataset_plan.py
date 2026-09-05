@@ -40,10 +40,12 @@ def test_plan_files_freeze_scope_and_sources() -> None:
     config = load_config()
     plan = PLAN_PATH.read_text(encoding="utf-8")
 
-    assert config["version"] == "level4/workcell-dataset-plan-v1"
+    assert config["version"] == "level4/workcell-dataset-plan-v2"
     assert config["freeze"]["status"] == "requirements_frozen"
     assert config["freeze"]["collection_started"] is False
-    assert "No Level 4 collection has started under this schema" in plan
+    assert "No full-scale Level 4 collection has started under this schema" in (
+        " ".join(plan.split())
+    )
     for source in (
         "docs/level3_results.md",
         "docs/level3_evaluation_protocol.md",
@@ -119,7 +121,7 @@ def test_coverage_cells_have_exclusive_split_minima_and_match_budget() -> None:
     coverage = config["coverage_cells"]
     budgets = config["episode_budget"]["groups"]
 
-    assert len(coverage) == 79
+    assert len(coverage) == 74
     assert len({cell["id"] for cell in coverage}) == len(coverage)
     totals: Counter[str] = Counter()
     counts: Counter[str] = Counter()
@@ -130,21 +132,36 @@ def test_coverage_cells_have_exclusive_split_minima_and_match_budget() -> None:
         positive = {split for split, value in minima.items() if value > 0}
         assert positive == {cell["split_owner"]}, cell["id"]
         assert all(isinstance(value, int) and value >= 0 for value in minima.values())
+        assert cell["required_source"] in config["source_mix"]["categories"]
         totals[cell["data_group"]] += sum(minima.values())
         counts[cell["data_group"]] += 1
 
     assert counts == {
         "reach": 10,
         "pick_place": 30,
-        "push": 20,
+        "push": 12,
         "button": 10,
-        "failure_correction": 9,
+        "failure_correction": 12,
     }
     assert totals == {
         group: values["minimum_new_accepted"] for group, values in budgets.items()
     }
-    assert sum(totals.values()) == config["episode_budget"]["required_total_minimum"] == 250
-    assert config["episode_budget"]["required_total_planning_maximum"] == 350
+    assert sum(totals.values()) == config["episode_budget"]["required_total_minimum"] == 114
+    assert config["episode_budget"]["required_total_planning_maximum"] == 140
+    source_totals: Counter[str] = Counter()
+    for cell in coverage:
+        source_totals[cell["required_source"]] += sum(
+            cell["minimum_accepted_by_split"].values()
+        )
+    assert {
+        source: source_totals[source]
+        for source in config["source_mix"]["categories"]
+    } == config["source_mix"]["minimum_accepted_by_source"]
+    excluded = config["coverage_exclusions"]["cells"]
+    assert len(excluded) == 8
+    assert {cell["id"] for cell in excluded}.isdisjoint(
+        {cell["id"] for cell in coverage}
+    )
     assert config["episode_budget"]["optional_dial_minimum"] == 0
     assert config["counting_rules"]["pick_place_sequence_is_one_episode"] is True
     assert config["counting_rules"]["report_episode_and_segment_counts"] is True
@@ -166,6 +183,9 @@ def test_sessions_and_held_out_conditions_cannot_leak() -> None:
     assert sessions["additional_session_assignment"] == "before_collection_or_inspection"
     assert config["split_policy"]["normalization_source"] == "train_only"
     assert config["split_policy"]["test_influences_tuning"] is False
+    assert config["workcell"]["targets"]["setup_slot_b"]["split_role"] == (
+        "validation_and_test"
+    )
 
     held_out_objects = {
         object_id
@@ -254,6 +274,12 @@ def test_stream_quality_visual_and_acceptance_contracts_are_explicit() -> None:
         assert all(value > 0 for value in condition["minimum_source_episodes_by_split"].values())
         assert condition["entity_coverage"]
     assert visual["source_episode_minima_are_additive_to_episode_budget"] is False
+
+    storage = config["pilot"]["storage_projection"]
+    assert storage["frozen_payload_handling"] == "git_lfs"
+    assert storage["working_data_git_policy"] == "ignored_never_force_added"
+    assert storage["existing_release_overwrite_allowed"] is False
+    assert storage["release_artifacts"] == ["immutable_tar_gz", "sha256", "manifest"]
 
     thresholds = config["quality_thresholds"]
     assert thresholds["min_mean_tracking_confidence"] >= 0.75

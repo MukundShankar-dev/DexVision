@@ -20,17 +20,17 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3H — Small State-Only Push Learnability Probe
+Level 4.3I — Final Source Mix and Coverage Freeze
 
-The frozen push probe reuses the Level 4.3G causal state/phase convention,
-training-only normalization, 17-step control cadence, task-local XYZ adapter,
-and one 64-by-64 tanh MLP. After a learned-only delta produced a measured 0/20
-workspace-compounding failure, the intended scripted-nominal plus bounded
-tracking-residual formulation completed 20/20 held-out cuboid and flat-puck
-resets with zero board, neighbor, workspace, joint, contact, tilt, or invalid
-action violations. No chunking, model change, or data increase was used. The
-provisional right-bin cells were measured infeasible under the current nominal
-controller and must be revised in Level 4.3I.
+The user accepted configuration v2 on September 5, 2026 after running the
+coverage summary. The evidence-based matrix freezes 114 required accepted
+episodes and a 140-episode planning maximum across 74 source-owned cells: 20
+reach, 42 complete pick/place, 20 push, 20 button, and 12 failure/correction
+episodes. Provenance minima remain separate at 98 scripted, 13 teleoperation,
+zero policy rollout, and three corrective interventions. The push claim is
+limited to the 12 Level 4.3H-qualified condition cells, with eight provisional
+cells preserved as explicit exclusions. Whole-session splits, held-out rules,
+Git LFS handling, and immutable release artifacts are frozen.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -39,7 +39,10 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3I — Final Source Mix and Coverage Freeze
+Level 4.4 — Reach, Push, and Press Multi-Session Haul
+
+No Level 4.4 implementation or collection has started. Select only this
+checkpoint in the next work turn.
 
 ---
 
@@ -49,7 +52,7 @@ Level 4.3I — Final Source Mix and Coverage Freeze
 
 Suggested next feature branch:
 
-`codex/level43i-source-mix-freeze`
+`codex/level44-core-multisession-haul`
 
 ---
 
@@ -958,6 +961,16 @@ increase, or manual verification was required. Copied-state checks also showed
 the provisional right-bin cells are infeasible under the current controller;
 Level 4.3I must revise that matrix. Last Completed is now 4.3H and Next Target
 is 4.3I; no 4.3I work has started.
+
+Level 4.3I is complete. Configuration v2 freezes the user-accepted 114–140
+episode envelope, 74 source-owned coverage cells, separate 98/13/0/3
+scripted/teleoperation/policy-rollout/corrective-intervention minima, the
+qualified push subset and exclusions, whole-session/held-out restrictions,
+and Git LFS plus immutable-release handling. The user ran the coverage summary
+and approved the matrix on September 5, 2026. The checkpoint suite passes with
+31 tests, the dataset-plan suite with nine tests, touched-file Ruff checks pass,
+and the full suite passes with 537 tests. Last Completed is now 4.3I and Next
+Target is 4.4; no 4.4 implementation or collection has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in

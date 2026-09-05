@@ -959,11 +959,33 @@ conda run -n dexvision pytest -q tests/test_level4_collection.py tests/test_leve
 #### Pass criteria
 
 ```text
-[ ] Final matrix states accepted minima by skill, source, object/goal cell, and split
-[ ] Source mix follows measured expert and learning evidence
-[ ] Session isolation, held-out cells, storage handling, and release rules are frozen
-[ ] Level 4.4 is still not started until the user accepts the revised matrix
+[x] Final matrix states accepted minima by skill, source, object/goal cell, and split
+[x] Source mix follows measured expert and learning evidence
+[x] Session isolation, held-out cells, storage handling, and release rules are frozen
+[x] Level 4.4 is still not started until the user accepts the revised matrix
 ```
+
+Implementation status (September 5, 2026): configuration v2 freezes 114
+required accepted episodes with a 140-episode planning maximum: 20 reach, 42
+complete pick/place, 20 push, 20 button, and 12 failure/correction episodes.
+All 74 required rows state source, object/goal or failure class, split owner,
+and per-split minimum. Required provenance totals are 98 scripted, 13
+teleoperation, zero policy rollout, and three corrective intervention episodes.
+Teleoperation is limited to the five usable training reach cells and three
+observed operator failure mechanisms. Nominal contact skills use the replayed
+scripted experts; policy rollouts remain separate qualification evidence.
+
+The push matrix retains the 12 conditions qualified by Level 4.3H and records
+the eight removed provisional cells separately with measured or qualification-
+scope reasons. Whole-session isolation, held-out object/right-bin ownership,
+train-only normalization, untouched-test restrictions, ignored working data,
+the 2 GiB Git LFS threshold, and immutable archive/checksum/manifest releases
+remain frozen. The listed coverage command completed, the checkpoint suite
+passes with 31 tests, the dataset-plan suite passes with nine tests,
+repository-wide Ruff passes for the touched Python/tests, and the full suite
+passes with 537 tests. The user accepted the revised matrix after running the
+coverage summary. Level 4.3I is complete; no Level 4.4 implementation has
+started.
 
 ### Level 4.3 guardrails
 
