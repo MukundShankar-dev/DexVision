@@ -5,8 +5,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from dexvision.apps import run_level1_teleop
+from dexvision.apps import record_demo, run_level1_teleop
+from dexvision.evaluation.level4_expert_audit import audit_expert_architecture
 from dexvision.features.hand_features import no_hand_features
+from dexvision.logging.demo_logger import DemoLoggerError
 from dexvision.logging.level4_collection import WorkcellPilotTask
 from dexvision.retargeting.curl_retargeter import (
     CurlRetargeter,
@@ -165,3 +167,112 @@ def test_target_cage_is_centered_around_the_selected_block() -> None:
     assert cage_min_z < -block_half_height
     assert cage_max_z > block_half_height
     assert cage_min_z == pytest.approx(-cage_max_z)
+
+
+def _record_audit_episode(
+    tmp_path: Path,
+    *,
+    skill_name: str,
+    cell_id: str,
+    seed: int,
+    label: str,
+    maximum_frames: int = 0,
+) -> Path:
+    output = tmp_path / label
+    arguments = [
+        "--task",
+        "level4_workcell",
+        "--skill",
+        skill_name,
+        "--source",
+        "scripted",
+        "--episode-id",
+        f"audit_{label}",
+        "--session-id",
+        f"audit_session_{label}",
+        "--operator-id",
+        "scripted_expert_audit_v1",
+        "--session-split",
+        "train",
+        "--goal-condition-id",
+        cell_id,
+        "--task-seed",
+        str(seed),
+        "--output",
+        str(output),
+        "--level4-pilot-dataset-dir",
+        str(tmp_path / "dataset"),
+        "--level4-dataset-config",
+        str(DATASET_CONFIG),
+        "--workcell-config",
+        str(WORKCELL_CONFIG),
+    ]
+    if maximum_frames:
+        arguments.extend(("--max-frames", str(maximum_frames)))
+    args = record_demo.build_parser().parse_args(arguments)
+    if maximum_frames:
+        with pytest.raises(DemoLoggerError, match="did not satisfy"):
+            record_demo.run_record_demo(args)
+    else:
+        assert record_demo.run_record_demo(args) == 0
+    return output
+
+
+def test_repeated_cross_skill_experts_replay_recompute_and_keep_failures(
+    tmp_path: Path,
+) -> None:
+    pytest.importorskip("mujoco")
+    cases = (
+        ("reach_object", "reach_block_small_interior"),
+        ("press_button", "press_008_centered_nominal"),
+        ("push_object_to_target", "push_cuboid_setup_slot_a_interior"),
+        ("pick_object", "pp_block_small_return_bin_left"),
+        ("pick_place_sequence", "pp_block_small_inspection_pad"),
+    )
+    episodes = [
+        _record_audit_episode(
+            tmp_path,
+            skill_name=skill,
+            cell_id=cell,
+            seed=seed,
+            label=f"{skill}_{seed}",
+        )
+        for skill, cell in cases
+        for seed in range(2)
+    ]
+    failure = _record_audit_episode(
+        tmp_path,
+        skill_name="reach_object",
+        cell_id="reach_block_small_interior",
+        seed=7,
+        label="ordinary_reach_failure",
+        maximum_frames=1,
+    )
+
+    report = audit_expert_architecture(
+        [*episodes, failure],
+        config_path=DATASET_CONFIG,
+        workcell_config=WORKCELL_CONFIG,
+    )
+
+    assert report["qualified"] is True
+    assert report["episode_count"] == 11
+    assert report["accepted_episode_count"] == 10
+    assert report["ordinary_failure_count"] == 1
+    assert report["unexpected_rejection_count"] == 0
+    assert report["accepted_source_skill_counts"] == {
+        skill: 2 for skill, _cell in cases
+    }
+    assert set(report["accepted_derived_skill_counts"]) == {
+        "reach_object",
+        "press_button",
+        "push_object_to_target",
+        "pick_object",
+        "place_held_object",
+    }
+    assert report["safety_violation_episode_count"] == 0
+    assert report["neighbor_disturbance_failure_count"] == 0
+    failure_audit = report["episodes"][-1]
+    assert failure_audit["accepted"] is False
+    assert failure_audit["operator_success"] is False
+    assert "ordinary_task_failure" in failure_audit["rejection_reasons"]

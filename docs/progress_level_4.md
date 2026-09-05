@@ -788,7 +788,7 @@ grasp/push regressions pass, the related suite passes with 41 tests,
 repository-wide Ruff passes, and the full suite passes with 527 tests. The saved
 viewer uses an oblique source/goal-readable camera. The user confirmed on
 September 4, 2026 that the corrected cuboid pick/place replay worked. Level
-4.3E is complete; no 4.3F work has started.
+4.3E is complete.
 
 #### Level 4.3F — Expert Architecture and Replay Qualification
 
@@ -808,15 +808,31 @@ conda run -n dexvision pytest -q tests/test_level4_expert.py tests/test_level4_c
 #### Pass criteria
 
 ```text
-[ ] Every required scripted skill has repeated recomputed successes
-[ ] Every accepted trajectory replays and retains complete provenance
-[ ] Accepted trajectories have zero safety violations and zero neighbor disturbance
-[ ] Failures remain auditable and never count as expert data
+[x] Every required scripted skill has repeated recomputed successes
+[x] Every accepted trajectory replays and retains complete provenance
+[x] Accepted trajectories have zero safety violations and zero neighbor disturbance
+[x] Failures remain auditable and never count as expert data
 ```
 
 Manual verification: visibly replay one accepted trajectory for reach, button,
 push, grasp-and-lift, and complete pick/place. Stop until the user confirms all
 five.
+
+Implementation status: the versioned expert audit regenerates the frozen task
+from each episode's seed, coverage cell, typed goal, and reset metadata, then
+headlessly replays the saved requested/commanded/applied actions and recomputes
+the task metric. The audit requires two accepted resets for each of the five
+source skills, checks exact action provenance, causal phases, aligned
+timestamps, reset equivalence, zero logged safety intervention, and less than
+the configured 0.005 m planar neighbor disturbance. Complete pick/place also
+supplies derived reach, pick, and place evidence. Ordinary failed recordings
+remain in the report but cannot contribute to accepted counts. A fresh
+10-episode, two-seed audit accepted all 10 trajectories; the focused checkpoint
+suite passes with 25 tests. The operator-owned pilot directory remains below
+its later collection minima, as expected at this architecture checkpoint.
+The user confirmed on September 5, 2026 that the visible reach, button, push,
+grasp-and-lift, and complete pick/place replays looked good. Level 4.3F is
+complete; no 4.3G work has started.
 
 #### Level 4.3G — Small State-Only Button Learnability Probe
 

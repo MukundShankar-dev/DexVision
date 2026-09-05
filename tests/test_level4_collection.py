@@ -122,6 +122,17 @@ def test_level4_config_freezes_pilot_protocol_and_defers_dial() -> None:
         "button": 5,
     }
     assert protocol.optional_dial_decision == "deferred"
+    assert config["pilot"]["expert_architecture_audit"] == {
+        "version": "level4/expert-replay-audit-v1",
+        "minimum_repeats_per_source_skill": 2,
+        "required_source_skills": [
+            "reach_object",
+            "press_button",
+            "push_object_to_target",
+            "pick_object",
+            "pick_place_sequence",
+        ],
+    }
     assert config["freeze"]["coverage_count_status"].startswith("provisional")
 
 

@@ -200,6 +200,10 @@ pilot:
     headless_replay_for_every_accepted_episode: true
     recomputed_terminal_success_for_every_accepted_episode: true
     manual_replay_one_per_required_skill: true
+  expert_architecture_audit:
+    version: level4/expert-replay-audit-v1
+    minimum_repeats_per_source_skill: 2
+    required_source_skills: [reach_object, press_button, push_object_to_target, pick_object, pick_place_sequence]
   storage_projection:
     basis: mean_pilot_episode_bytes_times_required_planning_maximum
     git_lfs_max_projected_payload_bytes: 2147483648

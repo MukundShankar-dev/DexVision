@@ -741,6 +741,30 @@ def load_level4_collection_config(
             "pilot manual_replay_manifest_filename must be "
             f"{MANUAL_REPLAY_MANIFEST_FILENAME!r}."
         )
+    expert_audit = _mapping(pilot, "expert_architecture_audit")
+    if expert_audit.get("version") != "level4/expert-replay-audit-v1":
+        raise Level4CollectionError(
+            "pilot expert_architecture_audit version must be "
+            "'level4/expert-replay-audit-v1'."
+        )
+    audit_repeats = expert_audit.get("minimum_repeats_per_source_skill")
+    if (
+        isinstance(audit_repeats, bool)
+        or not isinstance(audit_repeats, int)
+        or audit_repeats < 2
+    ):
+        raise Level4CollectionError(
+            "pilot expert architecture audit requires at least two repeats."
+        )
+    audit_skills = expert_audit.get("required_source_skills")
+    if (
+        not isinstance(audit_skills, Sequence)
+        or isinstance(audit_skills, str)
+        or set(audit_skills) != set(WORKCELL_PILOT_SKILLS)
+    ):
+        raise Level4CollectionError(
+            "pilot expert architecture audit must require every recordable skill."
+        )
     return payload, PilotProtocol(sessions, counts, str(decision))
 
 

@@ -881,6 +881,38 @@ its qualified goal, button finishes after a latched press and complete release,
 push finishes only while its final released state remains qualified, and
 standalone grasp ends only after the stable held-object dwell.
 
+Level 4.3F expert/replay audit modules:
+
+```text
+dexvision/evaluation/level4_expert_audit.py
+dexvision/apps/audit_level4_experts.py
+```
+
+Contract:
+
+```python
+report = audit_expert_architecture(
+    episode_dirs,
+    config_path=dataset_config,
+    workcell_config=workcell_config,
+)
+save_expert_audit_report(report, output_path)
+```
+
+Rules:
+
+```text
+The frozen audit requires at least two accepted resets for every scripted source skill: reach, button, push, standalone grasp-and-lift, and complete pick/place.
+Each episode is loaded through the existing schema validator; the audit never introduces a parallel episode format.
+The saved seed, coverage cell, typed goal, task config, and complete reset state must regenerate the same initial task before replay.
+Requested, commanded, applied, and prior action arrays, script request-source labels, causal phase intervals, aligned state/action/task timestamps, schema versions, and identity provenance must be complete.
+Headless replay uses the saved simulation cadence and recomputes the task metric from replayed world state; complete pick/place must demonstrate both a held-object pick and a successful terminal place.
+Accepted episodes must agree with their operator success label, contain zero safety/intervention evidence, and keep planar non-target disturbance within the skill's configured limit.
+Ordinary failures remain listed with rejection reasons and never increment accepted source or derived-skill counts.
+Generated JSON reports are written atomically outside immutable episode directories and do not create or mutate pilot-review decisions.
+Visible replay remains a separate manual gate and cannot be satisfied by this headless audit.
+```
+
 ---
 
 ## Success Relabeling

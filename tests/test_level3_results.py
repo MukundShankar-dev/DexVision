@@ -177,7 +177,7 @@ def test_level38_completion_remains_recorded_during_level43() -> None:
     assert "Level 4 — Comprehensive Multi-Session Dataset Collection" in status
     assert "`docs/progress_level_4.md`" in status
     assert "Level 3.8 — Feasibility Report and Level 4 Data Requirements" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.3D" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.3E" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.3F" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.3G" in status
     assert "[x] Feasibility report defines the Level 4 data haul" in progress
     assert progress.count("[x] Every result traces to a config") == 1

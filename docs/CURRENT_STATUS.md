@@ -20,13 +20,14 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3E — Deterministic Place and Complete Pick/Place Expert
+Level 4.3F — Expert Architecture and Replay Qualification
 
-The complete scripted controller now uses a shape-aware side-on hammer-curl
-grasp, preserves the selected object's seeded orientation during held phases,
-and completes deterministic transport, release, settle, and retract. Automated
-qualification spans cuboid, cylinder, and flat-puck families. The user accepted
-the corrected cuboid replay on September 4, 2026.
+The versioned cross-skill audit regenerates tasks from immutable metadata,
+headlessly replays saved actions, recomputes task success, and separates
+ordinary failures from accepted expert data. Two independently seeded episodes
+for each of reach, button, push, standalone grasp-and-lift, and complete
+pick/place qualified automatically. The user accepted one visible replay for
+all five skills on September 5, 2026.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -35,7 +36,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3F — Expert Architecture and Replay Qualification
+Level 4.3G — Small State-Only Button Learnability Probe
 
 ---
 
@@ -45,7 +46,7 @@ Level 4.3F — Expert Architecture and Replay Qualification
 
 Suggested next feature branch:
 
-`codex/level43f-expert-audit`
+`codex/level43g-button-learning`
 
 ---
 
@@ -915,8 +916,19 @@ segment, standalone grasp, and push suites pass after this remediation; the
 related suite passes with 41 tests, repository-wide Ruff passes, and the full
 suite passes with 527 tests. The saved viewer now uses an oblique camera that
 keeps the hand, object, and named goal sides readable. The user confirmed on
-September 4, 2026 that the corrected cuboid pick/place replay worked. Last
-Completed is now 4.3E and Next Target is 4.3F; no 4.3F work has started.
+September 4, 2026 that the corrected cuboid pick/place replay worked.
+
+Level 4.3F is complete. The versioned cross-skill audit regenerated, headlessly
+replayed, and recomputed two independently seeded accepted episodes for each of
+reach, button, push, standalone grasp-and-lift, and complete pick/place. All 10
+had complete action/provenance/timestamp evidence, zero safety interventions,
+and neighbor disturbance below the configured limit. An ordinary failed episode
+is covered by the automated audit and remains rejected without contributing to
+expert counts. The required 25-test checkpoint suite passes. The existing
+operator-owned pilot directory remains intentionally unchanged and below its
+later collection minima. The user confirmed on September 5, 2026 that one
+visible replay for all five skills looked good. Last Completed is now 4.3F and
+Next Target is 4.3G; no 4.3G work has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in
