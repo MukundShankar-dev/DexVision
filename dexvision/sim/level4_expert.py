@@ -1225,6 +1225,12 @@ class DeterministicPushExpert:
         return self._direction.copy()
 
     @property
+    def target_orientation_wxyz(self) -> np.ndarray:
+        """Return the family- and task-axis-specific deterministic wrist target."""
+
+        return self._target_orientation.copy()
+
+    @property
     def validation(self) -> WaypointValidationResult | None:
         return self._validation
 

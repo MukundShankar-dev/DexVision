@@ -1,0 +1,148 @@
+version: level4/push-learning-pilot-v1
+
+interface:
+  observation_convention: level4/causal-state-phase-previous-delta-v1
+  action_schema: level4/task-local-xyz-delta-v1
+  normalization: training-split-population-statistics
+  control_sim_steps: 17
+
+dataset:
+  successful_episodes: 20
+  sessions:
+    - session_id: level43h_push_train
+      split: train
+      seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+      coverage_cells:
+        - push_cuboid_setup_slot_a_interior
+        - push_cuboid_setup_slot_a_boundary
+        - push_flat_puck_return_bin_left_interior
+        - push_flat_puck_return_bin_left_boundary
+        - push_flat_puck_setup_slot_a_interior
+        - push_flat_puck_setup_slot_a_boundary
+    - session_id: level43h_push_validation
+      split: validation
+      seeds: [100, 101, 102]
+      coverage_cells:
+        - push_flat_puck_setup_slot_b_interior
+        - push_flat_puck_setup_slot_b_boundary
+    - session_id: level43h_push_test
+      split: test
+      seeds: [200, 201, 202]
+      coverage_cells:
+        - push_cuboid_setup_slot_b_interior
+        - push_flat_puck_inspection_pad_interior
+        - push_flat_puck_inspection_pad_boundary
+
+reset:
+  seed_jitter_half_range_m: [0.0, 0.0, 0.0]
+  settle_simulation_steps: 1
+
+observation:
+  schema_version: level4/push-lowdim-observation-v1
+  simulator_state_only: true
+  fields:
+    - ee_to_object_task/x
+    - ee_to_object_task/y
+    - ee_to_object_task/z
+    - object_to_target_task/x
+    - object_to_target_task/y
+    - object_to_target_task/z
+    - ee_to_target_orientation/qw
+    - ee_to_target_orientation/qx
+    - ee_to_target_orientation/qy
+    - ee_to_target_orientation/qz
+    - object_linear_velocity_task/x
+    - object_linear_velocity_task/y
+    - object_linear_velocity_task/z
+    - object_angular_velocity_task/x
+    - object_angular_velocity_task/y
+    - object_angular_velocity_task/z
+    - base_linear_velocity_task/x
+    - base_linear_velocity_task/y
+    - base_linear_velocity_task/z
+    - base_angular_velocity_task/x
+    - base_angular_velocity_task/y
+    - base_angular_velocity_task/z
+    - phase/approach
+    - phase/push_contact
+    - phase/settle
+    - phase/retract
+    - previous_applied_delta/dx
+    - previous_applied_delta/dy
+    - previous_applied_delta/dz
+    - family/cuboid
+    - family/flat_puck
+    - goal/target_stop_distance
+
+action:
+  schema_version: level4/task-local-xyz-delta-v1
+  output_fields: [dx, dy, dz]
+  coordinate_frame: initial_object_to_target
+  maximum_absolute_delta_m: [0.001, 0.001, 0.001]
+  maximum_absolute_delta_by_phase_m:
+    approach: [0.001, 0.001, 0.001]
+    push_contact: [0.0005, 0.0, 0.0]
+    settle: [0.0, 0.0, 0.0]
+    retract: [0.0005, 0.0, 0.0]
+  nominal_contact_constraint: positive_task_x_only
+  expansion: scripted_nominal_plus_bounded_tracking_residual
+
+model:
+  recipe_count: 1
+  class: small_mlp
+  hidden_dims: [64, 64]
+  activation: tanh
+
+training:
+  epochs: 220
+  batch_size: 64
+  learning_rate: 0.002
+  weight_decay: 0.0
+  seed: 20260905
+  device: cpu
+  loss: phase_balanced_mse
+
+rollout:
+  held_out_coverage_cells:
+    - push_flat_puck_inspection_pad_interior
+    - push_cuboid_setup_slot_b_interior
+    - push_flat_puck_inspection_pad_boundary
+    - push_flat_puck_inspection_pad_interior
+    - push_cuboid_setup_slot_b_boundary
+    - push_cuboid_setup_slot_b_interior
+    - push_cuboid_setup_slot_b_boundary
+    - push_flat_puck_inspection_pad_interior
+    - push_cuboid_setup_slot_b_interior
+    - push_cuboid_setup_slot_b_boundary
+    - push_flat_puck_inspection_pad_boundary
+    - push_cuboid_setup_slot_b_interior
+    - push_cuboid_setup_slot_b_boundary
+    - push_flat_puck_inspection_pad_interior
+    - push_flat_puck_inspection_pad_boundary
+    - push_flat_puck_inspection_pad_interior
+    - push_cuboid_setup_slot_b_interior
+    - push_flat_puck_inspection_pad_boundary
+    - push_flat_puck_inspection_pad_interior
+    - push_flat_puck_inspection_pad_boundary
+  held_out_seeds: [1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019]
+  maximum_steps: 300
+  sim_steps_per_action: 17
+  required_release_steps: 5
+  minimum_success_rate: 0.70
+
+safety:
+  workspace_min_m: [-0.18, -0.18, 0.08]
+  workspace_max_m: [0.22, 0.18, 0.24]
+  joint_limit_tolerance_rad: 0.01
+  maximum_board_exits: 0
+  maximum_neighbor_disturbances: 0
+  maximum_safety_violations: 0
+  maximum_invalid_actions: 0
+
+change_control:
+  maximum_successes_before_diagnosis: 20
+  require_failure_diagnosis_before_more_data: true
+  require_failure_diagnosis_before_model_change: true
+  allow_action_chunking: false
+  action_chunking_evidence: none_single_step_interface_tested_directly
+  allow_image_input: false

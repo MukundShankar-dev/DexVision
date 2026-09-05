@@ -946,6 +946,37 @@ Rollout failures must receive a causal diagnostic category before increasing the
 The qualified formulation retains the same 20 episodes and MLP after diagnosing contact-induced open-finger joint-limit failures and correcting only the deterministic fixed posture and contact-axis adapter.
 ```
 
+Level 4.3H state-only push learning modules:
+
+```text
+configs/level4_push_learning_pilot.yaml
+dexvision/learning/level4_push_lowdim.py
+dexvision/evaluation/level4_push_learning.py
+```
+
+Contract:
+
+```python
+config, digest = load_push_learning_config(path)
+trajectories = collect_push_expert_trajectories(config)
+training = train_push_delta_policy(trajectories, config)
+rollouts = evaluate_push_policy(training.policy, config)
+report = run_push_learning_pilot(config_path=path)
+```
+
+Rules:
+
+```text
+The push probe reuses the qualified causal observation convention, training-split-only population normalization, phase input, previous applied XYZ delta, 17-simulation-step cadence, shared task-local XYZ adapter, and 64-by-64 tanh MLP class.
+The observation adds only push state: end-effector/object/goal geometry in the initial object-to-target frame, relative wrist orientation, object and base velocities, object family, and the target stop distance.
+The scripted expert remains the nominal safe-waypoint, orientation, finger-posture, contact-axis, settle, and retract controller. The learned three-value output is only a bounded task-frame tracking residual around that nominal request.
+Residual magnitude is at most 1 mm during free-space approach and 0.5 mm along the task axis during contact/retract; settle emits zero residual. Deterministic code rejects lateral/vertical contact residuals and expands the result to the existing full named action.
+Exactly 20 scripted successes use whole-session 14/3/3 ownership over mutually disjoint probe conditions. Model selection uses validation loss and test loss remains untouched by training.
+Closed-loop qualification uses 20 separately seeded held-out resets across cuboid and flat-puck conditions, requires at least 0.70 success, and explicitly counts board exits, neighbor disturbance, workspace/joint/contact/tilt safety failures, and invalid actions.
+The provisional right-bin coverage cells are excluded because copied-state qualification measured fixture-path and safe-workspace infeasibility under the current controller; Level 4.3I must revise the provisional collection matrix rather than relabel these cells as qualified.
+The initial learned-only delta formulation failed 0/20 from compounding approach error. That measured diagnosis justified the already-specified nominal-plus-residual formulation; it did not justify action chunking. No image input, chunking, larger model, extra recipe, or data increase is permitted by this checkpoint.
+```
+
 ---
 
 ## Success Relabeling

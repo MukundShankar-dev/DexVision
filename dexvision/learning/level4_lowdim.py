@@ -1,4 +1,4 @@
-"""Frozen state-only low-dimensional learning probe for Level 4 button press."""
+"""Shared Level 4 low-dimensional primitives and the frozen button probe."""
 
 from __future__ import annotations
 
@@ -110,8 +110,8 @@ class ButtonTrainingResult:
     phase_counts: Mapping[str, int]
 
 
-class ButtonDeltaMLP(nn.Module):
-    """Small MLP mapping normalized causal simulator state to XYZ delta."""
+class LowDimDeltaMLP(nn.Module):
+    """Shared small MLP mapping normalized causal state to one XYZ delta."""
 
     def __init__(
         self,
@@ -122,14 +122,14 @@ class ButtonDeltaMLP(nn.Module):
     ) -> None:
         super().__init__()
         if input_dim <= 0 or not hidden_dims or any(int(width) <= 0 for width in hidden_dims):
-            raise ButtonLearningError("button MLP dimensions must be positive.")
+            raise ButtonLearningError("low-dimensional MLP dimensions must be positive.")
         activation_type: type[nn.Module]
         if activation == "tanh":
             activation_type = nn.Tanh
         elif activation == "relu":
             activation_type = nn.ReLU
         else:
-            raise ButtonLearningError("button MLP activation must be tanh or relu.")
+            raise ButtonLearningError("low-dimensional MLP activation must be tanh or relu.")
         layers: list[nn.Module] = []
         previous = input_dim
         for width in hidden_dims:
@@ -137,25 +137,24 @@ class ButtonDeltaMLP(nn.Module):
             previous = int(width)
         layers.append(nn.Linear(previous, len(BUTTON_DELTA_NAMES)))
         self.network = nn.Sequential(*layers)
+        self.input_dim = int(input_dim)
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
-        if observations.ndim != 2 or observations.shape[1] != len(
-            BUTTON_OBSERVATION_NAMES
-        ):
+        if observations.ndim != 2 or observations.shape[1] != self.input_dim:
             raise ButtonLearningError(
-                "button observations must have shape [batch, "
-                f"{len(BUTTON_OBSERVATION_NAMES)}]."
+                "low-dimensional observations must have shape [batch, "
+                f"{self.input_dim}]."
             )
         return self.network(observations)
 
 
-class ButtonDeltaPolicy:
-    """CPU inference wrapper retaining training-only normalization."""
+class LowDimDeltaPolicy:
+    """Shared CPU inference wrapper retaining training-only normalization."""
 
     def __init__(
         self,
         *,
-        model: ButtonDeltaMLP,
+        model: LowDimDeltaMLP,
         observation_normalization: VectorNormalization,
         action_normalization: VectorNormalization,
         maximum_absolute_delta_m: Sequence[float],
@@ -169,13 +168,22 @@ class ButtonDeltaPolicy:
         self.observation_normalization = observation_normalization
         self.action_normalization = action_normalization
         self.maximum_absolute_delta_m = maximum
+        self.observation_dim = int(observation_normalization.mean.shape[0])
+        if (
+            observation_normalization.mean.shape != (self.observation_dim,)
+            or observation_normalization.std.shape != (self.observation_dim,)
+            or model.input_dim != self.observation_dim
+        ):
+            raise ButtonLearningError("low-dimensional observation contract is inconsistent.")
+        if action_normalization.mean.shape != (3,) or action_normalization.std.shape != (3,):
+            raise ButtonLearningError("low-dimensional action normalization must be XYZ.")
 
     def predict(self, observation: Sequence[float]) -> np.ndarray:
         values = np.asarray(observation, dtype=np.float64)
-        if values.shape != (len(BUTTON_OBSERVATION_NAMES),) or not np.all(
+        if values.shape != (self.observation_dim,) or not np.all(
             np.isfinite(values)
         ):
-            raise ButtonLearningError("button policy observation is invalid.")
+            raise ButtonLearningError("low-dimensional policy observation is invalid.")
         normalized = (
             values - self.observation_normalization.mean
         ) / self.observation_normalization.std
@@ -194,8 +202,16 @@ class ButtonDeltaPolicy:
         )
 
 
-class ButtonActionAdapter:
-    """Expand one learned task-local XYZ delta to the full action layout."""
+class ButtonDeltaMLP(LowDimDeltaMLP):
+    """Level 4.3G compatibility name for the shared XYZ-delta MLP."""
+
+
+class ButtonDeltaPolicy(LowDimDeltaPolicy):
+    """Level 4.3G compatibility name for the shared CPU policy wrapper."""
+
+
+class TaskLocalDeltaActionAdapter:
+    """Shared expansion from a bounded task-frame XYZ delta to full action."""
 
     def __init__(
         self,
@@ -205,6 +221,8 @@ class ButtonActionAdapter:
         workspace_min_m: Sequence[float],
         workspace_max_m: Sequence[float],
         maximum_absolute_delta_by_phase_m: Mapping[str, Sequence[float]],
+        task_to_world_rotation: Sequence[Sequence[float]],
+        phases: Sequence[str],
     ) -> None:
         self.finger_targets = {
             str(name): float(value) for name, value in finger_targets.items()
@@ -212,14 +230,22 @@ class ButtonActionAdapter:
         self.orientation = np.asarray(fixed_orientation_wxyz, dtype=np.float64)
         self.workspace_min = np.asarray(workspace_min_m, dtype=np.float64)
         self.workspace_max = np.asarray(workspace_max_m, dtype=np.float64)
-        if set(maximum_absolute_delta_by_phase_m) != set(BUTTON_PHASES):
+        self.task_to_world_rotation = np.asarray(
+            task_to_world_rotation, dtype=np.float64
+        )
+        self.phases = tuple(str(phase) for phase in phases)
+        if not self.phases or set(maximum_absolute_delta_by_phase_m) != set(self.phases):
             raise ButtonLearningError(
-                "button adapter needs one delta limit for every causal phase."
+                "task-local adapter needs one delta limit for every causal phase."
             )
-        self.phase_delta_limits = {
-            phase: _nonnegative_vector3(values, f"{phase} delta limit")
-            for phase, values in maximum_absolute_delta_by_phase_m.items()
-        }
+        self.phase_delta_limits = {}
+        for phase, values in maximum_absolute_delta_by_phase_m.items():
+            limit = _finite_vector3(values, f"{phase} delta limit")
+            if np.any(limit < 0.0):
+                raise ButtonLearningError(
+                    f"{phase} task-local delta limit must be non-negative."
+                )
+            self.phase_delta_limits[phase] = limit
         if not self.finger_targets or any(
             not name or not np.isfinite(value)
             for name, value in self.finger_targets.items()
@@ -236,7 +262,20 @@ class ButtonActionAdapter:
             or self.workspace_max.shape != (3,)
             or np.any(self.workspace_min >= self.workspace_max)
         ):
-            raise ButtonLearningError("button adapter workspace bounds are invalid.")
+            raise ButtonLearningError("task-local adapter workspace bounds are invalid.")
+        if (
+            self.task_to_world_rotation.shape != (3, 3)
+            or not np.all(np.isfinite(self.task_to_world_rotation))
+            or not np.allclose(
+                self.task_to_world_rotation.T @ self.task_to_world_rotation,
+                np.eye(3),
+                atol=1e-6,
+            )
+            or np.linalg.det(self.task_to_world_rotation) < 0.999999
+        ):
+            raise ButtonLearningError(
+                "task-local adapter rotation must be a right-handed orthonormal matrix."
+            )
         self.names = level4_action_names(tuple(self.finger_targets))
 
     def expand(
@@ -245,32 +284,64 @@ class ButtonActionAdapter:
         task_local_delta: Sequence[float],
         *,
         phase: str,
+        orientation_wxyz: Sequence[float] | None = None,
     ) -> tuple[RequestedAction, bool]:
         previous = np.asarray(previous_position, dtype=np.float64)
         delta = np.asarray(task_local_delta, dtype=np.float64)
         if previous.shape != (3,) or delta.shape != (3,) or not np.all(
             np.isfinite(np.concatenate((previous, delta)))
         ):
-            raise ButtonLearningError("button adapter position and delta must be finite 3-vectors.")
+            raise ButtonLearningError("task-local adapter position and delta must be finite 3-vectors.")
         if phase not in self.phase_delta_limits:
-            raise ButtonLearningError(f"unsupported button adapter phase {phase!r}.")
+            raise ButtonLearningError(f"unsupported task-local adapter phase {phase!r}.")
         limit = self.phase_delta_limits[phase]
         delta = np.clip(delta, -limit, limit)
-        # The current fixture frame is axis-aligned: normal +x, lateral +y,
-        # vertical +z. Keeping the conversion explicit prevents world-frame
-        # action semantics from leaking into the learned output contract.
-        raw_position = previous + delta
+        raw_position = previous + self.task_to_world_rotation @ delta
         workspace_violation = bool(
             np.any(raw_position < self.workspace_min)
             or np.any(raw_position > self.workspace_max)
         )
         position = np.clip(raw_position, self.workspace_min, self.workspace_max)
+        orientation = (
+            self.orientation
+            if orientation_wxyz is None
+            else np.asarray(orientation_wxyz, dtype=np.float64)
+        )
+        if orientation.shape != (4,) or not np.all(np.isfinite(orientation)):
+            raise ButtonLearningError("task-local adapter orientation must be finite wxyz.")
+        norm = float(np.linalg.norm(orientation))
+        if norm <= 0.0:
+            raise ButtonLearningError("task-local adapter orientation must be non-zero.")
+        orientation = orientation / norm
         values = (
             *position.tolist(),
-            *self.orientation.tolist(),
+            *orientation.tolist(),
             *(self.finger_targets[name] for name in self.finger_targets),
         )
         return RequestedAction(self.names, tuple(float(value) for value in values)), workspace_violation
+
+
+class ButtonActionAdapter(TaskLocalDeltaActionAdapter):
+    """Level 4.3G identity-frame specialization of the shared adapter."""
+
+    def __init__(
+        self,
+        *,
+        finger_targets: Mapping[str, float],
+        fixed_orientation_wxyz: Sequence[float],
+        workspace_min_m: Sequence[float],
+        workspace_max_m: Sequence[float],
+        maximum_absolute_delta_by_phase_m: Mapping[str, Sequence[float]],
+    ) -> None:
+        super().__init__(
+            finger_targets=finger_targets,
+            fixed_orientation_wxyz=fixed_orientation_wxyz,
+            workspace_min_m=workspace_min_m,
+            workspace_max_m=workspace_max_m,
+            maximum_absolute_delta_by_phase_m=maximum_absolute_delta_by_phase_m,
+            task_to_world_rotation=np.eye(3),
+            phases=BUTTON_PHASES,
+        )
 
 
 def load_button_learning_config(
@@ -838,15 +909,24 @@ def _apply_normalization(
     return (values - stats.mean) / stats.std
 
 
-def _phase_balancing_weights(phases: Sequence[str]) -> np.ndarray:
+def phase_balancing_weights(
+    phases: Sequence[str], expected_phases: Sequence[str]
+) -> np.ndarray:
+    """Return inverse-frequency weights over one frozen causal phase set."""
+
     counts = Counter(phases)
-    if set(counts) != set(BUTTON_PHASES):
-        raise ButtonLearningError("training data must contain every causal button phase.")
+    frozen_phases = tuple(expected_phases)
+    if not frozen_phases or set(counts) != set(frozen_phases):
+        raise ButtonLearningError("training data must contain every frozen causal phase.")
     total = float(len(phases))
     return np.asarray(
-        [total / (len(BUTTON_PHASES) * counts[phase]) for phase in phases],
+        [total / (len(frozen_phases) * counts[phase]) for phase in phases],
         dtype=np.float64,
     )
+
+
+def _phase_balancing_weights(phases: Sequence[str]) -> np.ndarray:
+    return phase_balancing_weights(phases, BUTTON_PHASES)
 
 
 def _base_velocity(task: WorkcellPilotTask) -> np.ndarray:

@@ -20,15 +20,17 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3G — Small State-Only Button Learnability Probe
+Level 4.3H — Small State-Only Push Learnability Probe
 
-The frozen state-only button probe collected exactly 20 scripted successes in
-whole-session 14/3/3 splits and trained one 64-by-64 tanh MLP to emit only
-fixture-frame XYZ deltas. Twenty physically varied held-out test-cell resets
-completed at 100% success with zero workspace, joint-limit, wrong-button,
-unintended-contact, or invalid-action events. Contact-induced joint-limit
-failures were diagnosed before correcting the deterministic fixed posture; the
-dataset size and model recipe were not changed.
+The frozen push probe reuses the Level 4.3G causal state/phase convention,
+training-only normalization, 17-step control cadence, task-local XYZ adapter,
+and one 64-by-64 tanh MLP. After a learned-only delta produced a measured 0/20
+workspace-compounding failure, the intended scripted-nominal plus bounded
+tracking-residual formulation completed 20/20 held-out cuboid and flat-puck
+resets with zero board, neighbor, workspace, joint, contact, tilt, or invalid
+action violations. No chunking, model change, or data increase was used. The
+provisional right-bin cells were measured infeasible under the current nominal
+controller and must be revised in Level 4.3I.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -37,7 +39,7 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.3H — Small State-Only Push Learnability Probe
+Level 4.3I — Final Source Mix and Coverage Freeze
 
 ---
 
@@ -47,7 +49,7 @@ Level 4.3H — Small State-Only Push Learnability Probe
 
 Suggested next feature branch:
 
-`codex/level43h-push-learning`
+`codex/level43i-source-mix-freeze`
 
 ---
 
@@ -943,6 +945,19 @@ contact, or invalid-action violations. The listed 5-test checkpoint suite and
 37 related regressions pass; repository-wide Ruff and the full 533-test suite
 also pass. No manual verification was required. Last Completed is now 4.3G and
 Next Target is 4.3H; no 4.3H work has started.
+
+Level 4.3H is complete. The push probe reused the qualified causal
+state/phase/previous-delta convention, train-only normalization, 17-step
+cadence, shared XYZ adapter, and one 64-by-64 tanh MLP. A learned-only delta
+first failed 0/20 because approach error compounded into the workspace bound;
+after that diagnosis, the scripted controller remained nominal and the MLP
+learned only a sub-millimetre task-frame tracking residual. All 20 held-out
+cuboid and flat-puck resets completed with zero board, neighbor, workspace,
+joint, contact, tip, or invalid-action violations. No chunking, model/data
+increase, or manual verification was required. Copied-state checks also showed
+the provisional right-bin cells are infeasible under the current controller;
+Level 4.3I must revise that matrix. Last Completed is now 4.3H and Next Target
+is 4.3I; no 4.3I work has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in

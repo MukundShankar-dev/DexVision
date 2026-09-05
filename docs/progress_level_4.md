@@ -907,11 +907,37 @@ conda run -n dexvision pytest -q tests/test_level4_push_learning_pilot.py
 #### Pass criteria
 
 ```text
-[ ] Push reuses the qualified low-dimensional interface without schema drift
-[ ] Held-out closed-loop push success is at least 0.70 over 20 or more resets
-[ ] Board exits, neighbor disturbance, and safety violations are zero
-[ ] Any case for action chunking is supported by measured temporal evidence
+[x] Push reuses the qualified low-dimensional interface without schema drift
+[x] Held-out closed-loop push success is at least 0.70 over 20 or more resets
+[x] Board exits, neighbor disturbance, and safety violations are zero
+[x] Any case for action chunking is supported by measured temporal evidence
 ```
+
+Implementation status (September 5, 2026): the push probe reuses the 4.3G
+training-only normalization, causal phase and previous-delta inputs, 17-step
+control cadence, shared task-frame XYZ adapter, and single 64-by-64 tanh MLP.
+Exactly 20 successful scripted trajectories are isolated in whole-session
+14/3/3 splits over disjoint qualified push conditions. The first learned-only
+delta rollout scored 0/20 because one-step approach error compounded into the
+workspace boundary; it had zero contact, tilt, neighbor, or numerical failures.
+Following the required diagnosis, the frozen scripted controller remains the
+nominal collision/contact/orientation controller and the MLP learns only the
+measured task-frame tracking residual, bounded to 1 mm (0.5 mm on the contact
+axis). The corrected single-step formulation completed 20/20 held-out cuboid
+and flat-puck resets with zero board exits, neighbor disturbance, workspace,
+joint-limit, unintended-contact, tip, or invalid-action events. No action
+chunking, image input, larger model, recipe change, or data increase was used.
+
+The provisional right-bin test cells were not used to manufacture a score:
+copied-state qualification showed that their current task-axis routes intersect
+the fixture/button region, and the flat-puck pre-contact waypoint also exits the
+safe workspace. The probe therefore freezes its own disjoint split from already
+qualified cells. Level 4.3I must revise the provisional full collection matrix
+using this measured infeasibility; it must not claim those right-bin cells are
+collectable under the current nominal controller. The listed checkpoint suite
+passes with 3 tests, 11 related learning/expert regressions pass, repository-wide
+Ruff passes, and the full suite passes with 536 tests. No manual verification is
+required. Level 4.3H is complete; no 4.3I work has started.
 
 #### Level 4.3I — Final Source Mix and Coverage Freeze
 
