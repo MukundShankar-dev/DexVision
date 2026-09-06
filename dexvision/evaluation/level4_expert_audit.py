@@ -248,6 +248,7 @@ def audit_scripted_episode(
             task.env,
             speed=1000.0,
             sim_steps_per_action=sim_steps,
+            reset_env=False,
             sleep_fn=lambda _delay: None,
             progress_callback=observe,
         )

@@ -904,7 +904,7 @@ Rules:
 ```text
 The frozen audit requires at least two accepted resets for every scripted source skill: reach, button, push, standalone grasp-and-lift, and complete pick/place.
 Each episode is loaded through the existing schema validator; the audit never introduces a parallel episode format.
-The saved seed, coverage cell, typed goal, task config, and complete reset state must regenerate the same initial task before replay.
+The saved seed, coverage cell, typed goal, task config, and complete reset state must regenerate the same initial task before replay. Expert audits replay directly from that prepared task state; they must not reset it a second time and discard the single-object trial preparation.
 Requested, commanded, applied, and prior action arrays, script request-source labels, causal phase intervals, aligned state/action/task timestamps, schema versions, and identity provenance must be complete.
 Headless replay uses the saved simulation cadence and recomputes the task metric from replayed world state; complete pick/place must demonstrate both a held-object pick and a successful terminal place.
 Accepted episodes must agree with their operator success label, contain zero safety/intervention evidence, and keep planar non-target disturbance within the skill's configured limit.
@@ -980,7 +980,7 @@ The initial learned-only delta formulation failed 0/20 from compounding approach
 Level 4.3I final source/count freeze:
 
 ```text
-configs/level4_dataset.yaml is level4/workcell-dataset-plan-v2 while the episode schema remains level4/episode-v1.
+configs/level4_dataset.yaml was level4/workcell-dataset-plan-v2 at the Level 4.3I freeze while the episode schema remained level4/episode-v1.
 Every required coverage row has one required_source, one split_owner, and explicit train/validation/test accepted minima.
 The matrix minimum is 114 and the planning maximum is 140: reach 20, pick/place 42, push 20, button 20, and failure/correction 12.
 The frozen source minimum is scripted 98, teleoperation 13, policy_rollout 0, and corrective_intervention 3; provenance classes may never be merged or relabeled.
@@ -989,6 +989,42 @@ Push coverage is restricted to the 12 Level 4.3H-qualified condition cells. The 
 Whole-session split ownership, held-out object/goal rules, train-only normalization, and untouched test restrictions remain mandatory.
 Projected release payload at the 140-episode planning maximum uses Git LFS below 2 GiB; working data stays ignored and releases require a new archive, checksum, and manifest without overwriting an existing release.
 Level 4.4 cannot start until the user accepts this matrix and Level 4.3I is marked complete.
+```
+
+Level 4.4 core collection planning and audit:
+
+```python
+assignments = build_level4_core_collection_plan("configs/level4_dataset.yaml")
+report = summarize_level4_coverage(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4",
+)
+core = report["level4_4_core_collection"]
+```
+
+Rules:
+
+```text
+The core plan expands only reach, push, and button minima: 60 accepted episodes
+across 32 cells. The user-directed v3 revision requires all 60 assignments to
+be scripted and sets the mandatory teleoperation minimum to zero. Preserved
+operator episodes keep their provenance but are excluded from scripted minima
+without blocking completion.
+Every assignment names one frozen source, split, session slot, repetition, and
+deterministic reset seed; pick/place and failure/correction cells are excluded.
+The four held-out push cells override the generic test-seed sequence with seeds
+200, 1004, 201, and 202 already qualified by Level 4.3H. Overrides may name only
+a core cell with exactly one required episode and may not weaken safety gates.
+Recorder-side frozen-owner enforcement rejects source or split mismatches before
+creating an episode or session manifest entry.
+The Level 4.4 verdict requires every core cell, the frozen source minima, at
+least two train sessions plus one validation and one test session, session and
+target balance, held-out isolation, and append-only review evidence.
+Rejected or failed attempts never satisfy expert minima and remain discoverable
+through their non-accepted review records.
+Test-owned data may be collected and audited only after train and validation are
+frozen; it may not influence tuning, normalization, thresholds, or checkpoint
+selection.
 ```
 
 ---

@@ -40,10 +40,10 @@ def test_plan_files_freeze_scope_and_sources() -> None:
     config = load_config()
     plan = PLAN_PATH.read_text(encoding="utf-8")
 
-    assert config["version"] == "level4/workcell-dataset-plan-v2"
+    assert config["version"] == "level4/workcell-dataset-plan-v3"
     assert config["freeze"]["status"] == "requirements_frozen"
-    assert config["freeze"]["collection_started"] is False
-    assert "No full-scale Level 4 collection has started under this schema" in (
+    assert config["freeze"]["collection_started"] is True
+    assert "Level 4.4 collection began under v2" in (
         " ".join(plan.split())
     )
     for source in (

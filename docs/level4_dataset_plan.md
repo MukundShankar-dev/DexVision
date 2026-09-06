@@ -1,11 +1,14 @@
 # Level 4 Workcell and Dataset Requirements Freeze
 
-Specification version: `level4/workcell-dataset-plan-v2`
+Specification version: `level4/workcell-dataset-plan-v3`
 
-Status: Level 4.3I final matrix accepted by the user on September 5, 2026 and
-frozen for Level 4.4 collection. The v2 change leaves the episode schema intact
-and revises only counts, source ownership, one target split role, and qualified
-push cells. No full-scale Level 4 collection has started under this schema.
+Status: Level 4.3I final matrix v2 was accepted by the user on September 5,
+2026. Level 4.4 collection began under v2, but repeated operator trials showed
+that mandatory webcam reach collection was cumbersome and unreliable. At the
+user's direction on September 6, v3 removes every mandatory teleoperation
+episode while preserving recorded operator attempts as optional evidence. The
+episode schema, counts, cells, splits, and qualified push scope are unchanged.
+Level 4.4 is complete with 60/60 scripted core episodes across 32/32 cells.
 
 ## Decision and evidence boundary
 
@@ -134,12 +137,12 @@ duplicative nominal trajectories:
 
 | Data group | Required minimum | Planning range | Required source mix |
 |---|---:|---:|---|
-| Reach/object-or-fixture approach | 20 | 20–24 | 10 teleoperation, 10 scripted |
+| Reach/object-or-fixture approach | 20 | 20–24 | 20 scripted |
 | Complete pick/place sequences | 42 | 42–50 | 42 scripted |
 | Push-to-zone | 20 | 20–24 | 20 scripted |
 | Button press | 20 | 20–24 | 20 scripted |
-| Ordinary failures and safe corrections | 12 | 12–18 | 3 teleoperation, 6 scripted, 3 corrective interventions |
-| **Required total** | **114** | **114–140** | **98 scripted, 13 teleoperation, 0 policy rollout, 3 corrective interventions** |
+| Ordinary failures and safe corrections | 12 | 12–18 | 9 scripted, 3 corrective interventions |
+| **Required total** | **114** | **114–140** | **111 scripted, 0 teleoperation, 0 policy rollout, 3 corrective interventions** |
 
 The YAML enumerates 74 required cells: 10 reach, 30 complete pick/place, 12
 push, 10 press, and 12 failure/correction cells. Every cell declares one
@@ -148,14 +151,14 @@ or a surplus from another source cannot repair a missing cell. A complete
 pick/place sequence is one episode even though it can produce reach, pick, and
 place segments; reports publish episode and segment counts separately.
 
-Teleoperation is required only for the five training-owned reach cells where
-the operator found the interface usable, plus one example each of three
-operator-visible failure mechanisms. Contact-skill nominal successes use the
-replayed scripted experts. Policy rollouts remain separate qualification
-evidence and have a zero collection minimum; they cannot be relabeled as
-expert data. Corrective interventions are three explicitly linked safe
-corrections and remain distinct from both their trigger episodes and nominal
-expert demonstrations.
+Teleoperation has zero required episodes. Existing operator attempts remain
+immutable optional evidence with their original provenance and do not count
+toward scripted cell minima or block completion. Required reach demonstrations
+and failure-mechanism examples use deterministic scripted generation. Policy
+rollouts remain separate qualification evidence and have a zero collection
+minimum; they cannot be relabeled as expert data. Corrective interventions are
+three explicitly linked safe corrections and remain distinct from both their
+trigger episodes and nominal expert demonstrations.
 
 Push uses only the 12 conditions qualified in Level 4.3H: the six training,
 two validation, and four untouched-test condition cells exercised by its
@@ -165,6 +168,12 @@ region and the two right-bin puck pre-contact routes leave the safe workspace;
 the other four cuboid cells were outside the qualified Level 4.3H condition
 set. This narrows the push claim honestly without removing the held-out object
 and right-bin coverage supplied by reach and complete pick/place.
+
+The generic sequential test resets were never qualified for the four held-out
+push cells and one failed its copied-state workspace gate before recording.
+Those cells therefore use the exact Level 4.3H-qualified seeds 200, 1004, 201,
+and 202. This is a reset selection correction, not controller tuning: the
+frozen scripted expert, task thresholds, and safety limits are unchanged.
 
 Sessions `session_a` and `session_b` are training-owned, `session_c` is
 validation-only, and `session_d` is untouched test. These are collection-slot

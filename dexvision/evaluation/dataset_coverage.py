@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 
 from dexvision.logging.level4_collection import (
+    LEVEL4_CORE_GROUPS,
     LEVEL4_EPISODE_SOURCES,
     Level4CollectionError,
     PilotEpisode,
@@ -24,7 +25,7 @@ from dexvision.logging.phase_labels import phase_disagreement_report
 from dexvision.logging.session_manifest import SessionManifestError, load_session_manifest
 
 
-COVERAGE_REPORT_VERSION = "level4/pilot-coverage-report-v2"
+COVERAGE_REPORT_VERSION = "level4/pilot-coverage-report-v3"
 DEFAULT_SESSION_MANIFEST = "session_manifest.json"
 DEFAULT_REPORT_NAME = "level4_coverage_report.json"
 GROUP_BY_SKILL = {
@@ -156,6 +157,12 @@ def summarize_level4_coverage(
     )
     storage = _storage_summary(config, episodes=episodes, accepted=accepted)
     source_mix = _source_mix_summary(config, accepted_by_source=accepted_by_source)
+    core_collection = _core_collection_summary(
+        config,
+        episodes=episodes,
+        sessions=sessions,
+        cells=cells,
+    )
     phase_limit = float(
         _mapping(config, "quality_thresholds")[
             "max_phase_annotation_disagreement_fraction"
@@ -220,6 +227,7 @@ def summarize_level4_coverage(
         "storage": storage,
         "source_mix": source_mix,
         "coverage_matrix": matrix,
+        "level4_4_core_collection": core_collection,
         "optional_dial_decision": protocol.optional_dial_decision,
         "issues": sorted(set(issues)),
         "automated_pilot_requirements_passed": protocol_passed,
@@ -395,6 +403,256 @@ def _coverage_matrix_summary(
         "complete_cell_count": sum(1 for row in rows if row["complete"]),
         "cells": rows,
     }
+
+
+def _core_collection_summary(
+    config: Mapping[str, Any],
+    *,
+    episodes: Sequence[PilotEpisode],
+    sessions: Mapping[str, str],
+    cells: Mapping[str, Mapping[str, Any]],
+) -> Mapping[str, Any]:
+    """Evaluate only the Level 4.4 reach/push/button haul."""
+
+    core = _mapping(config, "level4_4_core_collection")
+    minimum_sessions = _mapping(core, "minimum_sessions_by_split")
+    accepted_by_cell_split: dict[str, Counter[str]] = defaultdict(Counter)
+    accepted_by_session: Counter[str] = Counter()
+    accepted_by_group: Counter[str] = Counter()
+    accepted_by_source: Counter[str] = Counter()
+    observed_targets: dict[str, Counter[str]] = defaultdict(Counter)
+    frozen_targets: dict[str, Counter[str]] = defaultdict(Counter)
+    issues: list[str] = []
+    attempt_count = 0
+    rejected_or_failed_count = 0
+    nonrequired_source_count = 0
+
+    core_cells = {
+        cell_id: cell
+        for cell_id, cell in cells.items()
+        if cell.get("data_group") in LEVEL4_CORE_GROUPS
+    }
+    for cell in core_cells.values():
+        group = str(cell["data_group"])
+        split = str(cell["split_owner"])
+        minimum = int(_mapping(cell, "minimum_accepted_by_split")[split])
+        frozen_targets[group][_core_target_id(cell)] += minimum
+
+    held_out_objects = set(_mapping(config, "split_policy")["held_out_object_instances"])
+    held_out_goals = set(_mapping(config, "split_policy")["held_out_goal_regions"])
+    for episode in episodes:
+        group = GROUP_BY_SKILL.get(episode.skill_name)
+        if group not in LEVEL4_CORE_GROUPS:
+            continue
+        attempt_count += 1
+        cell = core_cells.get(episode.goal_condition_id)
+        if cell is None:
+            issues.append(
+                f"core episode {episode.episode_id} references non-core or unknown cell "
+                f"{episode.goal_condition_id!r}"
+            )
+            continue
+        split = sessions.get(episode.session_id)
+        if split is None:
+            issues.append(
+                f"core episode {episode.episode_id} session {episode.session_id!r} "
+                "is absent from the session manifest"
+            )
+            continue
+        if split != cell.get("split_owner"):
+            issues.append(
+                f"core episode {episode.episode_id} session split {split!r} does not "
+                f"match cell owner {cell.get('split_owner')!r}"
+            )
+            continue
+        if episode.source != cell.get("required_source"):
+            # Source requirements are minima, not a reason for preserved optional
+            # evidence to invalidate the haul. Do not count the episode toward
+            # its cell, source minimum, or accepted core total.
+            nonrequired_source_count += 1
+            continue
+        object_id = _episode_object_id(episode)
+        target_id = _episode_target_id(episode)
+        if split != "test" and (
+            object_id in held_out_objects or target_id in held_out_goals
+        ):
+            issues.append(
+                f"core episode {episode.episode_id} leaks a held-out object or goal "
+                f"into split {split!r}"
+            )
+            continue
+        if episode.review is None:
+            issues.append(
+                f"core episode {episode.episode_id} has no append-only review evidence"
+            )
+            continue
+        if not episode.expert_accepted:
+            rejected_or_failed_count += 1
+            continue
+        accepted_by_cell_split[episode.goal_condition_id][split] += 1
+        accepted_by_session[episode.session_id] += 1
+        accepted_by_group[group] += 1
+        accepted_by_source[episode.source] += 1
+        observed_targets[group][_core_target_id(cell)] += 1
+
+    matrix = _core_matrix_summary(
+        core_cells,
+        accepted_by_cell_split=accepted_by_cell_split,
+    )
+    accepted_total = sum(accepted_by_group.values())
+    session_ids_by_split = {
+        split: sorted(
+            session_id
+            for session_id in accepted_by_session
+            if sessions.get(session_id) == split
+        )
+        for split in ("train", "validation", "test")
+    }
+    session_requirement = {
+        split: {
+            "observed": len(session_ids_by_split[split]),
+            "minimum": int(minimum_sessions[split]),
+            "passed": len(session_ids_by_split[split]) >= int(minimum_sessions[split]),
+        }
+        for split in ("train", "validation", "test")
+    }
+    maximum_session_fraction = float(core["maximum_single_session_fraction"])
+    session_shares = {
+        session_id: count / accepted_total if accepted_total else 0.0
+        for session_id, count in sorted(accepted_by_session.items())
+    }
+    session_balance_passed = bool(
+        accepted_total
+        and all(share <= maximum_session_fraction for share in session_shares.values())
+    )
+    target_balance = _core_target_balance(
+        observed=observed_targets,
+        frozen=frozen_targets,
+        tolerance=float(core["maximum_target_share_delta_from_frozen_minimum"]),
+    )
+    expected_source = Counter()
+    for cell in core_cells.values():
+        split = str(cell["split_owner"])
+        expected_source[str(cell["required_source"])] += int(
+            _mapping(cell, "minimum_accepted_by_split")[split]
+        )
+    source_requirements = {
+        source: {
+            "observed": int(accepted_by_source[source]),
+            "minimum": int(expected_source[source]),
+            "passed": int(accepted_by_source[source]) >= int(expected_source[source]),
+        }
+        for source in LEVEL4_EPISODE_SOURCES
+        if expected_source[source]
+    }
+    restrictions = _mapping(config, "split_policy")
+    test_isolation_passed = bool(
+        restrictions.get("normalization_source") == "train_only"
+        and restrictions.get("test_influences_tuning") is False
+        and restrictions.get("test_influences_thresholds") is False
+        and restrictions.get("test_influences_checkpoint_selection") is False
+        and not any("held-out" in issue for issue in issues)
+    )
+    complete = bool(
+        accepted_total >= int(core["required_accepted_episodes"])
+        and matrix["complete"]
+        and all(item["passed"] for item in session_requirement.values())
+        and all(item["passed"] for item in source_requirements.values())
+        and session_balance_passed
+        and target_balance["passed"]
+        and test_isolation_passed
+        and not issues
+    )
+    return {
+        "version": core["version"],
+        "status": "complete" if complete else "incomplete",
+        "attempt_episode_count": attempt_count,
+        "accepted_episode_count": accepted_total,
+        "required_accepted_episodes": int(core["required_accepted_episodes"]),
+        "accepted_by_group": dict(sorted(accepted_by_group.items())),
+        "source_requirements": source_requirements,
+        "coverage_matrix": matrix,
+        "session_ids_by_split": session_ids_by_split,
+        "session_requirements": session_requirement,
+        "session_shares": session_shares,
+        "maximum_single_session_fraction": maximum_session_fraction,
+        "session_balance_passed": session_balance_passed,
+        "target_balance": target_balance,
+        "test_isolation_passed": test_isolation_passed,
+        "rejected_or_failed_auditable_count": rejected_or_failed_count,
+        "nonrequired_source_episode_count": nonrequired_source_count,
+        "issues": sorted(set(issues)),
+        "checkpoint_complete": complete,
+    }
+
+
+def _core_matrix_summary(
+    cells: Mapping[str, Mapping[str, Any]],
+    *,
+    accepted_by_cell_split: Mapping[str, Counter[str]],
+) -> Mapping[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for cell_id, cell in cells.items():
+        split = str(cell["split_owner"])
+        minimum = int(_mapping(cell, "minimum_accepted_by_split")[split])
+        observed = int(accepted_by_cell_split.get(cell_id, Counter())[split])
+        rows.append(
+            {
+                "cell_id": cell_id,
+                "data_group": cell["data_group"],
+                "required_source": cell["required_source"],
+                "split_owner": split,
+                "minimum": minimum,
+                "observed": observed,
+                "complete": observed >= minimum,
+            }
+        )
+    return {
+        "cell_count": len(rows),
+        "complete_cell_count": sum(1 for row in rows if row["complete"]),
+        "minimum_episode_total": sum(row["minimum"] for row in rows),
+        "complete": all(row["complete"] for row in rows),
+        "cells": rows,
+    }
+
+
+def _core_target_balance(
+    *,
+    observed: Mapping[str, Counter[str]],
+    frozen: Mapping[str, Counter[str]],
+    tolerance: float,
+) -> Mapping[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for group in LEVEL4_CORE_GROUPS:
+        frozen_total = sum(frozen[group].values())
+        observed_total = sum(observed[group].values())
+        for target_id, frozen_count in sorted(frozen[group].items()):
+            frozen_share = frozen_count / frozen_total
+            observed_share = (
+                observed[group][target_id] / observed_total if observed_total else 0.0
+            )
+            rows.append(
+                {
+                    "data_group": group,
+                    "target_id": target_id,
+                    "frozen_minimum_share": frozen_share,
+                    "observed_share": observed_share,
+                    "maximum_share": min(1.0, frozen_share + tolerance),
+                    "passed": observed_total > 0
+                    and observed_share <= min(1.0, frozen_share + tolerance),
+                }
+            )
+    return {"tolerance": tolerance, "passed": all(row["passed"] for row in rows), "rows": rows}
+
+
+def _core_target_id(cell: Mapping[str, Any]) -> str:
+    for field in ("target_id", "entity_id", "button_id"):
+        value = cell.get(field)
+        if isinstance(value, str) and value:
+            return value
+    raise DatasetCoverageError(
+        f"core coverage cell {cell.get('id')!r} has no target identity"
+    )
 
 
 def _source_mix_summary(

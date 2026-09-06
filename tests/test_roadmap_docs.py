@@ -11,7 +11,7 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_after_level43i_acceptance() -> None:
+def test_current_status_advances_after_level44_completion() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
@@ -19,8 +19,8 @@ def test_current_status_advances_after_level43i_acceptance() -> None:
         "Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.3I" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.4" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.4" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.5" in status
     assert "hammer-curl" in status
 
 
@@ -114,7 +114,7 @@ def test_level43_pivot_is_incremental_and_learning_gated() -> None:
         r"^#### Level 4\.3([A-I]) —", level4, flags=re.MULTILINE
     )
     assert subcheckpoints == list("ABCDEFGHI")
-    assert "Level 4.3I — Final Source Mix and Coverage Freeze" in status
+    assert "Level 4.3I is complete" in status
     assert "expert.reset(task, world_state)" in level4
     assert "applied_action - requested_action" in level4
     assert "20 scripted button successes" in level4
@@ -124,9 +124,11 @@ def test_level43_pivot_is_incremental_and_learning_gated() -> None:
     assert "Do not add an LLM, VLM" in level4
     assert "requested_action is the nominal scripted action" in contracts
     assert "114 required accepted episodes" in " ".join(level4.split())
-    assert "98 scripted, 13" in level4
+    assert "111 scripted, 0 teleoperation" in level4
     assert "zero policy rollout" in level4
-    assert "No Level 4.4 implementation or collection has started" in status
+    assert "Level 4.4 is complete" in status
+    assert "Last Completed is now 4.4" in status
+    assert "Next Target is 4.5" in status
     assert "Level 4.4 cannot start until the user accepts" in contracts
 
 

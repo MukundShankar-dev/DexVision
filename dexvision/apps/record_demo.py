@@ -53,6 +53,7 @@ from dexvision.logging.level4_collection import (
     WORKCELL_PILOT_TASK_ID,
     WorkcellPilotState,
     WorkcellPilotTask,
+    build_level4_core_collection_plan,
     load_level4_collection_config,
 )
 from dexvision.logging.session_manifest import (
@@ -255,6 +256,15 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
             f"coverage cell {args.goal_condition_id!r} is owned by split "
             f"{cell.get('split_owner')!r}, not {args.session_split!r}."
         )
+    if (
+        args.enforce_frozen_cell_owner
+        and not args.workcell_dry_run
+        and cell.get("required_source") != args.source
+    ):
+        raise ValueError(
+            f"coverage cell {args.goal_condition_id!r} requires source "
+            f"{cell.get('required_source')!r}, not {args.source!r}."
+        )
     workcell_config = load_workcell_config(args.workcell_config)
     args.model = workcell_config.model_path
     args.level1_13_full = True
@@ -446,9 +456,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--level4-pilot-dataset-dir",
+        "--level4-dataset-dir",
+        dest="level4_pilot_dataset_dir",
         type=Path,
         default=DEFAULT_PILOT_DATASET_DIR,
-        help="Root for append-only Level 4.3 pilot sessions and episodes.",
+        help="Root for append-only Level 4 sessions and episodes.",
+    )
+    parser.add_argument(
+        "--print-level4-core-plan",
+        action="store_true",
+        help="Print the frozen Level 4.4 minimum-coverage recording plan and exit.",
+    )
+    parser.add_argument(
+        "--enforce-frozen-cell-owner",
+        action="store_true",
+        help="Reject a Level 4 recording whose source differs from its frozen cell.",
     )
     parser.add_argument(
         "--workcell-config",
@@ -849,32 +871,49 @@ def _run_scripted_workcell_recording(
         )
         if args.skill_name == "reach_object":
             print("Scripted expert: safe-waypoint reach (no webcam)")
+            expert_settings_key = "scripted_reach"
+            expert_settings = _level4_scripted_expert_settings(
+                args, task, expert_settings_key
+            )
+            synergy_margin = expert_settings.get("fixed_finger_synergy_margin")
+            if isinstance(synergy_margin, Mapping) and synergy_margin:
+                neutral_targets = _scripted_finger_synergy_targets(
+                    retargeter,
+                    neutral_targets,
+                    synergy_margin,
+                )
             expert_config = SafeWaypointReachConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_reach"]
+                expert_settings
             )
             expert = SafeWaypointReachExpert(
                 finger_targets=neutral_targets,
                 config=expert_config,
             )
-            expert_settings_key = "scripted_reach"
             controller_name = "safe_waypoint_reach"
         elif args.skill_name == "pick_object":
             print("Scripted expert: object-relative family grasp and lift (no webcam)")
+            expert_settings_key = "scripted_grasp"
+            expert_settings = _level4_scripted_expert_settings(
+                args, task, expert_settings_key
+            )
             closed_targets = _scripted_closed_finger_targets(
                 retargeter, neutral_targets
             )
             expert_config = DeterministicGraspLiftConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_grasp"]
+                expert_settings
             )
             expert = DeterministicGraspLiftExpert(
                 open_finger_targets=neutral_targets,
                 closed_finger_targets=closed_targets,
                 config=expert_config,
             )
-            expert_settings_key = "scripted_grasp"
             controller_name = "object_relative_family_grasp_lift"
         elif args.skill_name == "pick_place_sequence":
             print("Scripted expert: composed grasp, transport, place, and release")
+            expert_settings_key = "scripted_place"
+            expert_settings = _level4_scripted_expert_settings(
+                args, task, expert_settings_key
+            )
             closed_targets = _scripted_closed_finger_targets(
                 retargeter, neutral_targets
             )
@@ -882,7 +921,7 @@ def _run_scripted_workcell_recording(
                 task.collection_config["pilot"]["scripted_grasp"]
             )
             expert_config = DeterministicPlaceConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_place"]
+                expert_settings
             )
             expert = DeterministicPickPlaceExpert(
                 open_finger_targets=neutral_targets,
@@ -890,23 +929,29 @@ def _run_scripted_workcell_recording(
                 grasp_config=grasp_config,
                 place_config=expert_config,
             )
-            expert_settings_key = "scripted_place"
             controller_name = "composed_grasp_transport_place_release"
         elif args.skill_name == "press_button":
             print("Scripted expert: fixed-posture normal button press (no webcam)")
+            expert_settings_key = "scripted_button"
+            expert_settings = _level4_scripted_expert_settings(
+                args, task, expert_settings_key
+            )
             expert_config = DeterministicButtonPressConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_button"]
+                expert_settings
             )
             expert = DeterministicButtonPressExpert(
                 finger_targets=neutral_targets,
                 config=expert_config,
             )
-            expert_settings_key = "scripted_button"
             controller_name = "fixed_posture_normal_press"
         else:
             print("Scripted expert: fixed-index task-axis push (no webcam)")
+            expert_settings_key = "scripted_push"
+            expert_settings = _level4_scripted_expert_settings(
+                args, task, expert_settings_key
+            )
             expert_config = DeterministicPushConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_push"]
+                expert_settings
             )
             object_id = str(task.goal["object_id"])
             object_family = next(
@@ -925,7 +970,6 @@ def _run_scripted_workcell_recording(
                 finger_targets=neutral_targets,
                 config=expert_config,
             )
-            expert_settings_key = "scripted_push"
             controller_name = "fixed_index_task_axis_push"
         args.sim_steps_per_frame = expert_config.sim_steps_per_action
         expert.reset(task, task.initial_world_state)
@@ -973,7 +1017,7 @@ def _run_scripted_workcell_recording(
                     validation.maximum_non_target_disturbance_m
                 ),
             },
-            **dict(task.collection_config["pilot"][expert_settings_key]),
+            **expert_settings,
         }
         if args.skill_name == "pick_place_sequence":
             effective_config["scripted_expert"]["grasp"] = dict(
@@ -1131,6 +1175,25 @@ def _apply_scripted_object_orientation_hold(
     task.workcell.preserve_object_orientation(object_id, orientation)
 
 
+def _level4_scripted_expert_settings(
+    args: argparse.Namespace,
+    task: WorkcellPilotTask,
+    settings_key: str,
+) -> dict[str, Any]:
+    """Resolve checkpoint-local expert overrides without changing older pilots."""
+
+    settings = dict(task.collection_config["pilot"][settings_key])
+    if not args.enforce_frozen_cell_owner:
+        return settings
+    core = task.collection_config.get("level4_4_core_collection", {})
+    overrides = core.get("scripted_expert_overrides", {})
+    if isinstance(overrides, Mapping):
+        raw = overrides.get(settings_key, {})
+        if isinstance(raw, Mapping):
+            settings.update(raw)
+    return settings
+
+
 def _scripted_push_finger_targets(
     retargeter: CurlRetargeter,
     open_targets: Mapping[str, float],
@@ -1146,6 +1209,32 @@ def _scripted_push_finger_targets(
         curl = index_curl if finger.name == "index" else 1.0
         for target in finger.targets:
             targets[target.name] = target.map_control(curl)
+    return targets
+
+
+def _scripted_finger_synergy_targets(
+    retargeter: CurlRetargeter,
+    open_targets: Mapping[str, float],
+    synergy_by_finger: Mapping[str, object],
+) -> dict[str, float]:
+    """Move selected fingers just inside their limits for safe transit."""
+
+    targets = {str(name): float(value) for name, value in open_targets.items()}
+    known_fingers = {finger.name for finger in retargeter.config.fingers}
+    if not synergy_by_finger or not set(synergy_by_finger) <= known_fingers:
+        raise DemoLoggerError(
+            "scripted finger synergy margin must name configured fingers."
+        )
+    for finger in retargeter.config.fingers:
+        if finger.name not in synergy_by_finger:
+            continue
+        control = float(synergy_by_finger[finger.name])
+        if not 0.0 <= control <= 1.0:
+            raise DemoLoggerError(
+                "scripted finger synergy margins must be in [0, 1]."
+            )
+        for target in finger.targets:
+            targets[target.name] = target.map_control(control)
     return targets
 
 
@@ -2985,7 +3074,9 @@ def _workcell_pilot_base_config(
 
 
 def _workcell_rate_control_config(
-    task: WorkcellPilotTask, *, control_rate_hz: float
+    task: WorkcellPilotTask,
+    *,
+    control_rate_hz: float,
 ) -> WorkcellRateControlConfig:
     """Build the single Level 4.3 reach-trial rate controller."""
 
@@ -3503,10 +3594,26 @@ def _clip01(value: float) -> float:
     return float(np.clip(value if np.isfinite(value) else 0.0, 0.0, 1.0))
 
 
+def _print_level4_core_plan(args: argparse.Namespace) -> int:
+    if args.task != WORKCELL_PILOT_TASK_ID:
+        raise ValueError("--print-level4-core-plan requires --task level4_workcell.")
+    plan = build_level4_core_collection_plan(args.level4_dataset_config)
+    print("sequence\tsession_slot\tsplit\tsource\tskill\tcoverage_cell\tseed")
+    for item in plan:
+        print(
+            f"{item.sequence}\t{item.session_slot}\t{item.split}\t{item.source}\t"
+            f"{item.skill_name}\t{item.coverage_cell_id}\t{item.seed}"
+        )
+    print(f"Total Level 4.4 accepted episodes required: {len(plan)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.print_level4_core_plan:
+            return _print_level4_core_plan(args)
         return run_record_demo(args)
     except KeyboardInterrupt:
         print("\nInterrupted before the episode could be closed.", file=sys.stderr)

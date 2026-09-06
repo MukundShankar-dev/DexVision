@@ -87,7 +87,7 @@ def _write_episode(
         "recording_session_id": session_id,
         "skill_name": skill_name,
         "source": source
-        or ("teleoperation" if skill_name == "reach_object" else "scripted"),
+        or "scripted",
         "goal_condition_id": cell_id,
         "typed_goal": typed_goal,
         "object_instance_ids": (
@@ -237,11 +237,11 @@ def test_report_separates_episodes_segments_failures_and_manual_gate(
     assert report["coverage_matrix"]["minimum_episode_total"] == 114
     assert report["coverage_matrix"]["fits_required_envelope"] is True
     assert report["source_mix"]["sources"]["teleoperation"] == {
-        "observed": 5,
-        "minimum": 13,
-        "passed": False,
+        "observed": 0,
+        "minimum": 0,
+        "passed": True,
     }
-    assert report["source_mix"]["sources"]["scripted"]["observed"] == 20
+    assert report["source_mix"]["sources"]["scripted"]["observed"] == 25
     assert report["storage"]["payload_handling"] == "git_lfs"
 
 
@@ -279,7 +279,7 @@ def test_source_mismatch_cannot_satisfy_a_frozen_cell(tmp_path: Path) -> None:
         skill_name="reach_object",
         cell_id="reach_block_small_interior",
         typed_goal={"entity_id": "block_small"},
-        source="scripted",
+        source="teleoperation",
     )
 
     report = summarize_level4_coverage(
@@ -288,7 +288,7 @@ def test_source_mismatch_cannot_satisfy_a_frozen_cell(tmp_path: Path) -> None:
     )
 
     assert any("does not match cell requirement" in issue for issue in report["issues"])
-    assert report["source_mix"]["sources"]["scripted"]["observed"] == 0
+    assert report["source_mix"]["sources"]["teleoperation"]["observed"] == 0
     cell = next(
         row
         for row in report["coverage_matrix"]["cells"]

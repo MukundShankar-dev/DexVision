@@ -1,4 +1,4 @@
-"""CLI for the read-only Level 4.3 pilot coverage report."""
+"""CLI for read-only Level 4 pilot and core-collection coverage reports."""
 
 from __future__ import annotations
 
@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Return exit status 1 when the pilot or manual replay gate is incomplete.",
     )
+    parser.add_argument(
+        "--require-level4-4-complete",
+        action="store_true",
+        help="Return exit status 1 unless the Level 4.4 core haul is complete.",
+    )
     return parser
 
 
@@ -95,7 +100,16 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Dial decision: {report['optional_dial_decision']}")
     print(f"Payload handling: {report['storage']['payload_handling']}")
     print(f"Pilot status: {report['pilot_status']}")
+    core = report["level4_4_core_collection"]
+    print(
+        "Level 4.4 core haul: "
+        f"{core['accepted_episode_count']}/{core['required_accepted_episodes']} "
+        f"accepted, cells={core['coverage_matrix']['complete_cell_count']}/"
+        f"{core['coverage_matrix']['cell_count']}, status={core['status']}"
+    )
     print(f"Report: {output}")
+    if args.require_level4_4_complete and not core["checkpoint_complete"]:
+        return 1
     if args.require_complete and not report["checkpoint_complete"]:
         return 1
     return 0

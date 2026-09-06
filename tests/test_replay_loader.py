@@ -168,6 +168,24 @@ def test_replay_loaded_demo_applies_full_base_and_finger_actions(tmp_path: Path)
     assert sleeps == pytest.approx([0.05, 0.05])
 
 
+def test_replay_loaded_demo_can_preserve_a_prepared_environment(tmp_path: Path) -> None:
+    loaded = load_replay_demo(_write_demo(tmp_path, steps=1))
+    env = FakeReplayEnv()
+    env.time = 4.0
+
+    result = replay_loaded_demo(
+        loaded,
+        env,
+        speed=1000.0,
+        sim_steps_per_action=2,
+        reset_env=False,
+        sleep_fn=lambda _delay: None,
+    )
+
+    assert env.reset_count == 0
+    assert result.final_sim_time == pytest.approx(4.004)
+
+
 def test_replay_loader_reports_missing_required_arrays(tmp_path: Path) -> None:
     demo_dir = _write_demo(tmp_path)
     (demo_dir / "actions.npy").unlink()

@@ -133,11 +133,11 @@ def test_level4_config_freezes_pilot_protocol_and_defers_dial() -> None:
             "pick_place_sequence",
         ],
     }
-    assert config["version"] == "level4/workcell-dataset-plan-v2"
+    assert config["version"] == "level4/workcell-dataset-plan-v3"
     assert config["freeze"]["coverage_count_status"] == "final_accepted"
     assert config["source_mix"]["minimum_accepted_by_source"] == {
-        "scripted": 98,
-        "teleoperation": 13,
+        "scripted": 111,
+        "teleoperation": 0,
         "policy_rollout": 0,
         "corrective_intervention": 3,
     }

@@ -170,14 +170,14 @@ def test_readable_report_and_plots_are_versioned() -> None:
         assert "role=\"img\"" in plot
 
 
-def test_level38_completion_remains_recorded_during_level43() -> None:
+def test_level38_completion_remains_recorded_after_level44() -> None:
     status = (ROOT / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
     progress = (ROOT / "docs/progress_level_3.md").read_text(encoding="utf-8")
 
     assert "Level 4 — Comprehensive Multi-Session Dataset Collection" in status
     assert "`docs/progress_level_4.md`" in status
     assert "Level 3.8 — Feasibility Report and Level 4 Data Requirements" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.3H" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.3I" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.4" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.5" in status
     assert "[x] Feasibility report defines the Level 4 data haul" in progress
     assert progress.count("[x] Every result traces to a config") == 1

@@ -1,15 +1,16 @@
-version: level4/workcell-dataset-plan-v2
+version: level4/workcell-dataset-plan-v3
 
 freeze:
   checkpoint: Level 4.3I
   status: requirements_frozen
-  collection_started: false
-  frozen_date: "2026-09-05"
+  collection_started: true
+  frozen_date: "2026-09-06"
   change_policy: create_new_version_with_compatibility_note
   level4_3_count_revision_requires_pilot_evidence: true
   coverage_count_status: final_accepted
-  supersedes: level4/workcell-dataset-plan-v1
-  compatibility_note: episode_schema_unchanged_counts_sources_and_push_cells_revised_from_level4_3_evidence
+  supersedes: level4/workcell-dataset-plan-v2
+  revision_authority: user_directed_level4_4_removal_of_mandatory_teleoperation
+  compatibility_note: episode_schema_unchanged_teleoperation_remains_optional_but_has_zero_required_episodes
 
 pilot:
   version: level4/collection-pilot-v1
@@ -690,16 +691,16 @@ source_mix:
   categories: [scripted, teleoperation, policy_rollout, corrective_intervention]
   provenance_must_remain_separate: true
   minimum_accepted_by_source:
-    scripted: 98
-    teleoperation: 13
+    scripted: 111
+    teleoperation: 0
     policy_rollout: 0
     corrective_intervention: 3
   policy_rollout_role: qualification_evidence_only_not_expert_minimum
-  teleoperation_role: reachable_training_cells_and_observed_failure_mechanisms_only
-  scripted_role: nominal_successes_for_contact_skills_and_held_out_reach
+  teleoperation_role: optional_nonrequired_evidence_only
+  scripted_role: all_required_nominal_successes_and_failure_mechanism_examples
   corrective_intervention_role: explicitly_linked_safe_corrections_only
   evidence:
-    reach_teleoperation: manually_observed_usable_in_level4_3_pilot
+    reach_teleoperation: removed_as_a_requirement_after_repeated_level4_4_operator_failures
     contact_teleoperation: pick_place_and_push_not_usable_button_not_required
     scripted_experts: repeated_replay_and_terminal_recomputation_passed_for_all_required_skills
     button_policy: 20_of_20_held_out_rollouts_after_fixed_posture_margin
@@ -726,6 +727,43 @@ sessions:
     - {slot: session_c, split: validation, purpose: validation_only}
     - {slot: session_d, split: test, purpose: untouched_cross_session_test}
 
+level4_4_core_collection:
+  version: level4/core-collection-v2
+  dataset_dir: data/demos/level4
+  data_groups: [reach, push, button]
+  required_accepted_episodes: 60
+  minimum_sessions_by_split: {train: 2, validation: 1, test: 1}
+  session_slots_by_split:
+    train: [session_a, session_b]
+    validation: [session_c]
+    test: [session_d]
+  seed_base_by_split: {train: 44000, validation: 45000, test: 46000}
+  # These held-out push resets were already qualified by the Level 4.3H
+  # waypoint/replay gate. The generic test-seed sequence includes unsafe
+  # object poses for these cells, so it must not be used for collection.
+  seed_override_by_cell:
+    push_cuboid_setup_slot_b_interior: 200
+    push_cuboid_setup_slot_b_boundary: 1004
+    push_flat_puck_inspection_pad_interior: 201
+    push_flat_puck_inspection_pad_boundary: 202
+  maximum_single_session_fraction: 0.50
+  maximum_target_share_delta_from_frozen_minimum: 0.05
+  test_collection_requires_train_validation_frozen: true
+  test_use: collection_and_final_audit_only_no_tuning_normalization_or_thresholds
+  failed_attempt_policy: preserve_with_nonaccepted_append_only_review
+  required_source_policy: scripted_only
+  nonrequired_source_attempt_policy: preserve_and_exclude_without_blocking
+  scripted_expert_overrides:
+    scripted_reach:
+      fixed_finger_synergy_margin:
+        index: 0.15
+        middle: 0.15
+        ring: 0.15
+        pinky: 0.15
+    scripted_push:
+      push_step_m: 0.001
+      maximum_push_actions: 360
+
 split_policy:
   ownership_unit: complete_recording_session
   normalization_source: train_only
@@ -738,14 +776,14 @@ split_policy:
   default_cross_operator_claim: false
 
 coverage_cells:
-  # Reach: two accepted demonstrations per cell. Teleoperation is restricted to
-  # the five training-owned cells for which the interface was visibly usable.
-  - {id: reach_block_small_interior, data_group: reach, required_source: teleoperation, entity_id: block_small, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: reach_cylinder_short_interior, data_group: reach, required_source: teleoperation, entity_id: cylinder_short, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: reach_puck_light_near_boundary, data_group: reach, required_source: teleoperation, entity_id: puck_light, approach_class: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  # Reach: two scripted demonstrations per cell. Prior operator episodes remain
+  # preserved as optional evidence but are not required by this matrix.
+  - {id: reach_block_small_interior, data_group: reach, required_source: scripted, entity_id: block_small, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_cylinder_short_interior, data_group: reach, required_source: scripted, entity_id: cylinder_short, approach_class: interior, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_puck_light_near_boundary, data_group: reach, required_source: scripted, entity_id: puck_light, approach_class: near_boundary, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
   - {id: reach_start_button_centered, data_group: reach, required_source: scripted, entity_id: start_button, approach_class: centered, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
-  - {id: reach_inspection_pad_centered, data_group: reach, required_source: teleoperation, entity_id: inspection_pad, approach_class: centered, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
-  - {id: reach_setup_slot_a_oblique, data_group: reach, required_source: teleoperation, entity_id: setup_slot_a, approach_class: oblique, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_inspection_pad_centered, data_group: reach, required_source: scripted, entity_id: inspection_pad, approach_class: centered, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
+  - {id: reach_setup_slot_a_oblique, data_group: reach, required_source: scripted, entity_id: setup_slot_a, approach_class: oblique, split_owner: train, minimum_accepted_by_split: {train: 2, validation: 0, test: 0}}
   - {id: reach_setup_slot_b_oblique, data_group: reach, required_source: scripted, entity_id: setup_slot_b, approach_class: oblique, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 2, test: 0}}
   - {id: reach_block_large_held_out, data_group: reach, required_source: scripted, entity_id: block_large, object_id: block_large, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
   - {id: reach_cylinder_tall_held_out, data_group: reach, required_source: scripted, entity_id: cylinder_tall, object_id: cylinder_tall, approach_class: interior, split_owner: test, minimum_accepted_by_split: {train: 0, validation: 0, test: 2}}
@@ -813,9 +851,9 @@ coverage_cells:
 
   # One preserved example of every failure mechanism plus three explicitly
   # linked safe corrections. These are provenance classes, not expert successes.
-  - {id: failure_approach_miss, data_group: failure_correction, required_source: teleoperation, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
-  - {id: failure_wrong_contact, data_group: failure_correction, required_source: teleoperation, failure_class: wrong_contact, retryability: task_dependent, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
-  - {id: failure_failed_acquisition, data_group: failure_correction, required_source: teleoperation, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_approach_miss, data_group: failure_correction, required_source: scripted, failure_class: approach_miss, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_wrong_contact, data_group: failure_correction, required_source: scripted, failure_class: wrong_contact, retryability: task_dependent, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
+  - {id: failure_failed_acquisition, data_group: failure_correction, required_source: scripted, failure_class: failed_acquisition, retryability: retry_once_after_safe_pose, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
   - {id: failure_slip_drop, data_group: failure_correction, required_source: scripted, failure_class: slip_drop, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}
   - {id: failure_placement_miss, data_group: failure_correction, required_source: scripted, failure_class: placement_miss, retryability: retry_once_if_still_held, split_owner: validation, minimum_accepted_by_split: {train: 0, validation: 1, test: 0}}
   - {id: failure_premature_release, data_group: failure_correction, required_source: scripted, failure_class: premature_release, retryability: abort, split_owner: train, minimum_accepted_by_split: {train: 1, validation: 0, test: 0}}

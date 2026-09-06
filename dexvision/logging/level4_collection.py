@@ -58,6 +58,7 @@ LEVEL4_EPISODE_SOURCES = (
     "policy_rollout",
     "corrective_intervention",
 )
+LEVEL4_CORE_GROUPS = ("reach", "push", "button")
 
 
 class Level4CollectionError(ValueError):
@@ -71,6 +72,21 @@ class PilotProtocol:
     minimum_genuine_sessions: int
     accepted_by_group: Mapping[str, int]
     optional_dial_decision: str
+
+
+@dataclass(frozen=True)
+class CoreCollectionAssignment:
+    """One deterministic Level 4.4 minimum-coverage recording assignment."""
+
+    sequence: int
+    coverage_cell_id: str
+    data_group: str
+    skill_name: str
+    source: str
+    split: str
+    session_slot: str
+    repetition: int
+    seed: int
 
 
 @dataclass(frozen=True)
@@ -485,12 +501,21 @@ class WorkcellPilotTask:
             entity_id = str(cell["entity_id"])
             entity = self.initial_world_state.require_entity(entity_id)
             position = np.asarray(entity.position, dtype=float)
-            position[0] = max(-0.16, min(0.20, position[0] - 0.035))
+            if entity_id == "start_button":
+                position += np.asarray(
+                    self.collection_config["pilot"]["scripted_button"][
+                        "precontact_offset_m"
+                    ],
+                    dtype=float,
+                )
+            else:
+                position[0] = max(-0.16, min(0.20, position[0] - 0.035))
             # This is a collision-free pre-grasp reach, not a contact task. The
             # Shadow Hand hangs well below its logical palm control point, so a
             # low marker among the staged objects causes unavoidable collateral
             # contact before the palm can qualify.
-            position[2] = max(0.14, min(0.23, position[2] + 0.13))
+            if entity_id != "start_button":
+                position[2] = max(0.14, min(0.23, position[2] + 0.13))
             return {
                 "entity_id": entity_id,
                 "approach_pose": (
@@ -741,6 +766,7 @@ def load_level4_collection_config(
     ):
         raise Level4CollectionError("Level 4 coverage cell ids must be unique strings.")
     _validate_final_coverage_matrix(payload, coverage_cells=coverage_cells)
+    _validate_core_collection_config(payload, coverage_cells=coverage_cells)
     review_filename = pilot.get("expert_acceptance_review_filename")
     if review_filename != PILOT_REVIEW_FILENAME:
         raise Level4CollectionError(
@@ -777,6 +803,162 @@ def load_level4_collection_config(
             "pilot expert architecture audit must require every recordable skill."
         )
     return payload, PilotProtocol(sessions, counts, str(decision))
+
+
+def build_level4_core_collection_plan(
+    path: str | Path = DEFAULT_LEVEL4_CONFIG,
+) -> tuple[CoreCollectionAssignment, ...]:
+    """Expand the frozen Level 4.4 core-cell minima into a stable work list."""
+
+    payload, _ = load_level4_collection_config(path)
+    core = _mapping(payload, "level4_4_core_collection")
+    slots_by_split = _mapping(core, "session_slots_by_split")
+    seed_bases = _mapping(core, "seed_base_by_split")
+    seed_overrides = _mapping(core, "seed_override_by_cell")
+    split_offsets = {"train": 0, "validation": 0, "test": 0}
+    assignments: list[CoreCollectionAssignment] = []
+    for raw_cell in payload["coverage_cells"]:
+        if not isinstance(raw_cell, Mapping):
+            continue
+        group = str(raw_cell.get("data_group", ""))
+        if group not in LEVEL4_CORE_GROUPS:
+            continue
+        split = str(raw_cell["split_owner"])
+        minima = _mapping(raw_cell, "minimum_accepted_by_split")
+        count = int(minima[split])
+        raw_slots = slots_by_split[split]
+        assert isinstance(raw_slots, Sequence) and not isinstance(raw_slots, str)
+        skill_name = {
+            "reach": "reach_object",
+            "push": "push_object_to_target",
+            "button": "press_button",
+        }[group]
+        for repetition in range(1, count + 1):
+            offset = split_offsets[split]
+            cell_id = str(raw_cell["id"])
+            assignments.append(
+                CoreCollectionAssignment(
+                    sequence=len(assignments) + 1,
+                    coverage_cell_id=cell_id,
+                    data_group=group,
+                    skill_name=skill_name,
+                    source=str(raw_cell["required_source"]),
+                    split=split,
+                    session_slot=str(raw_slots[offset % len(raw_slots)]),
+                    repetition=repetition,
+                    seed=int(seed_overrides.get(cell_id, int(seed_bases[split]) + offset)),
+                )
+            )
+            split_offsets[split] += 1
+    return tuple(assignments)
+
+
+def _validate_core_collection_config(
+    payload: Mapping[str, Any],
+    *,
+    coverage_cells: Sequence[Any],
+) -> None:
+    core = _mapping(payload, "level4_4_core_collection")
+    if core.get("version") != "level4/core-collection-v2":
+        raise Level4CollectionError(
+            "level4_4_core_collection.version must be level4/core-collection-v2."
+        )
+    groups = core.get("data_groups")
+    if list(groups or ()) != list(LEVEL4_CORE_GROUPS):
+        raise Level4CollectionError(
+            "Level 4.4 core data_groups must be reach, push, and button."
+        )
+    if core.get("required_source_policy") != "scripted_only":
+        raise Level4CollectionError(
+            "Level 4.4 core collection must not require teleoperation."
+        )
+    if (
+        core.get("nonrequired_source_attempt_policy")
+        != "preserve_and_exclude_without_blocking"
+    ):
+        raise Level4CollectionError(
+            "Level 4.4 must preserve and non-blockingly exclude optional-source attempts."
+        )
+    core_sources = {
+        str(cell.get("required_source"))
+        for cell in coverage_cells
+        if isinstance(cell, Mapping)
+        and cell.get("data_group") in LEVEL4_CORE_GROUPS
+    }
+    if core_sources != {"scripted"}:
+        raise Level4CollectionError(
+            "Level 4.4 reach, push, and button cells must all require scripted data."
+        )
+    expected_total = sum(
+        sum(int(value) for value in _mapping(cell, "minimum_accepted_by_split").values())
+        for cell in coverage_cells
+        if isinstance(cell, Mapping) and cell.get("data_group") in LEVEL4_CORE_GROUPS
+    )
+    if int(core.get("required_accepted_episodes", -1)) != expected_total:
+        raise Level4CollectionError(
+            "Level 4.4 required accepted total must match the frozen core cells."
+        )
+    minimum_sessions = _mapping(core, "minimum_sessions_by_split")
+    if minimum_sessions != {"train": 2, "validation": 1, "test": 1}:
+        raise Level4CollectionError(
+            "Level 4.4 requires two train, one validation, and one test session."
+        )
+    slots = _mapping(core, "session_slots_by_split")
+    for split, minimum in minimum_sessions.items():
+        raw = slots.get(split)
+        if (
+            not isinstance(raw, Sequence)
+            or isinstance(raw, str)
+            or len(raw) < int(minimum)
+            or len(set(raw)) != len(raw)
+        ):
+            raise Level4CollectionError(
+                f"Level 4.4 session slots for {split!r} do not meet the minimum."
+            )
+    seed_bases = _mapping(core, "seed_base_by_split")
+    if set(seed_bases) != {"train", "validation", "test"} or any(
+        isinstance(value, bool) or not isinstance(value, int)
+        for value in seed_bases.values()
+    ):
+        raise Level4CollectionError(
+            "Level 4.4 seed bases must be integers for every split."
+        )
+    seed_overrides = _mapping(core, "seed_override_by_cell")
+    core_cells = {
+        str(cell["id"]): cell
+        for cell in coverage_cells
+        if isinstance(cell, Mapping)
+        and cell.get("data_group") in LEVEL4_CORE_GROUPS
+    }
+    for cell_id, seed in seed_overrides.items():
+        cell = core_cells.get(str(cell_id))
+        if cell is None:
+            raise Level4CollectionError(
+                f"Level 4.4 seed override names unknown core cell {cell_id!r}."
+            )
+        minima = _mapping(cell, "minimum_accepted_by_split")
+        if sum(int(value) for value in minima.values()) != 1:
+            raise Level4CollectionError(
+                f"Level 4.4 seed override cell {cell_id!r} must require one episode."
+            )
+        if isinstance(seed, bool) or not isinstance(seed, int):
+            raise Level4CollectionError(
+                f"Level 4.4 seed override for {cell_id!r} must be an integer."
+            )
+    session_fraction = core.get("maximum_single_session_fraction")
+    target_delta = core.get("maximum_target_share_delta_from_frozen_minimum")
+    if not isinstance(session_fraction, (int, float)) or not 0.0 < float(
+        session_fraction
+    ) <= 1.0:
+        raise Level4CollectionError(
+            "Level 4.4 maximum_single_session_fraction must be in (0, 1]."
+        )
+    if not isinstance(target_delta, (int, float)) or not 0.0 <= float(
+        target_delta
+    ) <= 1.0:
+        raise Level4CollectionError(
+            "Level 4.4 target-share delta must be in [0, 1]."
+        )
 
 
 def _validate_final_coverage_matrix(

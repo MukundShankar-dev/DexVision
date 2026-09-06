@@ -20,17 +20,18 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.3I — Final Source Mix and Coverage Freeze
+Level 4.4 — Reach, Push, and Press Multi-Session Haul
 
-The user accepted configuration v2 on September 5, 2026 after running the
-coverage summary. The evidence-based matrix freezes 114 required accepted
-episodes and a 140-episode planning maximum across 74 source-owned cells: 20
-reach, 42 complete pick/place, 20 push, 20 button, and 12 failure/correction
-episodes. Provenance minima remain separate at 98 scripted, 13 teleoperation,
-zero policy rollout, and three corrective interventions. The push claim is
-limited to the 12 Level 4.3H-qualified condition cells, with eight provisional
-cells preserved as explicit exclusions. Whole-session splits, held-out rules,
-Git LFS handling, and immutable release artifacts are frozen.
+The user-directed v3 plan removes mandatory teleoperation while preserving all
+operator attempts with their original provenance. The Level 4.4 haul contains
+60 accepted scripted core episodes: 20 reach, 20 push, and 20 button episodes
+across all 32 required cells. Train, validation, and test ownership, session
+and target balance, held-out isolation, schema/quality gates, headless replay,
+terminal recomputation, and auditable rejection gates all pass. The generic
+test seed sequence was unsafe for four held-out push cells, so collection used
+their already-qualified Level 4.3H seeds without changing the controller or
+safety thresholds. The full automated suite passes with 545 tests. No new
+manual verification was required beyond the completed Level 4.3 replay gate.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -39,10 +40,11 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.4 — Reach, Push, and Press Multi-Session Haul
+Level 4.5 — Complete Pick/Place Multi-Session Haul
 
-No Level 4.4 implementation or collection has started. Select only this
-checkpoint in the next work turn.
+Level 4.5 has not started. The next work turn may implement only its complete
+pick/place collection and segmentation requirements. Do not begin it as part
+of the completed Level 4.4 work.
 
 ---
 
@@ -971,6 +973,23 @@ and approved the matrix on September 5, 2026. The checkpoint suite passes with
 31 tests, the dataset-plan suite with nine tests, touched-file Ruff checks pass,
 and the full suite passes with 537 tests. Last Completed is now 4.3I and Next
 Target is 4.4; no 4.4 implementation or collection has started.
+
+Level 4.4 is complete. Configuration v3 expands all 10 reach, 12 push, and 10
+button cells into 60 scripted source/split/session/seed assignments and removes
+teleoperation from every mandatory cell. All 60 required episodes passed
+append-only review, including 20 reach, 20 push, and 20 press successes across
+32/32 complete cells. The report passes session ownership and balance, target
+balance, held-out isolation, schema and quality checks, headless replay, terminal
+recomputation, and failure auditability with no core issues. Four held-out push
+cells use the exact seeds already qualified in Level 4.3H because the generic
+test-seed sequence failed the copied-state workspace check; no safety or task
+threshold was weakened. The workspace contains 69 attempts and 62 accepted
+episodes overall because two accepted operator episodes remain optional and do
+not count toward the 60-scripted core. Four ordinary operator failures, one
+unreviewed optional attempt, and two rejected scripted retries remain preserved.
+The listed 10-test checkpoint suite, repository-wide Ruff, and the full 545-test
+suite pass. No new manual verification was required. Last Completed is now 4.4
+and Next Target is 4.5; no Level 4.5 work has started.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in

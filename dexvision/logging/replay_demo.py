@@ -375,6 +375,7 @@ def replay_loaded_demo(
     *,
     speed: float = 1.0,
     sim_steps_per_action: int = 1,
+    reset_env: bool = True,
     max_steps: int | None = None,
     sleep_fn: SleepFn = time.sleep,
     viewer_sync: ViewerSync | None = None,
@@ -400,8 +401,9 @@ def replay_loaded_demo(
     if not steps:
         raise DemoReplayError("demo contains no replayable actions.")
 
-    env.reset()
-    _restore_task_replay_state(loaded_demo, env)
+    if reset_env:
+        env.reset()
+        _restore_task_replay_state(loaded_demo, env)
     previous_timestamp: float | None = None
     final_sim_time: float | None = None
     steps_replayed = 0

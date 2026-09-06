@@ -84,6 +84,7 @@ class WorkcellRateController:
             confidence=0.0,
             valid=True,
         )
+        self._requested_height_m = float(neutral[2])
         self.reset_to_neutral()
 
     def calibrate_image_2d(
@@ -122,6 +123,7 @@ class WorkcellRateController:
             confidence=0.0,
             valid=True,
         )
+        self._requested_height_m = float(position[2])
         if self.config.enabled:
             self.env.set_mocap_pose(
                 self.config.mocap_body_name,
