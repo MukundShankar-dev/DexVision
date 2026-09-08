@@ -1614,7 +1614,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.2 session-aware append-only schema and phase labels pass
 [x] 4.3 pilot collection freezes final counts; dial is promoted or deferred
 [x] 4.4 reach, push, and press anchor coverage passes across genuine sessions
-[ ] 4.5A complete pick/place anchor coverage and phase replays pass
+[x] 4.5A complete pick/place anchor coverage and phase replays pass
 [ ] 4.5B procedural nominal expansion and validation-only scaling gate pass
 [ ] 4.6 failures and corrections remain separate and auditable
 [ ] 4.7 single-camera visual annotations and alignment pass
