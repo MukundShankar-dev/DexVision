@@ -59,6 +59,7 @@ LEVEL4_EPISODE_SOURCES = (
     "corrective_intervention",
 )
 LEVEL4_CORE_GROUPS = ("reach", "push", "button")
+LEVEL4_PICK_PLACE_GROUP = "pick_place"
 
 
 class Level4CollectionError(ValueError):
@@ -77,6 +78,21 @@ class PilotProtocol:
 @dataclass(frozen=True)
 class CoreCollectionAssignment:
     """One deterministic Level 4.4 minimum-coverage recording assignment."""
+
+    sequence: int
+    coverage_cell_id: str
+    data_group: str
+    skill_name: str
+    source: str
+    split: str
+    session_slot: str
+    repetition: int
+    seed: int
+
+
+@dataclass(frozen=True)
+class PickPlaceCollectionAssignment:
+    """One deterministic Level 4.5A anchor recording assignment."""
 
     sequence: int
     coverage_cell_id: str
@@ -387,6 +403,7 @@ class WorkcellPilotTask:
                 parking_surface_z_m=float(setup["parking_surface_z_m"]),
             )
             if self.skill_name in {"pick_object", "pick_place_sequence"}:
+                self.workcell.configure_pick_place_scene()
                 contact = config["pilot"]["scripted_grasp"]["contact_dynamics"]
                 self.workcell.configure_contact_dynamics(
                     table_condim=int(contact["table_condim"]),
@@ -767,6 +784,7 @@ def load_level4_collection_config(
         raise Level4CollectionError("Level 4 coverage cell ids must be unique strings.")
     _validate_final_coverage_matrix(payload, coverage_cells=coverage_cells)
     _validate_core_collection_config(payload, coverage_cells=coverage_cells)
+    _validate_pick_place_collection_config(payload, coverage_cells=coverage_cells)
     review_filename = pilot.get("expert_acceptance_review_filename")
     if review_filename != PILOT_REVIEW_FILENAME:
         raise Level4CollectionError(
@@ -847,6 +865,49 @@ def build_level4_core_collection_plan(
                     session_slot=str(raw_slots[offset % len(raw_slots)]),
                     repetition=repetition,
                     seed=int(seed_overrides.get(cell_id, int(seed_bases[split]) + offset)),
+                )
+            )
+            split_offsets[split] += 1
+    return tuple(assignments)
+
+
+def build_level4_pick_place_collection_plan(
+    path: str | Path = DEFAULT_LEVEL4_CONFIG,
+) -> tuple[PickPlaceCollectionAssignment, ...]:
+    """Expand the frozen Level 4.5A pick/place minima into a stable work list."""
+
+    payload, _ = load_level4_collection_config(path)
+    anchor = _mapping(payload, "level4_5a_pick_place_collection")
+    slots_by_split = _mapping(anchor, "session_slots_by_split")
+    seed_by_repetition = anchor["seed_by_repetition"]
+    assert isinstance(seed_by_repetition, Sequence) and not isinstance(
+        seed_by_repetition, str
+    )
+    split_offsets = {"train": 0, "validation": 0, "test": 0}
+    assignments: list[PickPlaceCollectionAssignment] = []
+    for raw_cell in payload["coverage_cells"]:
+        if not isinstance(raw_cell, Mapping):
+            continue
+        if raw_cell.get("data_group") != LEVEL4_PICK_PLACE_GROUP:
+            continue
+        split = str(raw_cell["split_owner"])
+        minima = _mapping(raw_cell, "minimum_accepted_by_split")
+        count = int(minima[split])
+        raw_slots = slots_by_split[split]
+        assert isinstance(raw_slots, Sequence) and not isinstance(raw_slots, str)
+        for repetition in range(1, count + 1):
+            offset = split_offsets[split]
+            assignments.append(
+                PickPlaceCollectionAssignment(
+                    sequence=len(assignments) + 1,
+                    coverage_cell_id=str(raw_cell["id"]),
+                    data_group=LEVEL4_PICK_PLACE_GROUP,
+                    skill_name="pick_place_sequence",
+                    source=str(raw_cell["required_source"]),
+                    split=split,
+                    session_slot=str(raw_slots[offset % len(raw_slots)]),
+                    repetition=repetition,
+                    seed=int(seed_by_repetition[repetition - 1]),
                 )
             )
             split_offsets[split] += 1
@@ -958,6 +1019,109 @@ def _validate_core_collection_config(
     ) <= 1.0:
         raise Level4CollectionError(
             "Level 4.4 target-share delta must be in [0, 1]."
+        )
+
+
+def _validate_pick_place_collection_config(
+    payload: Mapping[str, Any],
+    *,
+    coverage_cells: Sequence[Any],
+) -> None:
+    anchor = _mapping(payload, "level4_5a_pick_place_collection")
+    if anchor.get("version") != "level4/pick-place-anchor-v2":
+        raise Level4CollectionError(
+            "level4_5a_pick_place_collection.version must be "
+            "level4/pick-place-anchor-v2."
+        )
+    if (
+        anchor.get("data_group") != LEVEL4_PICK_PLACE_GROUP
+        or anchor.get("skill_name") != "pick_place_sequence"
+    ):
+        raise Level4CollectionError(
+            "Level 4.5A must contain only complete pick/place episodes."
+        )
+    pick_place_cells = {
+        str(cell["id"]): cell
+        for cell in coverage_cells
+        if isinstance(cell, Mapping)
+        and cell.get("data_group") == LEVEL4_PICK_PLACE_GROUP
+    }
+    expected_total = sum(
+        sum(int(value) for value in _mapping(cell, "minimum_accepted_by_split").values())
+        for cell in pick_place_cells.values()
+    )
+    if int(anchor.get("required_accepted_episodes", -1)) != expected_total:
+        raise Level4CollectionError(
+            "Level 4.5A accepted total must match the frozen pick/place cells."
+        )
+    if int(anchor.get("required_coverage_cells", -1)) != len(pick_place_cells):
+        raise Level4CollectionError(
+            "Level 4.5A coverage-cell count must match the frozen pick/place cells."
+        )
+    if {str(cell.get("required_source")) for cell in pick_place_cells.values()} != {
+        "scripted"
+    } or anchor.get("required_source_policy") != "scripted_only":
+        raise Level4CollectionError(
+            "Level 4.5A pick/place cells must all require scripted data."
+        )
+    expected_segments = ["reach_object", "pick_object", "place_held_object"]
+    if list(anchor.get("required_derived_segments_per_episode", ())) != expected_segments:
+        raise Level4CollectionError(
+            "Level 4.5A must derive reach, pick, and place segments per episode."
+        )
+    minimum_sessions = _mapping(anchor, "minimum_sessions_by_split")
+    if minimum_sessions != {"train": 2, "validation": 1, "test": 1}:
+        raise Level4CollectionError(
+            "Level 4.5A requires two train, one validation, and one test session."
+        )
+    slots = _mapping(anchor, "session_slots_by_split")
+    for split, minimum in minimum_sessions.items():
+        raw = slots.get(split)
+        if (
+            not isinstance(raw, Sequence)
+            or isinstance(raw, str)
+            or len(raw) < int(minimum)
+            or len(set(raw)) != len(raw)
+        ):
+            raise Level4CollectionError(
+                f"Level 4.5A session slots for {split!r} do not meet the minimum."
+            )
+    seed_by_repetition = anchor.get("seed_by_repetition")
+    maximum_repetitions = max(
+        sum(
+            int(value)
+            for value in _mapping(cell, "minimum_accepted_by_split").values()
+        )
+        for cell in pick_place_cells.values()
+    )
+    if (
+        not isinstance(seed_by_repetition, Sequence)
+        or isinstance(seed_by_repetition, str)
+        or len(seed_by_repetition) < maximum_repetitions
+        or any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in seed_by_repetition
+        )
+        or len(set(seed_by_repetition)) != len(seed_by_repetition)
+    ):
+        raise Level4CollectionError(
+            "Level 4.5A needs distinct integer seeds for every repetition."
+        )
+    session_fraction = anchor.get("maximum_single_session_fraction")
+    if not isinstance(session_fraction, (int, float)) or not 0.0 < float(
+        session_fraction
+    ) <= 1.0:
+        raise Level4CollectionError(
+            "Level 4.5A maximum_single_session_fraction must be in (0, 1]."
+        )
+    manual_minimum = anchor.get("manual_replay_minimum")
+    if (
+        isinstance(manual_minimum, bool)
+        or not isinstance(manual_minimum, int)
+        or manual_minimum < 6
+    ):
+        raise Level4CollectionError(
+            "Level 4.5A requires at least six visible replay reviews."
         )
 
 

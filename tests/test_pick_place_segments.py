@@ -5,7 +5,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from dexvision.apps import record_demo
 from dexvision.apps.validate_level4_episode import validate_episode_directory
+from dexvision.evaluation.level4_expert_audit import audit_scripted_episode
 from dexvision.logging.demo_logger import (
     action_schema_from_metadata,
     load_logged_demo,
@@ -14,7 +16,11 @@ from dexvision.logging.phase_labels import (
     derive_pick_place_segments,
     validate_phase_intervals,
 )
+from dexvision.logging.level4_collection import WorkcellPilotTask
 from test_level4_place_expert import record_pick_place
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_complete_recording_yields_compatible_reach_pick_and_place_segments(
@@ -56,3 +62,91 @@ def test_complete_recording_yields_compatible_reach_pick_and_place_segments(
         assert action_slice.shape[0] > 0
         assert action_slice.shape[1] == action_schema.action_dim
         assert np.all(np.isfinite(action_slice))
+
+
+def test_held_out_return_bin_anchor_replays_with_task_geometry_isolated(
+    tmp_path: Path,
+) -> None:
+    mujoco = pytest.importorskip("mujoco")
+    episode_dir = tmp_path / "return_bin_anchor"
+    args = record_demo.build_parser().parse_args(
+        [
+            "--task",
+            "level4_workcell",
+            "--skill",
+            "pick_place_sequence",
+            "--source",
+            "scripted",
+            "--session-id",
+            "return_bin_anchor",
+            "--operator-id",
+            "scripted_pick_place_anchor_v1",
+            "--session-split",
+            "test",
+            "--goal-condition-id",
+            "pp_block_large_return_bin_right",
+            "--task-seed",
+            "0",
+            "--output",
+            str(episode_dir),
+            "--level4-dataset-dir",
+            str(tmp_path / "dataset"),
+            "--level4-dataset-config",
+            str(ROOT / "configs" / "level4_dataset.yaml"),
+            "--workcell-config",
+            str(ROOT / "configs" / "workcell.yaml"),
+            "--enforce-frozen-cell-owner",
+        ]
+    )
+    assert record_demo.run_record_demo(args) == 0
+    episode = load_logged_demo(episode_dir)
+
+    assert episode.metadata["success"] is True
+    assert episode.metadata["teleop_config"]["scripted_expert"][
+        "maximum_placement_center_x_m"
+    ] == pytest.approx(0.11)
+    assert episode.metadata["teleop_config"]["scripted_expert"][
+        "transport_step_m"
+    ] == pytest.approx(0.005)
+    assert episode.metadata["teleop_config"]["scripted_expert"]["grasp"][
+        "family_templates"
+    ]["cuboid"]["object_relative_position_m"] == pytest.approx(
+        [0.0075, 0.0, 0.024]
+    )
+    assert episode.metadata["teleop_config"]["scripted_expert"][
+        "family_target_offset_xy_m"
+    ]["cuboid"] == pytest.approx([0.0, 0.0])
+
+    audit = audit_scripted_episode(
+        episode_dir,
+        config_path=ROOT / "configs" / "level4_dataset.yaml",
+        workcell_config=ROOT / "configs" / "workcell.yaml",
+    )
+    assert audit.accepted is True
+    assert audit.recomputed_success is True
+
+    with WorkcellPilotTask(
+        workcell_config=ROOT / "configs" / "workcell.yaml",
+        dataset_config=ROOT / "configs" / "level4_dataset.yaml",
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_block_large_return_bin_right",
+        seed=0,
+    ) as task:
+        for geom_name in ("fixture_wall_geom", "start_button_geom"):
+            geom_id = mujoco.mj_name2id(
+                task.env.model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                geom_name,
+            )
+            assert task.env.model.geom_contype[geom_id] == 0
+            assert task.env.model.geom_conaffinity[geom_id] == 0
+            assert task.env.model.geom_rgba[geom_id, 3] == pytest.approx(0.0)
+        for geom_name in ("return_bin_left_wall", "return_bin_right_wall"):
+            geom_id = mujoco.mj_name2id(
+                task.env.model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                geom_name,
+            )
+            assert task.env.model.geom_contype[geom_id] == 0
+            assert task.env.model.geom_conaffinity[geom_id] == 0
+            assert task.env.model.geom_rgba[geom_id, 3] > 0.0

@@ -19,6 +19,7 @@ from dexvision.logging.dataset_schema import (
     validate_demo,
 )
 from dexvision.logging.demo_logger import DemoLoggerError, load_logged_demo
+from dexvision.sim.level4_expert import ORIENTATION_HOLD_CHUNK_STEPS
 from dexvision.sim.tasks import (
     BUTTON_PRESS_TASK_ID,
     PUSH_CUBE_TASK_ID,
@@ -421,7 +422,7 @@ def replay_loaded_demo(
         if _apply_level4_orientation_hold(loaded_demo, env, step.index):
             remaining = sim_steps_per_action
             while remaining > 0:
-                chunk_steps = min(8, remaining)
+                chunk_steps = min(ORIENTATION_HOLD_CHUNK_STEPS, remaining)
                 state = apply_replay_step(
                     env,
                     step,

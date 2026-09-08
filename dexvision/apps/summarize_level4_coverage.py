@@ -53,6 +53,17 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Return exit status 1 unless the Level 4.4 core haul is complete.",
     )
+    parser.add_argument(
+        "--skill",
+        choices=("pick_place_sequence",),
+        default=None,
+        help="Print the checkpoint-focused summary for one supported source skill.",
+    )
+    parser.add_argument(
+        "--require-level4-5a-automated",
+        action="store_true",
+        help="Return exit status 1 unless the Level 4.5A automated gates pass.",
+    )
     return parser
 
 
@@ -101,14 +112,29 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Payload handling: {report['storage']['payload_handling']}")
     print(f"Pilot status: {report['pilot_status']}")
     core = report["level4_4_core_collection"]
-    print(
-        "Level 4.4 core haul: "
-        f"{core['accepted_episode_count']}/{core['required_accepted_episodes']} "
-        f"accepted, cells={core['coverage_matrix']['complete_cell_count']}/"
-        f"{core['coverage_matrix']['cell_count']}, status={core['status']}"
-    )
+    anchor = report["level4_5a_pick_place_collection"]
+    if args.skill is None:
+        print(
+            "Level 4.4 core haul: "
+            f"{core['accepted_episode_count']}/{core['required_accepted_episodes']} "
+            f"accepted, cells={core['coverage_matrix']['complete_cell_count']}/"
+            f"{core['coverage_matrix']['cell_count']}, status={core['status']}"
+        )
+    if args.skill in {None, "pick_place_sequence"}:
+        print(
+            "Level 4.5A pick/place anchor: "
+            f"{anchor['accepted_episode_count']}/"
+            f"{anchor['required_accepted_episodes']} accepted, "
+            f"cells={anchor['coverage_matrix']['complete_cell_count']}/"
+            f"{anchor['coverage_matrix']['cell_count']}, status={anchor['status']}"
+        )
     print(f"Report: {output}")
     if args.require_level4_4_complete and not core["checkpoint_complete"]:
+        return 1
+    if (
+        args.require_level4_5a_automated
+        and not anchor["automated_requirements_passed"]
+    ):
         return 1
     if args.require_complete and not report["checkpoint_complete"]:
         return 1

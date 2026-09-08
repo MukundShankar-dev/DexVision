@@ -21,7 +21,11 @@ from dexvision.logging.level4_collection import (
     load_manual_replay_reviews,
     rejection_reason_counts,
 )
-from dexvision.logging.phase_labels import phase_disagreement_report
+from dexvision.logging.phase_labels import (
+    PhaseLabelError,
+    derive_pick_place_segments,
+    phase_disagreement_report,
+)
 from dexvision.logging.session_manifest import SessionManifestError, load_session_manifest
 
 
@@ -163,6 +167,13 @@ def summarize_level4_coverage(
         sessions=sessions,
         cells=cells,
     )
+    pick_place_collection = _pick_place_anchor_summary(
+        config,
+        episodes=episodes,
+        sessions=sessions,
+        cells=cells,
+        manual_reviews=manual_reviews,
+    )
     phase_limit = float(
         _mapping(config, "quality_thresholds")[
             "max_phase_annotation_disagreement_fraction"
@@ -228,6 +239,7 @@ def summarize_level4_coverage(
         "source_mix": source_mix,
         "coverage_matrix": matrix,
         "level4_4_core_collection": core_collection,
+        "level4_5a_pick_place_collection": pick_place_collection,
         "optional_dial_decision": protocol.optional_dial_decision,
         "issues": sorted(set(issues)),
         "automated_pilot_requirements_passed": protocol_passed,
@@ -613,6 +625,247 @@ def _core_matrix_summary(
         "minimum_episode_total": sum(row["minimum"] for row in rows),
         "complete": all(row["complete"] for row in rows),
         "cells": rows,
+    }
+
+
+def _pick_place_anchor_summary(
+    config: Mapping[str, Any],
+    *,
+    episodes: Sequence[PilotEpisode],
+    sessions: Mapping[str, str],
+    cells: Mapping[str, Mapping[str, Any]],
+    manual_reviews: Sequence[Any],
+) -> Mapping[str, Any]:
+    """Evaluate the frozen Level 4.5A complete pick/place anchor."""
+
+    anchor = _mapping(config, "level4_5a_pick_place_collection")
+    pick_cells = {
+        cell_id: cell
+        for cell_id, cell in cells.items()
+        if cell.get("data_group") == "pick_place"
+    }
+    object_specs = _mapping(_mapping(config, "workcell"), "objects")
+    target_specs = _mapping(_mapping(config, "workcell"), "targets")
+    held_out_objects = set(_mapping(config, "split_policy")["held_out_object_instances"])
+    held_out_goals = set(_mapping(config, "split_policy")["held_out_goal_regions"])
+    accepted_by_cell_split: dict[str, Counter[str]] = defaultdict(Counter)
+    accepted_by_session: Counter[str] = Counter()
+    accepted_by_source: Counter[str] = Counter()
+    family_counts: Counter[str] = Counter()
+    object_counts: Counter[str] = Counter()
+    target_counts: Counter[str] = Counter()
+    target_type_counts: Counter[str] = Counter()
+    segment_counts: Counter[str] = Counter()
+    accepted_episodes: list[PilotEpisode] = []
+    issues: list[str] = []
+    attempt_count = 0
+    rejected_count = 0
+
+    for episode in episodes:
+        if episode.skill_name != "pick_place_sequence":
+            continue
+        attempt_count += 1
+        cell = pick_cells.get(episode.goal_condition_id)
+        if cell is None:
+            issues.append(
+                f"pick/place episode {episode.episode_id} references unknown cell "
+                f"{episode.goal_condition_id!r}"
+            )
+            continue
+        if episode.review is None:
+            issues.append(
+                f"pick/place episode {episode.episode_id} has no append-only review"
+            )
+            continue
+        if not episode.expert_accepted:
+            rejected_count += 1
+            continue
+        split = sessions.get(episode.session_id)
+        if split is None:
+            issues.append(
+                f"pick/place episode {episode.episode_id} session "
+                f"{episode.session_id!r} is absent from the session manifest"
+            )
+            continue
+        if split != cell.get("split_owner"):
+            issues.append(
+                f"pick/place episode {episode.episode_id} session split {split!r} "
+                f"does not match cell owner {cell.get('split_owner')!r}"
+            )
+            continue
+        if episode.source != cell.get("required_source"):
+            issues.append(
+                f"pick/place episode {episode.episode_id} source "
+                f"{episode.source!r} does not match {cell.get('required_source')!r}"
+            )
+            continue
+        object_id = _episode_object_id(episode)
+        target_id = _episode_target_id(episode)
+        if object_id not in object_specs or target_id not in target_specs:
+            issues.append(
+                f"pick/place episode {episode.episode_id} lacks a known object/target"
+            )
+            continue
+        if split != "test" and (
+            object_id in held_out_objects or target_id in held_out_goals
+        ):
+            issues.append(
+                f"pick/place episode {episode.episode_id} leaks held-out coverage "
+                f"into split {split!r}"
+            )
+            continue
+        try:
+            online_phases = np.load(
+                episode.path / "online_phases.npy", allow_pickle=False
+            ).astype(str)
+            segments = derive_pick_place_segments(
+                episode.metadata.get("phase_intervals", ()),
+                frame_count=int(online_phases.size),
+            )
+        except (OSError, ValueError, PhaseLabelError) as exc:
+            issues.append(
+                f"pick/place episode {episode.episode_id} segment contract failed: {exc}"
+            )
+            continue
+        segment_names = tuple(segment.skill_name for segment in segments)
+        expected_segments = tuple(anchor["required_derived_segments_per_episode"])
+        if segment_names != expected_segments:
+            issues.append(
+                f"pick/place episode {episode.episode_id} derives {segment_names!r}"
+            )
+            continue
+        accepted_episodes.append(episode)
+        accepted_by_cell_split[episode.goal_condition_id][split] += 1
+        accepted_by_session[episode.session_id] += 1
+        accepted_by_source[episode.source] += 1
+        family_counts[str(object_specs[object_id]["family"])] += 1
+        object_counts[object_id] += 1
+        target_counts[target_id] += 1
+        target_type_counts[str(target_specs[target_id]["target_type"])] += 1
+        segment_counts.update(segment_names)
+
+    matrix = _core_matrix_summary(
+        pick_cells,
+        accepted_by_cell_split=accepted_by_cell_split,
+    )
+    accepted_total = len(accepted_episodes)
+    minimum_sessions = _mapping(anchor, "minimum_sessions_by_split")
+    session_ids_by_split = {
+        split: sorted(
+            session_id
+            for session_id in accepted_by_session
+            if sessions.get(session_id) == split
+        )
+        for split in ("train", "validation", "test")
+    }
+    session_requirements = {
+        split: {
+            "observed": len(session_ids_by_split[split]),
+            "minimum": int(minimum_sessions[split]),
+            "passed": len(session_ids_by_split[split]) >= int(minimum_sessions[split]),
+        }
+        for split in ("train", "validation", "test")
+    }
+    maximum_session_fraction = float(anchor["maximum_single_session_fraction"])
+    session_shares = {
+        session_id: count / accepted_total if accepted_total else 0.0
+        for session_id, count in sorted(accepted_by_session.items())
+    }
+    session_balance_passed = bool(
+        accepted_total
+        and all(share <= maximum_session_fraction for share in session_shares.values())
+    )
+    required_families = set(anchor["required_object_families"])
+    required_objects = set(anchor["required_object_instances"])
+    required_targets = set(anchor["required_target_ids"])
+    expected_segment_count = int(anchor["required_accepted_episodes"])
+    segment_requirements_passed = all(
+        segment_counts[name] >= expected_segment_count
+        for name in anchor["required_derived_segments_per_episode"]
+    )
+
+    accepted_by_id = {episode.episode_id: episode for episode in accepted_episodes}
+    manual_episode_ids: set[str] = set()
+    manual_families: set[str] = set()
+    manual_target_types: set[str] = set()
+    for review in manual_reviews:
+        episode = accepted_by_id.get(review.episode_id)
+        if episode is None or not review.passed:
+            continue
+        object_id = _episode_object_id(episode)
+        target_id = _episode_target_id(episode)
+        if object_id in object_specs and target_id in target_specs:
+            manual_episode_ids.add(episode.episode_id)
+            manual_families.add(str(object_specs[object_id]["family"]))
+            manual_target_types.add(str(target_specs[target_id]["target_type"]))
+    required_target_types = {
+        str(target_specs[target_id]["target_type"]) for target_id in required_targets
+    }
+    manual_replay = {
+        "reviewed_episode_count": len(manual_episode_ids),
+        "minimum": int(anchor["manual_replay_minimum"]),
+        "object_families": sorted(manual_families),
+        "required_object_families": sorted(required_families),
+        "target_types": sorted(manual_target_types),
+        "required_target_types": sorted(required_target_types),
+    }
+    manual_replay["passed"] = bool(
+        len(manual_episode_ids) >= int(anchor["manual_replay_minimum"])
+        and required_families <= manual_families
+        and required_target_types <= manual_target_types
+    )
+    test_isolation_passed = bool(
+        _mapping(config, "split_policy").get("test_influences_tuning") is False
+        and _mapping(config, "split_policy").get("test_influences_thresholds") is False
+        and _mapping(config, "split_policy").get("test_influences_checkpoint_selection")
+        is False
+        and not any("held-out" in issue for issue in issues)
+    )
+    automated = bool(
+        accepted_total >= int(anchor["required_accepted_episodes"])
+        and matrix["complete"]
+        and accepted_by_source == Counter({"scripted": accepted_total})
+        and all(item["passed"] for item in session_requirements.values())
+        and session_balance_passed
+        and required_families <= set(family_counts)
+        and required_objects <= set(object_counts)
+        and required_targets <= set(target_counts)
+        and segment_requirements_passed
+        and test_isolation_passed
+        and not issues
+    )
+    complete = automated and bool(manual_replay["passed"])
+    return {
+        "version": anchor["version"],
+        "status": (
+            "complete"
+            if complete
+            else "manual_verification_required"
+            if automated
+            else "incomplete"
+        ),
+        "attempt_episode_count": attempt_count,
+        "accepted_episode_count": accepted_total,
+        "required_accepted_episodes": int(anchor["required_accepted_episodes"]),
+        "rejected_or_failed_auditable_count": rejected_count,
+        "accepted_by_source": dict(sorted(accepted_by_source.items())),
+        "coverage_matrix": matrix,
+        "session_ids_by_split": session_ids_by_split,
+        "session_requirements": session_requirements,
+        "session_shares": session_shares,
+        "maximum_single_session_fraction": maximum_session_fraction,
+        "session_balance_passed": session_balance_passed,
+        "object_family_counts": dict(sorted(family_counts.items())),
+        "object_instance_counts": dict(sorted(object_counts.items())),
+        "target_counts": dict(sorted(target_counts.items())),
+        "target_type_counts": dict(sorted(target_type_counts.items())),
+        "segment_counts_by_skill": dict(sorted(segment_counts.items())),
+        "segment_requirements_passed": segment_requirements_passed,
+        "test_isolation_passed": test_isolation_passed,
+        "manual_replay": manual_replay,
+        "issues": sorted(set(issues)),
+        "automated_requirements_passed": automated,
+        "checkpoint_complete": complete,
     }
 
 

@@ -764,6 +764,62 @@ level4_4_core_collection:
       push_step_m: 0.001
       maximum_push_actions: 360
 
+level4_5a_pick_place_collection:
+  version: level4/pick-place-anchor-v2
+  supersedes: level4/pick-place-anchor-v1
+  revision_authority: user_authorized_geometry_aware_grasp_fix_after_v1_test_audit
+  compatibility_note: accepted_v1_episodes_remain_valid_and_are_not_overwritten
+  dataset_dir: data/demos/level4
+  data_group: pick_place
+  skill_name: pick_place_sequence
+  required_accepted_episodes: 42
+  required_coverage_cells: 30
+  required_derived_segments_per_episode: [reach_object, pick_object, place_held_object]
+  required_object_families: [cuboid, cylinder, flat_puck]
+  required_object_instances: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]
+  required_target_ids: [return_bin_left, return_bin_right, inspection_pad, setup_slot_a, setup_slot_b]
+  minimum_sessions_by_split: {train: 2, validation: 1, test: 1}
+  session_slots_by_split:
+    train: [session_a, session_b]
+    validation: [session_c]
+    test: [session_d]
+  # Repetitions 0 and 1 are qualified across every train/validation object-goal
+  # cell before test-owned generation. Test cells use the already-frozen first
+  # repetition only and cannot change this rule.
+  seed_by_repetition: [0, 1]
+  maximum_single_session_fraction: 0.50
+  required_source_policy: scripted_only
+  test_collection_requires_train_validation_frozen: true
+  test_use: collection_and_final_audit_only_no_tuning_normalization_or_thresholds
+  failed_attempt_policy: preserve_with_nonaccepted_append_only_review
+  scripted_expert_overrides:
+    scripted_grasp:
+      orientation_hold_chunk_steps: 8
+      # Instance-local grasp points account for the held-out geometry while
+      # preserving the family orientation and hand-pose contracts.
+      instance_templates:
+        block_large:
+          object_relative_position_m: [0.0075, 0.0, 0.024]
+        cylinder_tall:
+          object_relative_position_m: [0.0, 0.0, 0.024]
+        puck_heavy:
+          object_relative_position_m: [-0.015, 0.0, 0.012]
+    scripted_place:
+      orientation_hold_chunk_steps: 8
+      # Level 4.3E qualified only central/left targets. The anchor adds the
+      # positive-x return bins, so their configured centres must not be clamped
+      # back to the inspection-pad corridor.
+      maximum_placement_center_x_m: 0.11
+      transport_step_m: 0.005
+      family_target_offset_xy_m:
+        flat_puck: [-0.010, 0.0]
+      instance_target_offset_xy_m:
+        block_large: [0.0, 0.0]
+        cylinder_tall: [0.010, 0.0]
+  manual_replay_minimum: 6
+  manual_replay_requires_every_object_family: true
+  manual_replay_requires_every_target_type: true
+
 split_policy:
   ownership_unit: complete_recording_session
   normalization_source: train_only

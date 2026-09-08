@@ -20,20 +20,18 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.4 — Reach, Push, and Press Multi-Session Haul
+Level 4.5A — Complete Pick/Place Anchor Haul
 
-The user-directed v3 plan uses scripted generation for every required cell. All
-earlier human-controlled attempts retain their original provenance as historical
-local evidence but are excluded from the active dataset, training, correction,
-and evaluation plan. The Level 4.4 haul contains
-60 accepted scripted core episodes: 20 reach, 20 push, and 20 button episodes
-across all 32 required cells. Train, validation, and test ownership, session
-and target balance, held-out isolation, schema/quality gates, headless replay,
-terminal recomputation, and auditable rejection gates all pass. The generic
-test seed sequence was unsafe for four held-out push cells, so collection used
-their already-qualified Level 4.3H seeds without changing the controller or
-safety thresholds. The full automated suite passes with 545 tests. No new
-manual verification was required beyond the completed Level 4.3 replay gate.
+The versioned v2 anchor contains 42 accepted scripted complete pick/place
+episodes across all 30 split-owned cells. It preserves earlier accepted and
+rejected evidence, uses geometry-aware grasp and placement corrections without
+weakening success or safety thresholds, and makes validation, recording, and
+replay use a reproducible orientation-hold cadence. Every accepted episode
+passes append-only review, headless replay, terminal recomputation, three-skill
+segment derivation, and held-out isolation. The focused seven-test command,
+repository-wide Ruff, and the full 552-test suite pass. The user accepted all
+six stratified manual replays on September 8, 2026, covering every object family
+and target type.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -42,11 +40,11 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.5A — Complete Pick/Place Anchor Haul
+Level 4.5B — Procedural Diversity Expansion and Data-Sufficiency Gate
 
-Level 4.5A has not started. The next work turn may implement only the frozen
-42-episode complete pick/place anchor matrix and segmentation requirements.
-Do not start the later procedural diversity expansion in the same turn.
+Level 4.5B has not started. The next work turn may implement only the frozen
+procedural diversity expansion and validation-only scaling gate described in
+`docs/progress_level_4.md`. Do not start Level 4.6 in the same turn.
 
 The accepted 114-episode Level 4.3I matrix is now explicitly an integration
 and coverage anchor, not the final comprehensive learning-data claim. After
@@ -62,15 +60,17 @@ untouched.
 
 ## Current Branch
 
-`main`
-
-Suggested next feature branch:
-
 `codex/level45a-pick-place-anchor`
 
 ---
 
 ## Manual Verification Status
+
+Level 4.5A manual verification passed on September 8, 2026. The user accepted
+six stratified pick/place replays covering cuboid, cylinder, and flat-puck
+objects plus receptacle, planar-zone, and placement-slot targets. Visible
+acquisition, lift, transport, release, settling, and retraction agreed with the
+saved labels. Level 4.5A is complete.
 
 Level 1.0 did not require manual verification.
 

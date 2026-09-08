@@ -21,6 +21,7 @@ BASE_ACTION_NAMES = (
     "base_orientation_target/qy",
     "base_orientation_target/qz",
 )
+ORIENTATION_HOLD_CHUNK_STEPS = 8
 
 
 class Level4ExpertError(ValueError):
@@ -468,6 +469,7 @@ class DeterministicGraspLiftConfig:
     sim_steps_per_action: int
     maximum_non_target_disturbance_m: float
     joint_limit_tolerance_rad: float
+    orientation_hold_chunk_steps: int | None = None
 
     def __post_init__(self) -> None:
         if dict(self.hand_poses) != {
@@ -520,6 +522,13 @@ class DeterministicGraspLiftConfig:
             )
         if self.joint_limit_tolerance_rad < 0.0:
             raise Level4ExpertError("joint-limit tolerance must be non-negative.")
+        if (
+            self.orientation_hold_chunk_steps is not None
+            and self.orientation_hold_chunk_steps <= 0
+        ):
+            raise Level4ExpertError(
+                "grasp orientation-hold chunk steps must be positive."
+            )
 
     @classmethod
     def from_mapping(
@@ -594,6 +603,11 @@ class DeterministicGraspLiftConfig:
                 values["maximum_non_target_disturbance_m"]
             ),
             joint_limit_tolerance_rad=float(values["joint_limit_tolerance_rad"]),
+            orientation_hold_chunk_steps=(
+                int(values["orientation_hold_chunk_steps"])
+                if "orientation_hold_chunk_steps" in values
+                else None
+            ),
         )
 
 
@@ -621,6 +635,7 @@ class DeterministicPlaceConfig:
     sim_steps_per_action: int
     maximum_non_target_disturbance_m: float
     joint_limit_tolerance_rad: float
+    orientation_hold_chunk_steps: int | None = None
 
     def __post_init__(self) -> None:
         if self.orientation_policy != "keep_qualified_grasp_orientation":
@@ -674,6 +689,13 @@ class DeterministicPlaceConfig:
             )
         if self.joint_limit_tolerance_rad < 0.0:
             raise Level4ExpertError("joint-limit tolerance must be non-negative.")
+        if (
+            self.orientation_hold_chunk_steps is not None
+            and self.orientation_hold_chunk_steps <= 0
+        ):
+            raise Level4ExpertError(
+                "place orientation-hold chunk steps must be positive."
+            )
         if not math.isfinite(self.maximum_placement_center_x_m):
             raise Level4ExpertError("maximum placement center x must be finite.")
 
@@ -745,6 +767,11 @@ class DeterministicPlaceConfig:
                 values["maximum_non_target_disturbance_m"]
             ),
             joint_limit_tolerance_rad=float(values["joint_limit_tolerance_rad"]),
+            orientation_hold_chunk_steps=(
+                int(values["orientation_hold_chunk_steps"])
+                if "orientation_hold_chunk_steps" in values
+                else None
+            ),
         )
 
 
@@ -2394,8 +2421,7 @@ def validate_place_trajectory_on_copy(
 
     live = task.workcell
     scratch = Workcell(live.config.config_path)
-    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
-    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    _copy_task_local_model_configuration(live, scratch)
     checked = 0
     maximum_disturbance = 0.0
     object_id = str(task.goal["object_id"])
@@ -2453,8 +2479,15 @@ def validate_place_trajectory_on_copy(
             )
             scratch.env.set_joint_targets(action.finger_targets)
             if _orientation_hold_phase(phase):
-                scratch.preserve_object_orientation(object_id, preserved_orientation)
-            state = scratch.step(n_steps=config.sim_steps_per_action)
+                state = _step_with_orientation_hold(
+                    scratch,
+                    object_id=object_id,
+                    orientation_wxyz=preserved_orientation,
+                    n_steps=config.sim_steps_per_action,
+                    chunk_steps=config.orientation_hold_chunk_steps,
+                )
+            else:
+                state = scratch.step(n_steps=config.sim_steps_per_action)
             checked += 1
             maximum_disturbance = max(
                 maximum_disturbance,
@@ -2496,6 +2529,17 @@ def _orientation_hold_phase(phase: str) -> bool:
     return phase in {"lift", "stabilize", "transport", "place"}
 
 
+def _copy_task_local_model_configuration(live: object, scratch: object) -> None:
+    """Mirror task-local collision, visibility, and contact settings to a copy."""
+
+    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
+    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    scratch.env.model.geom_contype[:] = live.env.model.geom_contype
+    scratch.env.model.geom_conaffinity[:] = live.env.model.geom_conaffinity
+    scratch.env.model.geom_rgba[:] = live.env.model.geom_rgba
+    scratch.env.model.site_rgba[:] = live.env.model.site_rgba
+
+
 def validate_pick_place_trajectory_on_copy(
     *,
     task: object,
@@ -2511,8 +2555,7 @@ def validate_pick_place_trajectory_on_copy(
 
     live = task.workcell
     scratch = Workcell(live.config.config_path)
-    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
-    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    _copy_task_local_model_configuration(live, scratch)
     checked = 0
     maximum_disturbance = 0.0
     object_id = str(task.goal["object_id"])
@@ -2572,8 +2615,15 @@ def validate_pick_place_trajectory_on_copy(
             )
             scratch.env.set_joint_targets(action.finger_targets)
             if _orientation_hold_phase(phase):
-                scratch.preserve_object_orientation(object_id, preserved_orientation)
-            state = scratch.step(n_steps=place_config.sim_steps_per_action)
+                state = _step_with_orientation_hold(
+                    scratch,
+                    object_id=object_id,
+                    orientation_wxyz=preserved_orientation,
+                    n_steps=place_config.sim_steps_per_action,
+                    chunk_steps=place_config.orientation_hold_chunk_steps,
+                )
+            else:
+                state = scratch.step(n_steps=place_config.sim_steps_per_action)
             checked += 1
             maximum_disturbance = max(
                 maximum_disturbance,
@@ -2628,8 +2678,7 @@ def validate_grasp_lift_trajectory_on_copy(
 
     live = task.workcell
     scratch = Workcell(live.config.config_path)
-    scratch.env.model.geom_condim[:] = live.env.model.geom_condim
-    scratch.env.model.geom_friction[:] = live.env.model.geom_friction
+    _copy_task_local_model_configuration(live, scratch)
     checked = 0
     maximum_disturbance = 0.0
     try:
@@ -2681,10 +2730,15 @@ def validate_grasp_lift_trajectory_on_copy(
             )
             scratch.env.set_joint_targets(targets)
             if hold_orientation:
-                scratch.preserve_object_orientation(
-                    object_id, initial_object_orientation
+                state = _step_with_orientation_hold(
+                    scratch,
+                    object_id=object_id,
+                    orientation_wxyz=initial_object_orientation,
+                    n_steps=config.sim_steps_per_action,
+                    chunk_steps=config.orientation_hold_chunk_steps,
                 )
-            state = scratch.step(n_steps=config.sim_steps_per_action)
+            else:
+                state = scratch.step(n_steps=config.sim_steps_per_action)
             checked += 1
             if _has_joint_limit_violation(
                 scratch, tolerance=config.joint_limit_tolerance_rad
@@ -3553,6 +3607,30 @@ def _has_joint_limit_violation(
         if qpos < lower - tolerance or qpos > upper + tolerance:
             return True
     return False
+
+
+def _step_with_orientation_hold(
+    workcell: object,
+    *,
+    object_id: str,
+    orientation_wxyz: Sequence[float],
+    n_steps: int,
+    chunk_steps: int | None,
+) -> WorldState:
+    """Step in replay-sized chunks while preserving object orientation."""
+
+    if chunk_steps is None:
+        workcell.preserve_object_orientation(object_id, orientation_wxyz)
+        return workcell.step(n_steps=n_steps)
+    remaining = n_steps
+    state: WorldState | None = None
+    while remaining > 0:
+        workcell.preserve_object_orientation(object_id, orientation_wxyz)
+        chunk = min(chunk_steps, remaining)
+        state = workcell.step(n_steps=chunk)
+        remaining -= chunk
+    assert state is not None
+    return state
 
 
 def _requested_workspace_reason(workcell: object, position: np.ndarray) -> str | None:

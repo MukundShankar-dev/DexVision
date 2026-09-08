@@ -1028,6 +1028,45 @@ frozen; it may not influence tuning, normalization, thresholds, or checkpoint
 selection.
 ```
 
+Level 4.5A complete pick/place anchor planning and audit:
+
+```python
+assignments = build_level4_pick_place_collection_plan(
+    "configs/level4_dataset.yaml"
+)
+report = summarize_level4_coverage(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4",
+)
+anchor = report["level4_5a_pick_place_collection"]
+```
+
+Rules:
+
+```text
+The anchor plan expands only the frozen 30 complete pick/place cells into 42
+accepted scripted assignments. Every accepted complete episode must derive one
+reach_object, one pick_object, and one place_held_object segment from executable
+saved phase boundaries; a failed phase cannot supply a later success segment.
+Pick/place tasks isolate the unrelated vertical button fixture. Return-bin wall
+geometries remain visible but are collision-disabled because MuJoCo cylinders
+are solid rather than hollow receptacle rims; the target floors, placement
+metrics, object contacts, disturbance checks, and joint-limit checks remain.
+The versioned v2 anchor may merge object-specific grasp points and placement-
+center corrections into the frozen family templates without changing success
+or safety thresholds. Validation, recording, and replay reapply the rotation-
+only orientation hold at the same eight-simulation-step cadence.
+The planner assigns whole train, validation, and test sessions and fixed reset
+seeds. Test generation starts only after train/validation choices are frozen.
+Held-out outcomes may be audited and reported but may not tune seeds, expert
+parameters, normalization, safety thresholds, or checkpoint selection.
+The automated verdict requires 42 accepted episodes across all 30 cells,
+complete object-family/instance/target/session/source counts, recomputable phase
+segments, split isolation, and append-only review evidence. Manual completion
+then requires at least six visible replays spanning every object family and
+target type; the checkpoint remains incomplete until the user confirms them.
+```
+
 ---
 
 ## Success Relabeling

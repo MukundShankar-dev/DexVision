@@ -54,6 +54,7 @@ from dexvision.logging.level4_collection import (
     WorkcellPilotState,
     WorkcellPilotTask,
     build_level4_core_collection_plan,
+    build_level4_pick_place_collection_plan,
     load_level4_collection_config,
 )
 from dexvision.logging.session_manifest import (
@@ -466,6 +467,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--print-level4-core-plan",
         action="store_true",
         help="Print the frozen Level 4.4 minimum-coverage recording plan and exit.",
+    )
+    parser.add_argument(
+        "--print-level4-pick-place-plan",
+        action="store_true",
+        help="Print the frozen Level 4.5A pick/place anchor plan and exit.",
     )
     parser.add_argument(
         "--enforce-frozen-cell-owner",
@@ -917,8 +923,11 @@ def _run_scripted_workcell_recording(
             closed_targets = _scripted_closed_finger_targets(
                 retargeter, neutral_targets
             )
+            grasp_settings = _level4_scripted_expert_settings(
+                args, task, "scripted_grasp"
+            )
             grasp_config = DeterministicGraspLiftConfig.from_mapping(
-                task.collection_config["pilot"]["scripted_grasp"]
+                grasp_settings
             )
             expert_config = DeterministicPlaceConfig.from_mapping(
                 expert_settings
@@ -1020,9 +1029,7 @@ def _run_scripted_workcell_recording(
             **expert_settings,
         }
         if args.skill_name == "pick_place_sequence":
-            effective_config["scripted_expert"]["grasp"] = dict(
-                task.collection_config["pilot"]["scripted_grasp"]
-            )
+            effective_config["scripted_expert"]["grasp"] = grasp_settings
         logger = DemoLogger(
             args.output,
             action_schema=action_schema,
@@ -1077,8 +1084,19 @@ def _run_scripted_workcell_recording(
                 orientation_quat=requested.base_orientation_wxyz,
             )
             task.env.set_joint_targets(requested.finger_targets)
-            _apply_scripted_object_orientation_hold(task, phase=phase)
-            terminal = task.step(n_steps=expert_config.sim_steps_per_action)
+            terminal = _step_scripted_workcell(
+                task,
+                phase=phase,
+                n_steps=expert_config.sim_steps_per_action,
+                orientation_hold_chunk_steps=(
+                    expert_config.orientation_hold_chunk_steps
+                    if isinstance(
+                        expert_config,
+                        (DeterministicGraspLiftConfig, DeterministicPlaceConfig),
+                    )
+                    else None
+                ),
+            )
             achieved_success = achieved_success or terminal.success
             state = task.env.get_state()
             timestamp = float(state.time)
@@ -1175,6 +1193,29 @@ def _apply_scripted_object_orientation_hold(
     task.workcell.preserve_object_orientation(object_id, orientation)
 
 
+def _step_scripted_workcell(
+    task: WorkcellPilotTask,
+    *,
+    phase: str,
+    n_steps: int,
+    orientation_hold_chunk_steps: int | None,
+) -> WorkcellPilotState:
+    """Match replay's chunked rotation hold without overcounting task dwell."""
+
+    if phase not in {"lift", "stabilize", "transport", "place"}:
+        return task.step(n_steps=n_steps)
+    if orientation_hold_chunk_steps is None:
+        _apply_scripted_object_orientation_hold(task, phase=phase)
+        return task.step(n_steps=n_steps)
+    remaining = n_steps
+    while remaining > orientation_hold_chunk_steps:
+        _apply_scripted_object_orientation_hold(task, phase=phase)
+        task.workcell.step(n_steps=orientation_hold_chunk_steps)
+        remaining -= orientation_hold_chunk_steps
+    _apply_scripted_object_orientation_hold(task, phase=phase)
+    return task.step(n_steps=remaining)
+
+
 def _level4_scripted_expert_settings(
     args: argparse.Namespace,
     task: WorkcellPilotTask,
@@ -1185,13 +1226,103 @@ def _level4_scripted_expert_settings(
     settings = dict(task.collection_config["pilot"][settings_key])
     if not args.enforce_frozen_cell_owner:
         return settings
-    core = task.collection_config.get("level4_4_core_collection", {})
-    overrides = core.get("scripted_expert_overrides", {})
-    if isinstance(overrides, Mapping):
-        raw = overrides.get(settings_key, {})
-        if isinstance(raw, Mapping):
-            settings.update(raw)
+    checkpoint_blocks = [task.collection_config.get("level4_4_core_collection", {})]
+    if task.skill_name == "pick_place_sequence":
+        checkpoint_blocks.append(
+            task.collection_config.get("level4_5a_pick_place_collection", {})
+        )
+    for checkpoint in checkpoint_blocks:
+        if not isinstance(checkpoint, Mapping):
+            continue
+        overrides = checkpoint.get("scripted_expert_overrides", {})
+        if isinstance(overrides, Mapping):
+            raw = overrides.get(settings_key, {})
+            if isinstance(raw, Mapping):
+                settings = _merge_nested_settings(settings, raw)
+    if settings_key == "scripted_grasp":
+        settings = _resolve_instance_grasp_template(settings, task)
+    elif settings_key == "scripted_place":
+        settings = _resolve_instance_place_target_offset(settings, task)
     return settings
+
+
+def _merge_nested_settings(
+    base: Mapping[str, Any], override: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Recursively merge checkpoint-local expert settings."""
+
+    merged = deepcopy(dict(base))
+    for key, value in override.items():
+        current = merged.get(key)
+        if isinstance(current, Mapping) and isinstance(value, Mapping):
+            merged[key] = _merge_nested_settings(current, value)
+        else:
+            merged[key] = deepcopy(value)
+    return merged
+
+
+def _resolve_instance_grasp_template(
+    settings: Mapping[str, Any], task: WorkcellPilotTask
+) -> dict[str, Any]:
+    """Merge an optional object-specific grasp point into its family template."""
+
+    resolved = deepcopy(dict(settings))
+    raw_instances = resolved.pop("instance_templates", {})
+    if not isinstance(raw_instances, Mapping):
+        raise ValueError("scripted_grasp.instance_templates must be a mapping.")
+    goal = task.goal
+    object_id = str(goal.get("object_id", ""))
+    raw_override = raw_instances.get(object_id)
+    if raw_override is None:
+        return resolved
+    if not isinstance(raw_override, Mapping):
+        raise ValueError(
+            f"scripted grasp override for {object_id!r} must be a mapping."
+        )
+    family = next(
+        spec.family for spec in task.workcell.config.objects if spec.object_id == object_id
+    )
+    raw_families = resolved.get("family_templates")
+    if not isinstance(raw_families, Mapping):
+        raise ValueError("scripted_grasp.family_templates must be a mapping.")
+    family_template = raw_families.get(family)
+    if not isinstance(family_template, Mapping):
+        raise ValueError(f"missing scripted grasp family template {family!r}.")
+    family_templates = deepcopy(dict(raw_families))
+    family_templates[family] = _merge_nested_settings(
+        family_template, raw_override
+    )
+    resolved["family_templates"] = family_templates
+    return resolved
+
+
+def _resolve_instance_place_target_offset(
+    settings: Mapping[str, Any], task: WorkcellPilotTask
+) -> dict[str, Any]:
+    """Resolve an optional object-specific placement-center correction."""
+
+    resolved = deepcopy(dict(settings))
+    raw_instances = resolved.pop("instance_target_offset_xy_m", {})
+    if not isinstance(raw_instances, Mapping):
+        raise ValueError(
+            "scripted_place.instance_target_offset_xy_m must be a mapping."
+        )
+    object_id = str(task.goal.get("object_id", ""))
+    raw_offset = raw_instances.get(object_id)
+    if raw_offset is None:
+        return resolved
+    family = next(
+        spec.family for spec in task.workcell.config.objects if spec.object_id == object_id
+    )
+    raw_offsets = resolved.get("family_target_offset_xy_m")
+    if not isinstance(raw_offsets, Mapping):
+        raise ValueError(
+            "scripted_place.family_target_offset_xy_m must be a mapping."
+        )
+    offsets = deepcopy(dict(raw_offsets))
+    offsets[family] = deepcopy(raw_offset)
+    resolved["family_target_offset_xy_m"] = offsets
+    return resolved
 
 
 def _scripted_push_finger_targets(
@@ -3608,12 +3739,30 @@ def _print_level4_core_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def _print_level4_pick_place_plan(args: argparse.Namespace) -> int:
+    if args.task != WORKCELL_PILOT_TASK_ID:
+        raise ValueError(
+            "--print-level4-pick-place-plan requires --task level4_workcell."
+        )
+    plan = build_level4_pick_place_collection_plan(args.level4_dataset_config)
+    print("sequence\tsession_slot\tsplit\tsource\tskill\tcoverage_cell\tseed")
+    for item in plan:
+        print(
+            f"{item.sequence}\t{item.session_slot}\t{item.split}\t{item.source}\t"
+            f"{item.skill_name}\t{item.coverage_cell_id}\t{item.seed}"
+        )
+    print(f"Total Level 4.5A accepted episodes required: {len(plan)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
         if args.print_level4_core_plan:
             return _print_level4_core_plan(args)
+        if args.print_level4_pick_place_plan:
+            return _print_level4_pick_place_plan(args)
         return run_record_demo(args)
     except KeyboardInterrupt:
         print("\nInterrupted before the episode could be closed.", file=sys.stderr)

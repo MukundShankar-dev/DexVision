@@ -1246,12 +1246,12 @@ conda run -n dexvision pytest -q tests/test_pick_place_segments.py tests/test_le
 ### Pass criteria
 
 ```text
-[ ] All 42 frozen v3 anchor sequences exist across the 30 split-owned cells
-[ ] Episode, segment, object-family, instance, source, target, and session counts match manifests
-[ ] Held-object state and every phase boundary recompute from saved data
-[ ] Placement tolerance and post-release stability are executable
-[ ] A failed phase cannot contribute a later expert-success segment
-[ ] Held-out instances and targets remain isolated
+[x] All 42 frozen v3 anchor sequences exist across the 30 split-owned cells
+[x] Episode, segment, object-family, instance, source, target, and session counts match manifests
+[x] Held-object state and every phase boundary recompute from saved data
+[x] Placement tolerance and post-release stability are executable
+[x] A failed phase cannot contribute a later expert-success segment
+[x] Held-out instances and targets remain isolated
 ```
 
 Manual verification is required for a stratified sample of at least six
@@ -1259,6 +1259,23 @@ replays: one per object family and at least one per target type. Pass when the
 visible phase transitions and final placement agree with the saved labels.
 Stop for user confirmation before marking 4.5A complete. Do not begin the
 release-scale expansion in the same checkpoint.
+
+Implementation status (September 8, 2026): the collection planner, focused
+coverage report, derived-segment audit, frozen-owner recording path, and
+pick/place task-scene isolation are implemented. The first v1 test audit
+accepted four of 18 assignments and preserved the remaining failures. After
+manual review, the user authorized the versioned v2 geometry correction. V2
+uses object-specific grasp points for the large cuboid, tall cylinder, and heavy
+puck; instance-specific placement-center corrections; visual-only return-bin
+walls; and one shared chunked orientation-hold cadence for validation,
+recording, and replay. No success or safety threshold was weakened. The anchor
+now has 42/42 accepted episodes across all 30 cells, and every accepted episode
+passes append-only review, headless replay, terminal recomputation, split
+isolation, and three-segment derivation. Automated gates pass. The six-replay
+manual gate passed after the user accepted all six stratified replays on
+September 8, 2026. The replays covered every object family and target type;
+visible acquisition, lift, transport, release, settling, and retraction agreed
+with the saved labels. Level 4.5A is complete. Level 4.5B has not started.
 
 ---
 

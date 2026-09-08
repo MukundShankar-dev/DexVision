@@ -340,6 +340,39 @@ class Workcell:
         except MujocoError as exc:
             raise WorkcellError(str(exc)) from exc
 
+    def configure_pick_place_scene(self) -> None:
+        """Isolate the unrelated vertical button fixture for pick/place trials."""
+
+        self._require_reset()
+        mujoco = self.env._mujoco
+        hidden_geoms = ("fixture_wall_geom", "start_button_geom")
+        visual_only_geoms = ("return_bin_left_wall", "return_bin_right_wall")
+        for geom_name in (*hidden_geoms, *visual_only_geoms):
+            geom_id = mujoco.mj_name2id(
+                self.env.model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                geom_name,
+            )
+            if geom_id < 0:
+                raise WorkcellError(
+                    f"MuJoCo workcell is missing pick/place fixture {geom_name!r}."
+                )
+            self.env.model.geom_contype[geom_id] = 0
+            self.env.model.geom_conaffinity[geom_id] = 0
+            if geom_name in hidden_geoms:
+                self.env.model.geom_rgba[geom_id, 3] = 0.0
+        button_site_id = mujoco.mj_name2id(
+            self.env.model,
+            mujoco.mjtObj.mjOBJ_SITE,
+            "start_button_site",
+        )
+        if button_site_id < 0:
+            raise WorkcellError(
+                "MuJoCo workcell is missing pick/place fixture 'start_button_site'."
+            )
+        self.env.model.site_rgba[button_site_id, 3] = 0.0
+        mujoco.mj_forward(self.env.model, self.env.data)
+
     def set_pilot_task_cue(
         self, *, entity_id: str, goal_position: Sequence[float]
     ) -> None:

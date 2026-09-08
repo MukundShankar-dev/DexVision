@@ -11,15 +11,15 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_after_level44_completion() -> None:
+def test_current_status_advances_after_level45a_completion() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
         "Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.4" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.5A" in status
+    assert "## Last Completed Checkpoint\n\nLevel 4.5A" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.5B" in status
     assert "hammer-curl" in status
 
 
