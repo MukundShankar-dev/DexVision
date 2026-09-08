@@ -13,8 +13,8 @@ reproducible, and understandable.
 Level 6 should present DexVision / Hand2Bot as:
 
 ```text
-full hand-pose teleoperation
-demonstration recording and replay
+legacy hand-tracking prototype, clearly separated from the active system
+deterministic expert demonstration generation and replay
 imitation learning from saved task demos
 the versioned Level 4 dataset
 the qualified Level 5 skill library
@@ -89,10 +89,8 @@ Create a simple visual pipeline.
 ### Diagram
 
 ```text
-Camera
-→ Hand Pose
-→ Features
-→ Retargeting
+Typed task + simulator world state
+→ deterministic expert
 → MuJoCo
 → Demo Dataset
 → Imitation Policy
@@ -151,8 +149,8 @@ docs/demo_video_script.md
 
 ```text
 0-10s: problem and project title
-10-25s: hand tracking overlay
-25-40s: MuJoCo teleop
+10-25s: workcell, typed task, and simulator-state overlay
+25-40s: deterministic expert trajectory and replay
 40-55s: recording and replay
 55-75s: imitation policy rollout
 75-90s: metrics and limitations
@@ -251,9 +249,8 @@ docs/running.md
 ### Requirements
 
 ```text
-all app scripts accept --config
+all active app scripts accept --config
 paths configurable
-camera id configurable
 model path configurable
 seed configurable
 headless flag where possible
@@ -318,9 +315,8 @@ not depend on an already-created local Conda environment.
 Optional manual checks listed but not auto-run:
 
 ```text
-camera
-live teleop
 GUI viewer
+rendered perception overlay
 ```
 
 ### Pass Criteria
@@ -338,7 +334,7 @@ GUI viewer
 
 ```text
 Add a scripts/check_all.py harness and CI workflow that create/use the committed environment definition and run lint, tests, health check, and headless MuJoCo load checks.
-Do not include webcam or GUI-dependent commands in the automatic harness.
+Do not include GUI-dependent commands in the automatic harness.
 Document manual checks separately.
 ```
 
@@ -359,18 +355,14 @@ docs/troubleshooting.md
 ### Include
 
 ```text
-camera not opening
-wrong camera id
-MediaPipe no hand detected
-low light issues
 MuJoCo import failure
 MuJoCo viewer issues
 hand model joint names wrong
 robot jitter
-tracking loss behavior
 Windows path issues
-Mac camera permission issues
 PyTorch CPU/GPU confusion
+dataset/checkpoint digest mismatch
+rendered-perception mismatch
 ```
 
 ### Pass Criteria
@@ -427,40 +419,42 @@ Document the exported fields.
 
 ---
 
-## Level 6.9 — Optional Phone Camera Support Notes
+## Level 6.9 — Cross-Platform Headless and Viewer Notes
 
 ### Goal
 
-Make Windows desktop without webcam usable.
+Make the scripted workcell, headless evaluation, and optional viewer easy to
+run on macOS and Windows.
 
 ### Files
 
 ```text
-docs/phone_camera_setup.md
+docs/platform_runtime_setup.md
 ```
 
 ### Include
 
 ```text
-USB webcam option
-phone-as-webcam option
-how to test camera IDs
-latency recommendations
-resolution recommendations
+headless MuJoCo commands
+optional viewer commands
+macOS `mjpython` behavior
+Windows Python/viewer behavior
+GPU-optional versus CPU-required paths
 ```
 
 ### Pass Criteria
 
 ```text
-[ ] User can test phone camera with check_camera.py
-[ ] Common issues documented
+[ ] Headless checks run without a camera or GUI
+[ ] Optional viewer commands and platform-specific issues are documented
 ```
 
 ### Codex Prompt
 
 ```text
-Create docs/phone_camera_setup.md explaining how to use a phone as a webcam with the existing OpenCV camera check script.
-Keep it tool-agnostic and practical.
+Create docs/platform_runtime_setup.md for macOS and Windows scripted workcell,
+headless evaluation, and optional MuJoCo viewer commands. Do not add camera or
+live hand-control setup.
 ```
 
 ---
@@ -475,8 +469,7 @@ Possible extensions:
 attach hand to robot arm
 add wrist/arm pose tracking
 add physical servo finger
-add depth camera
-add stereo camera
+improve rendered multi-view perception, if justified
 add Isaac Lab version for Windows/NVIDIA
 add ROS2 bridge
 add sim-to-real mini gripper
@@ -515,6 +508,6 @@ Pass criteria:
 [ ] Clean-checkout environment creation and CI pass
 [ ] Troubleshooting guide written
 [ ] Optional dataset export documented
-[ ] Optional phone camera setup documented
+[ ] Cross-platform headless/viewer setup documented
 [ ] Stable vs experimental features clearly separated
 ```

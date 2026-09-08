@@ -765,12 +765,11 @@ Pilot acceptance evidence is an append-only sidecar and never rewrites episode m
 Later user-confirmed visible replays append to a separate dataset-level manual replay manifest.
 The level4_workcell recorder resolves a frozen coverage cell into one reach, complete pick/place, push, or press task and records all six object states plus task metrics.
 Its logical base control point is the palm/grasp site; the weld offset keeps the long forearm outside the task board, and reset aligns the dynamic free joint to that weld before simulation advances.
-Standalone reach uses an upright webcam-facing human palm as a calibrated, centered velocity joystick and keeps robot base orientation fixed. Returning the hand to its calibrated center stops motion; displacement outside a deadband commands nonlinear bounded Cartesian velocity so small offsets retain precision while sustained offsets provide arbitrary travel.
+Historical live-control pilot code remains readable only to reproduce the recorded rejection evidence. It is not an allowed source for new Level 4+ collection, corrections, training, or qualification.
 The reach marker is a pre-grasp cue high enough to keep the Shadow Hand clear of staged objects; dense reach task state preserves distance, orientation error, and scene disturbance separately from dwell.
 The selected reach entity is enclosed by a bright emissive magenta non-colliding wireframe cage, while a separate floating three-axis cyan cross marks the desired palm position. The hand-attached grasp site is hidden.
-The reach rate controller enforces a safe transit height until the palm is horizontally aligned with the target, permits descent only inside the configured target corridor, clamps descent at the goal height, and holds its last command on tracking loss. Its tunable deadbands, response exponent, velocities, transit height, and corridor radius come from the Level 4 dataset config and are saved in retained episode metadata.
-`--workcell-dry-run` exercises a resolved workcell cell through temporary logger storage without adding a session-manifest entry or retaining an episode.
-Live workcell recording advances enough MuJoCo steps per camera sample to cover the nominal control interval; at 30 Hz with a 2 ms model timestep this is 17 steps, not one.
+Scripted expert execution uses the safe transit plane and protected target corridor and records its frozen motion parameters in episode metadata.
+`--workcell-dry-run` exercises a resolved scripted workcell cell through temporary logger storage without adding a session-manifest entry or retaining an episode.
 Each recorder invocation creates one genuine process/calibration session manifest entry and one collision-free append-only episode path.
 An expert-accepted episode passes every frozen acceptance gate, has matching operator and recomputed success labels, and carries no rejection reason.
 Ordinary failures and rejected attempts remain visible and never count as expert successes.
@@ -983,11 +982,13 @@ Level 4.3I final source/count freeze:
 configs/level4_dataset.yaml was level4/workcell-dataset-plan-v2 at the Level 4.3I freeze while the episode schema remained level4/episode-v1.
 Every required coverage row has one required_source, one split_owner, and explicit train/validation/test accepted minima.
 The matrix minimum is 114 and the planning maximum is 140: reach 20, pick/place 42, push 20, button 20, and failure/correction 12.
-The frozen source minimum is scripted 98, teleoperation 13, policy_rollout 0, and corrective_intervention 3; provenance classes may never be merged or relabeled.
-Teleoperation is limited to qualified training-owned reach cells and three preserved operator failure mechanisms. Scripted experts supply nominal contact-skill successes and held-out reach.
+The accepted v2 snapshot had source minima of scripted 98, human-controlled 13, policy_rollout 0, and corrective_intervention 3; provenance classes may never be merged or relabeled.
+The v3 decision supersedes those human-controlled cells before active collection. Scripted experts supply every required nominal skill and deterministic scripted controllers supply the required corrections.
+The 114-episode v3 matrix is an immutable integration/coverage anchor, not the final learning-data sufficiency claim. Level 4.5B must publish a versioned v4 expansion with at least 16 unique accepted episodes per nominal coverage cell: reach 160, pick/place 480, push 192, and button 160. Level 4.6 must provide at least 10 unique episodes per failure/correction cell, or 120 total, producing a 1,112-episode release-candidate floor.
+Every expansion episode has a unique reset seed and initial-state digest and samples frozen continuous in-cell variation. A validation-only nested-subset scaling probe may require a larger versioned tranche; test-owned episodes cannot determine the dataset size or randomization bounds.
 Push coverage is restricted to the 12 Level 4.3H-qualified condition cells. The eight removed provisional cells remain named with evidence-backed exclusion reasons.
 Whole-session split ownership, held-out object/goal rules, train-only normalization, and untouched test restrictions remain mandatory.
-Projected release payload at the 140-episode planning maximum uses Git LFS below 2 GiB; working data stays ignored and releases require a new archive, checksum, and manifest without overwriting an existing release.
+The old storage projection applies only to the 140-episode anchor ceiling. Level 4.5B must reproject state/action and sampled-RGB payloads at the 1,112-episode release floor and the possible 32-per-nominal-cell expansion ceiling. Use Git LFS only below the documented quota; otherwise keep manifests, splits, checksums, and retrieval instructions in Git and use immutable external object storage for payloads.
 Level 4.4 cannot start until the user accepts this matrix and Level 4.3I is marked complete.
 ```
 
@@ -1007,9 +1008,9 @@ Rules:
 ```text
 The core plan expands only reach, push, and button minima: 60 accepted episodes
 across 32 cells. The user-directed v3 revision requires all 60 assignments to
-be scripted and sets the mandatory teleoperation minimum to zero. Preserved
-operator episodes keep their provenance but are excluded from scripted minima
-without blocking completion.
+be scripted. Historical human-controlled episodes keep their provenance locally
+but are excluded from the active dataset, release, training, and evaluation
+plan.
 Every assignment names one frozen source, split, session slot, repetition, and
 deterministic reset seed; pick/place and failure/correction cells are excluded.
 The four held-out push cells override the generic test-seed sequence with seeds

@@ -1,104 +1,103 @@
 # DexVision / Hand2Bot Project Overview
 
-Version: September 3, 2026
+Version: September 8, 2026
 
 ## Project identity
 
-DexVision is a vision-based dexterous teleoperation, robot-learning dataset,
-and reusable manipulation-skill project. A camera tracks a human hand, the
-motion is retargeted to a Shadow Hand in MuJoCo, demonstrations are recorded
-and validated, and PyTorch policies learn bounded low-level skills.
+DexVision is a simulator-first dexterous manipulation and robot-learning
+project. Deterministic experts control a Shadow Hand in MuJoCo, successful and
+failed trajectories are recorded with full safety provenance, and compact
+PyTorch policies learn bounded reusable skills. Rendered perception later maps
+images into the same typed world-state interface.
 
-The eventual language model is a planner, not the robot controller. It should
-turn requests into typed calls to already-qualified skills. A deterministic
-supervisor validates parameters and world state, enforces safety and timeouts,
-and reports structured success or failure.
+The eventual language model is a planner, not the robot controller. It turns a
+request into typed calls to qualified skills. A deterministic supervisor checks
+parameters, world state, safety, timeouts, and terminal success.
+
+The repository retains an earlier camera/hand-tracking prototype and its Level
+2 dataset as historical work. The Level 4+ system does not use live hand control
+for demonstrations, corrections, training, or execution.
 
 ## Current status
 
-Levels 1 through 3 are complete. The repository has live full-hand/base/wrist
-teleoperation, resettable manipulation tasks, demonstration recording and
-semantic replay, quality filtering and relabeling, dataset summaries, three
-retargeting methods, a full retargeting benchmark, and an immutable Level 2
-dataset release tracked with Git LFS. Level 3 proved that the saved-data,
-training, checkpoint-selection, and frozen-rollout pipeline is reproducible,
-but no Level 2-trained policy passed its closed-loop qualification gates.
+Levels 1 through 3 are complete. Level 3 proved that loading, training,
+checkpoint selection, and frozen rollout evaluation are reproducible, but no
+policy trained on the narrow Level 2 release passed its closed-loop gates.
 
-Level 4 is active at checkpoint 4.0. It is freezing the bounded workcell,
-four-session split, per-cell coverage minima, causal phase machine, exact
-commanded-versus-applied action/safety contract, and fixed-camera visual claim
-before any new collection begins.
+Level 4.3 then replaced the unreliable human-control assumption with
+deterministic simulator-state experts. Reach, button press, constrained push,
+grasp-and-lift, and complete pick/place experts now regenerate, recompute, and
+replay successfully. Small state-only button and push learning probes also
+passed their held-out gates without larger models, images, or action chunking.
+
+Level 4.4 is complete with 60 scripted core episodes: 20 reach, 20 push, and 20
+button trajectories across all required cells. Level 4 is active at checkpoint
+4.5A, which collects the frozen complete pick/place anchor matrix. That
+114-episode anchor validates coverage, provenance, replay, and segmentation; it
+is not the final learning-data claim. Level 4.5B then expands every nominal
+coverage cell with independently seeded continuous variation, and Level 4.6
+does the same for failures/corrections. The release-candidate floor is 1,112
+accepted episodes, with a validation-only scaling gate that can require more.
+The remaining work also adds rendered visual annotations, dataset audit, and an
+immutable release.
 
 ## Architecture
 
 ```text
-camera -> hand landmarks -> features/smoothing -> retargeting -> MuJoCo
-                                                        |
-                                                        v
-                                      demos -> validation/quality -> dataset
-                                                                    |
-                                                                    v
-                                                  learned skill policy -> evaluation
+typed task + simulator world state
+  -> deterministic expert + copied-state safety validation
+  -> MuJoCo execution
+  -> requested / commanded / applied actions + causal phases
+  -> replay / quality / terminal recomputation
+  -> versioned dataset and frozen splits
+  -> compact learned skill policy
+  -> rendered detector / tracker / pose
+  -> supervised typed skill executor
 
 future Level 7:
-language request -> task plan -> deterministic supervisor -> qualified skill executor
+language request -> typed plan -> deterministic supervisor -> qualified skills
 ```
 
-The continuous skill policy receives state plus a typed goal and outputs
-bounded base/wrist/finger actions. Visual perception produces stable object ids
-and poses. A language model may help select or disambiguate objects, but it
-does not emit high-rate actuator commands.
+The initial learned interface is deliberately small. State-grounded policies
+receive task-relative geometry, causal phase, relevant robot state, and previous
+applied action. They emit bounded task-local deltas or residuals around the
+deterministic expert. More expressive temporal models are allowed only after a
+measured failure justifies them.
 
 ## Roadmap
 
-### Level 1 — Teleoperation (complete)
+### Level 1 — Historical hand-tracking prototype (complete)
 
-OpenCV and MediaPipe track a human hand. Calibrated image motion, hand scale,
-palm rotation, and finger features control the MuJoCo Shadow Hand through the
-full Level 1.13 action space.
+OpenCV and MediaPipe track a hand and drive the MuJoCo Shadow Hand. This remains
+a reproducible prototype, not an active manipulation-data source.
 
 ### Level 2 — Demonstrations and data infrastructure (complete)
 
 The system records, replays, validates, relabels, filters, summarizes, and
-benchmarks demonstrations. The released manipulation data includes 55
-`reach_touch_target`, 55 `button_press`, and 101 `push_cube_to_target` clean
-successes. The archive is immutable and accompanied by a checksum and
-manifest.
+benchmarks demonstrations. The immutable legacy release contains 55 reach, 55
+button, and 101 push successes with manifests and checksums. These episodes are
+seed evidence only and do not satisfy Level 4 coverage.
 
 ### Level 3 — Learning feasibility (complete)
 
-Level 3 builds a deterministic PyTorch loader, a small goal-conditioned MLP,
-a reproducible behavior-cloning loop, and closed-loop MuJoCo evaluation. It
-then checks whether the same approach works for reach, button press, and cube
-push, diagnoses the role of data quality and action fields, and adds a temporal
-baseline only if measured failures justify it.
+Level 3 built the PyTorch loader, small goal-conditioned baseline, reproducible
+training loop, validation-only checkpoint selection, frozen MuJoCo evaluation,
+and action/data diagnostics. Its negative qualification result motivated the
+new expert, action, phase, and dataset contracts.
 
-Level 3 proved the reproducible learning/evaluation machinery, not a usable
-policy. Every validation-selected full-action policy failed its frozen
-closed-loop gates. The completed diagnosis identified action coupling and
-immediate safety failures while leaving temporal-error explanations unproven.
-It does not establish cross-session, cross-object, visual, or open-world
-generalization.
+### Level 4 — Comprehensive scripted skill dataset (active)
 
-### Level 4 — Comprehensive skill dataset (active)
+Level 4 uses deterministic experts, simulator truth, complete action/safety
+records, causal phases, whole-session split ownership, held-out objects/goals,
+and aligned rendered visual labels. Its first 114 episodes are a frozen
+integration/coverage anchor. The learning release must contain at least 992
+nominal expert episodes and 120 separately labeled failure/correction episodes,
+for 1,112 accepted episodes total, with unique resets and coverage-owned
+variation. This is a floor rather than proof of sufficiency: validation-only
+scaling evidence may require another versioned tranche. No live-control episode
+is required or included in the active release.
 
-Level 4 is the major data-haul phase. New data must carry genuine session
-provenance, broader object and goal variation, synchronized visual labels when
-used, explicit failures, and separately labeled operator corrections. Level
-4.0 freezes the initial collection specification; Level 4.3 freezes exact
-counts after small pilots. The planning envelope is roughly 250–350 new
-accepted episodes across at least four genuine sessions, three simple rigid-
-object families, and three or four target regions. Compatible Level 2 episodes
-remain labeled legacy seed data.
-
-Sessions A/B are training-owned, session C is validation-only, and session D
-is untouched test data. Global totals cannot hide sparse cells: Level 4.0 and
-the collection pilot freeze per-cell minima by split. Each sample distinguishes
-requested, commanded, and post-safety applied actions; phases are computable
-causally online; and the single fixed camera is qualified only across a bounded
-matrix of nominal, mild-illumination, partial-occlusion, and distractor cases.
-
-Required operational skills are:
+Required skills are:
 
 ```text
 reach_object
@@ -108,84 +107,58 @@ push_object_to_target
 press_button
 ```
 
-`rotate_dial` is optional. Grasp/lift/hold and transport/place/release are
-measurable phases inside pick and place-held-object, not separate policies.
-Approximately 120–150 complete pick/place demonstrations can therefore cover
-those phase labels without multiplying the collection target for every
-micro-skill.
-
-Level 4 ends with an immutable release, coverage and bias reports, and frozen
-session/object/goal/visual splits. It does not claim full-scale trained skills.
-
-Visual data starts with simulator truth and rendered boxes, masks, poses, and
-stable ids. Model training waits for Level 5.
+The optional dial remains deferred. Level 4 ends with coverage and bias reports,
+frozen train/validation/test manifests, checksums, and an immutable release.
 
 ### Level 5 — Full-scale skill learning and qualification (planned)
 
-Level 5 retains the reproducible Level 3 MLP as a reference baseline and trains
-the evidence-backed candidate on the comprehensive release. It evaluates every
-core skill on session-held-out and condition-held-out data, separately measures
-ground-truth-state and perception-grounded rollouts, tests whether corrective
-data improve the core policies, and escalates to temporal or action-chunked
-models only when measured failures justify the complexity. Initial retry and
-abort behavior remains deterministic rather than a separately learned recovery
-skill.
+Level 5 trains the smallest justified state-grounded skill policies first. It
+then qualifies conventional rendered detector/tracker/pose perception, measures
+perception-grounded rollouts, and admits only compatible qualified policies to a
+typed supervised executor. Training consumes the immutable scripted release; it
+does not recollect human demonstrations to rescue failures.
 
-Only qualified policies enter the typed skill registry and supervised
-executor. Level 5 then runs at least three materially different scripted pilot
-tasks through that same interface.
-
-Visual grounding uses a conventional detector/tracker first. A compact local
-VLM may be tested for semantic object selection; metric localization and safety
-remain separate.
+The deterministic expert remains a required baseline. A residual policy that
+does not materially beat its zero-residual ablation is not presented as a
+standalone learned skill, even if the combined executor succeeds.
 
 ### Level 6 — Robustness and portfolio polish (planned)
 
-The original portfolio roadmap is preserved here: README and architecture
-polish, results tables, demo materials, robust CLI/config handling,
-reproducibility and CI, troubleshooting, optional dataset export, and carefully
-labeled advanced extensions.
+Level 6 packages measured results, architecture diagrams, deterministic expert
+and policy demonstrations, reproducibility/CI, cross-platform commands,
+troubleshooting, and optional dataset export. The historical hand-tracking
+prototype is clearly separated from the active system claim.
 
 ### Level 7 — Language-guided orchestration (future)
 
 An LLM or deterministic planner consumes symbolic world state and versioned
-skill cards. It creates typed plans; a deterministic supervisor validates and
-executes them. Scripted plans and mock skills validate the contract before
-learned policies are introduced one at a time.
+skill cards. It proposes typed plans; the supervisor validates and executes
+them. Language never emits high-rate actuator commands.
 
-## Tabletop workcell pilot tasks
+## Tabletop workcell pilots
 
-Level 5 validates three related but materially different scripted pilots
-through the same typed skill interface:
+Level 5 validates three related but materially different pilots:
 
-1. Workspace clearing: return loose rigid parts to bins, using a push for a
-   flat or awkward part when appropriate.
-2. Inspection-station operation: place a part on an inspection pad and press
-   Start, with dial setting optional.
+1. Workspace clearing: return loose rigid parts to bins, using push where useful.
+2. Inspection-station operation: place a part on the inspection pad and press Start.
 3. Workspace setup: arrange components at marked positions for the next job.
 
-A combined final work order can ask the system to place a blue cylinder on the
-inspection pad, put a red block in the left tray slot, optionally set the dial
-to 45 degrees, and press Start. General arbitrary-object grasping, learned
-regrasp/drop recovery, hinged lids, tools, kitchen work, cutting, pouring,
-liquids, deformables, and open-world scenes are deferred beyond the first
-complete project.
+A combined work order exercises several skills without expanding into kitchen
+tasks, cutting, pouring, deformables, arbitrary-object grasping, or open-world
+robotics.
 
 ## Dataset release policy
 
-Editable operator data stays under ignored `data/demos/`. Immutable bounded
-releases use Git LFS with a manifest and SHA-256 checksum. The Level 2 archive
-must never be overwritten. If Level 4 images exceed repository hosting quotas,
-Git should still track manifests, splits, checksums, and retrieval instructions
-while a versioned external artifact store holds the immutable payload.
+Working data stays under ignored `data/demos/`. Immutable releases use Git LFS
+when they fit the documented threshold and always include manifests, split
+files, retrieval instructions, and SHA-256 checksums. Existing archives and
+accepted episodes are never overwritten.
 
 ## Honest project claim
 
-DexVision currently demonstrates a complete teleoperation and dataset engine
-plus a reproducible saved-data learning and frozen-rollout evaluation pipeline.
-Level 3 honestly found that the narrow Level 2 data and tested policy family do
-not yield a qualified closed-loop skill. Level 4 will determine whether a
-bounded, split-owned, comprehensive workcell dataset can be built; Level 5 will
-determine whether those data can become a compact, qualified workcell skill
-library. Language-guided multi-skill behavior remains future work until those
-evidence gates pass.
+DexVision currently demonstrates deterministic expert generation, replayable
+and safety-audited workcell data, reproducible behavior cloning, and frozen
+closed-loop evaluation. Level 4 will determine whether the full scripted
+workcell release is complete and balanced. Level 5 will determine which compact
+skills qualify under state and rendered-perception evaluation. Language-guided
+multi-skill behavior remains future work until those gates pass.

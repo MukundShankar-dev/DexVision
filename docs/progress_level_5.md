@@ -17,6 +17,12 @@ Level 5 may not recollect or edit data to rescue a run. Missing coverage
 requires a new versioned Level 4 amendment/release. Language-guided planning is
 Level 7; Level 5 uses deterministic scripted plans only.
 
+The original live hand-control prototype is outside the Level 5 system
+boundary. Level 5 must not collect human demonstrations or corrections, require
+a webcam/hand tracker, or use a human-control source to rescue training. It
+consumes only the frozen scripted expert, scripted failure/correction, visual,
+and explicitly qualified policy streams from Level 4.
+
 Every numbered section is one checkpoint. Complete its checks and manual gate,
 update `docs/CURRENT_STATUS.md`, and stop before the next checkpoint.
 
@@ -84,6 +90,15 @@ State-grounded qualification is necessary but insufficient for the final
 vision-based claim. Default-registry skills must pass both tracks. A compact
 VLM is optional for semantic disambiguation and is never required for metric
 pose, safety, or actions.
+
+Qualification also separates a standalone learned controller from a learned
+residual around the deterministic expert. A residual-assisted executor can be
+useful and may ship, but a zero residual already reproduces the expert. It may
+be described as a learned contribution only when a frozen ablation shows a
+material improvement over the unmodified expert on validation and then on the
+single predeclared test evaluation. Otherwise the honest label is
+`scripted_expert` with an experimental learned component, not a qualified
+standalone learned skill.
 
 ### Minimum evaluation protocol
 
@@ -191,6 +206,7 @@ machine-readable training/qualification plan before full-scale training.
 final Level 3.8 results and recommended model/observation/action decisions
 datasets/level4-v1 manifest, checksums, schemas, and split manifests
 docs/level4_dataset_report.md
+Level 4.5B nested-subset scaling report and readiness decision
 Level 4 world-state and skill-goal contracts
 ```
 
@@ -224,6 +240,7 @@ state/perception rollout matrices and exact reset seeds
 all numerical gates, including expert-derived jerk limits
 artifact paths, naming, checksums, retention, and publication rules
 qualified/experimental/failed logic
+standalone-policy versus expert-residual claim and ablation rules
 ```
 
 The Level 3.4 result must be explicitly handled. Low reach success and 21
@@ -231,6 +248,13 @@ workspace/joint-limit terminations cannot be dismissed because jerk and action
 validity passed. The plan must cite the final Level 3 diagnostic conclusion and
 state whether it changes data weighting, observation/action fields, model
 history, safety shaping, or merely the expected baseline.
+
+The Level 4 release must also be challenged rather than accepted from its raw
+episode count. If the 4/8/16-per-cell validation curve was still materially
+improving, any required readiness gate failed, or the final audit found
+near-duplicate procedural samples, stop Level 5.0 and request a versioned Level
+4 data amendment. Do not use test rollouts to decide whether more data are
+needed.
 
 ### Commands
 
@@ -246,6 +270,8 @@ conda run -n dexvision ruff check tests/test_level5_learning_plan.py tests/test_
 [ ] Validation selects checkpoints; held-out tests cannot tune anything
 [ ] Three seeds, rollout counts, reset matrices, gates, and artifact paths are explicit
 [ ] Model escalation follows measured Level 3/4 evidence
+[ ] Level 4 scaling evidence supports release readiness rather than relying on episode count alone
+[ ] Expert-only, standalone-policy, and expert-plus-residual claims have frozen ablations
 [ ] Dataset, split, config, and schema digests are immutable inputs
 [ ] No full-scale training begins in this checkpoint
 ```
@@ -280,7 +306,7 @@ tests/test_train_skill_tiny.py
 resolve named observation/action/goal layouts from saved schemas
 whole-episode and session/condition-grouped splits only
 training-only normalization
-select expert, failure, correction, visual, and legacy streams explicitly
+select expert, scripted-failure, scripted-correction, visual, and legacy-release streams explicitly
 deterministic sampling and weighting from config
 record seed, environment, device, dataset/split/config/schema digests
 save optimizer, scheduler, normalization, and exact checkpoint-selection state
@@ -301,7 +327,7 @@ python -m dexvision.apps.train_skill --config configs/level5/skills/reach_object
 ```text
 [ ] No session, episode, object, goal, or image split leakage
 [ ] Every tensor shape and field name follows an executable schema
-[ ] Failure/correction/legacy streams are opt-in and separately countable
+[ ] Scripted failure/correction and legacy-release streams are opt-in and separately countable
 [ ] Interrupted training resumes reproducibly
 [ ] A tiny CPU dataset overfits and reloads its selected checkpoint
 [ ] Dry-run prints inputs, split counts, model size, device, outputs, and digests
@@ -650,8 +676,9 @@ terminal result remain consistent. Stop for user confirmation.
 
 ### Goal
 
-Use Level 4 corrections or a more expressive model only where frozen metrics
-identify a failure the proposed change can plausibly address.
+Use Level 4 deterministic scripted corrections or a more expressive model only
+where frozen metrics identify a failure the proposed change can plausibly
+address.
 
 ### Files
 
@@ -666,7 +693,7 @@ tests/test_model_escalation.py
 ### Allowed comparisons
 
 ```text
-expert-only versus expert-plus-correction data
+expert-only versus expert-plus-scripted-correction data
 current-frame MLP versus short-history GRU/temporal model
 base/wrist-only versus justified full-action or weighted-action ablation
 state-grounded versus perception-grounded observations

@@ -1,12 +1,13 @@
 # Level 4.3 Collection Pilot Report
 
-Status: **pilot evidence collected; scripted-expert pivot selected; implementation pending**
+Status: **historical decision record; scripted-expert pivot implemented through Level 4.4**
 
-This report is intentionally not a claim that Level 4.3 has passed. The
-provisional 250–350 episode coverage matrix remains unchanged until the adopted
-Level 4.3 sequence supplies the evidence required to revise it at 4.3I.
+This report preserves the evidence that changed the architecture. Level 4.3
+subsequently passed, the provisional 250–350 estimate was retired, and Level
+4.4 completed its 60 required scripted core episodes. The protocols below are
+historical and must not be treated as current collection instructions.
 
-## Interim Mini-Report — Teleoperation Feasibility
+## Historical Control-Interface Pilot
 
 Date: September 4, 2026
 
@@ -51,7 +52,7 @@ Use a hybrid classical pipeline:
    and wall press.
 3. Execute short verified contact controllers for close/lift, straight-line
    push, and press/retract.
-4. Retain the working reach teleoperation as a correction/debug interface.
+4. Retire webcam hand control from required data generation and corrections.
 5. Learn only residual contact behavior or policies from successful
    planner-generated trajectories; record their provenance as planned/scripted,
    not human teleoperation.
@@ -74,7 +75,8 @@ After the expert architecture qualifies, two bounded learnability probes use
 a low-dimensional task-local Cartesian action. Deterministic control expands
 that output into the unchanged full requested-action schema. Button is tested
 before push. Vision, action chunking, larger models, recovery learning, and
-language orchestration remain evidence-gated future work.
+language orchestration remain evidence-gated future work. No later checkpoint
+uses the historical live-control path.
 
 Do not begin the Level 4.4 data haul or treat the current reach run as accepted
 until Level 4.3A–4.3I and the required acceptance/replay evidence are complete.

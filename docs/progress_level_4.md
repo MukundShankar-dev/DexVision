@@ -943,10 +943,11 @@ required. Level 4.3H is complete; no 4.3I work has started.
 
 Use measured expert success rates, collection cost, replay evidence, pilot
 learning results, and storage size to replace the provisional matrix. Scripted
-expert data may supply nominal successes; working teleoperation may supply reach
-or explicitly labeled corrective interventions. Keep `scripted`,
-`teleoperation`, `policy_rollout`, and `corrective_intervention` provenance
-separate. Do not bulk collect merely to meet the current 250–350 estimate; revise
+experts supply every required nominal success. Required corrective interventions
+must also be deterministic scripted continuations linked to retained failures.
+Keep `scripted`, `policy_rollout`, and `corrective_intervention` provenance
+separate; legacy source values remain readable only for backward compatibility.
+Do not bulk collect merely to meet the current 250–350 estimate; revise
 that envelope if the qualified interfaces justify a different defensible count.
 
 #### Commands
@@ -969,11 +970,12 @@ Implementation status (September 5, 2026): configuration v2 freezes 114
 required accepted episodes with a 140-episode planning maximum: 20 reach, 42
 complete pick/place, 20 push, 20 button, and 12 failure/correction episodes.
 All 74 required rows state source, object/goal or failure class, split owner,
-and per-split minimum. Required provenance totals are 98 scripted, 13
-teleoperation, zero policy rollout, and three corrective intervention episodes.
-Teleoperation is limited to the five usable training reach cells and three
-observed operator failure mechanisms. Nominal contact skills use the replayed
-scripted experts; policy rollouts remain separate qualification evidence.
+and per-split minimum. The accepted v2 snapshot contained 98 scripted, 13
+human-controlled, zero policy-rollout, and three corrective-intervention slots.
+That source mix was superseded by v3 before core collection. The active plan
+uses scripted experts for all nominal skills and deterministic scripted
+interventions for correction evidence; policy rollouts remain separate
+qualification evidence.
 
 The push matrix retains the 12 conditions qualified by Level 4.3H and records
 the eight removed provisional cells separately with measured or qualification-
@@ -997,6 +999,7 @@ Use nominal successful trajectories before collecting recovery corrections.
 Do not add an LLM, VLM, general planner, RL loop, or bulk data haul in Level 4.3.
 Do not change the Level 4.2 episode schema or create a second recording path.
 Do not advance to Level 4.4 while any lettered checkpoint is incomplete.
+Do not use live hand-pose control for required data or corrections.
 ```
 
 ### Files
@@ -1109,9 +1112,9 @@ were created. All
 Level 4.3 pass-criteria boxes remain unchecked, coverage counts remain
 provisional, and manual verification is still required.
 
-The team-facing interim findings and architecture-decision options are
-summarized in `docs/level4_pilot_report.md` under **Interim Mini-Report —
-Teleoperation Feasibility**.
+The team-facing interim findings and architecture-decision evidence are
+summarized in `docs/level4_pilot_report.md` under **Historical
+Control-Interface Pilot**.
 
 ---
 
@@ -1179,24 +1182,27 @@ were already qualified in Level 4.3H; the generic sequential test seeds failed
 the copied-state safety check and were not used. No controller or safety
 threshold was weakened.
 
-The active workspace reports 69 total attempts and 62 accepted episodes. The
-extra two accepted operator reaches are preserved as optional evidence and do
-not count toward the required scripted core. Four ordinary operator failures,
-one unreviewed optional operator attempt, and two rejected scripted retries
-also remain preserved. Overall v3 provenance minima are
-111 scripted, 0 teleoperation, 0 policy rollout, and 3 corrective interventions. The listed
+The active workspace reports 69 total attempts and 62 accepted episodes.
+Historical human-controlled attempts remain locally preserved for audit but are
+excluded from the active dataset, release, training, and evaluation plan. Two
+rejected scripted retries also remain preserved. Overall v3 provenance minima
+are 111 scripted nominal episodes, zero live-control episodes, zero policy
+rollouts, and three deterministic scripted corrective interventions. The listed
 10-test checkpoint suite, repository-wide Ruff, and the full 545-test suite
 pass. No new manual verification was needed. Last Completed is 4.4 and Next
-Target is 4.5; Level 4.5 has not started.
+Target is 4.5A; Level 4.5A has not started.
 
 ---
 
-## Level 4.5 — Complete Pick/Place Multi-Session Haul
+## Level 4.5A — Complete Pick/Place Anchor Haul
 
 ### Goal
 
-Collect complete rigid-object pick/place sequences and derive consistent
-`reach_object`, `pick_object`, and `place_held_object` segments.
+Collect the frozen v3 anchor matrix of complete rigid-object pick/place
+sequences and derive consistent `reach_object`, `pick_object`, and
+`place_held_object` segments. This checkpoint proves the collection and
+segmentation path; it does not claim that the anchor is enough for full-scale
+learning.
 
 ### Files
 
@@ -1240,7 +1246,7 @@ conda run -n dexvision pytest -q tests/test_pick_place_segments.py tests/test_le
 ### Pass criteria
 
 ```text
-[ ] At least 120 accepted complete sequences exist unless 4.3 froze a higher count
+[ ] All 42 frozen v3 anchor sequences exist across the 30 split-owned cells
 [ ] Episode, segment, object-family, instance, source, target, and session counts match manifests
 [ ] Held-object state and every phase boundary recompute from saved data
 [ ] Placement tolerance and post-release stability are executable
@@ -1251,22 +1257,121 @@ conda run -n dexvision pytest -q tests/test_pick_place_segments.py tests/test_le
 Manual verification is required for a stratified sample of at least six
 replays: one per object family and at least one per target type. Pass when the
 visible phase transitions and final placement agree with the saved labels.
-Stop for user confirmation before marking 4.5 complete.
+Stop for user confirmation before marking 4.5A complete. Do not begin the
+release-scale expansion in the same checkpoint.
 
 ---
 
-## Level 4.6 — Failures and Corrective Demonstrations
+## Level 4.5B — Procedural Diversity Expansion and Data-Sufficiency Gate
 
 ### Goal
 
-Preserve representative natural failures and record safe operator corrections
-without contaminating expert-only training data or requiring learned recovery.
+Expand the immutable anchor into a learning-scale scripted dataset with many
+independent resets and continuous within-cell variation. Determine from
+training/validation evidence whether the planned scale is a defensible release
+floor instead of assuming that a raw episode count guarantees generalization.
+
+### Files
+
+```text
+configs/level4_dataset.yaml
+dexvision/logging/level4_collection.py
+dexvision/evaluation/level4_scaling_probe.py
+dexvision/apps/run_level4_scaling_probe.py
+dexvision/apps/summarize_level4_coverage.py
+docs/level4_dataset_plan.md
+tests/test_level4_procedural_expansion.py
+tests/test_level4_scaling_probe.py
+```
+
+### Required release-candidate scale
+
+```text
+reach: 10 cells x 16 unique accepted episodes = 160
+complete pick/place: 30 cells x 16 unique accepted episodes = 480
+push: 12 cells x 16 unique accepted episodes = 192
+button press: 10 cells x 16 unique accepted episodes = 160
+nominal total after this checkpoint = 992 accepted episodes
+```
+
+Counts include accepted immutable 4.4 and 4.5A episodes; those episodes are
+never overwritten. Every additional episode has a unique reset seed and
+initial-state digest. The generator samples frozen safe ranges for source and
+goal pose, supported object geometry/scale, mass, friction, and bounded
+controller perturbations. Replaying one trajectory, changing only metadata, or
+oversampling nearly identical starts does not count as independent coverage.
+
+Sessions and cell ownership remain fixed before generation. Generator logic,
+randomization ranges, quotas, and readiness gates are frozen from train and
+validation evidence before any test-owned expansion is generated. Test
+episodes may be audited for integrity and reported once, but they never tune
+the generator or decide how much data to collect.
+
+### Data-scaling gate
+
+Run one inexpensive state-grounded baseline on nested training-only subsets
+corresponding to 4, 8, and 16 accepted episodes per training-owned nominal
+cell. Use the same model, optimizer budget, seeds, normalization ownership, and
+fixed validation-owned rollout matrix for every subset. This is a dataset
+readiness probe, not Level 5 qualification.
+
+Before running the probe, freeze numerical definitions for:
+
+```text
+minimum aggregate validation success and worst-cell success
+material improvement between the 8- and 16-per-cell tranches
+maximum safety violations and invalid actions
+what result requires another versioned data tranche
+```
+
+The default material-improvement threshold is three percentage points in
+aggregate validation success. If the 16-per-cell tranche still improves by at
+least that amount, misses the frozen readiness gate, or leaves a required cell
+with too little independent variation, do not call the dataset sufficient.
+Create a new plan version and expand training/validation data, up to a planning
+ceiling of 32 episodes per nominal cell, then repeat the same frozen comparison.
+Never inspect test performance to make this decision.
+
+### Commands
+
+```bash
+python -m dexvision.apps.summarize_level4_coverage --config configs/level4_dataset.yaml --dataset-dir data/demos/level4
+python -m dexvision.apps.run_level4_scaling_probe --config configs/level4_dataset.yaml --dataset-dir data/demos/level4 --output-dir outputs/level4/scaling_probe_v1
+conda run -n dexvision pytest -q tests/test_level4_procedural_expansion.py tests/test_level4_scaling_probe.py tests/test_level4_coverage.py
+```
+
+### Pass criteria
+
+```text
+[ ] Plan v4 records exact distributions, seeds, sessions, per-cell quotas, and readiness gates
+[ ] All 62 nominal cells have at least 16 unique accepted episodes and 992 exist overall
+[ ] Initial-state and trajectory similarity audits reject duplicate or cosmetic variation
+[ ] Nested 4/8/16-per-cell probes use identical recipes and validation rollouts
+[ ] The largest tranche passes the frozen readiness gate and is not still materially improving, or a larger versioned tranche is collected
+[ ] Test-owned generation occurs only after all collection and scaling decisions are frozen
+[ ] No test-owned result changes data, code, thresholds, or model selection
+```
+
+Manual verification: replay a stratified procedural sample containing at least
+one nominal and one boundary case for every skill. Pass when the visible reset,
+object/goal variation, trajectory, and terminal result match saved metadata.
+Stop for user confirmation before marking 4.5B complete.
+
+---
+
+## Level 4.6 — Scripted Failures and Corrective Demonstrations
+
+### Goal
+
+Preserve representative failures and generate safe deterministic scripted
+corrections without contaminating expert-only training data or requiring
+learned recovery.
 
 ### Files
 
 ```text
 dexvision/logging/corrective_demos.py
-dexvision/apps/record_correction.py
+dexvision/apps/generate_scripted_correction.py
 dexvision/evaluation/correction_summary.py
 tests/test_corrective_demos.py
 tests/test_correction_summary.py
@@ -1277,11 +1382,13 @@ tests/test_correction_summary.py
 ```text
 link every correction to its triggering episode and source category
 require source policy/checkpoint only when source category is policy_rollout;
-store null plus a stable not-applicable reason for teleoperation/scripted sources
+store null plus a stable not-applicable reason for scripted sources
 record failure class, retryability, intervention start/end, and outcome
 preserve pre-intervention frames and original terminal result
 separate expert, ordinary failure, policy rollout, and correction streams
 never promote unsafe motion into a correction target
+generate required corrections from simulator state and a deterministic expert
+never require a camera, hand tracker, or human control input
 ```
 
 Required failure classes are approach miss, wrong contact, failed acquisition,
@@ -1292,14 +1399,15 @@ as targets.
 ### Commands
 
 ```bash
-python -m dexvision.apps.record_correction --config configs/level4_dataset.yaml --source-rollout <episode-directory>
+python -m dexvision.apps.generate_scripted_correction --config configs/level4_dataset.yaml --source-rollout <episode-directory>
 conda run -n dexvision pytest -q tests/test_corrective_demos.py tests/test_correction_summary.py
 ```
 
 ### Pass criteria
 
 ```text
-[ ] At least 30 failure/correction episodes meet the frozen category coverage
+[ ] The frozen failure/correction minimum and category coverage are met
+[ ] Every one of the 12 cells contains at least 10 unique episodes, for 120 total
 [ ] Corrections can be included or excluded deterministically
 [ ] Correction provenance validates conditionally by source category
 [ ] Failure, retry, correction, and final outcome are not conflated
@@ -1307,9 +1415,10 @@ conda run -n dexvision pytest -q tests/test_corrective_demos.py tests/test_corre
 [ ] Baseline and later correction-trained comparisons can use identical splits
 ```
 
-Manual verification: inspect one corrected pick/place replay. Pass when the
-failure and intervention boundary are visibly correct and the original failure
-remains recoverable from the saved metadata. Stop for user confirmation.
+Manual verification: inspect one scripted corrected pick/place replay. Pass
+when the failure and deterministic intervention boundary are visibly correct
+and the original failure remains recoverable from the saved metadata. Stop for
+user confirmation.
 
 ---
 
@@ -1432,7 +1541,7 @@ amendment; it does not permit editing accepted episodes in place.
 ### Goal
 
 Publish a reproducible Level 4 release while preserving the Level 2 archive and
-editable operator workspace.
+the ignored local working-data workspace.
 
 ### Files
 
@@ -1487,8 +1596,9 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.1 one resettable workcell and typed world state pass manual inspection
 [x] 4.2 session-aware append-only schema and phase labels pass
 [x] 4.3 pilot collection freezes final counts; dial is promoted or deferred
-[ ] 4.4 reach, push, and press coverage passes across genuine sessions
-[ ] 4.5 complete pick/place coverage and phase replays pass
+[x] 4.4 reach, push, and press anchor coverage passes across genuine sessions
+[ ] 4.5A complete pick/place anchor coverage and phase replays pass
+[ ] 4.5B procedural nominal expansion and validation-only scaling gate pass
 [ ] 4.6 failures and corrections remain separate and auditable
 [ ] 4.7 single-camera visual annotations and alignment pass
 [ ] 4.8 coverage, quality, provenance, and leakage audits pass

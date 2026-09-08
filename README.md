@@ -1,17 +1,17 @@
 # DexVision / Hand2Bot
 
-DexVision is a staged robotics and computer-vision project for controlling a
-simulated dexterous robot hand from live hand-pose tracking. Completed Level 2
-work turns the Level 1 OpenCV, MediaPipe, and MuJoCo teleoperation pipeline into
-reproducible demonstration datasets. Level 3 completed a state-based behavior-
-cloning feasibility study on that deliberately narrow data. Level 4 now begins
-by freezing the requirements for a broader multi-session dataset before any
-new collection and before Level 5 learns and qualifies the full skill set.
+DexVision is a staged robot-learning and computer-vision project for building
+reusable manipulation skills with a simulated Shadow Hand. The active pipeline
+uses deterministic MuJoCo experts to generate replayable demonstrations, then
+trains and qualifies compact policies against frozen state and visual tests.
+The earlier OpenCV/MediaPipe hand-control prototype and its Level 2 dataset are
+retained as historical evidence, but they are not a data or control source for
+Level 4 onward.
 
 ## Roadmap
 
 ```text
-Level 1  camera hand tracking and MuJoCo teleoperation                 complete
+Level 1  legacy camera hand-control prototype                         complete
 Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
 Level 3  learning feasibility on the existing Level 2 datasets       complete
 Level 4  comprehensive multi-session skill dataset                     active
@@ -21,12 +21,17 @@ Level 7  language-guided composition of typed skills                   future
 ```
 
 Level 3 established that the reproducible learning loop works but that no
-Level 2-trained policy passes the frozen closed-loop gates. Level 4 will add
-four split-owned recording sessions, broader objects/goals, complete pick/place
-sequences, per-cell coverage minima, separately labeled failures and
-corrections, visual grounding, and an immutable release with frozen held-out
-splits. It also records requested, commanded, and post-safety applied actions
-and derives internal phases causally. Level 5 will train and qualify five core
+Level 2-trained policy passes the frozen closed-loop gates. Level 4.4 has now
+completed 60 scripted reach, push, and button episodes across its frozen core
+cells; Level 4.5A is next and adds the complete pick/place anchor sequences.
+The 114-episode anchor proves coverage and integration but is not treated as a
+comprehensive learning set. Before release, Level 4 expands to at least 1,112
+independently seeded accepted episodes across nominal and failure/correction
+cells and runs a validation-only data-scaling check. The final Level 4 dataset
+uses deterministic expert generation, split-owned sessions, continuous
+object/goal/dynamics variation, causal phases, explicit failures, scripted
+corrections, visual grounding, and an immutable release. No live hand-control
+collection is part of the remaining plan. Level 5 will train and qualify five core
 skills—reach, pick, place-held-object, push, and button press—through a
 supervised runtime. It will validate a coherent tabletop workcell assistant on
 workspace clearing, inspection-station operation, and workspace setup; dial
@@ -68,7 +73,10 @@ assets/mujoco/hand_scene.xml
 configs/level1_teleop.yaml
 ```
 
-## Level 1 Demo
+## Level 1 Demo (Legacy)
+
+This historical hand-tracking demonstration remains reproducible, but it is
+not used to generate Level 4 data, corrections, or final skill behavior.
 
 ### macOS
 
@@ -117,7 +125,7 @@ visible MuJoCo GUI.
 
 ## Demonstration data
 
-Operator-recorded demos under `data/demos/` are local data and are intentionally
+Working demonstrations under `data/demos/` are local data and are intentionally
 ignored by Git. Creating or updating the environment does not remove them. An
 immutable Level 2 snapshot is published separately in this repository through
 Git LFS; see [Versioned Dataset Releases](datasets/README.md) for download,
@@ -243,11 +251,11 @@ and six-panel SVG artifacts with:
 python -m dexvision.apps.benchmark_retargeters --task push_cube_to_target --episodes 101 --bootstrap-samples 2000
 ```
 
-The original demonstrations and base trajectories were collected with curl
+The historical demonstrations and base trajectories were collected with curl
 retargeting. Reusing those base trajectories makes this a controlled
 counterfactual finger-retargeting comparison, but it does not remove that curl
 bias. No independent live fingertip/optimization trajectories were collected
-or claimed; doing so requires a new operator collection campaign.
+or claimed, and no follow-up human-control collection is planned.
 
 Level 2.11 also publishes the immutable dataset snapshot through Git LFS and
 freezes the first reach-policy evaluation protocol. Level 3 completed offline
@@ -257,11 +265,11 @@ implemented.
 
 ## Known Limitations
 
-This is a simulated teleoperation and dataset pipeline, not a real-robot
-controller. The thumb mapping is intentionally conservative, and pinch and
-peace-sign poses remain approximate. Tracking quality depends on lighting,
-camera placement, and whether the input is mirrored. Use
-`--assume-mirrored-input` only for selfie-mirrored camera feeds.
+This is a simulated manipulation-learning and dataset pipeline, not a real-
+robot controller. The legacy Level 1 hand-control demonstration remains limited
+by monocular tracking, camera placement, and approximate finger retargeting;
+those limitations are why it is excluded from the active skill-data path.
+Use `--assume-mirrored-input` only for selfie-mirrored camera feeds.
 The Level 2.8 fingertip baseline is a geometric approximation rather than a
 numerical robot-model IK solve. The Level 2.10 fingertip-error metric uses the
 same palm-local surrogate for a consistent comparison and is not a measured

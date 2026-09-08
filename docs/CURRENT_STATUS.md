@@ -22,8 +22,10 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 Level 4.4 — Reach, Push, and Press Multi-Session Haul
 
-The user-directed v3 plan removes mandatory teleoperation while preserving all
-operator attempts with their original provenance. The Level 4.4 haul contains
+The user-directed v3 plan uses scripted generation for every required cell. All
+earlier human-controlled attempts retain their original provenance as historical
+local evidence but are excluded from the active dataset, training, correction,
+and evaluation plan. The Level 4.4 haul contains
 60 accepted scripted core episodes: 20 reach, 20 push, and 20 button episodes
 across all 32 required cells. Train, validation, and test ownership, session
 and target balance, held-out isolation, schema/quality gates, headless replay,
@@ -40,11 +42,21 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.5 — Complete Pick/Place Multi-Session Haul
+Level 4.5A — Complete Pick/Place Anchor Haul
 
-Level 4.5 has not started. The next work turn may implement only its complete
-pick/place collection and segmentation requirements. Do not begin it as part
-of the completed Level 4.4 work.
+Level 4.5A has not started. The next work turn may implement only the frozen
+42-episode complete pick/place anchor matrix and segmentation requirements.
+Do not start the later procedural diversity expansion in the same turn.
+
+The accepted 114-episode Level 4.3I matrix is now explicitly an integration
+and coverage anchor, not the final comprehensive learning-data claim. After
+4.5A, Level 4.5B must expand all nominal cells with independently seeded,
+continuously varied scripted rollouts before the release can qualify for Level
+5. The release-candidate floor is 16 accepted episodes per nominal cell (992
+nominal episodes), followed by 10 episodes per failure/correction cell in 4.6
+(120 episodes), for 1,112 accepted episodes overall. A validation-only scaling
+check can require a larger versioned tranche; test-owned episodes remain
+untouched.
 
 ---
 
@@ -54,7 +66,7 @@ of the completed Level 4.4 work.
 
 Suggested next feature branch:
 
-`codex/level44-core-multisession-haul`
+`codex/level45a-pick-place-anchor`
 
 ---
 
@@ -831,9 +843,10 @@ and button potentially viable only with a reachable planned approach. No expert
 acceptance sidecars have been created, so the collection protocol, final count
 freeze, and required visible replay checks remain pending.
 
-The architecture decision is now made: webcam teleoperation remains a usable
-reach/correction interface, while deterministic simulator-state experts become
-the nominal source for contact skills. Level 4.3 is split into 4.3A–4.3I:
+The architecture decision is now made: live hand-pose control is retired from
+the active workcell pipeline, while deterministic simulator-state experts are
+the source for every required skill and scripted correction. Level 4.3 is split
+into 4.3A–4.3I:
 common expert plus scripted reach; button; constrained push; grasp-and-lift;
 place/complete pick-place; replay qualification; small state-only button and
 push learnability probes; and final source/count freeze. The first learned
@@ -964,10 +977,10 @@ the provisional right-bin cells are infeasible under the current controller;
 Level 4.3I must revise that matrix. Last Completed is now 4.3H and Next Target
 is 4.3I; no 4.3I work has started.
 
-Level 4.3I is complete. Configuration v2 freezes the user-accepted 114–140
-episode envelope, 74 source-owned coverage cells, separate 98/13/0/3
-scripted/teleoperation/policy-rollout/corrective-intervention minima, the
-qualified push subset and exclusions, whole-session/held-out restrictions,
+Level 4.3I is complete. Configuration v2 froze the user-accepted 114–140
+episode envelope, 74 source-owned coverage cells, its superseded 98/13/0/3
+source minima, the qualified push subset and exclusions, whole-session/held-out
+restrictions,
 and Git LFS plus immutable-release handling. The user ran the coverage summary
 and approved the matrix on September 5, 2026. The checkpoint suite passes with
 31 tests, the dataset-plan suite with nine tests, touched-file Ruff checks pass,
@@ -975,8 +988,8 @@ and the full suite passes with 537 tests. Last Completed is now 4.3I and Next
 Target is 4.4; no 4.4 implementation or collection has started.
 
 Level 4.4 is complete. Configuration v3 expands all 10 reach, 12 push, and 10
-button cells into 60 scripted source/split/session/seed assignments and removes
-teleoperation from every mandatory cell. All 60 required episodes passed
+button cells into 60 scripted source/split/session/seed assignments. All 60
+required episodes passed
 append-only review, including 20 reach, 20 push, and 20 press successes across
 32/32 complete cells. The report passes session ownership and balance, target
 balance, held-out isolation, schema and quality checks, headless replay, terminal
@@ -984,19 +997,27 @@ recomputation, and failure auditability with no core issues. Four held-out push
 cells use the exact seeds already qualified in Level 4.3H because the generic
 test-seed sequence failed the copied-state workspace check; no safety or task
 threshold was weakened. The workspace contains 69 attempts and 62 accepted
-episodes overall because two accepted operator episodes remain optional and do
-not count toward the 60-scripted core. Four ordinary operator failures, one
-unreviewed optional attempt, and two rejected scripted retries remain preserved.
+episodes overall. Historical human-controlled attempts remain locally auditable
+but are excluded from the active dataset and all required counts; two rejected
+scripted retries also remain preserved.
 The listed 10-test checkpoint suite, repository-wide Ruff, and the full 545-test
 suite pass. No new manual verification was required. Last Completed is now 4.4
-and Next Target is 4.5; no Level 4.5 work has started.
+and Next Target is 4.5A; no Level 4.5A work has started. The v3 counts are an
+anchor matrix; the prospective Level 4.5B release-scale expansion does not
+retroactively change this completed checkpoint.
 
 The team-facing interim findings, four-action measurement table, adopted
 scripted-expert pivot, and revised plan are documented in
-`docs/level4_pilot_report.md` under **Interim Mini-Report — Teleoperation
-Feasibility**.
+`docs/level4_pilot_report.md` under **Historical Control-Interface Pilot**.
 
-For checkpoints involving camera, GUI, MuJoCo viewer, or live teleoperation, the agent should not mark the checkpoint complete until the user confirms the manual verification passed.
+Active Level 4+ rule: do not add or require live hand-pose control, webcam-based
+demonstration collection, or human corrective interventions. Use deterministic
+scripted experts for required data and scripted interventions for the frozen
+correction cells. Existing legacy code and immutable historical episodes remain
+readable but are outside the active training and qualification path.
+
+For checkpoints involving a GUI or MuJoCo viewer, the agent should not mark the
+checkpoint complete until the user confirms the manual verification passed.
 
 ---
 
@@ -1054,6 +1075,5 @@ camera feed display
 hand landmark visual overlay
 MuJoCo viewer display
 robot joint movement in GUI
-live teleoperation
 demo video capture
 ```

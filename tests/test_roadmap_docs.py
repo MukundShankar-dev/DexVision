@@ -15,12 +15,11 @@ def test_current_status_advances_after_level44_completion() -> None:
     status = read("docs/CURRENT_STATUS.md")
 
     assert (
-        "Level 4 — Comprehensive Multi-Session Dataset Collection and "
-        "Versioned Release"
+        "Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
     assert "## Last Completed Checkpoint\n\nLevel 4.4" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.5" in status
+    assert "## Next Target Checkpoint\n\nLevel 4.5A" in status
     assert "hammer-curl" in status
 
 
@@ -95,11 +94,13 @@ def test_level4_freezes_action_phase_correction_and_visual_contracts() -> None:
 
 def test_level4_checkpoints_are_execution_ready() -> None:
     level4 = read("docs/progress_level_4.md")
-    checkpoints = re.findall(r"^## Level 4\.(\d+) —", level4, flags=re.MULTILINE)
+    checkpoints = re.findall(
+        r"^## Level 4\.(\d+(?:[A-Z])?) —", level4, flags=re.MULTILINE
+    )
 
-    assert checkpoints == [str(index) for index in range(10)]
-    assert len(re.findall(r"^### Commands$", level4, flags=re.MULTILINE)) == 10
-    assert len(re.findall(r"^### Pass criteria$", level4, flags=re.MULTILINE)) == 10
+    assert checkpoints == ["0", "1", "2", "3", "4", "5A", "5B", "6", "7", "8", "9"]
+    assert len(re.findall(r"^### Commands$", level4, flags=re.MULTILINE)) == 11
+    assert len(re.findall(r"^### Pass criteria$", level4, flags=re.MULTILINE)) == 11
     assert "Level 3 failure -> Level 4 requirement traceability table" in level4
     assert "Stop until the user confirms" in level4
     assert "Clean-clone retrieval and SHA-256 verification" in level4
@@ -124,11 +125,15 @@ def test_level43_pivot_is_incremental_and_learning_gated() -> None:
     assert "Do not add an LLM, VLM" in level4
     assert "requested_action is the nominal scripted action" in contracts
     assert "114 required accepted episodes" in " ".join(level4.split())
-    assert "111 scripted, 0 teleoperation" in level4
-    assert "zero policy rollout" in level4
+    assert "111 scripted nominal episodes" in level4
+    assert "zero live-control episodes" in level4
+    assert "zero policy-rollout" in level4
     assert "Level 4.4 is complete" in status
     assert "Last Completed is now 4.4" in status
-    assert "Next Target is 4.5" in status
+    assert "Next Target is 4.5A" in status
+    assert "1,112-episode release-candidate floor" in contracts
+    assert "All 62 nominal cells" in level4
+    assert "4/8/16-per-cell probes" in level4
     assert "Level 4.4 cannot start until the user accepts" in contracts
 
 
@@ -178,11 +183,28 @@ def test_project_overview_source_and_pdf_exist() -> None:
     pdf_path = ROOT / "DexVision Project Overview.pdf"
 
     assert "Levels 1 through 3 are complete" in overview
-    assert "Level 4 is active at checkpoint 4.0" in overview
-    assert "at least four genuine sessions" in overview
+    assert "Level 4 is active at checkpoint" in overview
+    assert "4.5" in overview
+    assert "60 scripted core episodes" in overview
     assert "Level 3 — Learning feasibility" in overview
-    assert "Level 4 — Comprehensive skill dataset" in overview
+    assert "Level 4 — Comprehensive scripted skill dataset" in overview
     assert "Level 5 — Full-scale skill learning and qualification" in overview
     assert "Level 7 — Language-guided orchestration" in overview
     assert pdf_path.is_file()
     assert pdf_path.stat().st_size > 1_000
+
+
+def test_active_roadmap_retires_live_hand_control() -> None:
+    agents = read("AGENTS.md")
+    level4 = read("docs/progress_level_4.md")
+    level5 = read("docs/progress_level_5.md")
+    dataset_plan = read("docs/level4_dataset_plan.md")
+    normalized_agents = " ".join(agents.split())
+    normalized_level5 = " ".join(level5.split())
+    normalized_dataset_plan = " ".join(dataset_plan.split())
+
+    assert "not an active Level 4+ data or control path" in normalized_agents
+    assert "Do not use live hand-pose control for required data" in level4
+    assert "never require a camera, hand tracker, or human control input" in level4
+    assert "outside the Level 5 system boundary" in normalized_level5
+    assert "only active Level 4 data path" in normalized_dataset_plan

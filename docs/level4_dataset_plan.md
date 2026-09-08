@@ -1,14 +1,22 @@
 # Level 4 Workcell and Dataset Requirements Freeze
 
-Specification version: `level4/workcell-dataset-plan-v3`
+Specification version: `level4/workcell-dataset-plan-v3` anchor with planned
+`level4/workcell-dataset-plan-v4` release-scale expansion
 
 Status: Level 4.3I final matrix v2 was accepted by the user on September 5,
-2026. Level 4.4 collection began under v2, but repeated operator trials showed
-that mandatory webcam reach collection was cumbersome and unreliable. At the
-user's direction on September 6, v3 removes every mandatory teleoperation
-episode while preserving recorded operator attempts as optional evidence. The
-episode schema, counts, cells, splits, and qualified push scope are unchanged.
-Level 4.4 is complete with 60/60 scripted core episodes across 32/32 cells.
+2026. Level 4.4 collection began under v2, but repeated human-control trials
+were cumbersome and unreliable. At the user's direction on September 6, v3
+makes deterministic scripted generation the only active Level 4 data path.
+Historical human-controlled attempts keep their original provenance locally but
+are excluded from the active dataset, release, training, correction, and
+evaluation plan. The episode schema, counts, cells, splits, and qualified push
+scope are unchanged. Level 4.4 is complete with 60/60 scripted core episodes
+across 32/32 cells. The user-directed September 8 review found that the
+114-episode matrix is adequate as an integration and coverage anchor but too
+small to support the word "comprehensive" or a credible full-scale learning
+claim. Completed v3 episodes remain immutable. Level 4.5B will version the
+machine-readable matrix as v4 and add independently seeded procedural
+variation before release.
 
 ## Decision and evidence boundary
 
@@ -131,9 +139,11 @@ as failure evidence, but only the safe applied action may be an expert target.
 
 ## Coverage, source, and split ownership
 
-The evidence-based minimum is 114 new accepted episodes, with a planning
-maximum of 140. The old 250–350 estimate is retired rather than filled with
-duplicative nominal trajectories:
+The v3 anchor minimum is 114 new accepted episodes, with a planning maximum of
+140. This is enough to exercise all cells, schemas, experts, replays, and split
+rules, but it is not the release-scale learning minimum. It replaces the old
+250–350 guess with an evidence-producing anchor rather than claiming that any
+small headline count proves generalization:
 
 | Data group | Required minimum | Planning range | Required source mix |
 |---|---:|---:|---|
@@ -141,8 +151,8 @@ duplicative nominal trajectories:
 | Complete pick/place sequences | 42 | 42–50 | 42 scripted |
 | Push-to-zone | 20 | 20–24 | 20 scripted |
 | Button press | 20 | 20–24 | 20 scripted |
-| Ordinary failures and safe corrections | 12 | 12–18 | 9 scripted, 3 corrective interventions |
-| **Required total** | **114** | **114–140** | **111 scripted, 0 teleoperation, 0 policy rollout, 3 corrective interventions** |
+| Ordinary failures and safe corrections | 12 | 12–18 | 9 scripted failures, 3 deterministic scripted corrective interventions |
+| **Required total** | **114** | **114–140** | **111 scripted nominal/failure episodes, 0 live-control episodes, 0 policy rollout, 3 scripted corrective interventions** |
 
 The YAML enumerates 74 required cells: 10 reach, 30 complete pick/place, 12
 push, 10 press, and 12 failure/correction cells. Every cell declares one
@@ -151,14 +161,46 @@ or a surplus from another source cannot repair a missing cell. A complete
 pick/place sequence is one episode even though it can produce reach, pick, and
 place segments; reports publish episode and segment counts separately.
 
-Teleoperation has zero required episodes. Existing operator attempts remain
-immutable optional evidence with their original provenance and do not count
-toward scripted cell minima or block completion. Required reach demonstrations
-and failure-mechanism examples use deterministic scripted generation. Policy
-rollouts remain separate qualification evidence and have a zero collection
-minimum; they cannot be relabeled as expert data. Corrective interventions are
-three explicitly linked safe corrections and remain distinct from both their
-trigger episodes and nominal expert demonstrations.
+After the anchor passes, Level 4.5B must create plan v4 without overwriting or
+relabeling any accepted v3 episode. The release-candidate floor is driven by
+independent coverage-cell samples:
+
+| Data group | Cells | Accepted episodes per cell | Release-candidate minimum |
+|---|---:|---:|---:|
+| Reach/object-or-fixture approach | 10 | 16 | 160 |
+| Complete pick/place sequences | 30 | 16 | 480 |
+| Push-to-zone | 12 | 16 | 192 |
+| Button press | 10 | 16 | 160 |
+| Ordinary failures and safe corrections | 12 | 10 | 120 |
+| **Required total** | **74** | — | **1,112** |
+
+Each accepted episode must have a unique reset seed and initial-state digest.
+Nominal cells must sample continuous in-cell source/goal pose, supported
+object geometry or scale, mass, friction, and bounded controller perturbations
+rather than replaying one trajectory with cosmetic metadata changes. Exact
+distributions and randomization bounds are frozen from train/validation
+evidence before test-owned generation. Identical or near-identical initial
+states and action trajectories are reported and cannot satisfy multiple
+independent-sample slots.
+
+The floor is not an assertion that 1,112 episodes are automatically enough.
+Level 4.5B runs one inexpensive state-grounded scaling probe on nested
+training-only subsets, evaluates only on validation-owned conditions, and
+reports success and worst-cell performance. If the largest tranche is still
+improving materially, fails the predeclared readiness gate, or exposes a
+coverage hole, Level 4 remains active and a larger versioned tranche is
+collected. Test-owned episodes are generated only after the generator,
+distributions, counts, and gate are frozen and never decide dataset size.
+
+Live human control has zero required or optional episodes in the active plan.
+Existing attempts remain immutable local historical evidence with their original
+provenance, but they do not enter the active dataset or release and cannot count
+toward any cell. Required demonstrations and failure examples use deterministic
+scripted generation. Policy rollouts remain separate qualification evidence and
+have a zero collection minimum; they cannot be relabeled as expert data. The
+three required corrective interventions are deterministic scripted continuations
+linked to scripted failures and remain distinct from both trigger episodes and
+nominal expert demonstrations.
 
 Push uses only the 12 conditions qualified in Level 4.3H: the six training,
 two validation, and four untouched-test condition cells exercised by its
@@ -200,18 +242,19 @@ The only visual claim uses `workcell_fixed_v1`, a fixed 640×480 camera with
 frozen pose and intrinsics. The matrix covers nominal rendering, mild
 illumination, partial occlusion, and bounded distractors. Each condition has
 train, validation, and test minima and explicit entity coverage. These are
-source-episode requirements within the 114-episode minimum, not additional
-episodes and not duplicate samples across splits.
+source-episode requirements within the final release-scale dataset, not
+additional episodes and not duplicate samples across splits.
 
 ## Storage and release handling
 
-The pilot mean episode size projected over the 140-episode planning maximum is
-below the frozen 2 GiB threshold, so the release payload uses Git LFS. Working
-episodes remain ignored under `data/demos/` and must never be force-added.
-Each immutable release under `datasets/` contains a new `.tar.gz`, its SHA-256
-sidecar, and a manifest; an existing release archive is never overwritten. If
-the projection exceeds 2 GiB before collection or packaging, collection stops
-for a new config version that selects external object storage.
+The v3 pilot projection covered only the 140-episode anchor ceiling and cannot
+authorize storage for the release-scale dataset. Level 4.5B must reproject both
+state/action payload and sampled RGB at 1,112 episodes and at the possible
+32-per-cell expansion ceiling. Use Git LFS only if the resulting bounded archive
+fits the documented host quota; otherwise Git stores manifests, splits,
+checksums, licenses, and retrieval instructions while immutable external object
+storage holds the payload. Working episodes remain ignored under `data/demos/`
+and must never be force-added. An existing release archive is never overwritten.
 
 ## Acceptance workflow
 
@@ -223,9 +266,10 @@ rejected attempts remain auditable outside the expert set.
 
 Corrections preserve their triggering episode, failure class, retryability,
 intervention interval, trigger source, and final result. A policy checkpoint is
-required only when the trigger source is a policy rollout; teleoperation and
-scripted sources store a stable not-applicable reason. Unsafe intervals are
-never promoted into expert targets.
+required only when the trigger source is a policy rollout; scripted sources
+store a stable not-applicable reason. Required corrections use simulator state
+and deterministic expert control. Unsafe intervals are never promoted into
+expert targets.
 
 ## Level 3 failure traceability
 
@@ -239,7 +283,7 @@ never promoted into expert targets.
 | Success-only learning sets and no correction provenance | Accepted | Separate expert, failure, policy-rollout, and correction streams with nine failure classes and conditional provenance |
 | Missing world relations, previous action, safety, phase, and RGB state | Accepted | Typed entity/support/held/contact state, prior actions, causal phase, safety state, and aligned single-camera RGB/annotations |
 | Compounding error, temporal ambiguity, and distribution shift | Deferred pending evidence | Preserve timestamps and prior actions; do not add a sequence model until the Level 3.7 causal trigger is met |
-| Cross-operator, cross-camera, real-world, arbitrary-object, or learned-recovery claims | Intentionally unsupported | Record operator id but make no claim; fixed camera only; rigid named objects only; deterministic abort/retry only |
+| Cross-human-controller, cross-camera, real-world, arbitrary-object, or learned-recovery claims | Intentionally unsupported | No active human-control collection; fixed camera only; rigid named objects only; deterministic abort/retry only |
 
 Every measured Level 3 gap is therefore mapped, deferred with a trigger, or
 explicitly unsupported. No full-scale policy training, qualification, workcell
@@ -249,7 +293,8 @@ part of checkpoint 4.0.
 ## Change control
 
 The v1 specification remains available in Git history; v2 is its explicit
-count/source compatibility revision. The specification is immutable by
+count/source compatibility revision, and v3 removes human control from active
+collection without changing the backward-compatible schema. The specification is immutable by
 convention once collection begins. Changes
 to ids, layouts, bounds, phase transitions, safety codes, coverage ownership,
 quality thresholds, or visual conditions require a new config version and a
