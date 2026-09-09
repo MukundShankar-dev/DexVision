@@ -2,15 +2,37 @@ from __future__ import annotations
 
 import math
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
+import yaml
 
-from dexvision.apps import record_demo, replay_demo as replay_app
+from dexvision.apps import record_demo, replay_demo as replay_app, run_level1_teleop
+from dexvision.features.hand_features import no_hand_features
 from dexvision.logging.demo_logger import load_logged_demo
-from dexvision.logging.level4_collection import WorkcellPilotTask
+from dexvision.logging.level4_collection import (
+    WorkcellPilotTask,
+    build_level4_procedural_expansion_plan,
+    sample_level4_procedural_variation,
+)
 from dexvision.logging.replay_demo import load_replay_demo, replay_loaded_demo
+from dexvision.retargeting.curl_retargeter import (
+    CurlRetargeter,
+    load_curl_retargeter_config,
+)
+from dexvision.sim.level4_expert import (
+    DeterministicGraspLiftConfig,
+    DeterministicPickPlaceExpert,
+    DeterministicPlaceConfig,
+    DeterministicPushConfig,
+    DeterministicPushExpert,
+    GraspFamilyTemplate,
+    _copy_task_local_model_configuration,
+    _conditioned_grasp_orientation,
+)
 from dexvision.sim.mujoco_env import MujocoEnv
+from dexvision.sim.workcell import Workcell
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +50,914 @@ CASES = (
     ("flat_puck", "pp_puck_light_inspection_pad", 1),
     ("flat_puck", "pp_puck_light_setup_slot_a", 2),
 )
+
+
+def test_cuboid_grasp_orientation_conditions_both_seeded_yaw_signs() -> None:
+    template = GraspFamilyTemplate(
+        object_relative_position_m=(0.0, 0.0, 0.02),
+        wrist_orientation_wxyz=(1.0, 0.0, 0.0, 0.0),
+        negative_object_yaw_to_wrist_yaw_gain=-1.0,
+        orientation_symmetry="none",
+        orientation_feedback_enabled=True,
+        transport_orientation_feedback_enabled=True,
+        grasp_synergy=1.0,
+        lift_distance_m=0.08,
+    )
+
+    for yaw in (-0.2, 0.2):
+        object_orientation = np.asarray(
+            [math.cos(yaw / 2.0), 0.0, 0.0, math.sin(yaw / 2.0)]
+        )
+        conditioned = _conditioned_grasp_orientation(template, object_orientation)
+        expected_yaw = -yaw
+        expected = np.asarray(
+            [
+                math.cos(expected_yaw / 2.0),
+                0.0,
+                0.0,
+                math.sin(expected_yaw / 2.0),
+            ]
+        )
+        assert np.allclose(conditioned, expected)
+
+
+def test_copied_validation_preserves_procedural_model_variation() -> None:
+    pytest.importorskip("mujoco")
+    with Workcell(WORKCELL_CONFIG) as live, Workcell(WORKCELL_CONFIG) as scratch:
+        live.reset(seed=492404)
+        scratch.reset(seed=492404)
+        live.apply_object_variation(
+            "puck_light",
+            position_offset_xy_m=(0.00069, -0.00038),
+            scale_multiplier=0.99836,
+            mass_multiplier=0.99205,
+            friction_multiplier=0.97003,
+        )
+        live.offset_static_entity(
+            "inspection_pad",
+            (0.0012, -0.0007, 0.0004),
+        )
+
+        _copy_task_local_model_configuration(live, scratch)
+
+        assert np.array_equal(scratch.env.model.geom_size, live.env.model.geom_size)
+        assert np.array_equal(
+            scratch.env.model.geom_friction, live.env.model.geom_friction
+        )
+        assert np.array_equal(scratch.env.model.body_mass, live.env.model.body_mass)
+        assert np.array_equal(
+            scratch.env.model.body_inertia, live.env.model.body_inertia
+        )
+        assert np.array_equal(scratch.env.model.body_pos, live.env.model.body_pos)
+        assert np.array_equal(
+            scratch.env.model.actuator_gainprm, live.env.model.actuator_gainprm
+        )
+        assert np.array_equal(
+            scratch.env.model.actuator_biasprm, live.env.model.actuator_biasprm
+        )
+
+
+def test_push_reapproaches_after_contact_loss_for_v13_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    raw_config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    seed = 1_394_802
+    variation = sample_level4_procedural_variation(
+        raw_config["level4_5b_procedural_expansion"],
+        skill_name="push_object_to_target",
+        seed=seed,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="push_object_to_target",
+        goal_condition_id="push_cuboid_setup_slot_b_interior",
+        seed=seed,
+        procedural_variation=variation,
+    ) as task:
+        settings = record_demo._level4_scripted_expert_settings(
+            args, task, "scripted_push"
+        )
+        push_config = DeterministicPushConfig.from_mapping(settings)
+        expert = DeterministicPushExpert(
+            finger_targets=record_demo._scripted_push_finger_targets(
+                retargeter,
+                open_targets,
+                index_curl=float(
+                    push_config.family_parameters["cuboid"]["index_curl"]
+                ),
+            ),
+            config=push_config,
+        )
+        expert.reset(task, task.initial_world_state)
+        assert expert.validation is not None
+        assert expert.validation.valid is True
+
+        terminal = task.current_state
+        phases: list[str] = []
+        for _ in range(500):
+            requested, phase, done, reason = expert.step(terminal.world_state)
+            phases.append(phase)
+            assert reason is None
+            task.env.set_mocap_pose(
+                str(task.workcell.config.scene["hand_base_target"]),
+                position=requested.base_position,
+                orientation_quat=requested.base_orientation_wxyz,
+            )
+            task.env.set_joint_targets(requested.finger_targets)
+            terminal = task.step(n_steps=push_config.sim_steps_per_action)
+            if done and terminal.success:
+                break
+
+    assert terminal.success is True
+    first_contact = phases.index("push_contact")
+    assert "approach" in phases[first_contact + 1 :]
+
+
+def test_push_selects_frozen_cuboid_contact_fallback_on_development_seed() -> None:
+    pytest.importorskip("mujoco")
+    assignment = next(
+        item
+        for item in build_level4_procedural_expansion_plan(DATASET_CONFIG)
+        if item.sequence == 696
+    )
+    # Explicit development seed; intentionally independent of every frozen
+    # held-out namespace and stable across future plan-version bumps.
+    seed = 1_994_807
+    raw_config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        raw_config["level4_5b_procedural_expansion"],
+        skill_name=assignment.skill_name,
+        seed=seed,
+        boundary_case=assignment.repetition == 16,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name=assignment.skill_name,
+        goal_condition_id=assignment.coverage_cell_id,
+        seed=seed,
+        procedural_variation=variation,
+    ) as task:
+        settings = record_demo._level4_scripted_expert_settings(
+            args, task, "scripted_push"
+        )
+        push_config = DeterministicPushConfig.from_mapping(settings)
+        expert = DeterministicPushExpert(
+            finger_targets=record_demo._scripted_push_finger_targets(
+                retargeter,
+                open_targets,
+                index_curl=float(
+                    push_config.family_parameters["cuboid"]["index_curl"]
+                ),
+            ),
+            config=push_config,
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.config.fingertip_lateral_offset_m == pytest.approx(0.0335)
+
+
+def test_push_height_portfolio_resolves_v17_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    raw_config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    seed = 1_794_808
+    variation = sample_level4_procedural_variation(
+        raw_config["level4_5b_procedural_expansion"],
+        skill_name="push_object_to_target",
+        seed=seed,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="push_object_to_target",
+        goal_condition_id="push_cuboid_setup_slot_b_interior",
+        seed=seed,
+        procedural_variation=variation,
+    ) as task:
+        settings = record_demo._level4_scripted_expert_settings(
+            args, task, "scripted_push"
+        )
+        push_config = DeterministicPushConfig.from_mapping(settings)
+        expert = DeterministicPushExpert(
+            finger_targets=record_demo._scripted_push_finger_targets(
+                retargeter,
+                open_targets,
+                index_curl=float(
+                    push_config.family_parameters["cuboid"]["index_curl"]
+                ),
+            ),
+            config=push_config,
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.config.fingertip_lateral_offset_m == pytest.approx(0.0335)
+    assert expert.config.family_parameters["cuboid"][
+        "control_height_m"
+    ] == pytest.approx(0.08519952658523464)
+
+
+def test_push_emits_contact_before_settle_for_v18_quarantined_seed() -> None:
+    pytest.importorskip("mujoco")
+    raw_config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    seed = 1_895_014
+    variation = sample_level4_procedural_variation(
+        raw_config["level4_5b_procedural_expansion"],
+        skill_name="push_object_to_target",
+        seed=seed,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="push_object_to_target",
+        goal_condition_id="push_flat_puck_inspection_pad_interior",
+        seed=seed,
+        procedural_variation=variation,
+    ) as task:
+        settings = record_demo._level4_scripted_expert_settings(
+            args, task, "scripted_push"
+        )
+        push_config = DeterministicPushConfig.from_mapping(settings)
+        expert = DeterministicPushExpert(
+            finger_targets=record_demo._scripted_push_finger_targets(
+                retargeter,
+                open_targets,
+                index_curl=float(
+                    push_config.family_parameters["flat_puck"]["index_curl"]
+                ),
+            ),
+            config=push_config,
+        )
+        state = task.initial_world_state
+        expert.reset(task, state)
+        phases: list[str] = []
+        done = False
+        for _ in range(push_config.maximum_total_actions):
+            action, phase, done, reason = expert.step(state)
+            assert reason is None
+            phases.append(phase)
+            task.env.set_mocap_pose(
+                str(task.workcell.config.scene["hand_base_target"]),
+                position=action.base_position,
+                orientation_quat=action.base_orientation_wxyz,
+            )
+            task.env.set_joint_targets(action.finger_targets)
+            state = task.workcell.step(n_steps=push_config.sim_steps_per_action)
+            if done:
+                break
+        result = task.workcell.create_task(
+            "push_object_to_target", **task.goal
+        ).evaluate(state)
+
+    transitions = [
+        phase
+        for index, phase in enumerate(phases)
+        if index == 0 or phase != phases[index - 1]
+    ]
+    assert done
+    assert result.qualifies
+    assert transitions[0] == "approach"
+    assert transitions[-2:] == ["settle", "retract"]
+    assert "push_contact" in transitions
+    assert all(
+        pair != ("approach", "settle")
+        for pair in zip(transitions, transitions[1:], strict=False)
+    )
+
+
+def test_v5_puck_fix_resolves_quarantined_diagnostic_in_copied_preflight() -> None:
+    pytest.importorskip("mujoco")
+    variation = {
+        "version": "level4/procedural-expansion-v1",
+        "seed": 492404,
+        "case_class": "nominal",
+        "source_position_offset_xy_m": [
+            0.0006935931111826921,
+            -0.00037799968027056976,
+        ],
+        "goal_position_offset_m": [
+            -0.00042735114578655695,
+            -0.0001341133619360685,
+            -0.00023571941227754848,
+        ],
+        "object_scale_multiplier": 0.9983558225998064,
+        "object_mass_multiplier": 0.9920485161431748,
+        "object_friction_multiplier": 0.9700267831895241,
+        "controller_position_offset_m": [
+            -0.00026703505061634813,
+            0.00003877293910485753,
+            -0.00011593404743786418,
+        ],
+    }
+    raw_retargeter = load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    retargeter = CurlRetargeter.from_mapping(raw_retargeter)
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_puck_light_return_bin_right",
+        seed=492404,
+        procedural_variation=variation,
+    ) as task:
+        grasp = DeterministicGraspLiftConfig.from_mapping(
+            record_demo._level4_scripted_expert_settings(
+                args, task, "scripted_grasp"
+            )
+        )
+        place = DeterministicPlaceConfig.from_mapping(
+            record_demo._level4_scripted_expert_settings(
+                args, task, "scripted_place"
+            )
+        )
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=grasp,
+            place_config=place,
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+
+
+def test_v5_puck_fix_selects_frozen_fallback_for_training_edge_case() -> None:
+    pytest.importorskip("mujoco")
+    assignment = next(
+        item
+        for item in build_level4_procedural_expansion_plan(DATASET_CONFIG)
+        if item.sequence == 288
+    )
+    raw_retargeter = load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    retargeter = CurlRetargeter.from_mapping(raw_retargeter)
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name=assignment.skill_name,
+        goal_condition_id=assignment.coverage_cell_id,
+        seed=assignment.seed,
+        procedural_variation=assignment.variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.grasp_config.family_templates[
+        "flat_puck"
+    ].object_relative_position_m == (-0.004, 0.0, 0.020)
+
+
+def test_v6_puck_fix_resolves_second_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=592410,
+    )
+    raw_retargeter = load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    retargeter = CurlRetargeter.from_mapping(raw_retargeter)
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_puck_light_return_bin_right",
+        seed=592410,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.grasp_config.family_templates[
+        "flat_puck"
+    ].object_relative_position_m == (-0.006, 0.0, 0.020)
+
+
+def test_v7_large_block_contact_fix_resolves_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=692502,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_block_large_return_bin_left",
+        seed=692502,
+        procedural_variation=variation,
+    ) as task:
+        geom_id = task.workcell._require_mujoco_name("geom", "block_large_geom")
+        assert task.env.model.geom_friction[geom_id, 0] > 2.5
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+
+
+def test_v8_cuboid_fallback_resolves_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=791402,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_block_small_return_bin_right",
+        seed=791402,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.grasp_config.family_templates[
+        "cuboid"
+    ].negative_object_yaw_to_wrist_yaw_gain == -1.0
+
+
+def test_v9_large_block_portfolio_resolves_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=892504,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_block_large_return_bin_left",
+        seed=892504,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.grasp_config.family_templates[
+        "cuboid"
+    ].negative_object_yaw_to_wrist_yaw_gain == -0.25
+
+
+def test_v9_heavy_puck_fallback_resolves_retired_boundary_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=893616,
+        boundary_case=True,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_puck_heavy_inspection_pad",
+        seed=893616,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.grasp_config.family_templates[
+        "flat_puck"
+    ].object_relative_position_m == (-0.006, 0.0, 0.016)
+
+
+def test_v10_puck_fallback_resolves_v9_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=992408,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_puck_light_return_bin_right",
+        seed=992408,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.grasp_config.family_templates[
+        "flat_puck"
+    ].object_relative_position_m == (-0.004, 0.0, 0.016)
+
+
+@pytest.mark.parametrize(
+    ("cell_id", "seed", "expected_first_done_success"),
+    (
+        ("pp_puck_heavy_inspection_pad", 1093607, True),
+        ("pp_block_large_return_bin_left", 1292513, None),
+    ),
+)
+def test_recording_waits_for_recomputed_terminal_dwell(
+    cell_id: str,
+    seed: int,
+    expected_first_done_success: bool | None,
+) -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=seed,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id=cell_id,
+        seed=seed,
+        procedural_variation=variation,
+    ) as task:
+        place_config = DeterministicPlaceConfig.from_mapping(
+            record_demo._level4_scripted_expert_settings(
+                args, task, "scripted_place"
+            )
+        )
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=place_config,
+        )
+        terminal = task.current_state
+        expert.reset(task, terminal.world_state)
+        first_done_success: bool | None = None
+        for _ in range(place_config.maximum_total_actions):
+            requested, phase, done, reason = expert.step(terminal.world_state)
+            assert reason is None
+            task.env.set_mocap_pose(
+                str(task.workcell.config.scene["hand_base_target"]),
+                position=requested.base_position,
+                orientation_quat=requested.base_orientation_wxyz,
+            )
+            task.env.set_joint_targets(requested.finger_targets)
+            terminal = record_demo._step_scripted_workcell(
+                task,
+                phase=phase,
+                n_steps=place_config.sim_steps_per_action,
+                orientation_hold_chunk_steps=place_config.orientation_hold_chunk_steps,
+            )
+            if done and first_done_success is None:
+                first_done_success = terminal.success
+            if done and terminal.success:
+                break
+
+    if expected_first_done_success is not None:
+        assert first_done_success is expected_first_done_success
+    assert terminal.success is True
+
+
+def test_v12_puck_portfolio_resolves_v11_quarantined_diagnostic() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=1192408,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_puck_light_return_bin_right",
+        seed=1192408,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.grasp_config.family_templates[
+        "flat_puck"
+    ].object_relative_position_m == (-0.006, 0.0, 0.020)
+
+
+def test_pick_place_preflight_rejects_v16_nonreplayable_grasp() -> None:
+    pytest.importorskip("mujoco")
+    config = yaml.safe_load(DATASET_CONFIG.read_text(encoding="utf-8"))
+    variation = sample_level4_procedural_variation(
+        config["level4_5b_procedural_expansion"],
+        skill_name="pick_place_sequence",
+        seed=1692715,
+    )
+    retargeter = CurlRetargeter.from_mapping(
+        load_curl_retargeter_config(ROOT / "configs/level1_teleop.yaml")
+    )
+    open_targets = run_level1_teleop.build_full_hand_targets(
+        retargeter, no_hand_features()
+    )
+    closed_targets = record_demo._scripted_closed_finger_targets(
+        retargeter, open_targets
+    )
+    args = SimpleNamespace(enforce_frozen_cell_owner=True)
+
+    with WorkcellPilotTask(
+        workcell_config=WORKCELL_CONFIG,
+        dataset_config=DATASET_CONFIG,
+        skill_name="pick_place_sequence",
+        goal_condition_id="pp_block_large_setup_slot_a",
+        seed=1692715,
+        procedural_variation=variation,
+    ) as task:
+        expert = DeterministicPickPlaceExpert(
+            open_finger_targets=open_targets,
+            closed_finger_targets=closed_targets,
+            grasp_config=DeterministicGraspLiftConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_grasp"
+                )
+            ),
+            place_config=DeterministicPlaceConfig.from_mapping(
+                record_demo._level4_scripted_expert_settings(
+                    args, task, "scripted_place"
+                )
+            ),
+        )
+        expert.reset(task, task.initial_world_state)
+
+    assert expert.validation is not None
+    assert expert.validation.valid is True
+    assert expert.validation.reason is None
+    assert expert.grasp_config.family_templates[
+        "cuboid"
+    ].object_relative_position_m == (0.0, 0.0, 0.024)
 
 
 def _quaternion_z_axis(quaternion: np.ndarray) -> np.ndarray:

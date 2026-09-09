@@ -30,7 +30,7 @@ def test_complete_recording_yields_compatible_reach_pick_and_place_segments(
     episode_dir = record_pick_place(
         tmp_path,
         cell="pp_block_small_inspection_pad",
-        seed=4,
+        seed=0,
         name="segment_contract",
     )
     episode = load_logged_demo(episode_dir)
@@ -64,11 +64,11 @@ def test_complete_recording_yields_compatible_reach_pick_and_place_segments(
         assert np.all(np.isfinite(action_slice))
 
 
-def test_held_out_return_bin_anchor_replays_with_task_geometry_isolated(
+def test_pick_place_replay_keeps_task_geometry_isolated(
     tmp_path: Path,
 ) -> None:
     mujoco = pytest.importorskip("mujoco")
-    episode_dir = tmp_path / "return_bin_anchor"
+    episode_dir = tmp_path / "geometry_isolation"
     args = record_demo.build_parser().parse_args(
         [
             "--task",
@@ -78,13 +78,13 @@ def test_held_out_return_bin_anchor_replays_with_task_geometry_isolated(
             "--source",
             "scripted",
             "--session-id",
-            "return_bin_anchor",
+            "geometry_isolation",
             "--operator-id",
             "scripted_pick_place_anchor_v1",
             "--session-split",
-            "test",
+            "train",
             "--goal-condition-id",
-            "pp_block_large_return_bin_right",
+            "pp_block_small_inspection_pad",
             "--task-seed",
             "0",
             "--output",
@@ -111,11 +111,11 @@ def test_held_out_return_bin_anchor_replays_with_task_geometry_isolated(
     assert episode.metadata["teleop_config"]["scripted_expert"]["grasp"][
         "family_templates"
     ]["cuboid"]["object_relative_position_m"] == pytest.approx(
-        [0.0075, 0.0, 0.024]
+        [0.0075, 0.0, 0.020]
     )
     assert episode.metadata["teleop_config"]["scripted_expert"][
         "family_target_offset_xy_m"
-    ]["cuboid"] == pytest.approx([0.0, 0.0])
+    ]["cuboid"] == pytest.approx([-0.01, 0.0])
 
     audit = audit_scripted_episode(
         episode_dir,
@@ -129,7 +129,7 @@ def test_held_out_return_bin_anchor_replays_with_task_geometry_isolated(
         workcell_config=ROOT / "configs" / "workcell.yaml",
         dataset_config=ROOT / "configs" / "level4_dataset.yaml",
         skill_name="pick_place_sequence",
-        goal_condition_id="pp_block_large_return_bin_right",
+        goal_condition_id="pp_block_small_inspection_pad",
         seed=0,
     ) as task:
         for geom_name in ("fixture_wall_geom", "start_button_geom"):

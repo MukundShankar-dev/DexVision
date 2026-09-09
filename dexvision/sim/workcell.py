@@ -261,6 +261,80 @@ class Workcell:
         self._initial_state = state
         return state
 
+    def apply_object_variation(
+        self,
+        object_id: str,
+        *,
+        position_offset_xy_m: Sequence[float],
+        scale_multiplier: float,
+        mass_multiplier: float,
+        friction_multiplier: float,
+    ) -> WorldState:
+        """Apply one bounded runtime-only object variation after reset."""
+
+        self._require_reset()
+        try:
+            spec = next(item for item in self.config.objects if item.object_id == object_id)
+        except StopIteration as exc:
+            raise WorkcellError(f"Unknown procedural object: {object_id!r}.") from exc
+        offset = np.asarray(position_offset_xy_m, dtype=np.float64)
+        multipliers = np.asarray(
+            [scale_multiplier, mass_multiplier, friction_multiplier],
+            dtype=np.float64,
+        )
+        if offset.shape != (2,) or not np.all(np.isfinite(offset)):
+            raise WorkcellError("procedural object position offset must be a finite pair.")
+        if not np.all(np.isfinite(multipliers)) or np.any(multipliers <= 0.0):
+            raise WorkcellError("procedural object multipliers must be finite and positive.")
+
+        mujoco = self.env._mujoco
+        geom_id = self._require_mujoco_name("geom", spec.geom)
+        body_id = self._require_mujoco_name("body", spec.body)
+        entity = self.get_world_state().require_entity(object_id)
+        position = np.asarray(entity.position, dtype=np.float64)
+        position[:2] += offset
+        position[2] += spec.resting_height_m * (float(scale_multiplier) - 1.0)
+        self.env.model.geom_size[geom_id] *= float(scale_multiplier)
+        self.env.model.geom_friction[geom_id] *= float(friction_multiplier)
+        self.env.model.body_mass[body_id] *= float(mass_multiplier)
+        self.env.model.body_inertia[body_id] *= float(
+            mass_multiplier * scale_multiplier**2
+        )
+        self._set_free_joint(
+            spec.joint,
+            position,
+            np.asarray(entity.orientation_wxyz, dtype=np.float64),
+        )
+        mujoco.mj_forward(self.env.model, self.env.data)
+        state = self.get_world_state()
+        self._initial_state = state
+        return state
+
+    def offset_static_entity(
+        self,
+        entity_id: str,
+        offset_m: Sequence[float],
+    ) -> WorldState:
+        """Offset one configured target or fixture body for a procedural reset."""
+
+        self._require_reset()
+        offset = np.asarray(offset_m, dtype=np.float64)
+        if offset.shape != (3,) or not np.all(np.isfinite(offset)):
+            raise WorkcellError("procedural entity offset must be a finite 3-vector.")
+        runtime = self.config.targets.get(entity_id) or self.config.fixtures.get(
+            entity_id
+        )
+        if runtime is None:
+            raise WorkcellError(
+                f"Procedural entity {entity_id!r} is not a target or fixture."
+            )
+        body_id = self._require_mujoco_name("body", str(runtime["body"]))
+        self.env.model.body_pos[body_id] += offset
+        self.env._mujoco.mj_forward(self.env.model, self.env.data)
+        state = self.get_world_state()
+        self._initial_state = state
+        return state
+
     def set_pilot_goal_marker(self, position: Sequence[float]) -> None:
         """Place the non-colliding operator cue at one resolved task target."""
 

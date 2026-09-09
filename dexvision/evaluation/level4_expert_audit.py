@@ -204,12 +204,23 @@ def audit_scripted_episode(
     replayed_steps = 0
     headless_replay = False
     terminal_metric_recomputation = False
+    procedural = metadata.get("procedural_expansion")
+    procedural_variation = (
+        procedural.get("variation") if isinstance(procedural, Mapping) else None
+    )
+    if procedural_variation is not None and not isinstance(
+        procedural_variation, Mapping
+    ):
+        raise Level4ExpertAuditError(
+            f"episode {episode_id!r} procedural variation must be a mapping."
+        )
     with WorkcellPilotTask(
         workcell_config=workcell_config,
         dataset_config=config_path,
         skill_name=source_skill,
         goal_condition_id=goal_condition_id,
         seed=seed,
+        procedural_variation=procedural_variation,
     ) as task:
         reset_metadata_match = _reset_matches_metadata(task, metadata)
         if not reset_metadata_match:
@@ -478,6 +489,23 @@ def _causal_phase_contract_passes(episode: object, source_skill: str) -> bool:
         for index, phase in enumerate(phases.astype(str).tolist())
         if index == 0 or phase != str(phases[index - 1])
     )
+    if source_skill == "push_object_to_target":
+        allowed_edges = {
+            ("approach", "push_contact"),
+            ("push_contact", "approach"),
+            ("push_contact", "settle"),
+            ("settle", "retract"),
+        }
+        return bool(
+            observed
+            and observed[0] == "approach"
+            and observed[-1] == "retract"
+            and {"push_contact", "settle"}.issubset(observed)
+            and all(
+                edge in allowed_edges
+                for edge in zip(observed, observed[1:], strict=False)
+            )
+        )
     return observed == expected
 
 

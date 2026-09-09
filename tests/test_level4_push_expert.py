@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
 from dexvision.apps import record_demo, replay_demo as replay_app
+from dexvision.evaluation.level4_expert_audit import _causal_phase_contract_passes
 from dexvision.logging.demo_logger import load_logged_demo
 from dexvision.logging.level4_collection import WorkcellPilotTask
 from dexvision.logging.replay_demo import load_replay_demo, replay_loaded_demo
@@ -23,6 +25,23 @@ CASES = (
     ("push_flat_puck_return_bin_left_interior", 3),
     ("push_flat_puck_return_bin_left_interior", 4),
 )
+
+
+def test_push_causal_phase_contract_allows_bounded_reapproach() -> None:
+    episode = SimpleNamespace(
+        online_phases=np.asarray(
+            [
+                "approach",
+                "push_contact",
+                "approach",
+                "push_contact",
+                "settle",
+                "retract",
+            ]
+        )
+    )
+
+    assert _causal_phase_contract_passes(episode, "push_object_to_target")
 
 
 def _record_one(tmp_path: Path, cell: str, seed: int) -> Path:

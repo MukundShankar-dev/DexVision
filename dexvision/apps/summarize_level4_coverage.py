@@ -64,6 +64,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Return exit status 1 unless the Level 4.5A automated gates pass.",
     )
+    parser.add_argument(
+        "--require-level4-5b-automated",
+        action="store_true",
+        help="Return exit status 1 unless the Level 4.5B automated gates pass.",
+    )
     return parser
 
 
@@ -113,6 +118,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Pilot status: {report['pilot_status']}")
     core = report["level4_4_core_collection"]
     anchor = report["level4_5a_pick_place_collection"]
+    expansion = report["level4_5b_procedural_expansion"]
     if args.skill is None:
         print(
             "Level 4.4 core haul: "
@@ -128,12 +134,26 @@ def main(argv: list[str] | None = None) -> int:
             f"cells={anchor['coverage_matrix']['complete_cell_count']}/"
             f"{anchor['coverage_matrix']['cell_count']}, status={anchor['status']}"
         )
+    if args.skill is None:
+        print(
+            "Level 4.5B procedural expansion: "
+            f"{expansion['accepted_nominal_episode_count']}/"
+            f"{expansion['required_nominal_accepted_episodes']} accepted, "
+            f"cells={expansion['coverage_matrix']['complete_cell_count']}/"
+            f"{expansion['coverage_matrix']['cell_count']}, "
+            f"status={expansion['status']}"
+        )
     print(f"Report: {output}")
     if args.require_level4_4_complete and not core["checkpoint_complete"]:
         return 1
     if (
         args.require_level4_5a_automated
         and not anchor["automated_requirements_passed"]
+    ):
+        return 1
+    if (
+        args.require_level4_5b_automated
+        and not expansion["automated_requirements_passed"]
     ):
         return 1
     if args.require_complete and not report["checkpoint_complete"]:

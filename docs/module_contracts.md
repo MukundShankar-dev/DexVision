@@ -828,7 +828,15 @@ table-support, upright-tilt, and dwell metric passes, followed by an axial
 retract. The final metric must remain qualified for five released samples;
 transient success is not latched. Its copied-state validator rejects board or
 workspace exits, tilt above 10 degrees, non-target contacts, limit violations,
-and planar neighbor disturbance. `record_demo --source scripted` routes `reach_object`,
+and planar neighbor disturbance. Qualification also runs the actual feedback
+controller in one copied state and replays the exact resulting action sequence
+in a second independent copy. A bounded family-specific lateral/contact-height
+portfolio may select the first candidate that passes both executions; it does
+not relax task or safety metrics. Contact loss may trigger only the configured
+bounded re-approach count. When contact is first established at approach
+completion, the controller must emit `push_contact` before `settle`, even if the
+same physical contact already moved the object inside the terminal radius.
+`record_demo --source scripted` routes `reach_object`,
 `press_button`, `push_object_to_target`, and standalone `pick_object` through
 these experts and the existing Level 4 logger. `DeterministicGraspLiftExpert`
 uses configuration-owned cuboid, cylinder, and flat-puck object-relative
@@ -842,7 +850,12 @@ retention, and ten stable samples at no more than 0.020 m/s. Table contact is
 allowed during acquisition and early lift only; after the lift threshold,
 wrong-object, fixture, or table contact fails qualification. Complete
 pick/place composes the shared grasp stage through the same expert and
-action/logger boundary. For the 4.3E orientation requirement, each family uses
+action/logger boundary. Its copied-state qualification records the exact
+candidate actions and requires that same open-loop sequence to acquire, retain,
+transport, release, and settle successfully in a fresh independent copy; a
+closed-loop-only success cannot qualify a saved demonstration. Fatal expert
+reasons terminate recording immediately and remain rejected evidence. For the
+4.3E orientation requirement, each family uses
 a configuration-owned 80--90 degree side-on wrist pose analogous to a
 hammer-curl grip. Cuboid wrist yaw is conditioned on the object's seeded yaw;
 axially symmetric objects ignore irrelevant spin. A declared rotation-only
@@ -1065,6 +1078,50 @@ complete object-family/instance/target/session/source counts, recomputable phase
 segments, split isolation, and append-only review evidence. Manual completion
 then requires at least six visible replays spanning every object family and
 target type; the checkpoint remains incomplete until the user confirms them.
+```
+
+Level 4.5B procedural expansion and scaling probe:
+
+```python
+assignments = build_level4_procedural_expansion_plan(
+    "configs/level4_dataset.yaml"
+)
+report = run_level4_scaling_probe(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4",
+)
+coverage = summarize_level4_coverage(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4",
+)["level4_5b_procedural_expansion"]
+```
+
+Rules:
+
+```text
+The active v19 plan contributes exactly 890 assignments to the 102 immutable nominal
+anchors, producing 16 accepted episodes in each of 62 split-owned nominal
+cells and 992 nominal episodes overall when complete.
+Every assignment has a deterministic unique reset seed, initial-state digest,
+continuous in-cell variation, and one append-only split-owned session. A failed
+attempt remains rejected evidence and never satisfies an accepted slot.
+The coverage audit verifies counts, seed and digest uniqueness, initial-state
+and action-trajectory separation, storage projection, and manual-review state.
+The scaling probe uses only accepted train/validation episodes. Its 4/8/16
+training subsets are nested, use one model recipe and seed, normalize from the
+active training subset, and replay the same fixed validation matrix.
+Test generation is rejected unless the saved scaling report is sufficient and
+explicitly records that it inspected no test episodes. If the user authorizes
+diagnosis of an exposed test failure, that entire namespace must first be
+quarantined from active coverage and model selection, and a successor plan must
+freeze a new version, session prefix, episode prefix, and seed base before the
+failure is inspected. Only an untouched successor namespace may provide active
+test coverage; no exposed result may change thresholds, model selection, or the
+planned data volume.
+The automated verdict requires all 992 accepted nominal episodes and all
+independence and scaling gates. Manual completion additionally requires visible
+nominal and boundary replays for each of reach, complete pick/place, push, and
+button press, confirmed by the user.
 ```
 
 ---

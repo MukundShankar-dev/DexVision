@@ -10,7 +10,7 @@ import sys
 import tempfile
 import time
 from copy import deepcopy
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from contextlib import ExitStack
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -55,11 +55,14 @@ from dexvision.logging.level4_collection import (
     WorkcellPilotTask,
     build_level4_core_collection_plan,
     build_level4_pick_place_collection_plan,
+    build_level4_procedural_expansion_plan,
+    initial_state_digest,
     load_level4_collection_config,
 )
 from dexvision.logging.session_manifest import (
     RecordingSession,
     append_session_manifest,
+    load_session_manifest,
     next_episode_directory,
 )
 from dexvision.perception.hand_tracker import (
@@ -201,6 +204,7 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
 
     if args.task != WORKCELL_PILOT_TASK_ID:
         return
+    args.procedural_variation = None
     if args.synthetic:
         raise ValueError(
             "Level 4 workcell pilot episodes must be live; --synthetic is forbidden."
@@ -266,6 +270,40 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
             f"coverage cell {args.goal_condition_id!r} requires source "
             f"{cell.get('required_source')!r}, not {args.source!r}."
         )
+    if args.level4_procedural_repetition is not None:
+        if args.source != "scripted" or not args.enforce_frozen_cell_owner:
+            raise ValueError(
+                "Level 4.5B procedural recording requires scripted source and "
+                "--enforce-frozen-cell-owner."
+            )
+        assignment = next(
+            (
+                item
+                for item in build_level4_procedural_expansion_plan(
+                    args.level4_dataset_config
+                )
+                if item.coverage_cell_id == args.goal_condition_id
+                and item.repetition == args.level4_procedural_repetition
+            ),
+            None,
+        )
+        if assignment is None:
+            raise ValueError(
+                "no frozen Level 4.5B assignment matches coverage cell "
+                f"{args.goal_condition_id!r} repetition "
+                f"{args.level4_procedural_repetition}."
+            )
+        if int(args.task_seed) != assignment.seed:
+            raise ValueError(
+                f"Level 4.5B assignment requires seed {assignment.seed}, "
+                f"not {args.task_seed}."
+            )
+        if not args.workcell_dry_run and str(args.session_id) != assignment.session_id:
+            raise ValueError(
+                f"Level 4.5B assignment requires session id "
+                f"{assignment.session_id!r}."
+            )
+        args.procedural_variation = assignment.variation
     workcell_config = load_workcell_config(args.workcell_config)
     args.model = workcell_config.model_path
     args.level1_13_full = True
@@ -289,17 +327,66 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
     calibration_digest = hashlib.sha256(
         json.dumps(calibration_record, sort_keys=True).encode("utf-8")
     ).hexdigest()
-    append_session_manifest(
-        args.level4_pilot_dataset_dir / "session_manifest.json",
-        RecordingSession(
-            recording_session_id=str(args.session_id),
-            operator_id=str(args.operator_id),
-            split=str(args.session_split),
-            process_start_timestamp=process_start,
-            reset_seed=int(args.task_seed),
-            calibration_record_digest=f"sha256:{calibration_digest}",
-        ),
+    session = RecordingSession(
+        recording_session_id=str(args.session_id),
+        operator_id=str(args.operator_id),
+        split=str(args.session_split),
+        process_start_timestamp=process_start,
+        reset_seed=int(args.task_seed),
+        calibration_record_digest=f"sha256:{calibration_digest}",
     )
+    manifest_path = args.level4_pilot_dataset_dir / "session_manifest.json"
+    if args.resume_existing_session:
+        _validate_reusable_level4_session(
+            manifest_path=manifest_path,
+            dataset_dir=args.level4_pilot_dataset_dir,
+            expected=session,
+            procedural_repetition=args.level4_procedural_repetition,
+        )
+    else:
+        append_session_manifest(manifest_path, session)
+
+
+def _validate_reusable_level4_session(
+    *,
+    manifest_path: Path,
+    dataset_dir: Path,
+    expected: RecordingSession,
+    procedural_repetition: int | None,
+) -> None:
+    """Validate an append-only retry in an existing procedural session."""
+
+    if procedural_repetition is None:
+        raise ValueError(
+            "--resume-existing-session is only valid for a frozen "
+            "Level 4.5B procedural assignment."
+        )
+    manifest = load_session_manifest(manifest_path)
+    existing = next(
+        (
+            item
+            for item in manifest.sessions
+            if item.recording_session_id == expected.recording_session_id
+        ),
+        None,
+    )
+    if existing is None:
+        raise ValueError(
+            "cannot resume Level 4.5B session because its manifest entry does "
+            f"not exist: {expected.recording_session_id}"
+        )
+    compared_fields = ("operator_id", "split", "reset_seed")
+    mismatches = [
+        field
+        for field in compared_fields
+        if getattr(existing, field) != getattr(expected, field)
+    ]
+    if mismatches:
+        raise ValueError(
+            "cannot resume Level 4.5B session because its manifest entry differs "
+            "in: " + ", ".join(mismatches)
+        )
+    del dataset_dir
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -472,6 +559,23 @@ def build_parser() -> argparse.ArgumentParser:
         "--print-level4-pick-place-plan",
         action="store_true",
         help="Print the frozen Level 4.5A pick/place anchor plan and exit.",
+    )
+    parser.add_argument(
+        "--level4-procedural-repetition",
+        type=int,
+        default=None,
+        help=(
+            "Frozen Level 4.5B repetition for an append-only procedural "
+            "assignment. Its cell, seed, split, and session are enforced."
+        ),
+    )
+    parser.add_argument(
+        "--resume-existing-session",
+        action="store_true",
+        help=(
+            "Append a retry to an existing Level 4.5B procedural session. The "
+            "manifest entry must match the frozen assignment."
+        ),
     )
     parser.add_argument(
         "--enforce-frozen-cell-owner",
@@ -870,6 +974,7 @@ def _run_scripted_workcell_recording(
                 skill_name=args.skill_name,
                 goal_condition_id=args.goal_condition_id,
                 seed=args.task_seed,
+                procedural_variation=args.procedural_variation,
             )
         )
         neutral_targets = run_level1_teleop.build_full_hand_targets(
@@ -1065,9 +1170,13 @@ def _run_scripted_workcell_recording(
             700
             if args.skill_name == "pick_place_sequence"
             else (
-                500
-                if args.skill_name in {"push_object_to_target", "pick_object"}
-                else 300
+                expert_config.maximum_total_actions
+                if isinstance(expert_config, DeterministicPushConfig)
+                else (
+                    500
+                    if args.skill_name == "pick_object"
+                    else 300
+                )
             )
         )
         limit = args.max_frames if args.max_frames > 0 else default_limit
@@ -1141,9 +1250,17 @@ def _run_scripted_workcell_recording(
                     f"scripted={frame_index + 1:03d} {terminal.status_text} "
                     f"reason={reason or 'none'}"
                 )
-            if done:
+            if reason is not None:
                 expert_done = True
                 break
+            if done:
+                expert_done = True
+                if (
+                    args.skill_name
+                    not in {"push_object_to_target", "pick_place_sequence"}
+                    or terminal.success
+                ):
+                    break
 
         metric_success = (
             terminal.success
@@ -1231,6 +1348,10 @@ def _level4_scripted_expert_settings(
         checkpoint_blocks.append(
             task.collection_config.get("level4_5a_pick_place_collection", {})
         )
+    if task.procedural_variation:
+        checkpoint_blocks.append(
+            task.collection_config.get("level4_5b_procedural_expansion", {})
+        )
     for checkpoint in checkpoint_blocks:
         if not isinstance(checkpoint, Mapping):
             continue
@@ -1240,10 +1361,151 @@ def _level4_scripted_expert_settings(
             if isinstance(raw, Mapping):
                 settings = _merge_nested_settings(settings, raw)
     if settings_key == "scripted_grasp":
+        settings = _resolve_instance_acquisition_hold_steps(settings, task)
         settings = _resolve_instance_grasp_template(settings, task)
+        if task.procedural_variation:
+            settings = _resolve_procedural_grasp_yaw_gain(settings, task)
+        settings = _resolve_family_fallback_templates(settings)
     elif settings_key == "scripted_place":
         settings = _resolve_instance_place_target_offset(settings, task)
+    if task.procedural_variation:
+        settings = _apply_procedural_controller_offset(settings, task, settings_key)
     return settings
+
+
+def _resolve_instance_acquisition_hold_steps(
+    settings: Mapping[str, Any], task: WorkcellPilotTask
+) -> dict[str, Any]:
+    """Resolve an optional object-specific stable-contact dwell."""
+
+    resolved = deepcopy(dict(settings))
+    raw_instances = resolved.pop("instance_acquisition_hold_steps", {})
+    if not isinstance(raw_instances, Mapping):
+        raise ValueError(
+            "scripted_grasp.instance_acquisition_hold_steps must be a mapping."
+        )
+    object_id = str(task.goal.get("object_id", ""))
+    raw_steps = raw_instances.get(object_id)
+    if raw_steps is not None:
+        if isinstance(raw_steps, bool) or not isinstance(raw_steps, int) or raw_steps <= 0:
+            raise ValueError(
+                f"scripted grasp acquisition dwell for {object_id!r} must be positive."
+            )
+        resolved["required_acquisition_hold_steps"] = raw_steps
+    return resolved
+
+
+def _resolve_family_fallback_templates(
+    settings: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Expand partial fallback overrides against each resolved family template."""
+
+    resolved = deepcopy(dict(settings))
+    raw_fallbacks = resolved.pop("family_fallback_overrides", {})
+    if not isinstance(raw_fallbacks, Mapping):
+        raise ValueError("scripted_grasp.family_fallback_overrides must be a mapping.")
+    raw_families = resolved.get("family_templates")
+    if not isinstance(raw_families, Mapping):
+        raise ValueError("scripted_grasp.family_templates must be a mapping.")
+    fallback_templates: dict[str, list[dict[str, Any]]] = {}
+    for family, raw_overrides in raw_fallbacks.items():
+        base = raw_families.get(family)
+        if not isinstance(base, Mapping):
+            raise ValueError(f"missing scripted grasp family template {family!r}.")
+        if not isinstance(raw_overrides, Sequence) or isinstance(raw_overrides, str):
+            raise ValueError(
+                f"scripted grasp fallbacks for {family!r} must be a sequence."
+            )
+        expanded: list[dict[str, Any]] = []
+        for raw_override in raw_overrides:
+            if not isinstance(raw_override, Mapping):
+                raise ValueError(
+                    f"scripted grasp fallback for {family!r} must be a mapping."
+                )
+            expanded.append(_merge_nested_settings(base, raw_override))
+        fallback_templates[str(family)] = expanded
+    resolved["family_fallback_templates"] = fallback_templates
+    return resolved
+
+
+def _resolve_procedural_grasp_yaw_gain(
+    settings: Mapping[str, Any], task: WorkcellPilotTask
+) -> dict[str, Any]:
+    """Apply the train-qualified cuboid wrist correction schedule."""
+
+    resolved = deepcopy(dict(settings))
+    object_id = str(task.goal.get("object_id", ""))
+    spec = next(
+        item for item in task.workcell.config.objects if item.object_id == object_id
+    )
+    if spec.family != "cuboid":
+        return resolved
+    orientation = np.asarray(
+        task.initial_world_state.require_entity(object_id).orientation_wxyz,
+        dtype=float,
+    )
+    w, x, y, z = orientation
+    yaw = math.atan2(
+        2.0 * (w * z + x * y),
+        1.0 - 2.0 * (y * y + z * z),
+    )
+    procedural = task.collection_config["level4_5b_procedural_expansion"]
+    yaw_gain = procedural["cuboid_yaw_gain_schedule"]
+    threshold = float(yaw_gain["high_absolute_yaw_threshold_rad"])
+    if abs(yaw) >= threshold:
+        ratio = float(yaw_gain["high_absolute_gain_ratio"])
+    elif yaw > 0.0:
+        ratio = float(yaw_gain["moderate_positive_gain_ratio"])
+    else:
+        return resolved
+    families = deepcopy(dict(resolved["family_templates"]))
+    cuboid = dict(families["cuboid"])
+    cuboid["negative_object_yaw_to_wrist_yaw_gain"] = (
+        float(cuboid["negative_object_yaw_to_wrist_yaw_gain"]) * ratio
+    )
+    families["cuboid"] = cuboid
+    resolved["family_templates"] = families
+    return resolved
+
+
+def _apply_procedural_controller_offset(
+    settings: Mapping[str, Any],
+    task: WorkcellPilotTask,
+    settings_key: str,
+) -> dict[str, Any]:
+    """Apply the saved sub-millimetre controller perturbation to one expert."""
+
+    resolved = deepcopy(dict(settings))
+    offset = np.asarray(
+        task.procedural_variation["controller_position_offset_m"], dtype=float
+    )
+    if settings_key == "scripted_button":
+        for key in ("precontact_offset_m", "press_offset_m"):
+            resolved[key] = (np.asarray(resolved[key], dtype=float) + offset).tolist()
+    elif settings_key == "scripted_push":
+        resolved["approach_gap_m"] = float(resolved["approach_gap_m"]) + float(
+            offset[0]
+        )
+        families = deepcopy(dict(resolved["family_parameters"]))
+        for name, raw in families.items():
+            values = dict(raw)
+            values["fingertip_forward_offset_m"] = float(
+                values["fingertip_forward_offset_m"]
+            ) + float(offset[0])
+            values["control_height_m"] = float(values["control_height_m"]) + float(
+                offset[2]
+            )
+            families[name] = values
+        resolved["family_parameters"] = families
+        resolved["fingertip_lateral_offset_m"] = float(
+            resolved["fingertip_lateral_offset_m"]
+        ) + float(offset[1])
+    elif settings_key == "scripted_place":
+        offsets = deepcopy(dict(resolved["family_target_offset_xy_m"]))
+        for name, raw in offsets.items():
+            offsets[name] = (np.asarray(raw, dtype=float) + offset[:2]).tolist()
+        resolved["family_target_offset_xy_m"] = offsets
+    return resolved
 
 
 def _merge_nested_settings(
@@ -2955,7 +3217,7 @@ def _level4_metadata(
         if isinstance(dataset_config, Mapping) and dataset_config.get("name")
         else "level4-dataset-v1"
     )
-    return {
+    metadata = {
         "skill_name": skill_name,
         "episode_schema_version": str(schema_versions["episode"]),
         "recording_session_id": args.session_id,
@@ -2995,6 +3257,19 @@ def _level4_metadata(
         },
         "initial_online_phase": initial_phase,
     }
+    procedural = task_config.get("procedural_variation")
+    initial = task_config.get("initial_state")
+    if isinstance(procedural, Mapping) and isinstance(initial, Mapping):
+        metadata["procedural_expansion"] = {
+            "version": procedural.get("version"),
+            "repetition": args.level4_procedural_repetition,
+            "variation": dict(procedural),
+        }
+        metadata["initial_state_digest"] = initial_state_digest(
+            initial_state=initial,
+            procedural_variation=procedural,
+        )
+    return metadata
 
 
 def _reach_touch_task_config(

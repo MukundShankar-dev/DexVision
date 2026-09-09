@@ -20,18 +20,18 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.5A — Complete Pick/Place Anchor Haul
+Level 4.5B — Procedural Diversity Expansion and Data-Sufficiency Gate
 
-The versioned v2 anchor contains 42 accepted scripted complete pick/place
-episodes across all 30 split-owned cells. It preserves earlier accepted and
-rejected evidence, uses geometry-aware grasp and placement corrections without
-weakening success or safety thresholds, and makes validation, recording, and
-replay use a reproducible orientation-hold cadence. Every accepted episode
-passes append-only review, headless replay, terminal recomputation, three-skill
-segment derivation, and held-out isolation. The focused seven-test command,
-repository-wide Ruff, and the full 552-test suite pass. The user accepted all
-six stratified manual replays on September 8, 2026, covering every object family
-and target type.
+Active plan `level4/workcell-dataset-plan-v19` and procedural expansion v9
+contain 992/992 accepted nominal episodes across 62/62 split-owned cells. The
+fresh v19 test namespace accepted 400/400 assignments with zero rejections;
+exposed v4--v18 test namespaces remain quarantined from active coverage and
+model selection. Duplicate seed, initial-state digest, and exact-action counts
+are zero, the descriptor-distance audit passes, and the frozen validation-only
+4/8/16 scaling probe declares the dataset sufficient without using test data.
+Repository-wide Ruff and the full 576-test suite pass. The user accepted all
+eight nominal/boundary procedural replays on September 9, 2026, covering reach,
+complete pick/place, push, and button press. Level 4.5B is complete.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -40,27 +40,21 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.5B — Procedural Diversity Expansion and Data-Sufficiency Gate
+Level 4.6 — Scripted Failures and Corrective Demonstrations
 
-Level 4.5B has not started. The next work turn may implement only the frozen
-procedural diversity expansion and validation-only scaling gate described in
-`docs/progress_level_4.md`. Do not start Level 4.6 in the same turn.
-
-The accepted 114-episode Level 4.3I matrix is now explicitly an integration
-and coverage anchor, not the final comprehensive learning-data claim. After
-4.5A, Level 4.5B must expand all nominal cells with independently seeded,
-continuously varied scripted rollouts before the release can qualify for Level
-5. The release-candidate floor is 16 accepted episodes per nominal cell (992
-nominal episodes), followed by 10 episodes per failure/correction cell in 4.6
-(120 episodes), for 1,112 accepted episodes overall. A validation-only scaling
-check can require a larger versioned tranche; test-owned episodes remain
-untouched.
+Level 4.6 is the only permitted next target. Preserve representative scripted
+failures and generate safe deterministic corrections without contaminating the
+expert-only nominal set. Implement exactly the frozen 12 failure/correction
+cells and 120-episode minimum in `docs/progress_level_4.md`. Keep source episode,
+failure class, retryability, intervention interval, trigger source, correction
+outcome, and conditional policy provenance distinct. Unsafe workspace or
+joint-limit failures remain abort-only. Do not begin Level 4.7.
 
 ---
 
 ## Current Branch
 
-`codex/level45a-pick-place-anchor`
+`main`
 
 ---
 
@@ -71,6 +65,14 @@ six stratified pick/place replays covering cuboid, cylinder, and flat-puck
 objects plus receptacle, planar-zone, and placement-slot targets. Visible
 acquisition, lift, transport, release, settling, and retraction agreed with the
 saved labels. Level 4.5A is complete.
+
+Level 4.5B manual verification passed on September 9, 2026. The user accepted
+eight v19 procedural replays: one nominal and one boundary case for each of
+reach, complete pick/place, push, and button press. The visible resets and goal
+variation, acquisition/retention where applicable, trajectories, terminal
+results, settling, and retraction matched the saved metadata. The approvals are
+recorded append-only in `data/demos/level4/manual_replay_manifest.json`. Level
+4.5B is complete.
 
 Level 1.0 did not require manual verification.
 

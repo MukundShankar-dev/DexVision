@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import hashlib
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -16,6 +17,7 @@ from dexvision.logging.level4_collection import (
     LEVEL4_EPISODE_SOURCES,
     Level4CollectionError,
     PilotEpisode,
+    build_level4_procedural_expansion_plan,
     discover_pilot_episodes,
     load_level4_collection_config,
     load_manual_replay_reviews,
@@ -174,6 +176,15 @@ def summarize_level4_coverage(
         cells=cells,
         manual_reviews=manual_reviews,
     )
+    procedural_expansion = _procedural_expansion_summary(
+        config,
+        config_path=Path(config_path),
+        dataset_root=root,
+        episodes=episodes,
+        sessions=sessions,
+        cells=cells,
+        manual_reviews=manual_reviews,
+    )
     phase_limit = float(
         _mapping(config, "quality_thresholds")[
             "max_phase_annotation_disagreement_fraction"
@@ -240,6 +251,7 @@ def summarize_level4_coverage(
         "coverage_matrix": matrix,
         "level4_4_core_collection": core_collection,
         "level4_5a_pick_place_collection": pick_place_collection,
+        "level4_5b_procedural_expansion": procedural_expansion,
         "optional_dial_decision": protocol.optional_dial_decision,
         "issues": sorted(set(issues)),
         "automated_pilot_requirements_passed": protocol_passed,
@@ -456,6 +468,10 @@ def _core_collection_summary(
         group = GROUP_BY_SKILL.get(episode.skill_name)
         if group not in LEVEL4_CORE_GROUPS:
             continue
+        # Later procedural surplus counts toward Level 4.5B, but it must not
+        # retroactively change the frozen Level 4.4 snapshot or its balance.
+        if isinstance(episode.metadata.get("procedural_expansion"), Mapping):
+            continue
         attempt_count += 1
         cell = core_cells.get(episode.goal_condition_id)
         if cell is None:
@@ -664,6 +680,10 @@ def _pick_place_anchor_summary(
     for episode in episodes:
         if episode.skill_name != "pick_place_sequence":
             continue
+        # Keep the completed anchor report scoped to its immutable 4.5A haul.
+        # Procedural pick/place episodes are audited by the 4.5B report below.
+        if isinstance(episode.metadata.get("procedural_expansion"), Mapping):
+            continue
         attempt_count += 1
         cell = pick_cells.get(episode.goal_condition_id)
         if cell is None:
@@ -866,6 +886,350 @@ def _pick_place_anchor_summary(
         "issues": sorted(set(issues)),
         "automated_requirements_passed": automated,
         "checkpoint_complete": complete,
+    }
+
+
+def _procedural_expansion_summary(
+    config: Mapping[str, Any],
+    *,
+    config_path: Path,
+    dataset_root: Path,
+    episodes: Sequence[PilotEpisode],
+    sessions: Mapping[str, str],
+    cells: Mapping[str, Mapping[str, Any]],
+    manual_reviews: Sequence[Any],
+) -> Mapping[str, Any]:
+    """Evaluate the Level 4.5B nominal scale, independence, and manual gate."""
+
+    expansion = _mapping(config, "level4_5b_procedural_expansion")
+    nominal_groups = set(expansion["nominal_data_groups"])
+    nominal_cells = {
+        cell_id: cell
+        for cell_id, cell in cells.items()
+        if cell.get("data_group") in nominal_groups
+    }
+    target_per_cell = int(expansion["accepted_episodes_per_cell"])
+    quarantine = _mapping(expansion, "diagnostic_quarantine")
+    excluded_prefixes = tuple(
+        str(prefix) for prefix in quarantine["excluded_session_prefixes"]
+    )
+    accepted_by_cell: Counter[str] = Counter()
+    procedural_by_cell: dict[str, list[PilotEpisode]] = defaultdict(list)
+    procedural_by_id: dict[str, PilotEpisode] = {}
+    issues: list[str] = []
+
+    for episode in episodes:
+        cell = nominal_cells.get(episode.goal_condition_id)
+        if cell is None or not episode.expert_accepted:
+            continue
+        procedural = episode.metadata.get("procedural_expansion")
+        if isinstance(procedural, Mapping) and episode.session_id.startswith(
+            excluded_prefixes
+        ):
+            continue
+        group = GROUP_BY_SKILL.get(episode.skill_name)
+        split = sessions.get(episode.session_id)
+        if (
+            group != cell.get("data_group")
+            or split != cell.get("split_owner")
+            or episode.source != cell.get("required_source")
+        ):
+            continue
+        accepted_by_cell[episode.goal_condition_id] += 1
+        if isinstance(procedural, Mapping):
+            procedural_by_cell[episode.goal_condition_id].append(episode)
+            procedural_by_id[episode.episode_id] = episode
+
+    matrix_rows = []
+    for cell_id, cell in nominal_cells.items():
+        observed = int(accepted_by_cell[cell_id])
+        matrix_rows.append(
+            {
+                "cell_id": cell_id,
+                "data_group": cell["data_group"],
+                "split_owner": cell["split_owner"],
+                "minimum": target_per_cell,
+                "observed": observed,
+                "complete": observed >= target_per_cell,
+            }
+        )
+
+    expected_assignments = {
+        (item.coverage_cell_id, item.repetition): item
+        for item in build_level4_procedural_expansion_plan(config_path)
+    }
+    observed_assignments: dict[tuple[str, int], PilotEpisode] = {}
+    seeds: list[int] = []
+    digests: list[str] = []
+    for cell_episodes in procedural_by_cell.values():
+        for episode in cell_episodes:
+            procedural = episode.metadata["procedural_expansion"]
+            repetition = procedural.get("repetition")
+            if isinstance(repetition, bool) or not isinstance(repetition, int):
+                issues.append(
+                    f"procedural episode {episode.episode_id} has no integer repetition"
+                )
+                continue
+            key = (episode.goal_condition_id, repetition)
+            assignment = expected_assignments.get(key)
+            if assignment is None:
+                issues.append(
+                    f"procedural episode {episode.episode_id} is not in the frozen plan"
+                )
+                continue
+            if key in observed_assignments:
+                issues.append(f"duplicate procedural assignment {key!r}")
+                continue
+            observed_assignments[key] = episode
+            seed = episode.metadata.get("random_seed")
+            digest = episode.metadata.get("initial_state_digest")
+            if seed != assignment.seed:
+                issues.append(
+                    f"procedural episode {episode.episode_id} seed differs from plan"
+                )
+            if episode.session_id != assignment.session_id:
+                issues.append(
+                    f"procedural episode {episode.episode_id} session differs from plan"
+                )
+            if not isinstance(digest, str) or not digest.startswith("sha256:"):
+                issues.append(
+                    f"procedural episode {episode.episode_id} lacks an initial digest"
+                )
+            if isinstance(seed, int) and not isinstance(seed, bool):
+                seeds.append(seed)
+            if isinstance(digest, str):
+                digests.append(digest)
+
+    missing_assignments = sorted(set(expected_assignments) - set(observed_assignments))
+    duplicate_seed_count = len(seeds) - len(set(seeds))
+    duplicate_digest_count = len(digests) - len(set(digests))
+    if duplicate_seed_count:
+        issues.append("procedural reset seeds are not unique")
+    if duplicate_digest_count:
+        issues.append("procedural initial-state digests are not unique")
+
+    similarity = _procedural_similarity_audit(
+        procedural_by_cell,
+        config=expansion,
+    )
+    issues.extend(similarity["issues"])
+    scaling = _load_scaling_decision(config_path, expansion)
+    storage = _procedural_storage_projection(
+        expansion,
+        episodes=tuple(
+            episode
+            for episode in episodes
+            if episode.expert_accepted
+            and episode.goal_condition_id in nominal_cells
+            and not (
+                isinstance(
+                    episode.metadata.get("procedural_expansion"), Mapping
+                )
+                and episode.session_id.startswith(excluded_prefixes)
+            )
+        ),
+    )
+
+    replay_config = _mapping(expansion, "manual_replay")
+    reviewed: dict[str, set[str]] = defaultdict(set)
+    reviewed_ids: set[str] = set()
+    for review in manual_reviews:
+        episode = procedural_by_id.get(review.episode_id)
+        if episode is None or not review.passed:
+            continue
+        procedural = episode.metadata["procedural_expansion"]
+        case_class = str(_mapping(procedural, "variation").get("case_class", ""))
+        reviewed[episode.skill_name].add(case_class)
+        reviewed_ids.add(episode.episode_id)
+    required_skills = set(replay_config["required_skills"])
+    manual_passed = all(
+        len(reviewed[skill]) >= int(replay_config["minimum_cases_per_skill"])
+        and {"nominal", "boundary"} <= reviewed[skill]
+        for skill in required_skills
+    )
+
+    accepted_total = sum(accepted_by_cell.values())
+    automated = bool(
+        accepted_total >= int(expansion["required_nominal_accepted_episodes"])
+        and all(row["complete"] for row in matrix_rows)
+        and not missing_assignments
+        and len(observed_assignments) >= int(expansion["required_additional_episodes"])
+        and duplicate_seed_count == 0
+        and duplicate_digest_count == 0
+        and similarity["passed"]
+        and scaling["dataset_sufficient"]
+        and scaling["decision_uses_test_data"] is False
+        and not issues
+    )
+    complete = automated and manual_passed
+    return {
+        "version": expansion["version"],
+        "status": (
+            "complete"
+            if complete
+            else "manual_verification_required"
+            if automated
+            else "incomplete"
+        ),
+        "accepted_nominal_episode_count": accepted_total,
+        "required_nominal_accepted_episodes": int(
+            expansion["required_nominal_accepted_episodes"]
+        ),
+        "accepted_procedural_episode_count": len(observed_assignments),
+        "quarantined_diagnostic_session_prefixes": list(excluded_prefixes),
+        "required_additional_episodes": int(expansion["required_additional_episodes"]),
+        "coverage_matrix": {
+            "cell_count": len(matrix_rows),
+            "complete_cell_count": sum(row["complete"] for row in matrix_rows),
+            "cells": matrix_rows,
+        },
+        "missing_assignment_count": len(missing_assignments),
+        "duplicate_seed_count": duplicate_seed_count,
+        "duplicate_initial_state_digest_count": duplicate_digest_count,
+        "similarity_audit": similarity,
+        "scaling_probe": scaling,
+        "storage_projection": storage,
+        "manual_replay": {
+            "reviewed_episode_count": len(reviewed_ids),
+            "cases_by_skill": {
+                skill: sorted(reviewed[skill]) for skill in sorted(required_skills)
+            },
+            "required_case_classes": ["boundary", "nominal"],
+            "passed": manual_passed,
+        },
+        "issues": sorted(set(issues)),
+        "automated_requirements_passed": automated,
+        "checkpoint_complete": complete,
+    }
+
+
+def _procedural_similarity_audit(
+    episodes_by_cell: Mapping[str, Sequence[PilotEpisode]],
+    *,
+    config: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    audit = _mapping(config, "independence_audit")
+    sample_count = int(audit["trajectory_descriptor_samples"])
+    minimum = float(audit["minimum_trajectory_descriptor_l2_distance"])
+    exact_digests: set[str] = set()
+    duplicate_exact = 0
+    minimum_observed: float | None = None
+    issues: list[str] = []
+    for cell_id, episodes in episodes_by_cell.items():
+        descriptors: list[np.ndarray] = []
+        for episode in episodes:
+            path = episode.path / "applied_actions.npy"
+            try:
+                actions = np.load(path, allow_pickle=False).astype(np.float64)
+            except (OSError, ValueError) as exc:
+                issues.append(f"could not read procedural trajectory {path}: {exc}")
+                continue
+            digest = hashlib.sha256(actions.tobytes()).hexdigest()
+            if digest in exact_digests:
+                duplicate_exact += 1
+            exact_digests.add(digest)
+            indices = np.linspace(0, actions.shape[0] - 1, sample_count).round().astype(int)
+            descriptors.append(actions[indices].reshape(-1))
+        for left_index, left in enumerate(descriptors):
+            for right in descriptors[left_index + 1 :]:
+                distance = float(np.linalg.norm(left - right))
+                minimum_observed = (
+                    distance
+                    if minimum_observed is None
+                    else min(minimum_observed, distance)
+                )
+                if distance < minimum:
+                    issues.append(
+                        f"cell {cell_id!r} contains cosmetically varied trajectories"
+                    )
+    return {
+        "trajectory_count": sum(len(items) for items in episodes_by_cell.values()),
+        "duplicate_exact_action_trajectory_count": duplicate_exact,
+        "minimum_descriptor_l2_distance": minimum_observed,
+        "required_minimum_descriptor_l2_distance": minimum,
+        "issues": sorted(set(issues)),
+        "passed": duplicate_exact == 0 and not issues,
+    }
+
+
+def _load_scaling_decision(
+    config_path: Path,
+    expansion: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    relative = Path(str(expansion["test_generation_requires_scaling_decision"]))
+    root = config_path.resolve().parent.parent
+    path = root / relative
+    if not path.exists():
+        return {
+            "report_path": str(path),
+            "dataset_sufficient": False,
+            "decision_uses_test_data": False,
+            "status": "missing",
+        }
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {
+            "report_path": str(path),
+            "dataset_sufficient": False,
+            "decision_uses_test_data": False,
+            "status": f"invalid: {exc}",
+        }
+    return {
+        "report_path": str(path),
+        "dataset_sufficient": payload.get("dataset_sufficient") is True,
+        "decision_uses_test_data": payload.get("decision_uses_test_data") is not False,
+        "status": payload.get("status", "unknown"),
+    }
+
+
+def _procedural_storage_projection(
+    config: Mapping[str, Any],
+    *,
+    episodes: Sequence[PilotEpisode],
+) -> Mapping[str, Any]:
+    storage = _mapping(config, "storage_projection")
+    total_bytes = sum(episode.size_bytes for episode in episodes)
+    mean_episode_bytes = total_bytes / len(episodes) if episodes else 0.0
+    frame_counts = []
+    for episode in episodes:
+        try:
+            frame_counts.append(
+                int(np.load(episode.path / "timestamps.npy", mmap_mode="r").shape[0])
+            )
+        except (OSError, ValueError):
+            continue
+    mean_frames = sum(frame_counts) / len(frame_counts) if frame_counts else 0.0
+    stride = int(storage["sampled_rgb_stride"])
+    sampled_frames = np.ceil(mean_frames / stride)
+    rgb_bytes = (
+        sampled_frames
+        * int(storage["rgb_width"])
+        * int(storage["rgb_height"])
+        * int(storage["rgb_channels"])
+        * float(storage["conservative_rgb_compression_ratio"])
+    )
+    mean_combined = mean_episode_bytes + rgb_bytes
+    floor_count = int(storage["release_floor_episode_count"])
+    ceiling_count = int(storage["release_ceiling_episode_count"])
+    floor_bytes = int(round(mean_combined * floor_count))
+    ceiling_bytes = int(round(mean_combined * ceiling_count))
+    threshold = int(storage["git_lfs_max_projected_payload_bytes"])
+    return {
+        "sample_episode_count": len(episodes),
+        "mean_state_action_episode_bytes": mean_episode_bytes,
+        "mean_episode_frames": mean_frames,
+        "estimated_sampled_rgb_bytes_per_episode": rgb_bytes,
+        "release_floor_episode_count": floor_count,
+        "release_floor_projected_bytes": floor_bytes,
+        "release_ceiling_episode_count": ceiling_count,
+        "release_ceiling_projected_bytes": ceiling_bytes,
+        "git_lfs_max_projected_payload_bytes": threshold,
+        "payload_handling": (
+            storage["below_threshold_payload_handling"]
+            if ceiling_bytes <= threshold
+            else storage["above_threshold_payload_handling"]
+        ),
     }
 
 

@@ -40,9 +40,17 @@ def test_plan_files_freeze_scope_and_sources() -> None:
     config = load_config()
     plan = PLAN_PATH.read_text(encoding="utf-8")
 
-    assert config["version"] == "level4/workcell-dataset-plan-v3"
+    assert config["version"] == "level4/workcell-dataset-plan-v19"
     assert config["freeze"]["status"] == "requirements_frozen"
     assert config["freeze"]["collection_started"] is True
+    push_transitions = config["online_phase_state_machine"]["machines"][
+        "push_object_to_target"
+    ]["transitions"]
+    assert {
+        "from": "push_contact",
+        "to": "approach",
+        "predicate": "requested_object_contact_lost_before_target_now",
+    } in push_transitions
     assert "Level 4.4 collection began under v2" in (
         " ".join(plan.split())
     )

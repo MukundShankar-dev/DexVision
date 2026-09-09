@@ -1,7 +1,6 @@
 # Level 4 Workcell and Dataset Requirements Freeze
 
-Specification version: `level4/workcell-dataset-plan-v3` anchor with planned
-`level4/workcell-dataset-plan-v4` release-scale expansion
+Specification version: `level4/workcell-dataset-plan-v19`
 
 Status: Level 4.3I final matrix v2 was accepted by the user on September 5,
 2026. Level 4.4 collection began under v2, but repeated human-control trials
@@ -14,9 +13,14 @@ scope are unchanged. Level 4.4 is complete with 60/60 scripted core episodes
 across 32/32 cells. The user-directed September 8 review found that the
 114-episode matrix is adequate as an integration and coverage anchor but too
 small to support the word "comprehensive" or a credible full-scale learning
-claim. Completed v3 episodes remain immutable. Level 4.5B will version the
-machine-readable matrix as v4 and add independently seeded procedural
-variation before release.
+claim. Completed v3 episodes remain immutable. Plan v4 introduced the frozen
+independently seeded procedural distribution; active plan v19 preserves those
+train/validation assignments and adds the final fresh test namespace after
+quarantining exposed v4--v18 test sessions. The expansion, validation-only
+scaling decision, automated coverage, and independence audits pass. The user
+accepted the required eight nominal/boundary procedural replays on September 9,
+2026, completing Level 4.5B; the current evidence is recorded in
+`docs/progress_level_4.md`.
 
 ## Decision and evidence boundary
 
@@ -161,8 +165,9 @@ or a surplus from another source cannot repair a missing cell. A complete
 pick/place sequence is one episode even though it can produce reach, pick, and
 place segments; reports publish episode and segment counts separately.
 
-After the anchor passes, Level 4.5B must create plan v4 without overwriting or
-relabeling any accepted v3 episode. The release-candidate floor is driven by
+After the anchor passed, Level 4.5B created plan v4 without overwriting or
+relabeling any accepted v3 episode; active v19 retains that distribution and
+quarantines exposed test namespaces. The release-candidate floor is driven by
 independent coverage-cell samples:
 
 | Data group | Cells | Accepted episodes per cell | Release-candidate minimum |
@@ -191,6 +196,49 @@ improving materially, fails the predeclared readiness gate, or exposes a
 coverage hole, Level 4 remains active and a larger versioned tranche is
 collected. Test-owned episodes are generated only after the generator,
 distributions, counts, and gate are frozen and never decide dataset size.
+
+The procedural plan adds exactly 890 nominal assignments to the 102 immutable
+nominal anchors. Each nominal cell has 16 slots in the completed matrix, with
+split-owned session ids derived from `level45b_train_a`, `level45b_train_b`,
+`level45b_validation_c`, or the active `level45b_v19_test_s` namespace.
+Additional reset seeds use the frozen split base plus cell-index-times-100 plus
+one-based repetition formula.
+The generator varies source and goal position, supported object scale, mass,
+friction, and a bounded controller-position residual within the exact ranges
+stored in `configs/level4_dataset.yaml`. Every accepted addition must have a
+unique seed and initial-state digest; exact or near-exact state/action
+duplicates fail the independence audit.
+
+The frozen readiness probe trains the same deterministic 64-by-64 residual MLP
+on nested 4/8/16-per-training-cell subsets, normalizes from each training subset
+only, and reuses eight accepted rollouts per validation-owned cell. The gates
+are 0.95 aggregate success, 0.80 worst-cell success, no safety violations, no
+invalid actions, and less than 0.03 aggregate improvement from 8 to 16. The
+saved decision at `outputs/level4/scaling_probe_v1/scaling_probe.json` passed:
+the three aggregate rates were 1.000, 1.000, and 0.986; largest-tranche
+worst-cell success was 0.875; safety and invalid-action counts were zero; and
+the 8-to-16 change was -0.014. The report records that it inspected zero test
+episodes.
+
+Only after that sufficient decision did frozen test generation begin. At the
+user's direction, repeatable held-out failures were diagnosed only after their
+entire plan namespace was quarantined. Exposed v4--v18 sessions remain
+append-only diagnostic evidence and are excluded from active coverage and model
+selection. Before each diagnostic, the successor froze a new plan version,
+session prefix, episode prefix, and test seed base. No success or safety
+threshold was relaxed. The fixes instead require complete pick/place and push
+candidates to replay their exact saved actions in an independent copied state,
+add actual-controller qualification for push, allow prequalified cuboid contact
+heights, terminate immediately on fatal expert reasons, and preserve a causal
+`push_contact` sample before `settle` when approach completion establishes
+contact. The fresh v19 test namespace then accepted 400/400 assignments with
+zero rejections.
+
+The final automated coverage audit reports 992/992 nominal accepted episodes
+across 62/62 cells, zero duplicate seeds or initial-state digests, zero exact
+duplicate action trajectories, and a passing descriptor-distance audit. The
+user accepted the required eight visible nominal/boundary replays on September
+9, 2026, so the Level 4.5B release-candidate expansion is complete.
 
 Live human control has zero required or optional episodes in the active plan.
 Existing attempts remain immutable local historical evidence with their original

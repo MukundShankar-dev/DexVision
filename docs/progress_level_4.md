@@ -1275,7 +1275,8 @@ isolation, and three-segment derivation. Automated gates pass. The six-replay
 manual gate passed after the user accepted all six stratified replays on
 September 8, 2026. The replays covered every object family and target type;
 visible acquisition, lift, transport, release, settling, and retraction agreed
-with the saved labels. Level 4.5A is complete. Level 4.5B has not started.
+with the saved labels. Level 4.5A is complete. Level 4.5B is now automated-ready
+under plan v19 and remains pending its separate eight-replay manual gate.
 
 ---
 
@@ -1360,19 +1361,51 @@ conda run -n dexvision pytest -q tests/test_level4_procedural_expansion.py tests
 ### Pass criteria
 
 ```text
-[ ] Plan v4 records exact distributions, seeds, sessions, per-cell quotas, and readiness gates
-[ ] All 62 nominal cells have at least 16 unique accepted episodes and 992 exist overall
-[ ] Initial-state and trajectory similarity audits reject duplicate or cosmetic variation
-[ ] Nested 4/8/16-per-cell probes use identical recipes and validation rollouts
-[ ] The largest tranche passes the frozen readiness gate and is not still materially improving, or a larger versioned tranche is collected
-[ ] Test-owned generation occurs only after all collection and scaling decisions are frozen
-[ ] No test-owned result changes data, code, thresholds, or model selection
+[x] Plan v19 records exact distributions, seeds, sessions, per-cell quotas, and readiness gates
+[x] All 62 nominal cells have at least 16 unique accepted episodes and 992 exist overall
+[x] Initial-state and trajectory similarity audits reject duplicate or cosmetic variation
+[x] Nested 4/8/16-per-cell probes use identical recipes and validation rollouts
+[x] The largest tranche passes the frozen readiness gate and is not still materially improving, or a larger versioned tranche is collected
+[x] Test-owned generation occurs only after all collection and scaling decisions are frozen
+[x] Every exposed test version is quarantined before diagnostic changes; only a fresh frozen namespace contributes active test coverage or model selection
 ```
 
 Manual verification: replay a stratified procedural sample containing at least
 one nominal and one boundary case for every skill. Pass when the visible reset,
 object/goal variation, trajectory, and terminal result match saved metadata.
 Stop for user confirmation before marking 4.5B complete.
+
+Implementation status (September 9, 2026): active plan v19 and procedural
+expansion v9 are implemented. Train and validation generation remains immutable
+at 490/490 accepted additions. The frozen 4/8/16 probe reused one validation
+matrix and one model recipe; its aggregate success was 1.000, 1.000, and 0.986,
+with largest-tranche worst-cell success 0.875, zero safety violations, and zero
+invalid actions. The -0.014 8-to-16 change is below the frozen 0.03 material-
+improvement threshold, so the validation-only decision was sufficient.
+
+The user authorized diagnosis and repair of held-out failures provided the
+exposed namespace was first quarantined. Versions v4--v18 are therefore
+preserved as diagnostic-only evidence and excluded from active coverage and
+model selection. Each successor froze a fresh plan version, session prefix,
+episode prefix, and test seed base before diagnosis. The resulting fixes do not
+weaken success or safety thresholds: complete pick/place qualification now
+independently replays the exact actions that would be saved; push qualification
+runs the actual feedback controller and independently replays its actions;
+cuboid pushes may select a prequalified lower contact height; fatal expert
+reasons stop recording immediately; and a push that establishes contact at the
+end of approach emits `push_contact` before it may enter `settle`.
+
+The fresh v19 test namespace accepted 400/400 assignments with zero rejections.
+The final automated audit reports 992/992 accepted nominal episodes across
+62/62 complete cells, zero duplicate seeds, zero duplicate initial-state
+digests, zero exact duplicate action trajectories, and a passing descriptor-
+distance similarity audit (minimum 0.0002813684 versus required 0.00000001).
+Automated requirements pass. The user accepted all eight visible v19 replays on
+September 9, 2026: one nominal and one boundary case for each of reach,
+complete pick/place, push, and button press. Visible resets, goal variation,
+trajectories, and terminal results matched saved metadata. The append-only
+manual replay manifest records those approvals. Level 4.5B is complete; Level
+4.6 is the next target but has not started.
 
 ---
 
@@ -1615,7 +1648,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.3 pilot collection freezes final counts; dial is promoted or deferred
 [x] 4.4 reach, push, and press anchor coverage passes across genuine sessions
 [x] 4.5A complete pick/place anchor coverage and phase replays pass
-[ ] 4.5B procedural nominal expansion and validation-only scaling gate pass
+[x] 4.5B procedural nominal expansion and validation-only scaling gate pass
 [ ] 4.6 failures and corrections remain separate and auditable
 [ ] 4.7 single-camera visual annotations and alignment pass
 [ ] 4.8 coverage, quality, provenance, and leakage audits pass

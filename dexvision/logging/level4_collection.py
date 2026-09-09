@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import math
+import hashlib
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
@@ -60,6 +61,7 @@ LEVEL4_EPISODE_SOURCES = (
 )
 LEVEL4_CORE_GROUPS = ("reach", "push", "button")
 LEVEL4_PICK_PLACE_GROUP = "pick_place"
+LEVEL4_NOMINAL_GROUPS = ("reach", "pick_place", "push", "button")
 
 
 class Level4CollectionError(ValueError):
@@ -103,6 +105,32 @@ class PickPlaceCollectionAssignment:
     session_slot: str
     repetition: int
     seed: int
+
+
+@dataclass(frozen=True)
+class ProceduralExpansionAssignment:
+    """One append-only Level 4.5B procedural expansion assignment."""
+
+    sequence: int
+    coverage_cell_id: str
+    data_group: str
+    skill_name: str
+    source: str
+    split: str
+    session_slot: str
+    episode_id_prefix: str
+    repetition: int
+    seed: int
+    variation: Mapping[str, object]
+
+    @property
+    def session_id(self) -> str:
+        """Return the exact genuine-session id frozen by the active plan."""
+
+        return (
+            f"{self.session_slot}_{self.sequence:06d}_"
+            f"{self.coverage_cell_id}"
+        )
 
 
 @dataclass(frozen=True)
@@ -357,6 +385,7 @@ class WorkcellPilotTask:
         skill_name: str,
         goal_condition_id: str,
         seed: int,
+        procedural_variation: Mapping[str, object] | None = None,
     ) -> None:
         if skill_name not in WORKCELL_PILOT_SKILLS:
             raise Level4CollectionError(
@@ -374,6 +403,7 @@ class WorkcellPilotTask:
                 f"unknown Level 4 goal condition id: {goal_condition_id}"
             )
         self.coverage_cell = dict(cells[goal_condition_id])
+        self.procedural_variation = dict(procedural_variation or {})
         expected_group = GROUP_BY_PILOT_SKILL[skill_name]
         if self.coverage_cell.get("data_group") != expected_group:
             raise Level4CollectionError(
@@ -409,6 +439,8 @@ class WorkcellPilotTask:
                     table_condim=int(contact["table_condim"]),
                     family_friction=contact["family_friction"],
                 )
+        if self.procedural_variation:
+            self.initial_world_state = self._apply_procedural_variation()
         self.goal = self._resolve_goal()
         self._configure_pilot_cue()
         self._phase = "approach"
@@ -496,6 +528,8 @@ class WorkcellPilotTask:
             ),
             "object_state_fields": "six objects x position/quaternion/linear/angular velocity",
         }
+        if self.procedural_variation:
+            task_config["procedural_variation"] = dict(self.procedural_variation)
         if self.skill_name in {"pick_object", "pick_place_sequence"}:
             contact = self.collection_config["pilot"]["scripted_grasp"][
                 "contact_dynamics"
@@ -511,6 +545,66 @@ class WorkcellPilotTask:
                 },
             }
         return task_config
+
+    def _apply_procedural_variation(self) -> WorldState:
+        """Apply the explicitly saved v4 reset variation before task creation."""
+
+        variation = self.procedural_variation
+        if variation.get("version") != "level4/procedural-expansion-v1":
+            raise Level4CollectionError(
+                "procedural variation must declare level4/procedural-expansion-v1."
+            )
+        object_id = self.coverage_cell.get("object_id")
+        if object_id is None and self.skill_name == "reach_object":
+            candidate = self.coverage_cell.get("entity_id")
+            if candidate in self.workcell.config.object_ids:
+                object_id = candidate
+        if isinstance(object_id, str):
+            expansion = self.collection_config["level4_5b_procedural_expansion"]
+            instance_friction = expansion.get(
+                "instance_friction_base_multiplier", {}
+            )
+            if not isinstance(instance_friction, Mapping):
+                raise Level4CollectionError(
+                    "instance friction base multipliers must be a mapping."
+                )
+            base_friction = float(instance_friction.get(object_id, 1.0))
+            if object_id == "puck_light":
+                schedule = expansion["puck_light_friction_schedule"]
+                sampled_friction = float(variation["object_friction_multiplier"])
+                if variation["case_class"] == "boundary":
+                    friction_key = "boundary_base_multiplier"
+                elif sampled_friction < float(
+                    schedule["low_sampled_friction_threshold"]
+                ):
+                    friction_key = "low_sampled_friction_base_multiplier"
+                else:
+                    friction_key = "regular_base_multiplier"
+                base_friction = float(
+                    schedule[friction_key]
+                )
+            self.workcell.apply_object_variation(
+                object_id,
+                position_offset_xy_m=variation["source_position_offset_xy_m"],
+                scale_multiplier=float(variation["object_scale_multiplier"]),
+                mass_multiplier=float(variation["object_mass_multiplier"]),
+                friction_multiplier=(
+                    float(variation["object_friction_multiplier"])
+                    * float(base_friction)
+                ),
+            )
+
+        goal_entity: str | None = None
+        if self.skill_name in {"pick_place_sequence", "push_object_to_target"}:
+            goal_entity = str(self.coverage_cell["target_id"])
+        elif self.skill_name == "press_button":
+            goal_entity = str(self.coverage_cell["button_id"])
+        if goal_entity is not None:
+            self.workcell.offset_static_entity(
+                goal_entity,
+                variation["goal_position_offset_m"],
+            )
+        return self.workcell.get_world_state()
 
     def _resolve_goal(self) -> dict[str, object]:
         cell = self.coverage_cell
@@ -533,6 +627,15 @@ class WorkcellPilotTask:
             # contact before the palm can qualify.
             if entity_id != "start_button":
                 position[2] = max(0.14, min(0.23, position[2] + 0.13))
+            if self.procedural_variation:
+                position += np.asarray(
+                    self.procedural_variation["goal_position_offset_m"],
+                    dtype=float,
+                )
+                position += np.asarray(
+                    self.procedural_variation["controller_position_offset_m"],
+                    dtype=float,
+                )
             return {
                 "entity_id": entity_id,
                 "approach_pose": (
@@ -785,6 +888,7 @@ def load_level4_collection_config(
     _validate_final_coverage_matrix(payload, coverage_cells=coverage_cells)
     _validate_core_collection_config(payload, coverage_cells=coverage_cells)
     _validate_pick_place_collection_config(payload, coverage_cells=coverage_cells)
+    _validate_procedural_expansion_config(payload, coverage_cells=coverage_cells)
     review_filename = pilot.get("expert_acceptance_review_filename")
     if review_filename != PILOT_REVIEW_FILENAME:
         raise Level4CollectionError(
@@ -912,6 +1016,147 @@ def build_level4_pick_place_collection_plan(
             )
             split_offsets[split] += 1
     return tuple(assignments)
+
+
+def build_level4_procedural_expansion_plan(
+    path: str | Path = DEFAULT_LEVEL4_CONFIG,
+) -> tuple[ProceduralExpansionAssignment, ...]:
+    """Build the frozen append-only additions needed for 16 episodes per cell."""
+
+    payload, _ = load_level4_collection_config(path)
+    expansion = _mapping(payload, "level4_5b_procedural_expansion")
+    slots_by_split = _mapping(expansion, "session_slots_by_split")
+    prefixes_by_split = _mapping(expansion, "episode_id_prefix_by_split")
+    seed_bases = _mapping(_mapping(expansion, "seed_derivation"), "split_base")
+    target_per_cell = int(expansion["accepted_episodes_per_cell"])
+    split_offsets = {"train": 0, "validation": 0, "test": 0}
+    assignments: list[ProceduralExpansionAssignment] = []
+    nominal_cells = [
+        cell
+        for cell in payload["coverage_cells"]
+        if isinstance(cell, Mapping) and cell.get("data_group") in LEVEL4_NOMINAL_GROUPS
+    ]
+    for cell_index, raw_cell in enumerate(nominal_cells):
+        split = str(raw_cell["split_owner"])
+        minima = _mapping(raw_cell, "minimum_accepted_by_split")
+        anchor_count = int(minima[split])
+        raw_slots = slots_by_split[split]
+        assert isinstance(raw_slots, Sequence) and not isinstance(raw_slots, str)
+        group = str(raw_cell["data_group"])
+        skill = {
+            "reach": "reach_object",
+            "pick_place": "pick_place_sequence",
+            "push": "push_object_to_target",
+            "button": "press_button",
+        }[group]
+        for repetition in range(anchor_count + 1, target_per_cell + 1):
+            offset = split_offsets[split]
+            seed = int(seed_bases[split]) + cell_index * 100 + repetition
+            assignments.append(
+                ProceduralExpansionAssignment(
+                    sequence=len(assignments) + 1,
+                    coverage_cell_id=str(raw_cell["id"]),
+                    data_group=group,
+                    skill_name=skill,
+                    source="scripted",
+                    split=split,
+                    session_slot=str(raw_slots[offset % len(raw_slots)]),
+                    episode_id_prefix=str(prefixes_by_split[split]),
+                    repetition=repetition,
+                    seed=seed,
+                    variation=sample_level4_procedural_variation(
+                        expansion,
+                        skill_name=skill,
+                        seed=seed,
+                        boundary_case=repetition == target_per_cell,
+                    ),
+                )
+            )
+            split_offsets[split] += 1
+    return tuple(assignments)
+
+
+def sample_level4_procedural_variation(
+    expansion: Mapping[str, Any],
+    *,
+    skill_name: str,
+    seed: int,
+    boundary_case: bool = False,
+) -> Mapping[str, object]:
+    """Sample one deterministic, bounded procedural variation record."""
+
+    randomization = _mapping(expansion, "randomization")
+    rng = np.random.default_rng(seed)
+
+    def sample_pair(name: str, count: int) -> list[float]:
+        bounds = randomization[name]
+        assert isinstance(bounds, Sequence) and not isinstance(bounds, str)
+        low, high = float(bounds[0]), float(bounds[1])
+        if not boundary_case:
+            return rng.uniform(low, high, size=count).tolist()
+        midpoint = 0.5 * (low + high)
+        radius = 0.5 * (high - low)
+        signs = rng.choice(np.asarray((-1.0, 1.0)), size=count)
+        magnitudes = rng.uniform(0.8, 1.0, size=count)
+        return (midpoint + signs * magnitudes * radius).tolist()
+
+    object_skills = set(randomization["applicable_object_skills"])
+    physical_skills = set(randomization["physical_parameter_skills"])
+    goal_skills = set(randomization["goal_position_skills"])
+    controller_skills = set(randomization["controller_perturbation_skills"])
+    return {
+        "version": str(expansion.get("variation_version", expansion["version"])),
+        "seed": int(seed),
+        "case_class": "boundary" if boundary_case else "nominal",
+        "source_position_offset_xy_m": (
+            sample_pair("source_position_offset_xy_m", 2)
+            if skill_name in object_skills
+            else [0.0, 0.0]
+        ),
+        "goal_position_offset_m": (
+            [
+                *sample_pair("goal_position_offset_xy_m", 2),
+                sample_pair("goal_position_offset_z_m", 1)[0],
+            ]
+            if skill_name in goal_skills
+            else [0.0, 0.0, 0.0]
+        ),
+        "object_scale_multiplier": (
+            sample_pair("object_scale_multiplier", 1)[0]
+            if skill_name in physical_skills
+            else 1.0
+        ),
+        "object_mass_multiplier": (
+            sample_pair("object_mass_multiplier", 1)[0]
+            if skill_name in physical_skills
+            else 1.0
+        ),
+        "object_friction_multiplier": (
+            sample_pair("object_friction_multiplier", 1)[0]
+            if skill_name in physical_skills
+            else 1.0
+        ),
+        "controller_position_offset_m": (
+            sample_pair("controller_position_offset_m", 3)
+            if skill_name in controller_skills
+            else [0.0, 0.0, 0.0]
+        ),
+    }
+
+
+def initial_state_digest(
+    *,
+    initial_state: Mapping[str, Any],
+    procedural_variation: Mapping[str, Any],
+) -> str:
+    """Hash the physical reset and applied variation using canonical JSON."""
+
+    payload = {
+        "initial_state": initial_state,
+        "procedural_variation": procedural_variation,
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def _validate_core_collection_config(
@@ -1122,6 +1367,308 @@ def _validate_pick_place_collection_config(
     ):
         raise Level4CollectionError(
             "Level 4.5A requires at least six visible replay reviews."
+        )
+
+
+def _validate_procedural_expansion_config(
+    payload: Mapping[str, Any],
+    *,
+    coverage_cells: Sequence[Any],
+) -> None:
+    """Validate the frozen Level 4.5B expansion and scaling-gate contract."""
+
+    if payload.get("version") != "level4/workcell-dataset-plan-v19":
+        raise Level4CollectionError(
+            "Level 4.5B requires config version level4/workcell-dataset-plan-v19."
+        )
+    expansion = _mapping(payload, "level4_5b_procedural_expansion")
+    if expansion.get("version") != "level4/procedural-expansion-v9":
+        raise Level4CollectionError(
+            "level4_5b_procedural_expansion.version must be "
+            "level4/procedural-expansion-v9."
+        )
+    if expansion.get("variation_version") != "level4/procedural-expansion-v1":
+        raise Level4CollectionError(
+            "Level 4.5B must preserve procedural variation schema v1."
+        )
+    groups = tuple(expansion.get("nominal_data_groups", ()))
+    if groups != LEVEL4_NOMINAL_GROUPS:
+        raise Level4CollectionError(
+            "Level 4.5B nominal groups must be reach, pick_place, push, and button."
+        )
+    nominal_cells = [
+        cell
+        for cell in coverage_cells
+        if isinstance(cell, Mapping) and cell.get("data_group") in groups
+    ]
+    cell_count = len(nominal_cells)
+    target_per_cell = expansion.get("accepted_episodes_per_cell")
+    if (
+        isinstance(target_per_cell, bool)
+        or not isinstance(target_per_cell, int)
+        or target_per_cell < 16
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B accepted_episodes_per_cell must be at least 16."
+        )
+    anchor_total = sum(
+        sum(
+            int(value)
+            for value in _mapping(cell, "minimum_accepted_by_split").values()
+        )
+        for cell in nominal_cells
+    )
+    required_total = cell_count * target_per_cell
+    if int(expansion.get("required_nominal_cells", -1)) != cell_count:
+        raise Level4CollectionError(
+            "Level 4.5B required nominal-cell count must match the frozen matrix."
+        )
+    if int(expansion.get("accepted_anchor_episodes", -1)) != anchor_total:
+        raise Level4CollectionError(
+            "Level 4.5B accepted anchor total must match the nominal v3 minima."
+        )
+    if int(expansion.get("required_nominal_accepted_episodes", -1)) != required_total:
+        raise Level4CollectionError(
+            "Level 4.5B nominal total must equal cells times the per-cell quota."
+        )
+    if int(expansion.get("required_additional_episodes", -1)) != (
+        required_total - anchor_total
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B additional total must preserve and subtract the anchor."
+        )
+    ceiling = expansion.get("planning_ceiling_episodes_per_cell")
+    if (
+        isinstance(ceiling, bool)
+        or not isinstance(ceiling, int)
+        or ceiling < target_per_cell
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B planning ceiling must not be below the initial quota."
+        )
+
+    slots = _mapping(expansion, "session_slots_by_split")
+    if set(slots) != {"train", "validation", "test"}:
+        raise Level4CollectionError(
+            "Level 4.5B must freeze session slots for every split."
+        )
+    all_slots: list[str] = []
+    for split, raw_slots in slots.items():
+        if (
+            not isinstance(raw_slots, Sequence)
+            or isinstance(raw_slots, str)
+            or not raw_slots
+            or any(not isinstance(slot, str) or not slot for slot in raw_slots)
+        ):
+            raise Level4CollectionError(
+                f"Level 4.5B session slots for {split!r} must be non-empty strings."
+            )
+        all_slots.extend(raw_slots)
+    if len(set(all_slots)) != len(all_slots):
+        raise Level4CollectionError("Level 4.5B session slots must be unique.")
+    prefixes = _mapping(expansion, "episode_id_prefix_by_split")
+    if set(prefixes) != {"train", "validation", "test"} or any(
+        not isinstance(value, str) or not value for value in prefixes.values()
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B must freeze one non-empty episode-id prefix per split."
+        )
+    quarantine = _mapping(expansion, "diagnostic_quarantine")
+    excluded = quarantine.get("excluded_session_prefixes")
+    if (
+        not isinstance(excluded, Sequence)
+        or isinstance(excluded, str)
+        or not excluded
+        or any(not isinstance(prefix, str) or not prefix for prefix in excluded)
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B must name the exposed diagnostic session prefixes."
+        )
+    if any(
+        str(slot).startswith(tuple(str(prefix) for prefix in excluded))
+        for raw_slots in slots.values()
+        for slot in raw_slots
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B active session slots cannot reuse a quarantined prefix."
+        )
+
+    puck_friction = _mapping(expansion, "puck_light_friction_schedule")
+    friction_values = tuple(
+        puck_friction.get(name)
+        for name in (
+            "low_sampled_friction_threshold",
+            "low_sampled_friction_base_multiplier",
+            "regular_base_multiplier",
+            "boundary_base_multiplier",
+        )
+    )
+    if any(
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        for value in friction_values
+    ) or not (
+        0.95 <= float(friction_values[0]) <= 1.05
+        and 0.0 < float(friction_values[1]) <= 2.0
+        and 0.0 < float(friction_values[2]) <= 2.0
+        and 0.0 < float(friction_values[3]) <= 2.0
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B puck friction schedule must have a near-unit sampled "
+            "friction "
+            "threshold and positive finite multipliers at or below 2."
+        )
+    instance_friction = _mapping(expansion, "instance_friction_base_multiplier")
+    object_ids = {
+        str(raw["object_id"])
+        for raw in coverage_cells
+        if isinstance(raw, Mapping) and isinstance(raw.get("object_id"), str)
+    }
+    if not set(instance_friction).issubset(object_ids) or any(
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        or not 0.0 < float(value) <= 4.0
+        for value in instance_friction.values()
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B instance friction multipliers must name configured objects "
+            "and be positive finite values at or below four."
+        )
+
+    yaw_schedule = _mapping(expansion, "cuboid_yaw_gain_schedule")
+    threshold = yaw_schedule.get("high_absolute_yaw_threshold_rad")
+    ratios = (
+        yaw_schedule.get("moderate_positive_gain_ratio"),
+        yaw_schedule.get("high_absolute_gain_ratio"),
+    )
+    if (
+        isinstance(threshold, bool)
+        or not isinstance(threshold, (int, float))
+        or not 0.0 < float(threshold) < math.pi
+        or any(
+            isinstance(ratio, bool)
+            or not isinstance(ratio, (int, float))
+            or not 0.0 < float(ratio) <= 1.0
+            for ratio in ratios
+        )
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B cuboid yaw gains need a positive threshold "
+            "below pi and ratios in (0, 1]."
+        )
+
+    expert_overrides = _mapping(expansion, "scripted_expert_overrides")
+    push_overrides = _mapping(expert_overrides, "scripted_push")
+    if push_overrides.get("maximum_reapproach_attempts") != 3:
+        raise Level4CollectionError(
+            "Level 4.5B push recovery must freeze three re-approach attempts."
+        )
+    if push_overrides.get("family_fallback_control_height_offsets_m") != {
+        "cuboid": [-0.005, -0.010]
+    }:
+        raise Level4CollectionError(
+            "Level 4.5B cuboid push height fallbacks must remain frozen."
+        )
+    fallback_offsets = _mapping(
+        push_overrides, "family_fallback_lateral_offsets_m"
+    )
+    if fallback_offsets != {"cuboid": [0.0335, 0.0345]}:
+        raise Level4CollectionError(
+            "Level 4.5B cuboid push fallback offsets must remain frozen."
+        )
+
+    derivation = _mapping(expansion, "seed_derivation")
+    if derivation.get("method") != (
+        "split_base_plus_cell_index_times_100_plus_repetition"
+    ):
+        raise Level4CollectionError("Level 4.5B seed derivation method is not frozen.")
+    seed_bases = _mapping(derivation, "split_base")
+    if set(seed_bases) != {"train", "validation", "test"} or any(
+        isinstance(value, bool) or not isinstance(value, int)
+        for value in seed_bases.values()
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B seed bases must be integers for every split."
+        )
+
+    randomization = _mapping(expansion, "randomization")
+    bounded_fields = (
+        "source_position_offset_xy_m",
+        "goal_position_offset_xy_m",
+        "goal_position_offset_z_m",
+        "object_scale_multiplier",
+        "object_mass_multiplier",
+        "object_friction_multiplier",
+        "controller_position_offset_m",
+    )
+    for field_name in bounded_fields:
+        bounds = randomization.get(field_name)
+        if (
+            not isinstance(bounds, Sequence)
+            or isinstance(bounds, str)
+            or len(bounds) != 2
+            or any(
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(float(value))
+                for value in bounds
+            )
+            or float(bounds[0]) >= float(bounds[1])
+        ):
+            raise Level4CollectionError(
+                f"Level 4.5B randomization {field_name!r} needs finite low/high bounds."
+            )
+
+    probe = _mapping(expansion, "scaling_probe")
+    if list(probe.get("nested_train_episodes_per_cell", ())) != [4, 8, 16]:
+        raise Level4CollectionError(
+            "Level 4.5B scaling subsets must be the frozen nested 4/8/16 tranches."
+        )
+    model = _mapping(probe, "model")
+    if model.get("normalization") != "train_subset_only":
+        raise Level4CollectionError(
+            "Level 4.5B scaling normalization must be train-subset-only."
+        )
+    gates = _mapping(probe, "readiness_gates")
+    for field_name in (
+        "minimum_aggregate_validation_success",
+        "minimum_worst_cell_validation_success",
+        "material_improvement_fraction",
+    ):
+        value = gates.get(field_name)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not 0.0 <= float(value) <= 1.0
+        ):
+            raise Level4CollectionError(
+                f"Level 4.5B readiness gate {field_name!r} must be in [0, 1]."
+            )
+    if float(gates["material_improvement_fraction"]) != 0.03:
+        raise Level4CollectionError(
+            "Level 4.5B material-improvement threshold must remain 0.03."
+        )
+    if gates.get("maximum_safety_violations") != 0 or gates.get(
+        "maximum_invalid_actions"
+    ) != 0:
+        raise Level4CollectionError(
+            "Level 4.5B permits no safety violations or invalid actions."
+        )
+
+    storage = _mapping(expansion, "storage_projection")
+    expected_ceiling = cell_count * int(ceiling) + int(
+        storage.get("correction_episode_floor", -1)
+    )
+    if (
+        int(storage.get("release_floor_episode_count", -1)) != 1112
+        or int(storage.get("release_ceiling_episode_count", -1)) != expected_ceiling
+        or storage.get("working_data_git_policy") != "ignored_never_force_added"
+        or storage.get("existing_release_overwrite_allowed") is not False
+    ):
+        raise Level4CollectionError(
+            "Level 4.5B storage floor, ceiling, and immutable-data rules are invalid."
         )
 
 

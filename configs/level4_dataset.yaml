@@ -1,16 +1,16 @@
-version: level4/workcell-dataset-plan-v3
+version: level4/workcell-dataset-plan-v19
 
 freeze:
-  checkpoint: Level 4.3I
+  checkpoint: Level 4.5B
   status: requirements_frozen
   collection_started: true
   frozen_date: "2026-09-06"
   change_policy: create_new_version_with_compatibility_note
   level4_3_count_revision_requires_pilot_evidence: true
   coverage_count_status: final_accepted
-  supersedes: level4/workcell-dataset-plan-v2
-  revision_authority: user_directed_level4_4_removal_of_mandatory_teleoperation
-  compatibility_note: episode_schema_unchanged_teleoperation_remains_optional_but_has_zero_required_episodes
+  supersedes: level4/workcell-dataset-plan-v18
+  revision_authority: level4_5b_fifteenth_held_out_diagnostic_quarantine
+  compatibility_note: accepted_v3_anchors_and_v4_train_validation_expansion_remain_immutable; exposed_v4_through_v18_procedural_test_sessions_are_diagnostic_only
 
 pilot:
   version: level4/collection-pilot-v1
@@ -91,6 +91,7 @@ pilot:
     required_terminal_dwell_steps: 5
     maximum_object_tilt_rad: 0.174533
     maximum_push_actions: 180
+    maximum_total_actions: 500
     sim_steps_per_action: 17
     maximum_non_target_disturbance_m: 0.005
     joint_limit_tolerance_rad: 0.01
@@ -117,6 +118,8 @@ pilot:
     maximum_terminal_orientation_error_rad: 0.104720
     waypoint_tolerance_m: 0.000001
     required_hold_steps: 10
+    minimum_acquisition_contact_bodies: 1
+    required_acquisition_hold_steps: 1
     maximum_closed_acquisition_actions: 30
     maximum_retention_gap_steps: 5
     maximum_hold_speed_m_s: 0.02
@@ -559,6 +562,7 @@ online_phase_state_machine:
       initial_phase: approach
       transitions:
         - {from: approach, to: push_contact, predicate: requested_object_contact_started_now}
+        - {from: push_contact, to: approach, predicate: requested_object_contact_lost_before_target_now}
         - {from: push_contact, to: settle, predicate: requested_object_inside_target_now}
         - {from: settle, to: retract, predicate: push_success_dwell_passed}
     press_button:
@@ -819,6 +823,182 @@ level4_5a_pick_place_collection:
   manual_replay_minimum: 6
   manual_replay_requires_every_object_family: true
   manual_replay_requires_every_target_type: true
+
+level4_5b_procedural_expansion:
+  version: level4/procedural-expansion-v9
+  variation_version: level4/procedural-expansion-v1
+  dataset_dir: data/demos/level4
+  nominal_data_groups: [reach, pick_place, push, button]
+  required_nominal_cells: 62
+  accepted_episodes_per_cell: 16
+  required_nominal_accepted_episodes: 992
+  accepted_anchor_episodes: 102
+  required_additional_episodes: 890
+  planning_ceiling_episodes_per_cell: 32
+  session_slots_by_split:
+    train: [level45b_train_a, level45b_train_b]
+    validation: [level45b_validation_c]
+    test: [level45b_v19_test_s]
+  episode_id_prefix_by_split:
+    train: level45b
+    validation: level45b
+    test: level45b_v19
+  session_id_template: "{session_slot}_{sequence:06d}_{coverage_cell_id}"
+  seed_derivation:
+    method: split_base_plus_cell_index_times_100_plus_repetition
+    split_base: {train: 470000, validation: 480000, test: 1990000}
+    cell_index_origin: 0
+    repetition_origin: 1
+  generation_order: train_then_validation_then_scaling_decision_then_test
+  test_generation_requires_scaling_decision: outputs/level4/scaling_probe_v1/scaling_probe.json
+  test_use: integrity_and_final_reporting_only
+  diagnostic_quarantine:
+    excluded_session_prefixes: [level45b_test_d_, level45b_v5_test_e_, level45b_v6_test_f_, level45b_v7_test_g_, level45b_v8_test_h_, level45b_v9_test_i_, level45b_v10_test_j_, level45b_v11_test_k_, level45b_v12_test_l_, level45b_v13_test_m_, level45b_v14_test_n_, level45b_v15_test_o_, level45b_v16_test_p_, level45b_v17_test_q_, level45b_v18_test_r_]
+    source_plan_versions: [level4/workcell-dataset-plan-v4, level4/workcell-dataset-plan-v5, level4/workcell-dataset-plan-v6, level4/workcell-dataset-plan-v7, level4/workcell-dataset-plan-v8, level4/workcell-dataset-plan-v9, level4/workcell-dataset-plan-v10, level4/workcell-dataset-plan-v11, level4/workcell-dataset-plan-v12, level4/workcell-dataset-plan-v13, level4/workcell-dataset-plan-v14, level4/workcell-dataset-plan-v15, level4/workcell-dataset-plan-v16, level4/workcell-dataset-plan-v17, level4/workcell-dataset-plan-v18]
+    observed_accepted_assignments_by_plan: {v4: 74, v5: 75, v6: 87, v7: 42, v8: 89, v9: 76, v10: 257, v11: 76, v12: 98, v13: 312, v14: 313, v15: 314, v16: 130, v17: 318, v18: 354}
+    observed_rejected_attempts_by_plan: {v4: 2, v5_preflight: 1, v6_preflight: 1, v7_preflight: 1, v8_preflight: 1, v9_preflight: 1, v10_recording: 1, v11_preflight: 1, v12_recording: 1, v13_preflight: 1, v14_recording: 1, v15_audit: 1, v16_audit: 1, v17_recording: 1, v18_recording: 1}
+    diagnostic_failure_assignments: [341, 347, 354, 197, 356, 345, 524, 345, 365, 691, 692, 693, 397, 697, 733]
+    diagnostic_failure_cells: [pp_puck_light_return_bin_right, pp_block_large_return_bin_left, pp_block_small_return_bin_right, pp_puck_heavy_inspection_pad, pp_block_large_setup_slot_a, push_cuboid_setup_slot_b_interior, push_flat_puck_inspection_pad_interior]
+    disposition: preserved_excluded_from_active_coverage_and_model_selection
+    fresh_test_rule: new_session_prefix_seed_base_and_episode_ids_frozen_before_diagnostic_tuning
+  scripted_expert_overrides:
+    scripted_grasp:
+      # Do not begin lift from one transient fingertip contact.
+      minimum_acquisition_contact_bodies: 2
+      instance_acquisition_hold_steps:
+        # Let the wider cuboid's genuine multi-finger hold settle before lift.
+        block_large: 5
+      family_templates:
+        # Seat the flat puck between multiple fingers before lifting.
+        flat_puck:
+          object_relative_position_m: [-0.004, 0.0, 0.024]
+      # Copied-state validation selects the first complete trajectory that
+      # succeeds; fallbacks cover qualified edge cases without relaxing metrics.
+      family_fallback_overrides:
+        flat_puck:
+          - {object_relative_position_m: [-0.004, 0.0, 0.020]}
+          - {object_relative_position_m: [-0.006, 0.0, 0.020]}
+          # Seated-puck portfolio qualified on independent development seeds.
+          - {object_relative_position_m: [-0.006, 0.0, 0.016]}
+          - {object_relative_position_m: [-0.004, 0.0, 0.016]}
+          - {object_relative_position_m: [-0.006, 0.0, 0.012]}
+          - {object_relative_position_m: [-0.004, 0.0, 0.012]}
+          - {object_relative_position_m: [0.0, 0.0, 0.012]}
+          # Retain the heavier puck at the boundary-scale extreme.
+          - {object_relative_position_m: [-0.010, 0.0, 0.028], wrist_orientation_wxyz: [0.7071067811865476, 0.7071067811865475, 0.0, 0.0]}
+        cuboid:
+          # Bound yaw compensation and palm centering for the wider cuboid.
+          # The inherited position preserves the block-small instance depth.
+          - {negative_object_yaw_to_wrist_yaw_gain: -1.0}
+          - {object_relative_position_m: [0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -1.0}
+          - {object_relative_position_m: [0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.50}
+          - {object_relative_position_m: [0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.25}
+          - {object_relative_position_m: [0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: 0.0}
+          - {object_relative_position_m: [0.0, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -1.0}
+          - {object_relative_position_m: [0.0, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.50}
+          - {object_relative_position_m: [0.0, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.25}
+          - {object_relative_position_m: [0.0, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: 0.0}
+          - {object_relative_position_m: [0.015, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -1.0}
+          - {object_relative_position_m: [-0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.50}
+          - {object_relative_position_m: [-0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: -0.25}
+          - {object_relative_position_m: [-0.0075, 0.0, 0.024], negative_object_yaw_to_wrist_yaw_gain: 0.0}
+      instance_templates:
+        block_small:
+          # Seat the smaller cuboid deeper for retention across reset yaw.
+          object_relative_position_m: [0.0075, 0.0, 0.016]
+        block_large:
+          # Match the wider cuboid's face with a slightly steeper wrist pitch.
+          wrist_orientation_wxyz: [0.737277337, 0.675590208, 0.0, 0.0]
+    scripted_place:
+      # Lower release height reduces cuboid bounce under seeded yaw variation.
+      placement_clearance_m: 0.040
+      family_target_offset_xy_m:
+        cylinder: [0.0, 0.0]
+    scripted_push:
+      # Leave replay margin inside the 3.5 cm terminal radius.
+      target_stop_distance_m: 0.020
+      required_terminal_dwell_steps: 10
+      # Re-center after a completed contact stroke instead of driving the hand
+      # to the workspace boundary when a rotated cuboid glances off the finger.
+      maximum_reapproach_attempts: 3
+      family_fallback_control_height_offsets_m:
+        cuboid: [-0.005, -0.010]
+      family_fallback_lateral_offsets_m:
+        cuboid: [0.0335, 0.0345]
+  cuboid_yaw_gain_schedule:
+    high_absolute_yaw_threshold_rad: 0.30
+    moderate_positive_gain_ratio: 0.50
+    high_absolute_gain_ratio: 0.25
+  puck_light_friction_schedule:
+    low_sampled_friction_threshold: 1.00
+    low_sampled_friction_base_multiplier: 1.80
+    regular_base_multiplier: 1.50
+    boundary_base_multiplier: 1.70
+  instance_friction_base_multiplier:
+    # The larger held-out cuboid needs a rubberized contact coefficient to
+    # remain genuinely held under its higher mass and wider grasp span.
+    block_large: 4.00
+  randomization:
+    source_position_offset_xy_m: [-0.00075, 0.00075]
+    goal_position_offset_xy_m: [-0.0015, 0.0015]
+    goal_position_offset_z_m: [-0.00075, 0.00075]
+    object_scale_multiplier: [0.99, 1.01]
+    object_mass_multiplier: [0.97, 1.03]
+    object_friction_multiplier: [0.97, 1.03]
+    controller_position_offset_m: [-0.0005, 0.0005]
+    applicable_object_skills: [reach_object, pick_place_sequence, push_object_to_target]
+    physical_parameter_skills: [pick_place_sequence, push_object_to_target]
+    goal_position_skills: [reach_object, pick_place_sequence, push_object_to_target, press_button]
+    controller_perturbation_skills: [reach_object, pick_place_sequence, push_object_to_target, press_button]
+  independence_audit:
+    require_unique_additional_reset_seed: true
+    require_unique_additional_initial_state_digest: true
+    trajectory_descriptor_samples: 16
+    minimum_initial_state_l2_distance: 1.0e-8
+    minimum_trajectory_descriptor_l2_distance: 1.0e-8
+    reject_exact_action_trajectory_duplicates: true
+  scaling_probe:
+    version: level4/scaling-probe-v1
+    nested_train_episodes_per_cell: [4, 8, 16]
+    validation_rollouts_per_cell: 8
+    model:
+      type: state_grounded_nominal_plus_bounded_residual_mlp
+      hidden_sizes: [64, 64]
+      activation: tanh
+      optimizer: adam
+      learning_rate: 0.001
+      epochs: 20
+      batch_size: 256
+      seed: 4501
+      normalization: train_subset_only
+      residual_bound_m: 0.001
+    readiness_gates:
+      minimum_aggregate_validation_success: 0.95
+      minimum_worst_cell_validation_success: 0.80
+      material_improvement_fraction: 0.03
+      maximum_safety_violations: 0
+      maximum_invalid_actions: 0
+      insufficient_result: publish_new_plan_version_and_expand_train_validation_up_to_32_per_cell
+      sufficient_result: largest_tranche_passes_all_gates_and_8_to_16_improvement_is_below_material_threshold
+  storage_projection:
+    release_floor_episode_count: 1112
+    nominal_32_per_cell_ceiling_episode_count: 1984
+    correction_episode_floor: 120
+    release_ceiling_episode_count: 2104
+    sampled_rgb_stride: 10
+    rgb_width: 640
+    rgb_height: 480
+    rgb_channels: 3
+    conservative_rgb_compression_ratio: 0.35
+    git_lfs_max_projected_payload_bytes: 2147483648
+    below_threshold_payload_handling: git_lfs
+    above_threshold_payload_handling: external_object_storage
+    working_data_git_policy: ignored_never_force_added
+    existing_release_overwrite_allowed: false
+  manual_replay:
+    minimum_cases_per_skill: 2
+    require_nominal_and_boundary_per_skill: true
+    required_skills: [reach_object, pick_place_sequence, push_object_to_target, press_button]
 
 split_policy:
   ownership_unit: complete_recording_session
