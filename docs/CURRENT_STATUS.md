@@ -20,18 +20,19 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.5B — Procedural Diversity Expansion and Data-Sufficiency Gate
+Level 4.6 — Scripted Failures and Corrective Demonstrations
 
-Active plan `level4/workcell-dataset-plan-v19` and procedural expansion v9
-contain 992/992 accepted nominal episodes across 62/62 split-owned cells. The
-fresh v19 test namespace accepted 400/400 assignments with zero rejections;
-exposed v4--v18 test namespaces remain quarantined from active coverage and
-model selection. Duplicate seed, initial-state digest, and exact-action counts
-are zero, the descriptor-distance audit passes, and the frozen validation-only
-4/8/16 scaling probe declares the dataset sufficient without using test data.
-Repository-wide Ruff and the full 576-test suite pass. The user accepted all
-eight nominal/boundary procedural replays on September 9, 2026, covering reach,
-complete pick/place, push, and button press. Level 4.5B is complete.
+The active append-only set contains 120/120 episodes across the frozen 12
+failure/correction cells: 90 ordinary scripted failures and 30 linked
+deterministic corrections. Every cell has 10 unique source episodes and stored
+initial-state digests. Conditional provenance, unchanged pre-intervention
+prefixes, abort-only workspace/joint-limit failures, deterministic stream
+selection, split alignment, and independent MuJoCo outcome recomputation all
+pass. Superseded attempts remain quarantined as immutable diagnostic evidence.
+Repository-wide Ruff and the full 582-test suite pass. The user accepted the
+visible corrected pick/place replay for `level46_2091` on September 9, 2026;
+the approval is recorded append-only in the correction manual replay manifest.
+Level 4.6 is complete.
 
 Note: the previous Level 1.3B index-only decoupling patch is superseded by the
 completed Level 1.3B local per-finger replacement and bend-control decision.
@@ -40,15 +41,12 @@ completed Level 1.3B local per-finger replacement and bend-control decision.
 
 ## Next Target Checkpoint
 
-Level 4.6 — Scripted Failures and Corrective Demonstrations
+Level 4.7 — Rendered Visual Grounding Dataset
 
-Level 4.6 is the only permitted next target. Preserve representative scripted
-failures and generate safe deterministic corrections without contaminating the
-expert-only nominal set. Implement exactly the frozen 12 failure/correction
-cells and 120-episode minimum in `docs/progress_level_4.md`. Keep source episode,
-failure class, retryability, intervention interval, trigger source, correction
-outcome, and conditional policy provenance distinct. Unsafe workspace or
-joint-limit failures remain abort-only. Do not begin Level 4.7.
+Level 4.7 is the only permitted next target. Add aligned single-camera rendered
+visual supervision for the frozen workcell while retaining simulator truth as
+the reference. Implement the streams, annotations, split ownership, and fixed-
+camera claim boundary in `docs/progress_level_4.md`. Do not begin Level 4.8.
 
 ---
 
@@ -73,6 +71,13 @@ variation, acquisition/retention where applicable, trajectories, terminal
 results, settling, and retraction matched the saved metadata. The approvals are
 recorded append-only in `data/demos/level4/manual_replay_manifest.json`. Level
 4.5B is complete.
+
+Level 4.6 manual verification passed on September 9, 2026. The user confirmed
+that corrected pick/place episode `level46_2091` looked good: the visible
+approach miss, deterministic intervention boundary, recovery, placement,
+settling, and saved metadata agreed. The approval is recorded append-only in
+`data/demos/level4/correction_manual_replay_manifest.json`. Level 4.6 is
+complete; Level 4.7 is next and has not started.
 
 Level 1.0 did not require manual verification.
 

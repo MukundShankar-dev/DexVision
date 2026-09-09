@@ -641,6 +641,16 @@ def _validate_level4_episode(
             )
     if source == "policy_rollout" and not metadata.get("source_policy_checkpoint"):
         raise DemoSchemaError("policy_rollout metadata requires source_policy_checkpoint.")
+    if isinstance(metadata.get("level4_6"), Mapping):
+        from dexvision.logging.corrective_demos import (
+            CorrectiveDemoError,
+            validate_level4_6_metadata,
+        )
+
+        try:
+            validate_level4_6_metadata(metadata)
+        except CorrectiveDemoError as exc:
+            raise DemoSchemaError(f"invalid Level 4.6 provenance: {exc}") from exc
 
     time_steps = int(episode.timestamps.shape[0])
     action_dim = action_schema.action_dim

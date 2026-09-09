@@ -1674,6 +1674,73 @@ Raw demonstrations and prior Level 3 checkpoints/reports remain read-only.
 
 ---
 
+## Level 4 Scripted Failures and Corrective Demonstrations
+
+Modules:
+
+```text
+dexvision/logging/corrective_demos.py
+dexvision/evaluation/correction_summary.py
+dexvision/apps/generate_scripted_correction.py
+```
+
+Contract:
+
+```python
+plan = build_level4_6_plan("configs/level4_dataset.yaml")
+episode_dir = generate_scripted_correction(
+    source_rollout=failure_episode_dir,
+    output_dir=output_dir,
+    assignment=assignment,
+    dataset_dir="data/demos/level4",
+)
+report = summarize_corrections(
+    config_path="configs/level4_dataset.yaml",
+    dataset_dir="data/demos/level4",
+)
+selected = select_level4_training_streams(
+    episode_dirs,
+    include_corrections=True,
+)
+```
+
+Rules:
+
+```text
+The frozen plan contains exactly 12 cells and 10 active episodes per cell:
+nine ordinary scripted failure cells and three corrective-intervention cells.
+Every correction links to one ordinary failure, retains that episode as an
+unchanged pre-intervention prefix, and stores failure class, retryability,
+intervention interval, trigger source, original terminal result, and final
+correction outcome as distinct fields.
+Policy-triggered corrections require source_policy_checkpoint. Teleoperation
+and scripted triggers require a null checkpoint plus the stable reason
+trigger_not_policy_rollout.
+Required corrections are simulator-state-grounded deterministic expert
+continuations. They never require camera, hand-tracking, or human-control input.
+Workspace and joint-limit violations preserve the unsafe request, record the
+clipped/rejected applied action and safety reason, remain abort-only, and never
+provide correction targets.
+Each active cell has ten unique source episodes and stored initial-state
+digests. Corrections may share a reset only with their explicitly linked
+failure prefix.
+The summary independently replays all corrections and requires both a pick and
+a successful final settled placement. Saved success labels alone are not
+qualification evidence.
+Baseline and correction-trained selections use the same stable split ownership;
+ordinary failures and policy rollouts are never silently promoted to expert
+targets.
+Superseded attempts remain immutable diagnostic evidence in the append-only
+correction quarantine manifest and do not count toward active coverage.
+Visible replay approvals are stored append-only in
+`data/demos/level4/correction_manual_replay_manifest.json`; the correction
+summary may report checkpoint completion only after one active correction has
+an explicit passed review. The user accepted `level46_2091` on September 9,
+2026, completing the Level 4.6 manual gate.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.

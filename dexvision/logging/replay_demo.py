@@ -469,7 +469,10 @@ def _apply_level4_orientation_hold(
     metadata = loaded_demo.episode.metadata
     if (
         metadata.get("task_id") != "level4_workcell"
-        or metadata.get("source") != "scripted"
+        or (
+            metadata.get("source") != "scripted"
+            and metadata.get("data_stream") != "corrective_intervention"
+        )
         or metadata.get("skill_name") not in {"pick_object", "pick_place_sequence"}
     ):
         return False

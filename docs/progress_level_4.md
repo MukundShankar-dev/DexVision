@@ -1456,19 +1456,36 @@ conda run -n dexvision pytest -q tests/test_corrective_demos.py tests/test_corre
 ### Pass criteria
 
 ```text
-[ ] The frozen failure/correction minimum and category coverage are met
-[ ] Every one of the 12 cells contains at least 10 unique episodes, for 120 total
-[ ] Corrections can be included or excluded deterministically
-[ ] Correction provenance validates conditionally by source category
-[ ] Failure, retry, correction, and final outcome are not conflated
-[ ] Workspace/joint-limit failures are abort-only
-[ ] Baseline and later correction-trained comparisons can use identical splits
+[x] The frozen failure/correction minimum and category coverage are met
+[x] Every one of the 12 cells contains at least 10 unique episodes, for 120 total
+[x] Corrections can be included or excluded deterministically
+[x] Correction provenance validates conditionally by source category
+[x] Failure, retry, correction, and final outcome are not conflated
+[x] Workspace/joint-limit failures are abort-only
+[x] Baseline and later correction-trained comparisons can use identical splits
 ```
 
 Manual verification: inspect one scripted corrected pick/place replay. Pass
 when the failure and deterministic intervention boundary are visibly correct
 and the original failure remains recoverable from the saved metadata. Stop for
 user confirmation.
+
+Implementation status (September 9, 2026): the append-only Level 4.6 generator,
+conditional provenance validator, deterministic stream selector, and correction
+summary are implemented. The active set contains 120/120 episodes across all
+12 cells: 90 ordinary scripted failures and 30 deterministic scripted
+corrections. Every cell has 10 unique source episodes and initial-state digests;
+all 30 correction prefixes exactly reproduce their triggering failure, all 30
+correction outcomes independently replay as successful pick/place trajectories,
+and workspace/joint-limit failures are clipped abort-only evidence. Seventy-eight
+superseded generation attempts remain preserved as diagnostic evidence in the
+append-only correction quarantine manifest and do not count toward active
+coverage. Focused tests, repository-wide Ruff, and the full 582-test suite pass.
+The user accepted visible corrected pick/place episode `level46_2091` on
+September 9, 2026: the approach miss, deterministic intervention boundary,
+recovery, placement, settling, and saved metadata agreed. The approval is stored
+append-only in `data/demos/level4/correction_manual_replay_manifest.json`.
+Level 4.6 is complete; Level 4.7 is next and has not started.
 
 ---
 
@@ -1649,7 +1666,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.4 reach, push, and press anchor coverage passes across genuine sessions
 [x] 4.5A complete pick/place anchor coverage and phase replays pass
 [x] 4.5B procedural nominal expansion and validation-only scaling gate pass
-[ ] 4.6 failures and corrections remain separate and auditable
+[x] 4.6 failures and corrections remain separate and auditable
 [ ] 4.7 single-camera visual annotations and alignment pass
 [ ] 4.8 coverage, quality, provenance, and leakage audits pass
 [ ] 4.9 immutable release restores and verifies from a clean directory

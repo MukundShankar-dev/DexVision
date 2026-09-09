@@ -110,6 +110,12 @@ def run_replay_demo(args: argparse.Namespace) -> int:
     print(f"Task: {loaded.episode.metadata.get('task_id')}")
     print(f"Skill: {loaded.episode.metadata.get('skill_name')}")
     print(f"Episode: {loaded.episode.metadata.get('episode_id')}")
+    if loaded.episode.metadata.get("data_stream") == "corrective_intervention":
+        print(f"Failure class: {loaded.episode.metadata.get('failure_class')}")
+        print(
+            "Intervention interval: "
+            f"{loaded.episode.metadata.get('intervention_interval')}"
+        )
     print(f"MuJoCo model: {loaded.model_path}")
     print(f"Mocap body: {loaded.mocap_body_name}")
     print(f"Action schema: {loaded.action_schema.version}, dim={loaded.action_schema.action_dim}")
