@@ -1,0 +1,14 @@
+version: level4/frozen-splits-v1
+dataset_config: configs/level4_dataset.yaml
+dataset_config_sha256: 60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f
+workcell_config: configs/workcell.yaml
+visual_dataset_dir: data/visual/level4
+ownership_unit: complete_recording_session
+normalization_source: train_expert_success_only
+held_out_object_instances:
+- block_large
+- cylinder_tall
+- puck_heavy
+held_out_goal_regions:
+- return_bin_right
+replacement_plan: configs/level4_puck_replacement_v1.yaml

@@ -18,8 +18,15 @@ def test_current_status_advances_after_level46_completion() -> None:
         "Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release"
     ) in status
     assert "`docs/progress_level_4.md`" in status
-    assert "## Last Completed Checkpoint\n\nLevel 4.6" in status
-    assert "## Next Target Checkpoint\n\nLevel 4.7" in status
+    progress = read("docs/progress_level_4.md")
+    selected = []
+    for field in ("Last Completed Checkpoint", "Next Target Checkpoint"):
+        match = re.search(rf"## {field}\n\n([^\n]+)", status)
+        assert match is not None
+        heading = f"## {match.group(1)}"
+        assert heading in progress
+        selected.append(progress.index(heading))
+    assert selected[0] < selected[1]
     assert "hammer-curl" in status
 
 

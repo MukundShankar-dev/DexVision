@@ -1579,8 +1579,8 @@ Manual verification passed on September 10, 2026 when the user accepted the
 contact-sheet review with “Looks good.” The append-only approval receipt at
 `data/visual/level4/manual_review_approval.json` records that confirmation and
 the reviewed artifact hashes; original export-time reports remain unchanged.
-Level 4.7 is complete. Last Completed is 4.7 and Next Target is 4.8; Level 4.8
-has not started and requires a separate user request.
+Level 4.7 is complete. Last Completed remains 4.7 and Next Target remains 4.8;
+the Level 4.8 implementation and audit findings are recorded below.
 
 ---
 
@@ -1626,15 +1626,56 @@ conda run -n dexvision pytest -q tests/test_level4_dataset_audit.py tests/test_l
 ### Pass criteria
 
 ```text
-[ ] Frozen minimum counts and required coverage cells pass
+[x] Frozen minimum counts and required coverage cells pass
 [ ] No episode, session, held-out condition, object instance, goal, or image leaks
-[ ] Every accepted episode passes schema, quality, and recomputed-task checks
-[ ] Training-only normalization inputs are explicitly identified
-[ ] All shortages and biases are visible; none are repaired by silent duplication
+[x] Every accepted episode passes schema, quality, and recomputed-task checks
+[x] Training-only normalization inputs are explicitly identified
+[x] All shortages and biases are visible; none are repaired by silent duplication
 ```
 
 Manual verification: none. A failing audit creates a versioned collection
 amendment; it does not permit editing accepted episodes in place.
+
+Implementation status (September 10, 2026): the read-only audit, frozen split
+config, per-file/episode/dataset digests, split manifests, training-only
+normalization input lists, diagnostic amendment output, and focused regression
+tests are implemented. The final audit is saved at `outputs/level4/audit_v2`.
+All 1,112 active episodes were checked. Fresh replay rejected
+`level45b_000293`, leaving training cell `pp_puck_light_return_bin_left` at
+15/16 freshly qualified episodes. Two identical button action-trajectory groups
+also span train/validation/test in the immutable anchor. All 30 corrections and
+the complete 2,633-frame visual export pass independent checks. The split
+manifests are diagnostic-only; the failed episode has no training target,
+derived skill segments, or normalization input. The versioned collection
+amendment records the rejected episode, shortage and duplicate groups.
+
+The 26 checkpoint tests, 17 status/documentation regressions, repository-wide
+Ruff, whitespace checks and independent manifest/source-file integrity checks
+pass. The final full suite completed with 622 passed and one offscreen OpenGL
+test skipped because CoreGraphics was unavailable, in 487.05 seconds. Saved
+visual truth/decoding checks passed independently. No accepted episodes, source
+reviews, sessions, or existing visual files changed. Level 4.8 remains incomplete and
+Level 4.9 has not started. See `docs/level4_dataset_report.md` for commands,
+limitations and the required amendment.
+
+Puck-only remediation (September 10, 2026): following explicit user
+authorization, frozen plan `configs/level4_puck_replacement_v1.yaml` collected
+one new seeded nominal expert episode, `level48_puck_v1_000001`. The first
+attempt passed an independent replay of all 332 saved actions, including pick,
+terminal place, label agreement and zero safety violations. Its plan and
+receipt bind the preserved original and replacement by file digests. The audit
+uses explicit supersession, with fresh qualification of the replacement; it
+never rewrites the original episode or review. All previous active episode
+inventories, session entries, visual files and audit artifacts remain intact.
+The 35 focused tests, 17 status regressions, Ruff and independent artifact
+checks pass. The full suite passes with 631 passed and one platform-dependent
+offscreen OpenGL test skipped, in 523.19 seconds. Audit v3 freshly qualifies
+all 1,112 active episodes and all 74 coverage cells; the puck training cell is
+restored to 16/16. Its only eight issues are the unchanged cross-split button
+matches in two groups. The replacement supplies 332 qualified training frames;
+the train-only normalization list now contains 416 episodes. Button duplicates
+remain outside this remediation and keep 4.8 incomplete; no future checkpoint
+has started.
 
 ---
 

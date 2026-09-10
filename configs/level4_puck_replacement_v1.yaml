@@ -1,0 +1,16 @@
+version: level4/puck-replacement-plan-v1
+checkpoint: '4.8'
+reason: Replace one nominal episode that fails fresh replay; preserve its raw files and review.
+original_episode_id: level45b_000293
+original_episode_digest: 066ec725124402ddcde203a44f42ae9419fbb39a62c81f8ec5c21a780f8e45e1
+replacement_episode_id: level48_puck_v1_000001
+recording_session_id: level48_puck_v1_train_000001
+operator_id: scripted_puck_replacement_v1
+split: train
+skill: pick_place_sequence
+cell_id: pp_puck_light_return_bin_left
+seed: 480001
+recipe: Existing deterministic nominal expert with a new seeded reset; no procedural expansion assignment or controller tuning.
+dataset_config: configs/level4_dataset.yaml
+dataset_config_sha256: 60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f
+receipt_path: outputs/level4/puck_replacement_v1/receipt.json

@@ -37,9 +37,21 @@ Level 4.7 is complete.
 
 Level 4.8 — Dataset Audit and Frozen Split Manifests
 
-Level 4.8 is the next permitted checkpoint, but has not started. Follow its
-scope and checks in `docs/progress_level_4.md` only when the user requests
-further work. Preserve source episodes and the completed visual export.
+Level 4.8 remains incomplete because identical button action trajectories span
+splits. The user-authorized puck-only replacement `level48_puck_v1_000001`
+passed independent saved-action replay with complete pick/place and zero safety
+violations. Its plan and qualification receipt are versioned; the original
+`level45b_000293`, its review, all earlier dataset files, and the visual export
+remain unchanged. The audit explicitly supersedes the old episode in active
+membership and still freshly qualifies its replacement. No button remediation
+or Level 4.9 work has started. See `docs/level4_dataset_report.md` for commands
+and evidence. The 35 focused amendment/checkpoint tests, 17 status regressions, Ruff and
+independent artifact checks pass. The full suite passes with 631 passed and
+one platform-dependent offscreen OpenGL test skipped (523.19 seconds).
+`outputs/level4/audit_v3` verifies 1,112/1,112 active episodes and all 74 coverage
+cells, restoring the puck training cell to 16/16. Its only eight issues are the
+unchanged duplicate-button matches across two groups. Manifests remain
+diagnostic-only until leakage is resolved.
 
 ---
 
@@ -50,6 +62,13 @@ further work. Preserve source episodes and the completed visual export.
 ---
 
 ## Manual Verification Status
+
+Level 4.8 requires no manual verification. The puck replacement passed its
+independent automated qualification. The two cross-split button trajectory
+groups remain unresolved. Original episodes, existing session entries, prior
+audit artifacts, and the complete visual export have been verified unchanged.
+The recorder appended exactly one new session and episode. Last Completed
+remains 4.7 and Next Target remains 4.8.
 
 Level 4.5A manual verification passed on September 8, 2026. The user accepted
 six stratified pick/place replays covering cuboid, cylinder, and flat-puck
@@ -78,7 +97,7 @@ at `data/visual/level4/manual_review_approval.json` records the confirmation and
 reviewed artifact hashes. Original export-time reports remain unchanged and
 retain their historical pending status. Automated gates passed with 15 focused
 tests, 597 full-suite tests, Ruff, and independent file-integrity checks.
-Level 4.7 is complete; Level 4.8 is next and has not started.
+Level 4.7 is complete; Level 4.8 remains the active audit checkpoint.
 
 Level 1.0 did not require manual verification.
 

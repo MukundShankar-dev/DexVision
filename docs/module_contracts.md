@@ -1797,6 +1797,61 @@ checks never mark Level 4.7 complete without explicit user confirmation.
 
 ---
 
+## Level 4 Dataset Audit and Frozen Splits
+
+Modules:
+
+```text
+dexvision/evaluation/dataset_audit.py
+dexvision/evaluation/split_audit.py
+dexvision/apps/audit_level4_dataset.py
+```
+
+Contract:
+
+```python
+report = audit_level4_dataset(
+    config_path="configs/level4_dataset.yaml",
+    splits_path="configs/level4_splits.yaml",
+    dataset_dir="data/demos/level4",
+    output_dir="outputs/level4/audit",
+)
+```
+
+Rules:
+
+```text
+The audit is read-only for nominal, failure, correction, visual and legacy data.
+Existing output directories cannot be overwritten; repeat audits use new paths.
+Active membership follows accepted scripted reviews and frozen quarantine rules.
+An explicitly configured puck replacement amendment may supersede one preserved
+training episode. Its versioned plan and receipt bind the original/replacement
+file digests, frozen dataset config, new recording seed/session/operator, and
+matching skill/cell/whole-session split. Missing, duplicate, changed or mismatched
+evidence stops the audit. The original remains unchanged and its exclusion
+retains its digest and replacement id. The replacement's manifest records
+replaces_episode_id and still requires fresh replay, quality and leakage checks;
+saved qualification receipts cannot bypass those gates. Historical collection
+inventories retain originals; active coverage uses the amended membership.
+Fresh schema and headless replay results override stale nominal acceptance flags.
+Correction prefixes, outcomes, source lineage and abort-only unsafe failures are
+independently checked with the Level 4.6 summary.
+Whole sessions, task-relevant held-out ids/regions and source lineage own one split.
+Shared training-pool identities/goals across sessions are permitted explicitly.
+Raw background object state remains archival truth and is excluded from learner
+and normalization inputs; unrestricted raw-state learning is not isolation-safe.
+Every rendered frame is decoded and checked for source/image hashes, alignment,
+mask/box/visibility agreement, exact simulator poses/ids/classes and calibration.
+Per-split manifests preserve relative-file SHA-256, named schemas, phase/skill
+intervals, source lineage and baseline/correction target intervals.
+Normalization inputs are explicit training expert episodes/frames only; no
+normalization statistics, training, packaging or release is performed here.
+A failing audit writes a versioned collection amendment and leaves Level 4.8
+incomplete. It never edits accepted episodes or silently repairs shortages.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.
