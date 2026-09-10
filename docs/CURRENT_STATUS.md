@@ -20,33 +20,26 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.6 — Scripted Failures and Corrective Demonstrations
+Level 4.7 — Rendered Visual Grounding Dataset
 
-The active append-only set contains 120/120 episodes across the frozen 12
-failure/correction cells: 90 ordinary scripted failures and 30 linked
-deterministic corrections. Every cell has 10 unique source episodes and stored
-initial-state digests. Conditional provenance, unchanged pre-intervention
-prefixes, abort-only workspace/joint-limit failures, deterministic stream
-selection, split alignment, and independent MuJoCo outcome recomputation all
-pass. Superseded attempts remain quarantined as immutable diagnostic evidence.
-Repository-wide Ruff and the full 582-test suite pass. The user accepted the
-visible corrected pick/place replay for `level46_2091` on September 9, 2026;
-the approval is recorded append-only in the correction manual replay manifest.
-Level 4.6 is complete.
-
-Note: the previous Level 1.3B index-only decoupling patch is superseded by the
-completed Level 1.3B local per-finger replacement and bend-control decision.
+The derived export at `data/visual/level4` contains 2,633 aligned frames from
+64 unchanged source episodes and passes all 12 frozen visual condition/split
+cells. It records 264 excluded cross-split duplicate images. Fifteen focused
+tests, the full 597-test suite, repository-wide Ruff, and independent saved-file
+integrity checks pass. The user accepted the contact-sheet review on September
+10, 2026 with “Looks good.” The append-only `manual_review_approval.json` binds
+that confirmation to the reviewed sheets and export reports by SHA-256.
+Level 4.7 is complete.
 
 ---
 
 ## Next Target Checkpoint
 
-Level 4.7 — Rendered Visual Grounding Dataset
+Level 4.8 — Dataset Audit and Frozen Split Manifests
 
-Level 4.7 is the only permitted next target. Add aligned single-camera rendered
-visual supervision for the frozen workcell while retaining simulator truth as
-the reference. Implement the streams, annotations, split ownership, and fixed-
-camera claim boundary in `docs/progress_level_4.md`. Do not begin Level 4.8.
+Level 4.8 is the next permitted checkpoint, but has not started. Follow its
+scope and checks in `docs/progress_level_4.md` only when the user requests
+further work. Preserve source episodes and the completed visual export.
 
 ---
 
@@ -77,7 +70,15 @@ that corrected pick/place episode `level46_2091` looked good: the visible
 approach miss, deterministic intervention boundary, recovery, placement,
 settling, and saved metadata agreed. The approval is recorded append-only in
 `data/demos/level4/correction_manual_replay_manifest.json`. Level 4.6 is
-complete; Level 4.7 is next and has not started.
+complete.
+
+Level 4.7 manual verification passed on September 10, 2026. The user accepted
+the four condition contact sheets with “Looks good.” The append-only receipt
+at `data/visual/level4/manual_review_approval.json` records the confirmation and
+reviewed artifact hashes. Original export-time reports remain unchanged and
+retain their historical pending status. Automated gates passed with 15 focused
+tests, 597 full-suite tests, Ruff, and independent file-integrity checks.
+Level 4.7 is complete; Level 4.8 is next and has not started.
 
 Level 1.0 did not require manual verification.
 

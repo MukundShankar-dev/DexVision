@@ -1741,6 +1741,62 @@ an explicit passed review. The user accepted `level46_2091` on September 9,
 
 ---
 
+## Level 4 Rendered Visual Grounding Dataset
+
+Modules:
+
+```text
+dexvision/perception/render_annotations.py
+dexvision/logging/visual_stream.py
+dexvision/apps/export_visual_dataset.py
+```
+
+Contract:
+
+```python
+report = export_visual_dataset(
+    config_path="configs/level4_visual_dataset.yaml",
+    dataset_dir="data/demos/level4",
+    output_dir="data/visual/level4",
+)
+```
+
+Rules:
+
+```text
+Level 4.7 derives RGB from exact named saved qpos/qvel and state timestamps;
+rendering never integrates actions or rewrites source episodes.
+The fixed level4/visual-camera-v1 calibration is explicit in the export config.
+Every RGB frame links to its source episode/session/frame, action timestamp,
+calibration, visible instance mask, boxes, stable ids, classes, and metric poses.
+Invisible entities have zero visible pixels, null boxes, retained simulator
+poses, and the shared occluded_or_out_of_frame status; no amodal mask is claimed.
+The source task's static positions, object scale, and pick/place fixture
+isolation are restored. Privileged cue geoms and label sites are hidden.
+Whole-session and frozen cell ownership determine split assignment. Quarantined
+or unaccepted episodes cannot enter the compact nominal scripted source set.
+Held-out instances and the held-out right-bin region are hidden in non-test
+renders, including background geometry. Source simulator truth stays intact.
+Nominal, mild illumination, partial occlusion, and bounded distractor conditions
+share one camera. Render-only geometry never changes the source trajectory.
+Partial occlusion is bounded by measured goal-mask loss, with deterministic
+card narrowing or explicit absence when the visible goal cannot support it.
+All training conditions precede validation and test during export. Exact
+cross-split pixel duplicates are explicitly excluded and reported; held-out
+pixels cannot select training frames. Coverage counts require exported frames.
+Coverage and storage reports expose shortages; no duplicated image repairs a
+missing cell. Target coverage is split-permitted coverage, with all five targets
+covered by the union of splits.
+Source/image/config/implementation/asset digests and license attribution are
+saved with the output. An existing output directory is never overwritten.
+The custom workcell license remains unspecified and must be resolved before a
+later release. This checkpoint neither packages data nor trains perception.
+Manual review uses the 48 labeled panels across four condition sheets. Automated
+checks never mark Level 4.7 complete without explicit user confirmation.
+```
+
+---
+
 ## Level 4 Comprehensive Dataset Contract
 
 The immutable Level 2 release remains the input to Level 3 feasibility work.

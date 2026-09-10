@@ -1535,17 +1535,52 @@ conda run -n dexvision pytest -q tests/test_render_annotations.py tests/test_vis
 ### Pass criteria
 
 ```text
-[ ] Every exported frame maps to one source episode and state timestamp
-[ ] Boxes, masks, poses, ids, camera calibration, and visibility are complete
-[ ] Occluded/out-of-frame objects follow the frozen annotation rule
-[ ] Visual splits inherit episode/session/condition isolation
-[ ] Every frozen visual-condition cell meets its split-owned coverage minimum
-[ ] Export size and storage plan are reported before release
+[x] Every exported frame maps to one source episode and state timestamp
+[x] Boxes, masks, poses, ids, camera calibration, and visibility are complete
+[x] Occluded/out-of-frame objects follow the frozen annotation rule
+[x] Visual splits inherit episode/session/condition isolation
+[x] Every frozen visual-condition cell meets its split-owned coverage minimum
+[x] Export size and storage plan are reported before release
 ```
 
 Manual verification is required for a contact sheet sampled across all object
 families and splits. Pass when masks/boxes align visually, ids are correct, and
 no test scene appears in training. Stop for user confirmation.
+
+Implementation status (September 10, 2026): the Level 4.7 exporter, frozen
+visual config, annotation/alignment tests, and format/manual-review guide are
+implemented. The append-only export at `data/visual/level4` contains 2,633
+frames from 64 distinct accepted nominal scripted episodes and sessions. All
+12 condition/split cells meet their source-episode and visible-entity minima.
+The candidate stride-five stream contained 2,897 frames; 264 exact cross-split
+RGB duplicates were explicitly excluded and recorded. Training renders precede
+validation and test, and held-out background instances/target geometry are
+hidden outside test. Original episodes and immutable datasets remain unchanged.
+
+The frozen export camera uses a workcell-facing calibration defined entirely
+in the new config; it does not edit the completed scene. Saved named qpos/qvel,
+static entity poses, object scale, and source-task fixture isolation produce
+aligned RGB/instance masks, tight visible boxes, and simulator-truth poses.
+The measured occluder loss stays within the frozen 0.35 bound. Missing entities
+retain poses with empty masks and null boxes. Source, image, config, code, and
+asset checksums and explicit license metadata accompany the export.
+
+The RGB/mask payload is 474,182,625 bytes (about 474 MB); all artifacts before
+the report itself occupy 498,105,522 bytes (about 498 MB). The projected
+uncompressed exported RGB/mask arrays occupy 4,044,288,000 bytes. No archive or
+release was created. The custom workcell license is unspecified and must be
+resolved by the owner before a later release.
+
+The focused 15-test suite, the full 597-test suite, and repository-wide Ruff
+pass. The final full run completed in 459.68 seconds. An independent
+read-back audit verified every PNG checksum, decoded RGB digest, mask/box/pose,
+source index/timestamp, split ownership, and all 64 unchanged source episodes.
+Manual verification passed on September 10, 2026 when the user accepted the
+contact-sheet review with “Looks good.” The append-only approval receipt at
+`data/visual/level4/manual_review_approval.json` records that confirmation and
+the reviewed artifact hashes; original export-time reports remain unchanged.
+Level 4.7 is complete. Last Completed is 4.7 and Next Target is 4.8; Level 4.8
+has not started and requires a separate user request.
 
 ---
 
@@ -1667,7 +1702,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.5A complete pick/place anchor coverage and phase replays pass
 [x] 4.5B procedural nominal expansion and validation-only scaling gate pass
 [x] 4.6 failures and corrections remain separate and auditable
-[ ] 4.7 single-camera visual annotations and alignment pass
+[x] 4.7 single-camera visual annotations and alignment pass
 [ ] 4.8 coverage, quality, provenance, and leakage audits pass
 [ ] 4.9 immutable release restores and verifies from a clean directory
 [ ] Four sessions remain split-owned; per-cell minima and visual conditions are audited

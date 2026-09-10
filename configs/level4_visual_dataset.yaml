@@ -1,0 +1,36 @@
+version: level4/visual-dataset-v1
+workcell_config: workcell.yaml
+sampling_stride: 5
+camera:
+  id: workcell_fixed_v1
+  resolution: [640, 480]
+  position_m: [-0.50, -0.62, 0.52]
+  lookat_m: [0.0, 0.0, 0.06]
+  vertical_fov_deg: 48.0
+  calibration_version: level4/visual-camera-v1
+selection:
+  source: accepted_nominal_scripted
+  ordering: episode_id
+  render_split_priority: [train, validation, test]
+  duplicate_image_rule: exclude_later_cross_split_frame_and_report
+  minimum_episodes_by_condition_split: {train: 8, validation: 4, test: 4}
+  primary_categories: [cuboid, cylinder, flat_puck, start_button]
+conditions:
+  nominal: {}
+  mild_illumination: {intensity_multiplier: 0.90, color_temperature_shift_k: 0}
+  partial_occlusion: {target_box_width_fraction: 0.12, maximum_target_mask_occlusion_fraction: 0.35}
+  bounded_distractors:
+    positions_m: [[0.19, 0.155, 0.012], [0.19, -0.155, 0.012]]
+    half_size_m: [0.008, 0.008, 0.012]
+annotation:
+  mask: visible_instance_uint16_png_zero_background
+  box: visible_xyxy_exclusive_integer_pixels
+  invisible: zero_mask_null_box_pose_retained_occluded_or_out_of_frame
+  pose: object_to_world_translation_m_and_rotation_matrix
+  camera_frame: x_right_y_down_z_forward
+  held_out_background: hide_in_train_and_validation
+storage:
+  rgb: lossless_png
+  masks: uint16_png
+  release_plan: report_bytes_before_packaging_no_release_in_4_7
+  payload_license: unspecified_project_assets_require_owner_license_before_release
