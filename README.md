@@ -1,4 +1,4 @@
-# DexVision / Hand2Bot
+# DexVision
 
 DexVision is a staged robot-learning and computer-vision project for building
 reusable manipulation skills with a simulated Shadow Hand. The active pipeline
