@@ -308,6 +308,8 @@ Level 5.0 is complete; stop here. Level 5.1 is planned but has not started.
 
 ## Level 5.1 — Reproducible Skill Dataset and Training Infrastructure
 
+**Complete — September 14, 2026.**
+
 ### Goal
 
 Load Level 4 skill segments and train any configured policy through one
@@ -351,15 +353,101 @@ python -m dexvision.apps.train_skill --config configs/level5/skills/reach_object
 ### Pass criteria
 
 ```text
-[ ] No session, episode, object, goal, or image split leakage
-[ ] Every tensor shape and field name follows an executable schema
-[ ] Scripted failure/correction and legacy-release streams are opt-in and separately countable
-[ ] Interrupted training resumes reproducibly
-[ ] A tiny CPU dataset overfits and reloads its selected checkpoint
-[ ] Dry-run prints inputs, split counts, model size, device, outputs, and digests
+[x] No session, episode, object, goal, or image split leakage
+[x] Every tensor shape and field name follows an executable schema
+[x] Scripted failure/correction and legacy-release streams are opt-in and separately countable
+[x] Interrupted training resumes reproducibly
+[x] A tiny CPU dataset overfits and reloads its selected checkpoint
+[x] Dry-run prints inputs, split counts, model size, device, outputs, and digests
 ```
 
 Manual verification: none.
+
+Implementation notes:
+
+- `load_training_inputs` checks the 5.0 checksum lock, release readiness,
+  executable layouts, model assets, whole-session/cell/lineage ownership,
+  reserved object/goal ids, images, and normalization ownership. The baseline
+  resolves exactly the frozen skill intervals. It never enumerates working
+  directories to decide membership.
+- `ReleaseSource` reads the immutable archive by default. An explicit
+  `--release-root` reads restored files only after their release hashes match.
+  Failure/correction records and frozen RGB/mask bytes are explicit separate
+  selections; legacy archive reads preserve absent session ids. These streams
+  never silently become baseline targets. Correction training remains disabled
+  under the unchanged 5.0 plan until its later opt-in checkpoint.
+- `load_skill_datasets` loads train/validation expert actions only. It rebuilds
+  reset state and uses named state row t-1 for action t. Forward kinematics
+  supplies typed object state and contacts without integrating actions. The
+  existing physical workcell task state machine reconstructs causal phases;
+  saved expert/controller and audited labels are retained only for disagreement
+  reporting. All 183 common feature names and skill-specific numeric goal names
+  are explicit. Continuous normalization uses float64 population statistics
+  over train-manifest interval intersections; binary masks and one-hot columns
+  remain unscaled.
+- Both frozen MLP families are supported. The standalone model predicts bounded
+  translation, rotation-vector, wrist and finger groups. Rotation is capped in
+  vector norm, not merely componentwise. Phase/safety masks govern the group
+  loss; full requested/commanded/applied/history records remain available.
+- `train_skill` samples cell, episode and frame deterministically and saves
+  each completed optimizer step, including partial-epoch sums, optimizer,
+  scheduler (`null` in this protocol), all RNG states, sampler digest, offline
+  selection history, normalization, environment and input/code digests. Resume
+  uses the same output directory and rejects changed inputs or ownership.
+  Existing run directories cannot be used for a new run. CPU is tested; the
+  optional CUDA path requires an available compatible device and is untested
+  on this Mac.
+- Real runs retain `best_offline.pt` and validation candidates. `selected.pt`
+  is created only by `select_checkpoint` with complete validation evidence bound
+  to candidate, manifest, seed, matrix digest and rollout count, using the frozen
+  ranking. Test evidence is rejected. Unavailable terminal error is serialized
+  as `null` with a reason and ranks as positive infinity. No rollout evaluator,
+  qualified skill, full-scale training or Level 5.2 implementation is supplied
+  by this checkpoint. The selected-checkpoint acceptance test uses an explicitly
+  synthetic validation stub, not fabricated robot rollout evidence.
+
+API entry points are `load_training_inputs`, `select_streams`, `ReleaseSource`,
+`load_skill_datasets`, `train_skill`, `load_checkpoint`, and `select_checkpoint`.
+For an interrupted authorized training run, use its original config, seed,
+model, device and `--output-dir` with `--resume`; `--stop-after-steps` provides
+a controlled interruption without altering the frozen training budget.
+
+Completion evidence (September 14, 2026): the 36 focused tests pass, as do
+58 focused/documentation regressions and repository-wide Ruff. The full suite
+passed **732 tests, 1 skipped in 558.51 seconds**. The skip is the existing
+platform-dependent offscreen OpenGL check. The last training/selection fixes
+also passed their 12 focused CPU tests. The listed dry-run was executed after
+activating the `dexvision` Conda environment and passed without writing a run
+or fitting normalization. It reports 80/32/48 reach episode assignments for
+train/validation/test and the named 192-value reach input.
+
+A separate read-only full-loader smoke loaded every nominal training and
+validation interval for all five skills from the immutable archive. Test action
+arrays were not loaded. Training statistics were fitted in memory only:
+
+| Skill | Train episodes / frames | Validation episodes / frames | Input width |
+|---|---:|---:|---:|
+| Reach | 80 / 1,839 | 32 / 777 | 192 |
+| Pick | 144 / 18,401 | 48 / 6,138 | 194 |
+| Place held object | 144 / 16,845 | 48 / 5,285 | 195 |
+| Push | 96 / 10,545 | 32 / 2,963 | 189 |
+| Press | 96 / 1,744 | 32 / 592 | 185 |
+
+Pick/place intervals share parent episodes; the union is 416 training and
+144 validation episodes, not 752 separate recordings. The total is 65,129
+eligible skill frames. An independent checksum-verified action read across
+those 560 unique episodes measured maximum angular change 0.050001002642 rad,
+below the frozen 0.139626-rad limit.
+
+Causal physical phases differ from stored controller labels on train/validation
+frames as follows: reach 16/11, pick 6,897/2,293, place 10,956/3,976, push 741/296,
+press 1,104/368. These are disclosed preprocessing disagreements, not repaired
+labels or skill qualification evidence. They remain available per episode in
+`SkillEpisode.records`; downstream training/evaluation must preserve that
+distinction. No full-scale policy training or policy rollout evaluation ran.
+Existing datasets, release archives, and the completed 5.0 section are unchanged.
+No manual verification is required. Level 5.1 is complete; stop here. Level 5.2
+is the next planned checkpoint and has not started.
 
 ---
 
@@ -1008,7 +1096,7 @@ user confirmation before completing Level 5.
 
 ```text
 [x] 5.0 Level 3 evidence, model choices, protocols, gates, and artifacts are frozen
-[ ] 5.1 loader/training infrastructure is deterministic and resumable
+[x] 5.1 loader/training infrastructure is deterministic and resumable
 [ ] 5.2 reach is evaluated against Level 3 failures and Level 5 gates
 [ ] 5.3 pick is evaluated across supported object families
 [ ] 5.4 place-held-object is evaluated across targets and held-out goals

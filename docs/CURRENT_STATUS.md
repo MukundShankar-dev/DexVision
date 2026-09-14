@@ -20,33 +20,42 @@ Level 5 — Workcell Skill Learning and Qualification
 
 ## Last Completed Checkpoint
 
-Level 5.0 — Learning, Evaluation, and Artifact Freeze
+Level 5.1 — Reproducible Skill Dataset and Training Infrastructure
 
-Completed September 14, 2026. The owner explicitly activated Level 5 after the
-completed Level 4.9 handoff. The immutable release passed read-only integrity
-and publication-readiness verification, including all 33,350 payload files.
-The Level 4 scaling/readiness and final similarity gates pass; their narrow
-expert-assisted claim and historical replacement boundary remain explicit.
+Completed September 14, 2026. At the owner's request, the existing Level 5.0
+freeze was verified, committed as `ce3e16a`, and pushed to `origin/main` before
+5.1 implementation began from a clean tree. The immutable 5.0 plan, datasets,
+release archives, and completed checkpoint sections remain unchanged.
 
-The learning plan, five skill protocols, paired state/perception reset matrices,
-training-only expert jerk gates, input digests, and artifact/checksum rules are
-frozen in `configs/level5/` and `docs/level5_learning_plan.md`. Fourteen focused
-checks and 65 checkpoint/documentation regressions pass. The full suite passed
-696 tests with one platform-dependent offscreen OpenGL skip in 522.71 seconds;
-repository-wide Ruff and whitespace checks pass. No manual verification is
-required. No training, policy rollout evaluation, normalization fitting, or
-Level 5.1 infrastructure was implemented. Existing datasets and completed
-Level 4 checkpoint sections remain unchanged.
+The new loader verifies frozen input/schema/model hashes and whole-session,
+condition, lineage, reserved-id and image ownership. It builds named causal
+features, bounded action targets, and training-only normalization. Optional
+failure/correction/visual/legacy streams remain separate from baseline targets.
+The two frozen MLP families, deterministic sampling, per-step checkpoints,
+exact mid-epoch resume, validation-candidate selection and the CLI are tested.
+Real selection awaits validation rollout evidence; no full-scale skill training,
+policy rollout evaluator, or qualified skill was implemented.
+
+All 36 focused tests and 58 focused/documentation regressions pass. The full
+suite passed 732 tests with one existing offscreen OpenGL skip in 558.51 seconds;
+repository-wide Ruff and whitespace checks pass. Final training/selection fixes
+also passed their 12 focused tests. The exact dry-run passes in `dexvision`.
+All five skills' 65,129 training/validation frames load from the immutable
+archive, with normalization fitted in memory from training intervals only.
+Test action arrays stayed unread. Causal physical/controller phase differences
+are explicitly reported in `docs/progress_level_5.md`; saved labels are unchanged.
+No manual verification is required. CUDA is available as an optional path but
+was not tested on this Mac, where CUDA is unavailable.
 
 ---
 
 ## Next Target Checkpoint
 
-Level 5.1 — Reproducible Skill Dataset and Training Infrastructure
+Level 5.2 — State-Grounded Reach Policy
 
-Planned only; not started. Stop after the completed 5.0 freeze and await an
-explicit request before implementing 5.1. Do not start full-scale training or
-advance to another checkpoint automatically.
+Planned only; not started. Stop after completed 5.1 and await an explicit request
+before starting full-scale reach training or rollout evaluation. Do not advance
+to another checkpoint automatically.
 
 ---
 
@@ -57,6 +66,13 @@ advance to another checkpoint automatically.
 ---
 
 ## Manual Verification Status
+
+Level 5.1 is complete with automated verification only; no manual check is
+outstanding. Tiny CPU training, selected-checkpoint reload, exact mid-epoch
+resume, frozen-source loading, dry-run, focused tests, Ruff and full regression
+checks passed. No human visual observation or learned-policy qualification is
+claimed. The required manual gate for a numerically qualified reach policy
+belongs to the unstarted checkpoint 5.2.
 
 Level 5.0 is complete with automated verification only; no manual check is
 outstanding. Level 4 release integrity and publication readiness were reverified
