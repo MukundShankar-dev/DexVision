@@ -1,10 +1,9 @@
 # Versioned Dataset Releases
 
-Level 4 v1 is packaged separately as `level4-v1.tar.gz`, with frozen metadata,
-schemas, splits, licenses and retrieval instructions in
-[`level4-v1/README.md`](level4-v1/README.md). Its Git LFS object is uploaded;
-the metadata/source changes are not yet committed. Checkpoint 4.9 remains
-pending the owner's clean-directory restore confirmation. Do not begin Level 5.
+Level 4 v1 is complete and independently retrievable through Git LFS as
+`level4-v1.tar.gz`. Source and release metadata are published. Frozen metadata,
+schemas, splits, licenses, completion evidence and retrieval instructions are in
+[`level4-v1/README.md`](level4-v1/README.md). Level 5 has not started.
 The Level 2 release described below remains unchanged.
 
 The editable working tree under `data/demos/` remains ignored by Git. Published
@@ -25,7 +24,7 @@ directory.
 This snapshot is the immutable input to the Level 3 learning-feasibility work.
 It is not the project's final comprehensive skill dataset and must not be used
 to claim cross-session, cross-object, cross-camera, or open-world
-generalization. Level 4 will publish a separate versioned release with genuine
+generalization. Level 4 has published a separate versioned release with genuine
 session ids, broader objects/goals, grasp-lift-place and recovery coverage, and
 visual grounding data. Level 5 will train and qualify the full skill set from
 that frozen release. The Level 2 archive must not be overwritten when the

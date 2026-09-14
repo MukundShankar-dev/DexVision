@@ -1,6 +1,9 @@
 # DexVision / Hand2Bot Project Overview
 
-Version: September 8, 2026
+Version: September 14, 2026
+
+The repository PDF remains the historical September 8 overview snapshot;
+this Markdown and `docs/CURRENT_STATUS.md` contain the current release status.
 
 ## Project identity
 
@@ -30,16 +33,13 @@ grasp-and-lift, and complete pick/place experts now regenerate, recompute, and
 replay successfully. Small state-only button and push learning probes also
 passed their held-out gates without larger models, images, or action chunking.
 
-Level 4.4 is complete with 60 scripted core episodes: 20 reach, 20 push, and 20
-button trajectories across all required cells. Level 4 is active at checkpoint
-4.5A, which collects the frozen complete pick/place anchor matrix. That
-114-episode anchor validates coverage, provenance, replay, and segmentation; it
-is not the final learning-data claim. Level 4.5B then expands every nominal
-coverage cell with independently seeded continuous variation, and Level 4.6
-does the same for failures/corrections. The release-candidate floor is 1,112
-accepted episodes, with a validation-only scaling gate that can require more.
-The remaining work also adds rendered visual annotations, dataset audit, and an
-immutable release.
+Level 4 is complete through checkpoint 4.9. The earlier 60 scripted core episodes
+and 114-episode anchor were expanded and audited into 1,112 active nominal,
+failure and correction episodes with 2,633 aligned visual frames. All 74 coverage
+cells pass, splits are frozen, and the immutable Git LFS release passed normal
+clean-clone retrieval alongside the unchanged Level 2 archive. The owner accepted
+delegated restoration and authorized completion. Level 5 has not started.
+See `datasets/level4-v1/README.md` and `docs/CURRENT_STATUS.md` for exact evidence.
 
 ## Architecture
 
@@ -85,7 +85,7 @@ training loop, validation-only checkpoint selection, frozen MuJoCo evaluation,
 and action/data diagnostics. Its negative qualification result motivated the
 new expert, action, phase, and dataset contracts.
 
-### Level 4 — Comprehensive scripted skill dataset (active)
+### Level 4 — Comprehensive scripted skill dataset (complete)
 
 Level 4 uses deterministic experts, simulator truth, complete action/safety
 records, causal phases, whole-session split ownership, held-out objects/goals,

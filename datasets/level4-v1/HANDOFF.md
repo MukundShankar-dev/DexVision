@@ -1,8 +1,11 @@
 # Level 4 v1 handoff to Level 5
 
-This handoff freezes data interfaces only. Level 4.9 remains pending publication
-and the owner's clean-directory restore confirmation. No Level 5 training,
-policy qualification, normalization fitting or runtime implementation is included.
+This handoff freezes data interfaces only. Level 4.9 is complete: the archive
+and Git metadata are published, both releases passed clean-clone retrieval,
+and the owner accepted delegated restoration. See `completion_receipt.json`
+in the release directory. Level 5 has not started; no full-scale training,
+qualification, normalization fitting or runtime implementation is included.
+The archive preserves the original build-time version of this handoff.
 
 ## Membership and split ownership
 

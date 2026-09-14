@@ -14,24 +14,21 @@ Level 4 onward.
 Level 1  legacy camera hand-control prototype                         complete
 Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
 Level 3  learning feasibility on the existing Level 2 datasets       complete
-Level 4  comprehensive multi-session skill dataset                     active
+Level 4  comprehensive multi-session skill dataset                   complete
 Level 5  full-scale skill learning and qualification                   planned
 Level 6  robustness, reproducibility, results, and portfolio polish    planned
 Level 7  language-guided composition of typed skills                   future
 ```
 
 Level 3 established that the reproducible learning loop works but that no
-Level 2-trained policy passes the frozen closed-loop gates. Level 4.4 has now
-completed 60 scripted reach, push, and button episodes across its frozen core
-cells; Level 4.5A is next and adds the complete pick/place anchor sequences.
-The 114-episode anchor proves coverage and integration but is not treated as a
-comprehensive learning set. Before release, Level 4 expands to at least 1,112
-independently seeded accepted episodes across nominal and failure/correction
-cells and runs a validation-only data-scaling check. The final Level 4 dataset
-uses deterministic expert generation, split-owned sessions, continuous
-object/goal/dynamics variation, causal phases, explicit failures, scripted
-corrections, visual grounding, and an immutable release. No live hand-control
-collection is part of the remaining plan. Level 5 will train and qualify five core
+Level 2-trained policy passes the frozen closed-loop gates. Level 4 is complete:
+the immutable v1 release contains 1,112 active episodes and 2,633 visual frames,
+with all 74 coverage cells qualified, frozen whole-session splits, deterministic
+expert generation, causal phases, explicit failures and scripted corrections.
+Both Level 2 and Level 4 passed independent Git LFS retrieval and restoration
+from a clean clone. See [release instructions](datasets/level4-v1/README.md)
+and [current status](docs/CURRENT_STATUS.md). Level 5 has not started.
+No live hand-control collection is part of the remaining plan. Level 5 will train and qualify five core
 skills—reach, pick, place-held-object, push, and button press—through a
 supervised runtime. It will validate a coherent tabletop workcell assistant on
 workspace clearing, inspection-station operation, and workspace setup; dial

@@ -196,8 +196,13 @@ def test_project_overview_source_and_pdf_exist() -> None:
     pdf_path = ROOT / "DexVision Project Overview.pdf"
 
     assert "Levels 1 through 3 are complete" in overview
-    assert "Level 4 is active at checkpoint" in overview
-    assert "4.5" in overview
+    if "## Last Completed Checkpoint\n\nLevel 4.9" in read("docs/CURRENT_STATUS.md"):
+        assert "Level 4 is complete through checkpoint 4.9" in overview
+        assert "Level 5 has not started" in overview
+        assert "Level 4 is complete" in read("README.md")
+    else:
+        assert "Level 4 is active at checkpoint" in overview
+        assert "4.5" in overview
     assert "60 scripted core episodes" in overview
     assert "Level 3 — Learning feasibility" in overview
     assert "Level 4 — Comprehensive scripted skill dataset" in overview

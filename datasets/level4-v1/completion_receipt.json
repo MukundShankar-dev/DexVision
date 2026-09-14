@@ -1,0 +1,29 @@
+{
+  "archive_sha256": "05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b",
+  "automated_checks_passed": true,
+  "clean_clone_commit": "c23377de901ff4708c1523d71e5ee0199c7f114a",
+  "clean_clone_retrieval_passed": true,
+  "completed_on": "2026-09-14",
+  "file_count": 33350,
+  "focused_release_split_docs_passed": 62,
+  "full_suite": {
+    "passed": 682,
+    "seconds": 507.8,
+    "skipped": 1
+  },
+  "human_visual_observation_claimed": false,
+  "independent_restored_readback_passed": true,
+  "legacy_archive_sha256": "f35851d6b6bb4efd8ffa0f011d6130558f2b2902c38d8568a271bd71f09c002b",
+  "legacy_restored_file_count": 2591,
+  "legacy_retrieval_and_checksum_passed": true,
+  "level2_restored_to": "outputs/level4/clean_clone_v1/legacy_restored",
+  "level4_restored_to": "outputs/level4/clean_clone_v1/level4_restored",
+  "level5_started": false,
+  "manifest_sha256": "19335e7db3dc541f1f5d803f63a0851260df875dc1c6bf39ea215312b3e73e82",
+  "owner_accepted_delegated_verification": true,
+  "owner_completion_request": "Okay do the stuff we need to do to call 4.9 completed.",
+  "payload_manifest_and_archive_unchanged": true,
+  "ruff_passed": true,
+  "verification_performed_by": "assistant_at_owner_request",
+  "version": "level4/release-completion-v1"
+}

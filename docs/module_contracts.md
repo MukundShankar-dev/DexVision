@@ -1865,8 +1865,9 @@ Level 4.8 completed on September 14, 2026. The final audit at
 `outputs/level4/audit_v4_final` passes all 1,112 active episodes and 74 coverage
 cells with zero issues. Its train/validation/test manifests are frozen and
 contain explicit lineage for nine replacements; all originals remain preserved.
-This qualifies the dataset audit only. No release packaging or Level 5 work
-has started.
+This qualified the dataset audit only. Release packaging had not started at
+that point; its subsequent Level 4.9 completion is recorded below. Level 5 has
+not started.
 
 
 ---
@@ -2038,3 +2039,12 @@ The Level 5 handoff is data-interface documentation only. Frozen split rows and
 `schemas.json` define exact layouts; whole-session ownership, task-relevant
 object selection, and training-only normalization inputs remain mandatory.
 No learning or policy qualification is implemented by checkpoint 4.9.
+
+
+Level 4.9 completion: source and metadata are published, both dataset releases
+passed clean-clone retrieval and readback, and the owner accepted delegated
+verification. The verifier resolves historical candidate status using a new
+checksum-bound `completion_receipt.json`; it validates the archive/manifest
+binding, verified clone commit, legacy retrieval, automated checks and owner
+acceptance fields. The archive and original payload manifest remain unchanged.
+`--require-ready` passes only with that evidence. Level 5 has not started.

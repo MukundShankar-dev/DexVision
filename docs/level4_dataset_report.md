@@ -516,3 +516,43 @@ restoration, source preservation and test results while leaving
 Git pointer/manifests still awaits the user's source/metadata commit and push;
 the exact-object remote recovery path is already verified. No checkpoint was
 marked complete and no work advanced to Level 5.
+
+
+## Level 4.9 completion — September 14, 2026
+
+Completed September 14, 2026. The immutable Level 4 v1 archive is published
+through Git LFS with source and release metadata committed. A clean clone of
+commit `c23377de901ff4708c1523d71e5ee0199c7f114a` retrieved both Level 2 and Level 4
+independently. All 33,350 Level 4 payload files and 2,591 Level 2
+files passed restored-file readback. Level 4 contains 1,112 active episodes,
+2,633 visual frames and unchanged frozen splits; the legacy archive is unchanged.
+
+The owner delegated the retrieval check and then requested checkpoint
+completion. This accepts assistant-performed verification without claiming
+a separate human visual observation. The full suite passed 682 tests with
+1 platform-dependent skip in 507.80 seconds; 62 focused release/split/
+documentation tests and Ruff passed. See `datasets/level4-v1/completion_receipt.json`
+and `docs/level4_dataset_report.md`. The original archive and build-time
+manifest remain unchanged; the completion receipt resolves their historical
+candidate status. Level 5 has not started.
+
+The normal clean clone used `git clone --no-checkout`, checked out the published
+commit with smudging disabled, then ran `git lfs pull` for the two archive paths.
+Verification executed the cloned `dexvision.apps.verify_dataset_release` module,
+not the original workspace module. Both archive sidecars passed from the clone
+root. Level 4 restored all 33,350 files; Level 2 restored
+2,591 files and passed its summary/benchmark digests.
+Every restored payload file passed a separate filesystem readback.
+
+The completion receipt records the owner's request, “Okay do the stuff we need
+to do to call 4.9 completed.” This accepts the previously delegated successful
+check; it does not invent human visual inspection. All 4.9 and Level 4 checklist
+items are complete. No further manual work is required and no next checkpoint
+was started. The active progress file remains Level 4, with no active next target.
+
+The verifier gained completion-receipt handling after archive creation; those
+source changes are committed separately from the unchanged archived build-tool
+snapshot. Current README/handoff/status documents now describe completion;
+historical build-time reports remain preserved. The PDF overview remains an
+explicitly labeled September 8 historical snapshot. Archive SHA-256 remains
+`05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b`.

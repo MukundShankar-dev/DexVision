@@ -20,51 +20,34 @@ Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
 
 ## Last Completed Checkpoint
 
-Level 4.8 — Dataset Audit and Frozen Split Manifests
+Level 4.9 — Immutable Dataset Release and Level 5 Handoff
 
-Completed September 14, 2026. The full audit at
-`outputs/level4/audit_v4_final` passes with zero issues: all 1,112 active
-episodes, all 74 coverage cells, all 30 corrections and all 2,633 visual frames
-pass. Eight independently qualified button replacements resolve the remaining
-cross-split duplicates; the qualified puck replacement remains active. All nine
-superseded originals and their reviews remain unchanged and explicitly excluded.
-Train/validation/test manifests are frozen, with 416 train-only normalization
-episodes and no validation/test normalization inputs. Independent saved-file,
-manifest, source-preservation, snapshot and provenance checks pass.
+Completed September 14, 2026. The immutable Level 4 v1 archive is published
+through Git LFS with source and release metadata committed. A clean clone of
+commit `c23377de901ff4708c1523d71e5ee0199c7f114a` retrieved both Level 2 and Level 4
+independently. All 33,350 Level 4 payload files and 2,591 Level 2
+files passed restored-file readback. Level 4 contains 1,112 active episodes,
+2,633 visual frames and unchanged frozen splits; the legacy archive is unchanged.
 
-The 52 focused tests, 17 documentation/status regressions, repository-wide Ruff
-and full suite pass: 648 passed, one platform-dependent offscreen OpenGL test
-skipped, in 527.66 seconds. No manual verification is required for 4.8.
-See `docs/level4_dataset_report.md` for exact commands and immutable evidence.
+The owner delegated the retrieval check and then requested checkpoint
+completion. This accepts assistant-performed verification without claiming
+a separate human visual observation. The full suite passed 682 tests with
+1 platform-dependent skip in 507.80 seconds; 62 focused release/split/
+documentation tests and Ruff passed. See `datasets/level4-v1/completion_receipt.json`
+and `docs/level4_dataset_report.md`. The original archive and build-time
+manifest remain unchanged; the completion receipt resolves their historical
+candidate status. Level 5 has not started.
 
 ---
 
 ## Next Target Checkpoint
 
-Level 4.9 — Immutable Dataset Release and Level 5 Handoff
+None — Level 4 is complete; await an explicit Level 5 request.
 
-Release finalization in progress. The owner requested completion after the
-assistant-performed clean-directory check passed, accepting that delegated
-verification. Git metadata publication and normal clean-clone verification
-remain before completion. The 4.9 packager,
-release verifier, safe clean-directory Git LFS retrieval, license notices and data-interface
-handoff are implemented. The owner approved Apache-2.0 for included project
-source/workcell and CC BY 4.0 for generated data on September 14, 2026, and
-selected Git LFS on the existing repository. The 791,540,241-byte archive is
-uploaded. Independent retrieval through an empty Git LFS cache and restoration
-of all 33,350 files passed. The full suite passed 673 tests with one platform
-skip; the latest focused release/split/documentation run passed 55 tests,
-including two subsequently added download regressions. Ruff passes. Evidence is
-in `datasets/level4-v1/verification_receipt.json`; the exact manual command and
-pass/fail criteria are in `datasets/level4-v1/README.md`. Source/metadata changes
-are not committed. Do not mark 4.9 or Level 4 complete before owner confirmation,
-and do not begin Level 5.
-
-Follow-up: at the user's request, the assistant also ran the exact documented
-`manual_release_v1` fresh-cache retrieval and clean-directory restore command.
-It exited 0 and passed independent readback of all 33,350 files. Evidence is in
-`datasets/level4-v1/delegated_verification_receipt.json`. This records delegated
-execution without inventing a separate human observation or advancing levels.
+The next planned checkpoint is Level 5.0 — Learning, Evaluation, and Artifact
+Freeze, described in `docs/progress_level_5.md`. It is not active or started.
+The active progress file remains Level 4 to record this completed handoff.
+Do not select or implement another checkpoint automatically.
 
 ---
 
@@ -76,14 +59,16 @@ execution without inventing a separate human observation or advancing levels.
 
 ## Manual Verification Status
 
-Level 4.8 completed its automated gates on September 14, 2026; no manual
-verification was required. The final audit has zero issues and frozen manifests.
-Pre-existing data, session entries, visual artifacts and prior audits remain
-unchanged. Last Completed remains 4.8 and Next Target remains 4.9.
-Level 4.9 packaging, remote retrieval and restore passed. The owner accepted
-delegated verification by requesting checkpoint completion on September 14,
-2026. No separate human visual observation is claimed. The Level 2 archive is
-unchanged. Last Completed stays 4.8 until Git publication and clone checks pass.
+Level 4.9 clean-directory verification passed. The owner delegated execution,
+received the passing result, and authorized completion on September 14, 2026.
+The documented command and an additional normal clean-clone retrieval both
+restored the expected files with matching hashes. Acceptance is recorded in
+`datasets/level4-v1/completion_receipt.json`; no human visual observation is
+invented. All Level 4 gates are complete. Level 5 has not started.
+
+Level 4.8 previously passed all automated audit gates without requiring manual
+verification. Existing data, session entries, visual artifacts and earlier
+audit reports remain preserved.
 
 Level 4.5A manual verification passed on September 8, 2026. The user accepted
 six stratified pick/place replays covering cuboid, cylinder, and flat-puck

@@ -1,9 +1,11 @@
 # DexVision / Hand2Bot Level 4 v1
 
-Checkpoint 4.9 release candidate, September 14, 2026. Manual clean-directory
-restoration is not yet owner-confirmed; Level 4 remains incomplete and Level 5
-has not started. `manifest.json` preserves packaging-time gate status. Subsequent
-verification receipts record later events without rewriting that manifest.
+Checkpoint 4.9 and Level 4 are complete as of September 14, 2026. Source,
+metadata and both LFS releases are published and tested from a normal clean clone.
+The owner accepted assistant-performed restoration by requesting completion.
+Level 5 has not started. `completion_receipt.json` binds that acceptance and
+clean-clone evidence to the unchanged build-time manifest and archive. Older
+candidate/pending notes inside archived artifacts describe their creation time.
 
 ## Contents and integrity
 
@@ -40,10 +42,11 @@ conda run -n dexvision python -m dexvision.apps.verify_dataset_release --release
 
 A successful integrity check exits 0 and prints `integrity_passed: true`, 33,350
 files, 1,112 active episodes and 2,633 visual frames. It does not automatically
-approve the checkpoint. `--require-ready` deliberately rejects a candidate
-whose packaging-time publication/manual gates are still pending.
+approve an unaccepted candidate. For this completed release, add
+`--require-ready` to require the checksum-bound completion receipt as well as
+payload integrity; both `integrity_passed` and `publication_ready` must be true.
 
-## Required manual clean-directory retrieval
+## Repeat clean-directory retrieval (already passed)
 
 This command downloads the exact LFS object using a fresh Git repository and
 empty LFS cache, then streams verification and restores every payload file.
@@ -52,34 +55,34 @@ Requires Git, Git LFS, network access and the `dexvision` Conda environment.
 Both target directories must be new; use a fresh suffix for a later attempt.
 
 ```bash
-conda run --no-capture-output -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --download-dir outputs/level4/manual_release_v1/download --restore-dir outputs/level4/manual_release_v1/restored
+conda run --no-capture-output -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --download-dir outputs/level4/release_recheck_01/download --restore-dir outputs/level4/release_recheck_01/restored --require-ready
 ```
 
 **Pass:** download and command exit 0; `integrity_passed` is true; the reported
 counts are 33,350 files, 1,112 episodes and 2,633 visual frames; every expected
 file is restored under the requested directory with matching size and SHA-256.
-`publication_ready: false` is expected until manual acceptance is recorded.
+`publication_ready: true` is expected with the completed release metadata.
 
 **Fail:** missing payload, an LFS pointer instead of the archive, transfer or
 quota error, any checksum/size mismatch, missing/extra/duplicate/unsafe member,
 nonzero exit, or incomplete restoration. Never reuse a partial destination.
 Report the error; do not edit data or mark the checkpoint complete.
 
-After this passes, explicitly confirm the manual verification in the task.
+This check already passed and was accepted. Repeating it does not require a new
+manual approval; use a fresh directory for each repetition.
 
-## Clean-clone retrieval after committing the release metadata
+## Normal clean-clone retrieval
 
-The LFS object can be retrieved by the command above before Git metadata is
-committed. A normal new clone receives the pointer/manifests only after this
-change is committed and pushed. No source commit or branch push is performed
-by the packager. Once those metadata are available on the selected release ref:
+The source, LFS pointers and manifests are published on `main`. A clean clone
+retrieved both releases independently; its exact commit and readback evidence
+are preserved in `completion_receipt.json`. To verify the completed release:
 
 ```bash
 git clone https://github.com/MukundShankar-dev/DexVision.git dexvision-level4-check
 cd dexvision-level4-check
 git lfs install
 git lfs pull --include="datasets/level4-v1.tar.gz,datasets/dexvision_level2_v1.tar.gz"
-conda run -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --restore-dir ../dexvision-level4-restored
+conda run -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --restore-dir ../dexvision-level4-restored --require-ready
 ```
 
 Pin the immutable archive SHA-256 above and the trusted metadata commit when
@@ -128,6 +131,7 @@ conda run --no-capture-output -n dexvision python -m dexvision.apps.prepare_data
 ```
 
 That command now refuses to overwrite the existing release. The archive includes
-the exact release-tool source used to build it. Tests use synthetic data, require
+the exact release-tool source used to build it. The subsequently committed
+verifier adds completion-receipt handling without changing archived bytes. Tests use synthetic data, require
 no GPU/GUI/webcam, and check deterministic archive bytes, checksum failures,
 missing/extra files, traversal, symlinks, LFS pointers and non-overwriting restore.

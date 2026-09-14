@@ -1579,8 +1579,8 @@ Manual verification passed on September 10, 2026 when the user accepted the
 contact-sheet review with “Looks good.” The append-only approval receipt at
 `data/visual/level4/manual_review_approval.json` records that confirmation and
 the reviewed artifact hashes; original export-time reports remain unchanged.
-Level 4.7 is complete. Last Completed is now 4.8 and Next Target is 4.9;
-the completed Level 4.8 audit evidence is recorded below.
+Level 4.7 is complete. The subsequent Level 4.8 audit and Level 4.9 release
+completion evidence are recorded below.
 
 ---
 
@@ -1697,17 +1697,14 @@ The 52 focused tests, 17 status regressions, Ruff and whitespace checks pass;
 the full suite passes with 648 passed and one offscreen OpenGL skip in 527.66
 seconds. The independent final read-back is recorded in
 `outputs/level4/audit_v4_final_verification.json`. No manual verification was
-required. Level 4.8 is complete; 4.9 is the next target and has not started.
+required. Level 4.8 is complete. The subsequent Level 4.9 release completion
+is recorded below.
 
 ---
 
 ## Level 4.9 — Immutable Dataset Release and Level 5 Handoff
 
-**Release finalization in progress — September 14, 2026.**
-The owner approved the release licenses and Git LFS hosting. The uploaded archive
-passed independent empty-cache download and complete restoration. 4.9 and Level 4
-remain incomplete until Git metadata publication and clean-clone verification.
-The owner's completion request accepts the delegated restoration check.
+**Complete — September 14, 2026.**
 
 ### Goal
 
@@ -1746,53 +1743,41 @@ conda run -n dexvision pytest -q
 ### Pass criteria
 
 ```text
-[ ] Clean-clone retrieval and SHA-256 verification are documented and tested
+[x] Clean-clone retrieval and SHA-256 verification are documented and tested
 [x] Release, schema, config, split, and source-code versions are immutable
-[ ] Level 2 and Level 4 releases remain independently retrievable
+[x] Level 2 and Level 4 releases remain independently retrievable
 [x] Licenses/provenance and storage quota/recovery procedure are documented
 [x] Level 5 receives exact observation/action/goal layouts and frozen splits
 [x] Limitations and failed coverage claims are published honestly
 ```
 
-Manual verification: perform the documented clean-directory retrieval and
-verification command. Pass only when every expected artifact is restored and
-all checksums match. Stop for user confirmation before completing Level 4.
+Completed September 14, 2026. The immutable Level 4 v1 archive is published
+through Git LFS with source and release metadata committed. A clean clone of
+commit `c23377de901ff4708c1523d71e5ee0199c7f114a` retrieved both Level 2 and Level 4
+independently. All 33,350 Level 4 payload files and 2,591 Level 2
+files passed restored-file readback. Level 4 contains 1,112 active episodes,
+2,633 visual frames and unchanged frozen splits; the legacy archive is unchanged.
 
-The release implementation adds `dexvision/logging/dataset_release.py`, the
-`prepare_dataset_release` and `verify_dataset_release` CLIs, the owner-approved
-`configs/level4_release.yaml`, frozen release metadata, license notices and
-`docs/level4_release_handoff.md`. `datasets/level4-v1/README.md` documents the
-exact retrieval/verification procedure. A checksum pass verifies integrity;
-it does not automatically record the user's manual acceptance.
+The owner delegated the retrieval check and then requested checkpoint
+completion. This accepts assistant-performed verification without claiming
+a separate human visual observation. The full suite passed 682 tests with
+1 platform-dependent skip in 507.80 seconds; 62 focused release/split/
+documentation tests and Ruff passed. See `datasets/level4-v1/completion_receipt.json`
+and `docs/level4_dataset_report.md`. The original archive and build-time
+manifest remain unchanged; the completion receipt resolves their historical
+candidate status. Level 5 has not started.
 
-Automated evidence: the local and remotely retrieved 791,540,241-byte archive
-passes all 33,350 expected file hashes, including all 1,112 active episodes and
-2,633 visual frames. Independent restored-file readback and source preservation
-pass. The full suite passed 673 tests with one existing offscreen OpenGL skip;
-the latest focused release/split/documentation run passed 55 tests, including
-two download regressions added after the full run. Ruff and whitespace checks
-pass. `datasets/level4-v1/verification_receipt.json` records these results.
-Clean-clone Git metadata availability awaits committing/pushing this change;
-exact-object Git LFS retrieval is already tested independently.
+The checkpoint's required clean-directory check was performed by the assistant
+at the owner's request and accepted through the explicit completion request.
+No further manual command or confirmation is outstanding. For repeat verification,
+use a new directory and the commands in `datasets/level4-v1/README.md`.
+`--require-ready` now requires a checksum-bound completion receipt as well as
+full payload integrity. It returns `publication_ready: true` for this release.
 
-Run the required manual check from the repository root:
-
-```bash
-conda run --no-capture-output -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --download-dir outputs/level4/manual_release_v1/download --restore-dir outputs/level4/manual_release_v1/restored
-```
-
-Pass only on exit 0, `integrity_passed: true`, all 33,350 restored files matching
-their expected hashes, and counts of 1,112 episodes and 2,633 visual frames.
-Fail on a transfer/pointer error, any missing/extra file, checksum/size mismatch,
-unsafe archive member or incomplete restoration. Use new directories after a
-failed attempt. The manifest's packaging-time `publication_ready: false` is
-expected while owner confirmation remains unrecorded. Stop for that confirmation.
-
-The user subsequently asked the assistant to perform this command. The exact
-`manual_release_v1` fresh-cache download and restoration passed, with exit 0
-and independent readback of all 33,350 files. The append-only
-`delegated_verification_receipt.json` records assistant execution at the user's
-request; it does not claim a human observation or mark the checkpoint complete.
+The published archive is 791,540,241 bytes with SHA-256
+`05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b`.
+The Level 2 archive retains its original checksum. No dataset was overwritten,
+no past checkpoint implementation was changed, and no Level 5 work was done.
 
 ---
 
@@ -1809,8 +1794,8 @@ request; it does not claim a human observation or mark the checkpoint complete.
 [x] 4.6 failures and corrections remain separate and auditable
 [x] 4.7 single-camera visual annotations and alignment pass
 [x] 4.8 coverage, quality, provenance, and leakage audits pass
-[ ] 4.9 immutable release restores and verifies from a clean directory
-[ ] Four sessions remain split-owned; per-cell minima and visual conditions are audited
-[ ] Requested, commanded, and applied actions plus causal phases are reconstructable
-[ ] No full-scale training, policy qualification, LLM, or future extension is claimed
+[x] 4.9 immutable release restores and verifies from a clean directory
+[x] Four sessions remain split-owned; per-cell minima and visual conditions are audited
+[x] Requested, commanded, and applied actions plus causal phases are reconstructable
+[x] No full-scale training, policy qualification, LLM, or future extension is claimed
 ```
