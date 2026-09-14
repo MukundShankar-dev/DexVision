@@ -1,0 +1,217 @@
+version: level4/button-replacement-plan-v1
+checkpoint: '4.8'
+reason: Resolve exact cross-split button action duplication with eight distinct recordings;
+  preserve every original and all frozen thresholds.
+operator_id: scripted_button_replacement_v1
+receipt_path: outputs/level4/button_replacement_v1/receipt.json
+recipe: Existing frozen Level 4.5B variation sampler and scripted button controller;
+  seeds fixed before collection; no tuning or retries based on test outcomes.
+failure_policy: Stop on any failed assignment. Preserve all evidence; require a new
+  frozen plan and namespace before further collection.
+assignments:
+- original_episode_id: level4_workcell_20260906_082405
+  original_episode_digest: bae409c3bb1d8c0625ab788a3b17cdfd4fd79ae545f90523945688ec358796dc
+  replacement_episode_id: level48_button_v1_000001
+  recording_session_id: level48_button_v1_validation_000001
+  cell_id: press_009_centered_boundary
+  split: validation
+  seed: 481001
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481001
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - -0.0014018474465866328
+    - 0.0012802520673366527
+    - 8.989697468195234e-05
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - 0.00035727037080167954
+    - -5.024459702041039e-05
+    - 0.00028414415392835895
+- original_episode_id: level4_workcell_20260906_082406
+  original_episode_digest: 25cb1c3a84f95d6c2754a2f89c4edeebfd677484dbe308eb4c3c53085e843199
+  replacement_episode_id: level48_button_v1_000002
+  recording_session_id: level48_button_v1_validation_000002
+  cell_id: press_009_centered_boundary
+  split: validation
+  seed: 481002
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481002
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - -0.0009695531209083623
+    - -0.0004654000541190334
+    - 0.0004267824195847529
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - 0.0003238926402040872
+    - -0.00022274104802711472
+    - -0.00027492684654163604
+- original_episode_id: level4_workcell_20260906_082408
+  original_episode_digest: 6fcbddab98019b0e5d23ca1517d88d46f044a89de9016256a534df8e321c4342
+  replacement_episode_id: level48_button_v1_000003
+  recording_session_id: level48_button_v1_validation_000003
+  cell_id: press_013_oblique_boundary
+  split: validation
+  seed: 481003
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481003
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - 0.0013524063125576356
+    - 0.0011505930729518174
+    - -0.0001870259687107355
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -6.086772382758688e-05
+    - -0.00031191575266009566
+    - 0.00045922959742736346
+- original_episode_id: level4_workcell_20260906_082410
+  original_episode_digest: fd02dc52b2b74c45a4358c512965cd6298a004691515a3c910f1583c6fff51ae
+  replacement_episode_id: level48_button_v1_000004
+  recording_session_id: level48_button_v1_validation_000004
+  cell_id: press_013_oblique_boundary
+  split: validation
+  seed: 481004
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481004
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - -0.0008696975051163738
+    - -0.00042279026720495145
+    - -0.0006114646615168366
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -0.00021207780153041113
+    - 0.00011103034164266622
+    - -0.00016158287676415153
+- original_episode_id: level4_workcell_20260906_100039
+  original_episode_digest: 0024c0bf28f910d64b4b994ced911304effdb737129bd39467e219b9ddf96c13
+  replacement_episode_id: level48_button_v1_000005
+  recording_session_id: level48_button_v1_test_000005
+  cell_id: press_011_left_offset_test
+  split: test
+  seed: 481005
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481005
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - 0.0003980041825294566
+    - 0.0011090920014579873
+    - -0.0007179919793593451
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -0.00030112304749933117
+    - -0.000459666857482418
+    - 0.00021254826752648405
+- original_episode_id: level4_workcell_20260906_100041
+  original_episode_digest: 7163414053e78eaddb82751a6864ca4e2744126e048bcca1c19414553554a3d4
+  replacement_episode_id: level48_button_v1_000006
+  recording_session_id: level48_button_v1_test_000006
+  cell_id: press_011_left_offset_test
+  split: test
+  seed: 481006
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481006
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - 0.0001911849636505418
+    - 0.000455347696203306
+    - -0.00016959801804305042
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -8.991048782161937e-05
+    - -0.000319558891348382
+    - -0.00023330756632176507
+- original_episode_id: level4_workcell_20260906_100043
+  original_episode_digest: c5beaa5d88db7720d4f198fdec574f7980267ba80fc31df51b681b634d88f520
+  replacement_episode_id: level48_button_v1_000007
+  recording_session_id: level48_button_v1_test_000007
+  cell_id: press_013_right_offset_test
+  split: test
+  seed: 481007
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481007
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - -0.00044485610006520697
+    - -0.00038619923195393094
+    - 1.1064261027405068e-05
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -0.0004983378231008354
+    - -0.0001851122885603287
+    - 0.00011993348315725478
+- original_episode_id: level4_workcell_20260906_100045
+  original_episode_digest: da1675e6c5982d7bfb9e761dd47caf18eaca4628cfb5809234da94dc9a218475
+  replacement_episode_id: level48_button_v1_000008
+  recording_session_id: level48_button_v1_test_000008
+  cell_id: press_013_right_offset_test
+  split: test
+  seed: 481008
+  variation:
+    version: level4/procedural-expansion-v1
+    seed: 481008
+    case_class: nominal
+    source_position_offset_xy_m:
+    - 0.0
+    - 0.0
+    goal_position_offset_m:
+    - -4.512311855668768e-05
+    - -0.0001279915500764534
+    - -0.00047370598157850364
+    object_scale_multiplier: 1.0
+    object_mass_multiplier: 1.0
+    object_friction_multiplier: 1.0
+    controller_position_offset_m:
+    - -0.0004834408739970423
+    - -0.00030492008008209707
+    - -0.0001508853137585098
+dataset_config: configs/level4_dataset.yaml
+dataset_config_sha256: 60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f
+workcell_config: configs/workcell.yaml
+workcell_config_sha256: 4f8c7abd78c008dd00738ddf900abcb19160b9a100aa418644477c8c274ba774
+parent_report: outputs/level4/audit_v3/report.json
+parent_report_sha256: 6e9e09432bf0f7c72cc88d03ca41c210feae126fd6ec9657bbaf1a99603e14cf

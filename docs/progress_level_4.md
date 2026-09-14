@@ -1579,12 +1579,15 @@ Manual verification passed on September 10, 2026 when the user accepted the
 contact-sheet review with “Looks good.” The append-only approval receipt at
 `data/visual/level4/manual_review_approval.json` records that confirmation and
 the reviewed artifact hashes; original export-time reports remain unchanged.
-Level 4.7 is complete. Last Completed remains 4.7 and Next Target remains 4.8;
-the Level 4.8 implementation and audit findings are recorded below.
+Level 4.7 is complete. Last Completed is now 4.8 and Next Target is 4.9;
+the completed Level 4.8 audit evidence is recorded below.
 
 ---
 
 ## Level 4.8 — Dataset Audit and Frozen Split Manifests
+
+**Complete — September 14, 2026.** Audit `outputs/level4/audit_v4_final`
+passes every gate with zero issues. No manual verification is required.
 
 ### Goal
 
@@ -1618,16 +1621,19 @@ known imbalance, missing cells, and unsupported claims
 
 ### Commands
 
+The verified audit is `outputs/level4/audit_v4_final`. Repeat into a new,
+unused output directory; existing evidence is never overwritten.
+
 ```bash
-python -m dexvision.apps.audit_level4_dataset --config configs/level4_dataset.yaml --splits configs/level4_splits.yaml --dataset-dir data/demos/level4 --output-dir outputs/level4/audit
-conda run -n dexvision pytest -q tests/test_level4_dataset_audit.py tests/test_level4_split_audit.py
+conda run -n dexvision python -m dexvision.apps.audit_level4_dataset --config configs/level4_dataset.yaml --splits configs/level4_splits.yaml --dataset-dir data/demos/level4 --output-dir outputs/level4/audit_v5
+conda run -n dexvision pytest -q tests/test_level4_button_replacement.py tests/test_level4_puck_replacement.py tests/test_level4_dataset_audit.py tests/test_level4_split_audit.py
 ```
 
 ### Pass criteria
 
 ```text
 [x] Frozen minimum counts and required coverage cells pass
-[ ] No episode, session, held-out condition, object instance, goal, or image leaks
+[x] No episode, session, held-out condition, object instance, goal, or image leaks
 [x] Every accepted episode passes schema, quality, and recomputed-task checks
 [x] Training-only normalization inputs are explicitly identified
 [x] All shortages and biases are visible; none are repaired by silent duplication
@@ -1636,10 +1642,10 @@ conda run -n dexvision pytest -q tests/test_level4_dataset_audit.py tests/test_l
 Manual verification: none. A failing audit creates a versioned collection
 amendment; it does not permit editing accepted episodes in place.
 
-Implementation status (September 10, 2026): the read-only audit, frozen split
+Historical initial audit (September 10, 2026): the read-only audit, frozen split
 config, per-file/episode/dataset digests, split manifests, training-only
 normalization input lists, diagnostic amendment output, and focused regression
-tests are implemented. The final audit is saved at `outputs/level4/audit_v2`.
+tests are implemented. That diagnostic audit is preserved at `outputs/level4/audit_v2`.
 All 1,112 active episodes were checked. Fresh replay rejected
 `level45b_000293`, leaving training cell `pp_puck_light_return_bin_left` at
 15/16 freshly qualified episodes. Two identical button action-trajectory groups
@@ -1676,6 +1682,22 @@ matches in two groups. The replacement supplies 332 qualified training frames;
 the train-only normalization list now contains 416 episodes. Button duplicates
 remain outside this remediation and keep 4.8 incomplete; no future checkpoint
 has started.
+
+Completion evidence (September 14, 2026): the eight frozen button replacements
+all qualified on their first attempts, with distinct trajectories, preserved
+cell/split ownership and zero safety violations. Audit `audit_v4_final` passes
+all 1,112 active episodes, all 74 coverage cells, all 30 corrections and the
+complete 2,633-frame visual export, with zero leakage or other issues. All three
+split manifests now have frozen status. The 416 normalization episodes are
+training-only. All nine superseded originals remain unchanged, excluded with
+explicit replacement lineage. All 95,987 pre-button-collection file hashes,
+original session entries, visual files, earlier audit artifacts, recording
+snapshots and replacement receipts pass independent preservation checks.
+The 52 focused tests, 17 status regressions, Ruff and whitespace checks pass;
+the full suite passes with 648 passed and one offscreen OpenGL skip in 527.66
+seconds. The independent final read-back is recorded in
+`outputs/level4/audit_v4_final_verification.json`. No manual verification was
+required. Level 4.8 is complete; 4.9 is the next target and has not started.
 
 ---
 
@@ -1744,7 +1766,7 @@ all checksums match. Stop for user confirmation before completing Level 4.
 [x] 4.5B procedural nominal expansion and validation-only scaling gate pass
 [x] 4.6 failures and corrections remain separate and auditable
 [x] 4.7 single-camera visual annotations and alignment pass
-[ ] 4.8 coverage, quality, provenance, and leakage audits pass
+[x] 4.8 coverage, quality, provenance, and leakage audits pass
 [ ] 4.9 immutable release restores and verifies from a clean directory
 [ ] Four sessions remain split-owned; per-cell minima and visual conditions are audited
 [ ] Requested, commanded, and applied actions plus causal phases are reconstructable

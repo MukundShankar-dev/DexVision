@@ -5,6 +5,11 @@ its completed Level 4.7 visual export. Source episodes, historical attempts,
 quarantines, visual artifacts, and the immutable Level 2 release remain
 read-only. Level 4.9 packaging has not started.
 
+**Current status: Level 4.8 completed September 14, 2026.**
+`outputs/level4/audit_v4_final` passes with zero issues, all 1,112 active
+episodes and all 74 coverage cells qualified, and all three split manifests
+frozen. Historical failures and their append-only remedies are retained below.
+
 ## Reproduce
 
 From the repository root, use the dedicated environment:
@@ -18,8 +23,8 @@ conda run -n dexvision pytest -q
 ```
 
 An existing output directory is never overwritten. For a repeat audit, use a
-new directory such as `outputs/level4/audit_v3` (both `audit` and `audit_v2`
-already exist). Four spawned worker processes
+new directory such as `outputs/level4/audit_v5` (`audit` through `audit_v4`
+are reserved for the recorded runs below). Four spawned worker processes
 perform independent headless replays; no GUI, webcam, GPU, training, or human
 control is required. Exit status 0 means all audit gates passed, 1 means a
 completed audit found issues, and 2 means an input/dependency could not be read
@@ -330,3 +335,94 @@ Additional files for this isolated amendment: `configs/level4_puck_replacement_v
 `dexvision/evaluation/dataset_audit.py`; activation in `configs/level4_splits.yaml`;
 and status, progress, module-contract and report updates. Data and qualification
 artifacts remain ignored working data; no dataset release or commit was created.
+
+## Button leakage amendment (September 14, 2026)
+
+The Level 4.8 continuation began on `main` with a clean working tree and matching
+4.7/4.8 status/progress headings. Plan `configs/level4_button_replacement_v1.yaml`
+froze eight replacements before collection: four validation and four test
+episodes, preserving the original cells and whole-session ownership. The twelve
+training members of the two duplicate action groups remain unchanged. None of
+the eight superseded episodes is a source for the approved visual export.
+
+The plan binds audit v3, the unchanged dataset/workcell configs, each original
+episode digest, eight unused seeds (481001–481008), and new episode/session ids.
+It reuses the existing frozen Level 4.5B procedural sampler and button expert.
+Its physical goal offsets and controller offsets are recorded in task config;
+the new `button_replacement` metadata distinguishes this amendment from the
+historical Level 4.5B repetition inventory. No success/safety threshold, physics
+setting, held-out condition, or original collection plan was retuned.
+
+All eight first attempts independently qualified with zero safety violations,
+matching reset/labels, and successful recomputed button presses. They contain
+490 frames in total (60–62 each). Exact action hashes differ from every preserved
+trajectory and from each other. The minimum same-cell descriptor distance is
+0.0013474777659916546 against the unchanged 0.00000001 threshold; this comparison
+includes preserved accepted same-cell episodes and earlier new assignments.
+No test outcome selected a seed, changed the recipe, or triggered a retry.
+
+`outputs/level4/button_replacement_v1/receipt.json` binds the eight resulting
+episode inventories, fresh qualification results, descriptor distances,
+recording code/config snapshots, simulator asset hashes and runtime versions.
+The collection preserves a complete pre-collection file inventory and a copy of
+the original session manifest. Its final read-back verified every pre-existing
+episode/root file unchanged, except the session manifest's eight appended
+recorder-created entries; all previous session entries remain identical.
+The ignored data and evidence are working artifacts, not a release archive.
+
+The split config activates the amendment through `button_replacement_plan`.
+The audit requires unique accepted originals/replacements, matching source
+digests, plan/receipt/config binding, cell/skill/split ownership, seed, operator,
+session and saved variation. It retains the originals with explicit exclusion
+digests and `replacement_episode_id`; active manifests identify the new rows
+with `replaces_episode_id`. Fresh qualification and all normal dataset gates
+still run, regardless of the saved receipt.
+
+Files added: `configs/level4_button_replacement_v1.yaml`,
+`dexvision/logging/button_amendment.py`,
+`dexvision/apps/collect_level4_button_replacements.py`, and
+`tests/test_level4_button_replacement.py`. Integration changes are limited to
+the recorder, expert replay auditor, dataset auditor, split config and this
+checkpoint's status/contracts/report documentation.
+
+Commands used for this continuation:
+
+```bash
+# Completed once; rerunning this frozen collection refuses existing evidence.
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_level4_button_replacements --plan configs/level4_button_replacement_v1.yaml --dataset-dir data/demos/level4
+# Read-only audit; use a new output directory for a later repeat.
+conda run --no-capture-output -n dexvision python -m dexvision.apps.audit_level4_dataset --config configs/level4_dataset.yaml --splits configs/level4_splits.yaml --dataset-dir data/demos/level4 --output-dir outputs/level4/audit_v4
+conda run --no-capture-output -n dexvision pytest -q tests/test_level4_button_replacement.py tests/test_level4_puck_replacement.py tests/test_level4_dataset_audit.py tests/test_level4_split_audit.py
+conda run --no-capture-output -n dexvision ruff check dexvision tests
+conda run --no-capture-output -n dexvision pytest -q -rs
+git diff --check
+```
+
+The final verification used `--output-dir outputs/level4/audit_v4_final`.
+It exited 0 with **zero issues**, **1,112/1,112 passing active episodes**,
+**74/74 passing coverage cells**, passing correction/visual checks, and no
+cross-split duplicate action groups. All three manifests now have `status:
+frozen` and `dataset_audit_passed: true`. Partition counts remain 486 train,
+174 validation and 452 test; the 416 normalization inputs are all training
+expert episodes. The active manifests exclude all nine preserved originals
+and retain explicit replacement lineage for the puck and eight button episodes.
+
+The final dataset digest is
+`5a9a96575914e1b7604c71e10edde8d50025b293d1dd22e0820b3f2c2920989b`.
+Independent verification of saved artifact checksums, manifest digests, source
+inventories, config/code hashes and replacement lineage is recorded at
+`outputs/level4/audit_v4_final_verification.json`. All 95,987 baseline file
+hashes, original session entries, prior audits, visual files, recording snapshot
+and simulator assets remain unchanged or match the preserved receipts; the only
+session changes were the eight new recorder-created entries.
+
+The 52 focused tests, 17 status/documentation tests, repository-wide Ruff and
+whitespace checks pass. The full suite completed with **648 passed, 1 skipped
+in 527.66 seconds**. The sole skip is `tests/test_render_annotations.py:62`:
+offscreen OpenGL is unavailable because of an invalid CoreGraphics connection.
+The independent saved-frame audit passes and requires no offscreen rendering.
+
+Level 4.8 is complete. No manual verification was required, and Level 4.9 has
+not started. Ignored working data and audit artifacts remain local; this is not
+an immutable dataset release. A repeat audit must use a new output directory,
+such as `outputs/level4/audit_v5`, rather than overwriting the final evidence.

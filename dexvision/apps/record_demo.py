@@ -304,6 +304,10 @@ def _prepare_level4_workcell_recording(args: argparse.Namespace) -> None:
                 f"{assignment.session_id!r}."
             )
         args.procedural_variation = assignment.variation
+    if getattr(args, "level4_button_replacement_plan", None) is not None:
+        from dexvision.logging.button_amendment import recording_variation
+
+        args.procedural_variation = recording_variation(args, args.level4_button_replacement_plan)
     workcell_config = load_workcell_config(args.workcell_config)
     args.model = workcell_config.model_path
     args.level1_13_full = True
@@ -568,6 +572,10 @@ def build_parser() -> argparse.ArgumentParser:
             "Frozen Level 4.5B repetition for an append-only procedural "
             "assignment. Its cell, seed, split, and session are enforced."
         ),
+    )
+    parser.add_argument(
+        "--level4-button-replacement-plan", type=Path,
+        help="Frozen Level 4.8 button amendment; enforce its exact recording assignment.",
     )
     parser.add_argument(
         "--resume-existing-session",
@@ -3260,11 +3268,18 @@ def _level4_metadata(
     procedural = task_config.get("procedural_variation")
     initial = task_config.get("initial_state")
     if isinstance(procedural, Mapping) and isinstance(initial, Mapping):
-        metadata["procedural_expansion"] = {
-            "version": procedural.get("version"),
-            "repetition": args.level4_procedural_repetition,
-            "variation": dict(procedural),
-        }
+        amendment = getattr(args, "level4_button_replacement_plan", None)
+        if amendment is not None:
+            metadata["button_replacement"] = {
+                "version": "level4/button-replacement-plan-v1",
+                "plan_sha256": hashlib.sha256(Path(amendment).read_bytes()).hexdigest(),
+            }
+        else:
+            metadata["procedural_expansion"] = {
+                "version": procedural.get("version"),
+                "repetition": args.level4_procedural_repetition,
+                "variation": dict(procedural),
+            }
         metadata["initial_state_digest"] = initial_state_digest(
             initial_state=initial,
             procedural_variation=procedural,

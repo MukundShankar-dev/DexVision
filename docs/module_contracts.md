@@ -1833,6 +1833,17 @@ retains its digest and replacement id. The replacement's manifest records
 replaces_episode_id and still requires fresh replay, quality and leakage checks;
 saved qualification receipts cannot bypass those gates. Historical collection
 inventories retain originals; active coverage uses the amended membership.
+The optional button_replacement_plan similarly binds exactly the eight
+non-training button duplicates in the parent audit to new same-cell/same-split
+episodes. The existing frozen procedural sampler supplies physical goal and
+controller variation; the original dataset config and all task thresholds stay
+unchanged. Each assignment records in a fresh process and session. A collision,
+failed replay or insufficient trajectory-descriptor distance stops collection;
+no test-outcome tuning or automatic retry is permitted. Recorder metadata uses
+button_replacement provenance, not a fabricated Level 4.5B repetition. Replay
+restores that amendment's saved task_config.procedural_variation. Originals,
+reviews, visual sources and prior audit artifacts remain unchanged. Explicit
+manifest supersession never bypasses fresh replay, coverage or split checks.
 Fresh schema and headless replay results override stale nominal acceptance flags.
 Correction prefixes, outcomes, source lineage and abort-only unsafe failures are
 independently checked with the Level 4.6 summary.
@@ -1849,6 +1860,14 @@ normalization statistics, training, packaging or release is performed here.
 A failing audit writes a versioned collection amendment and leaves Level 4.8
 incomplete. It never edits accepted episodes or silently repairs shortages.
 ```
+
+Level 4.8 completed on September 14, 2026. The final audit at
+`outputs/level4/audit_v4_final` passes all 1,112 active episodes and 74 coverage
+cells with zero issues. Its train/validation/test manifests are frozen and
+contain explicit lineage for nine replacements; all originals remain preserved.
+This qualifies the dataset audit only. No release packaging or Level 5 work
+has started.
+
 
 ---
 

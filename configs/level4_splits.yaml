@@ -12,3 +12,4 @@ held_out_object_instances:
 held_out_goal_regions:
 - return_bin_right
 replacement_plan: configs/level4_puck_replacement_v1.yaml
+button_replacement_plan: configs/level4_button_replacement_v1.yaml

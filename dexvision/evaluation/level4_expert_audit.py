@@ -208,6 +208,10 @@ def audit_scripted_episode(
     procedural_variation = (
         procedural.get("variation") if isinstance(procedural, Mapping) else None
     )
+    if metadata.get("button_replacement"):
+        if source_skill != "press_button" or procedural is not None:
+            raise Level4ExpertAuditError("Button amendment has conflicting skill/expansion provenance")
+        procedural_variation = metadata["task_config"]["procedural_variation"]
     if procedural_variation is not None and not isinstance(
         procedural_variation, Mapping
     ):

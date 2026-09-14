@@ -20,6 +20,7 @@ from dexvision.evaluation.split_audit import (
     split_manifests, verify_files,
 )
 from dexvision.logging.corrective_demos import load_level4_6_quarantine
+from dexvision.logging.button_amendment import apply_button_replacements
 from dexvision.logging.dataset_schema import validate_demo
 from dexvision.logging.demo_logger import load_logged_demo
 from dexvision.logging.level4_collection import (
@@ -392,6 +393,14 @@ def audit_level4_dataset(*, config_path: str | Path, splits_path: str | Path,
         active, replacement, amendment_hashes = apply_puck_replacement(
             active, plan_path=Path(split_config["replacement_plan"]), sessions=sessions)
         excluded.append(replacement)
+    button_replacements = []
+    if split_config.get("button_replacement_plan"):
+        active, button_replacements, hashes = apply_button_replacements(
+            active, plan_path=Path(split_config["button_replacement_plan"]), sessions=sessions)
+        excluded.extend(button_replacements)
+        amendment_hashes.update(hashes)
+    replacement_lineage = {r["replacement_episode_id"]: r["episode_id"]
+                           for r in [*button_replacements, *([replacement] if replacement else [])]}
     progress(f"Auditing {len(active)} active episodes; preserving {len(excluded)} excluded attempts")
     records, issues = [], []
     worker = partial(_audit_worker, root=root, config_path=config_path,
@@ -404,8 +413,8 @@ def audit_level4_dataset(*, config_path: str | Path, splits_path: str | Path,
                 session = sessions.get(episode.session_id)
                 row["split"] = session.split if session else "missing"
                 row["absolute_source_path"] = str(episode.path.resolve())
-                if replacement and episode.episode_id == replacement["replacement_episode_id"]:
-                    row["replaces_episode_id"] = replacement["episode_id"]
+                if episode.episode_id in replacement_lineage:
+                    row["replaces_episode_id"] = replacement_lineage[episode.episode_id]
                 records.append(row)
             issues.extend(f"{episode.episode_id}: {failure}" for failure in failures)
             if number % 20 == 0 or number == len(active):
@@ -461,6 +470,7 @@ def audit_level4_dataset(*, config_path: str | Path, splits_path: str | Path,
               "dataset_digest": content_digest({r["episode_id"]: r["episode_digest"] for r in records}),
               "exclusions": excluded,
               "replacement_amendment": replacement,
+              "button_replacement_amendments": button_replacements,
               "rejection_counts": dict(Counter(reason for r in excluded for reason in r["review_reasons"])),
               "excluded_reason_counts": dict(Counter(r["reason"] for r in excluded)),
               "session_manifest_sha256": digest_file(root / "session_manifest.json"),
