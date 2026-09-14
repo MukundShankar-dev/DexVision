@@ -426,3 +426,93 @@ Level 4.8 is complete. No manual verification was required, and Level 4.9 has
 not started. Ignored working data and audit artifacts remain local; this is not
 an immutable dataset release. A repeat audit must use a new output directory,
 such as `outputs/level4/audit_v5`, rather than overwriting the final evidence.
+
+## Level 4.9 release implementation — September 14, 2026
+
+The checkpoint packages the passing 4.8 audit without changing any accepted
+source, frozen split, prior audit, visual stream, or Level 2 release. The owner
+selected Git LFS and approved Apache-2.0 for the project workcell/source/config
+included in the release and CC BY 4.0 for generated data. Complete texts and
+attribution are in `docs/licenses/level4-v1/` and `datasets/level4-v1/licenses/`.
+Historical license-pending annotations remain unchanged.
+
+The finalized archive is `datasets/level4-v1.tar.gz`, with **33,350 files**,
+**791,540,241 compressed bytes**, and **1,687,657,576 expanded bytes**. Its SHA-256
+is `05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b`.
+All 1,112 active episodes (486 train / 174 validation / 452 test), 2,633 visual
+frames, 64 visual source episodes, audit evidence, code/configs, amendment
+recording snapshots and required licenses/handoff are included. Excluded
+working attempts and staging data are not packaged. The 416 normalization
+inputs remain explicitly training-only. No normalization or Level 5 learning
+was performed.
+
+`datasets/level4-v1/manifest.json` and its identical root-level compatibility
+copy `datasets/level4-v1_manifest.json` bind every payload file. `SHA256SUMS`
+binds the release metadata; `splits/` preserves the three audit manifests
+byte-for-byte, and `schemas.json` indexes exact named layouts. The original
+source commit is `41a5d9998058178eebc8a4f40dd633a621de04fe`; added release-tool
+source is pinned by archived file hashes. The release handoff explicitly
+preserves historical `code_version: working-tree` limitations and does not
+invent per-recording commit provenance.
+
+The LFS attribute was verified before upload. The exact new object was uploaded
+with `git lfs push --object-id`; no Git source commit, index staging or branch
+push was performed. The archive is below GitHub's documented 2 GB file cap;
+together with the 50,942,076-byte Level 2 archive it uses 842,482,317 bytes,
+below the documented 10 GiB included allowance. Remaining account-wide quota
+was not available through the current token, and no billing settings changed.
+Storage sources and recovery steps are in `configs/level4_release.yaml` and
+the release README. The candidate manifest retains packaging-time pending
+gates; subsequent verification receipts record later events append-only.
+
+Commands run in the dedicated environment:
+
+```bash
+conda run --no-capture-output -n dexvision python -m dexvision.apps.prepare_dataset_release --archive datasets/level4-v1.tar.gz --source-commit 41a5d9998058178eebc8a4f40dd633a621de04fe --release-config configs/level4_release.yaml
+conda run -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1
+conda run -n dexvision pytest -q tests/test_level4_release.py tests/test_level4_split_audit.py
+conda run -n dexvision pytest -q tests/test_level4_release.py tests/test_level4_split_audit.py tests/test_roadmap_docs.py
+conda run -n dexvision ruff check dexvision tests
+conda run --no-capture-output -n dexvision pytest -q
+git check-attr filter diff merge -- datasets/level4-v1.tar.gz
+git lfs push --object-id origin 05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b
+git diff --check
+```
+
+Local archive verification passes all 33,350 files. An independent reread of
+all packaged source paths found zero changed hashes; the Level 2 archive still
+matches `f35851d6b6bb4efd8ffa0f011d6130558f2b2902c38d8568a271bd71f09c002b`.
+The focused release/split tests pass **43 tests**; including documentation
+regressions passes **55 tests**. Repository-wide Ruff and whitespace checks pass.
+The full suite passed **673 tests, 1 skipped in 493.09 seconds**; the two final
+LFS retrieval regressions were added afterward and passed in the focused run.
+The skip is the existing platform-dependent offscreen OpenGL test. Release
+verification itself uses no OpenGL, camera, GPU or learned model.
+
+Two intermediate local candidates remain preserved under
+`outputs/level4/release_candidate_v1/` and `release_candidate_v2/`; neither was
+uploaded. The final v1 archive was not overwritten after publication.
+
+Manual verification remains required. Run the release README's exact
+`--download-dir outputs/level4/manual_release_v1/download --restore-dir
+outputs/level4/manual_release_v1/restored` command. Pass only on exit 0, complete
+restoration and all 33,350 matching file hashes. Fail on any download/pointer,
+size, checksum, missing/extra member or restoration error. The owner must
+explicitly confirm the result before 4.9 or Level 4 is marked complete.
+Last Completed remains 4.8, Next Target remains 4.9; do not start Level 5.
+
+The subsequent remote check passed with this command:
+
+```bash
+conda run --no-capture-output -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --download-dir outputs/level4/remote_release_verification_v1/download --restore-dir outputs/level4/remote_release_verification_v1/restored
+```
+
+It retrieved the exact uploaded object through an empty cache and restored all
+33,350 files. An additional independent filesystem readback checked the exact
+restored member set, file sizes and hashes. The append-only receipt at
+`datasets/level4-v1/verification_receipt.json` records remote publication,
+restoration, source preservation and test results while leaving
+`manual_confirmation: null`. Ordinary clean-clone availability of the new
+Git pointer/manifests still awaits the user's source/metadata commit and push;
+the exact-object remote recovery path is already verified. No checkpoint was
+marked complete and no work advanced to Level 5.

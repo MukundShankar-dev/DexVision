@@ -1,0 +1,30 @@
+{
+  "active_episode_count": 1112,
+  "archive_sha256": "05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b",
+  "archive_size_bytes": 791540241,
+  "empty_cache_remote_download_passed": true,
+  "file_count": 33350,
+  "fresh_restore_passed": true,
+  "full_suite": {
+    "note": "Two final LFS retrieval regressions were added afterward and pass in the focused run.",
+    "passed": 673,
+    "seconds": 493.09,
+    "skipped": 1
+  },
+  "git_lfs_upload_passed": true,
+  "git_metadata_committed": false,
+  "independent_restored_file_readback_passed": true,
+  "latest_focused_and_docs_passed": 55,
+  "legacy_archive_sha256": "f35851d6b6bb4efd8ffa0f011d6130558f2b2902c38d8568a271bd71f09c002b",
+  "legacy_archive_unchanged": true,
+  "manifest_sha256": "19335e7db3dc541f1f5d803f63a0851260df875dc1c6bf39ea215312b3e73e82",
+  "manual_confirmation": null,
+  "ruff_passed": true,
+  "source_commit": "41a5d9998058178eebc8a4f40dd633a621de04fe",
+  "source_preservation_changed_files": 0,
+  "source_preservation_checked_files": 33350,
+  "verification_command": "conda run --no-capture-output -n dexvision python -m dexvision.apps.verify_dataset_release --release-dir datasets/level4-v1 --download-dir outputs/level4/remote_release_verification_v1/download --restore-dir outputs/level4/remote_release_verification_v1/restored",
+  "verified_on": "2026-09-14",
+  "version": "level4/release-verification-receipt-v1",
+  "visual_frame_count": 2633
+}

@@ -1,2 +1,5 @@
 datasets/*.tar.gz filter=lfs diff=lfs merge=lfs -text
 *.pdf binary
+# Preserve the official CC BY 4.0 license's terminal blank line verbatim.
+docs/licenses/level4-v1/CC-BY-4.0.txt whitespace=-blank-at-eof
+datasets/level4-v1/licenses/CC-BY-4.0.txt whitespace=-blank-at-eof

@@ -43,9 +43,28 @@ See `docs/level4_dataset_report.md` for exact commands and immutable evidence.
 
 Level 4.9 — Immutable Dataset Release and Level 5 Handoff
 
-Not started. Stop after the completed 4.8 checkpoint. Release packaging,
-clean-directory retrieval, license resolution and Level 5 handoff remain future
-work. No release archive or Level 5 training/qualification has been created.
+Release finalization in progress. The owner requested completion after the
+assistant-performed clean-directory check passed, accepting that delegated
+verification. Git metadata publication and normal clean-clone verification
+remain before completion. The 4.9 packager,
+release verifier, safe clean-directory Git LFS retrieval, license notices and data-interface
+handoff are implemented. The owner approved Apache-2.0 for included project
+source/workcell and CC BY 4.0 for generated data on September 14, 2026, and
+selected Git LFS on the existing repository. The 791,540,241-byte archive is
+uploaded. Independent retrieval through an empty Git LFS cache and restoration
+of all 33,350 files passed. The full suite passed 673 tests with one platform
+skip; the latest focused release/split/documentation run passed 55 tests,
+including two subsequently added download regressions. Ruff passes. Evidence is
+in `datasets/level4-v1/verification_receipt.json`; the exact manual command and
+pass/fail criteria are in `datasets/level4-v1/README.md`. Source/metadata changes
+are not committed. Do not mark 4.9 or Level 4 complete before owner confirmation,
+and do not begin Level 5.
+
+Follow-up: at the user's request, the assistant also ran the exact documented
+`manual_release_v1` fresh-cache retrieval and clean-directory restore command.
+It exited 0 and passed independent readback of all 33,350 files. Evidence is in
+`datasets/level4-v1/delegated_verification_receipt.json`. This records delegated
+execution without inventing a separate human observation or advancing levels.
 
 ---
 
@@ -60,7 +79,11 @@ work. No release archive or Level 5 training/qualification has been created.
 Level 4.8 completed its automated gates on September 14, 2026; no manual
 verification was required. The final audit has zero issues and frozen manifests.
 Pre-existing data, session entries, visual artifacts and prior audits remain
-unchanged. Last Completed is 4.8 and Next Target is 4.9; 4.9 has not started.
+unchanged. Last Completed remains 4.8 and Next Target remains 4.9.
+Level 4.9 packaging, remote retrieval and restore passed. The owner accepted
+delegated verification by requesting checkpoint completion on September 14,
+2026. No separate human visual observation is claimed. The Level 2 archive is
+unchanged. Last Completed stays 4.8 until Git publication and clone checks pass.
 
 Level 4.5A manual verification passed on September 8, 2026. The user accepted
 six stratified pick/place replays covering cuboid, cylinder, and flat-puck

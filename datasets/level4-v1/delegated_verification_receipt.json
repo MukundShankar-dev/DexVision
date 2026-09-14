@@ -1,0 +1,18 @@
+{
+  "active_episode_count": 1112,
+  "archive_sha256": "05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b",
+  "checkpoint_marked_complete": false,
+  "clean_directory_restore_passed": true,
+  "exit_code": 0,
+  "file_count": 33350,
+  "fresh_git_lfs_download_passed": true,
+  "human_observation_claimed": false,
+  "independent_restored_file_readback_passed": true,
+  "manifest_sha256": "19335e7db3dc541f1f5d803f63a0851260df875dc1c6bf39ea215312b3e73e82",
+  "performed_by": "assistant_at_user_request",
+  "restored_to": "outputs/level4/manual_release_v1/restored",
+  "user_request": "why don't you just do ti",
+  "verified_on": "2026-09-14",
+  "version": "level4/delegated-release-verification-v1",
+  "visual_frame_count": 2633
+}

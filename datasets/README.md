@@ -1,5 +1,12 @@
 # Versioned Dataset Releases
 
+Level 4 v1 is packaged separately as `level4-v1.tar.gz`, with frozen metadata,
+schemas, splits, licenses and retrieval instructions in
+[`level4-v1/README.md`](level4-v1/README.md). Its Git LFS object is uploaded;
+the metadata/source changes are not yet committed. Checkpoint 4.9 remains
+pending the owner's clean-directory restore confirmation. Do not begin Level 5.
+The Level 2 release described below remains unchanged.
+
 The editable working tree under `data/demos/` remains ignored by Git. Published
 dataset snapshots are immutable archives in this directory and are stored with
 Git LFS.

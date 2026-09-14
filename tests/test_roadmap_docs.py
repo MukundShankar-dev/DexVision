@@ -23,10 +23,16 @@ def test_current_status_advances_after_level46_completion() -> None:
     for field in ("Last Completed Checkpoint", "Next Target Checkpoint"):
         match = re.search(rf"## {field}\n\n([^\n]+)", status)
         assert match is not None
+        if field == "Next Target Checkpoint" and match.group(1).startswith("None"):
+            assert "## Last Completed Checkpoint\n\nLevel 4.9" in status
+            assert "[x] 4.9 immutable release restores" in progress
+            assert "Level 5 has not started" in status
+            break
         heading = f"## {match.group(1)}"
         assert heading in progress
         selected.append(progress.index(heading))
-    assert selected[0] < selected[1]
+    if len(selected) == 2:
+        assert selected[0] < selected[1]
     assert "hammer-curl" in status
 
 

@@ -1,0 +1,23 @@
+version: level4/release-config-v1
+release_id: level4-v1
+audit_dir: outputs/level4/audit_v4_final
+source_commit: 41a5d9998058178eebc8a4f40dd633a621de04fe
+licenses:
+  custom_workcell: Apache-2.0
+  included_project_source: Apache-2.0
+  generated_dataset: CC-BY-4.0
+  shadow_hand: Apache-2.0
+  owner_authorized_on: '2026-09-14'
+license_directory: docs/licenses/level4-v1
+storage:
+  provider: github_git_lfs
+  repository: https://github.com/MukundShankar-dev/DexVision.git
+  archive_path: datasets/level4-v1.tar.gz
+  documented_included_storage_bytes: 10737418240
+  documented_monthly_download_bytes: 10737418240
+  maximum_file_bytes: 2000000000
+  quota_checked_on: '2026-09-14'
+  quota_source: https://docs.github.com/en/billing/concepts/product-billing/git-lfs
+  file_limit_source: https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage
+  account_remaining_bytes: null
+  account_usage_note: GitHub billing API unavailable with current token scopes; remaining account-wide quota is not claimed.

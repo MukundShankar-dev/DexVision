@@ -1998,3 +1998,43 @@ Consecutive qualifying dwell is task-local and causal; a nonqualifying sample
 resets it to zero.
 The optional rotate_dial task remains disabled.
 ```
+
+---
+
+## Level 4 Immutable Release Packaging and Verification
+
+Modules: `dexvision/logging/dataset_release.py`,
+`dexvision/apps/prepare_dataset_release.py`, and
+`dexvision/apps/verify_dataset_release.py`.
+
+The packager uses the passing frozen audit as the payload allowlist. It includes
+all active episode streams, the complete visual export, frozen splits, exact
+named schemas, audit/source/config digests, replacement recording snapshots,
+licenses and the handoff. It never scans excluded working episodes into targets,
+rewrites raw data, overwrites an archive, or modifies the Level 2 release.
+
+Archive metadata and gzip timestamps are deterministic. The verifier checks
+metadata checksums, audit/split binding, required episode/visual files, the
+archive digest, and the exact member set with streaming per-file size/hash
+verification. Absolute/traversal/Windows-drive paths, symlinks, hard links,
+special files, sparse entries and duplicate members are rejected. Restoring
+requires a nonexistent directory; failed partial output is retained and cannot
+be silently reused. No GUI, GPU or camera is involved.
+
+Optional Git LFS retrieval creates an empty repository and isolated LFS cache,
+requests the exact manifest object id and verifies its size/hash before restore.
+A returned LFS pointer or failed download is an error. The caller must obtain
+trusted metadata from the project; checksums alone do not authenticate an author.
+
+On September 14, 2026, the owner selected Git LFS and approved Apache-2.0 for
+included project workcell/source/configuration and CC BY 4.0 for generated data.
+The notices in `docs/licenses/level4-v1/` apply prospectively without rewriting
+historical export/audit reports. Third-party Shadow Hand notices remain intact.
+The release config documents host limits but does not invent an account-wide
+remaining quota. A build-time candidate manifest never constitutes user manual
+acceptance. Later verification receipts and status docs record subsequent events.
+
+The Level 5 handoff is data-interface documentation only. Frozen split rows and
+`schemas.json` define exact layouts; whole-session ownership, task-relevant
+object selection, and training-only normalization inputs remain mandatory.
+No learning or policy qualification is implemented by checkpoint 4.9.
