@@ -8,46 +8,45 @@ Agents should read this file before selecting any checkpoint.
 
 ## Current Level
 
-Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release
+Level 5 — Workcell Skill Learning and Qualification
 
 ---
 
 ## Current Progress File
 
-`docs/progress_level_4.md`
+`docs/progress_level_5.md`
 
 ---
 
 ## Last Completed Checkpoint
 
-Level 4.9 — Immutable Dataset Release and Level 5 Handoff
+Level 5.0 — Learning, Evaluation, and Artifact Freeze
 
-Completed September 14, 2026. The immutable Level 4 v1 archive is published
-through Git LFS with source and release metadata committed. A clean clone of
-commit `c23377de901ff4708c1523d71e5ee0199c7f114a` retrieved both Level 2 and Level 4
-independently. All 33,350 Level 4 payload files and 2,591 Level 2
-files passed restored-file readback. Level 4 contains 1,112 active episodes,
-2,633 visual frames and unchanged frozen splits; the legacy archive is unchanged.
+Completed September 14, 2026. The owner explicitly activated Level 5 after the
+completed Level 4.9 handoff. The immutable release passed read-only integrity
+and publication-readiness verification, including all 33,350 payload files.
+The Level 4 scaling/readiness and final similarity gates pass; their narrow
+expert-assisted claim and historical replacement boundary remain explicit.
 
-The owner delegated the retrieval check and then requested checkpoint
-completion. This accepts assistant-performed verification without claiming
-a separate human visual observation. The full suite passed 682 tests with
-1 platform-dependent skip in 507.80 seconds; 62 focused release/split/
-documentation tests and Ruff passed. See `datasets/level4-v1/completion_receipt.json`
-and `docs/level4_dataset_report.md`. The original archive and build-time
-manifest remain unchanged; the completion receipt resolves their historical
-candidate status. Level 5 has not started.
+The learning plan, five skill protocols, paired state/perception reset matrices,
+training-only expert jerk gates, input digests, and artifact/checksum rules are
+frozen in `configs/level5/` and `docs/level5_learning_plan.md`. Fourteen focused
+checks and 65 checkpoint/documentation regressions pass. The full suite passed
+696 tests with one platform-dependent offscreen OpenGL skip in 522.71 seconds;
+repository-wide Ruff and whitespace checks pass. No manual verification is
+required. No training, policy rollout evaluation, normalization fitting, or
+Level 5.1 infrastructure was implemented. Existing datasets and completed
+Level 4 checkpoint sections remain unchanged.
 
 ---
 
 ## Next Target Checkpoint
 
-None — Level 4 is complete; await an explicit Level 5 request.
+Level 5.1 — Reproducible Skill Dataset and Training Infrastructure
 
-The next planned checkpoint is Level 5.0 — Learning, Evaluation, and Artifact
-Freeze, described in `docs/progress_level_5.md`. It is not active or started.
-The active progress file remains Level 4 to record this completed handoff.
-Do not select or implement another checkpoint automatically.
+Planned only; not started. Stop after the completed 5.0 freeze and await an
+explicit request before implementing 5.1. Do not start full-scale training or
+advance to another checkpoint automatically.
 
 ---
 
@@ -59,12 +58,16 @@ Do not select or implement another checkpoint automatically.
 
 ## Manual Verification Status
 
+Level 5.0 is complete with automated verification only; no manual check is
+outstanding. Level 4 release integrity and publication readiness were reverified
+before starting, including all 33,350 payload files and frozen split metadata.
+
 Level 4.9 clean-directory verification passed. The owner delegated execution,
 received the passing result, and authorized completion on September 14, 2026.
 The documented command and an additional normal clean-clone retrieval both
 restored the expected files with matching hashes. Acceptance is recorded in
 `datasets/level4-v1/completion_receipt.json`; no human visual observation is
-invented. All Level 4 gates are complete. Level 5 has not started.
+invented. All Level 4 gates were complete at that handoff; Level 5 had not yet started.
 
 Level 4.8 previously passed all automated audit gates without requiring manual
 verification. Existing data, session entries, visual artifacts and earlier

@@ -11,28 +11,24 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_current_status_advances_after_level46_completion() -> None:
+def test_current_status_matches_active_progress_file() -> None:
     status = read("docs/CURRENT_STATUS.md")
-
-    assert (
-        "Level 4 — Comprehensive Multi-Session Dataset Collection and Versioned Release"
-    ) in status
-    assert "`docs/progress_level_4.md`" in status
-    progress = read("docs/progress_level_4.md")
-    selected = []
+    path = re.search(r"## Current Progress File\n\n`([^`]+)`", status).group(1)
+    progress = read(path)
+    current_level = re.search(r"## Current Level\n\nLevel (\d+)", status).group(1)
+    assert path == f"docs/progress_level_{current_level}.md"
+    active_positions = []
     for field in ("Last Completed Checkpoint", "Next Target Checkpoint"):
-        match = re.search(rf"## {field}\n\n([^\n]+)", status)
-        assert match is not None
-        if field == "Next Target Checkpoint" and match.group(1).startswith("None"):
-            assert "## Last Completed Checkpoint\n\nLevel 4.9" in status
-            assert "[x] 4.9 immutable release restores" in progress
-            assert "Level 5 has not started" in status
-            break
-        heading = f"## {match.group(1)}"
-        assert heading in progress
-        selected.append(progress.index(heading))
-    if len(selected) == 2:
-        assert selected[0] < selected[1]
+        title = re.search(rf"## {field}\n\n([^\n]+)", status).group(1)
+        if title.startswith("None"):
+            continue
+        level = re.match(r"Level (\d+)\.", title).group(1)
+        owner = progress if level == current_level else read(f"docs/progress_level_{level}.md")
+        assert f"## {title}" in owner
+        if level == current_level:
+            active_positions.append(progress.index(f"## {title}"))
+    if len(active_positions) == 2:
+        assert active_positions[0] < active_positions[1]
     assert "hammer-curl" in status
 
 
@@ -196,13 +192,8 @@ def test_project_overview_source_and_pdf_exist() -> None:
     pdf_path = ROOT / "DexVision Project Overview.pdf"
 
     assert "Levels 1 through 3 are complete" in overview
-    if "## Last Completed Checkpoint\n\nLevel 4.9" in read("docs/CURRENT_STATUS.md"):
-        assert "Level 4 is complete through checkpoint 4.9" in overview
-        assert "Level 5 has not started" in overview
-        assert "Level 4 is complete" in read("README.md")
-    else:
-        assert "Level 4 is active at checkpoint" in overview
-        assert "4.5" in overview
+    assert "Level 4 is complete through checkpoint 4.9" in overview
+    assert "Level 4 is complete" in read("README.md")
     assert "60 scripted core episodes" in overview
     assert "Level 3 — Learning feasibility" in overview
     assert "Level 4 — Comprehensive scripted skill dataset" in overview

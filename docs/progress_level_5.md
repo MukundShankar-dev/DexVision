@@ -195,6 +195,8 @@ frozen in Level 5.0.
 
 ## Level 5.0 — Learning, Evaluation, and Artifact Freeze
 
+**Complete — September 14, 2026.**
+
 ### Goal
 
 Convert the final Level 3 diagnosis and immutable Level 4 release into one
@@ -266,17 +268,41 @@ conda run -n dexvision ruff check tests/test_level5_learning_plan.py tests/test_
 ### Pass criteria
 
 ```text
-[ ] Every required skill and evaluation track has an executable frozen protocol
-[ ] Validation selects checkpoints; held-out tests cannot tune anything
-[ ] Three seeds, rollout counts, reset matrices, gates, and artifact paths are explicit
-[ ] Model escalation follows measured Level 3/4 evidence
-[ ] Level 4 scaling evidence supports release readiness rather than relying on episode count alone
-[ ] Expert-only, standalone-policy, and expert-plus-residual claims have frozen ablations
-[ ] Dataset, split, config, and schema digests are immutable inputs
-[ ] No full-scale training begins in this checkpoint
+[x] Every required skill and evaluation track has an executable frozen protocol
+[x] Validation selects checkpoints; held-out tests cannot tune anything
+[x] Three seeds, rollout counts, reset matrices, gates, and artifact paths are explicit
+[x] Model escalation follows measured Level 3/4 evidence
+[x] Level 4 scaling evidence supports release readiness rather than relying on episode count alone
+[x] Expert-only, standalone-policy, and expert-plus-residual claims have frozen ablations
+[x] Dataset, split, config, and schema digests are immutable inputs
+[x] No full-scale training begins in this checkpoint
 ```
 
 Manual verification: none.
+
+Completion evidence (September 14, 2026): `docs/level5_learning_plan.md` and
+`configs/level5/` freeze the five required skill contracts, causal named
+183-value observation layout, per-skill numeric goals, bounded 26-value policy
+heads with full 27-field action records, three training seeds, validation-only
+selection, explicit paired reset matrices, training-expert-derived jerk gates,
+claim ablations, input digests and artifact retention/publication rules.
+`configs/level5/SHA256SUMS` locks the plan and all seven YAML files.
+
+Release verification with `--require-ready` passed all 33,350 files and frozen
+split metadata. The 4/8/16 probe passes its original readiness gates, and the
+final audit passes its similarity checks. The probe's expert-assisted nature
+and its pre-replacement membership are documented without claiming standalone
+learning success. Tests independently recompute jerk and validate exact reset
+seeds from archive bytes; no ignored working episode supplies frozen statistics.
+
+The listed 14 focused tests pass. Including release and documentation
+regressions gives 65 passing tests. Repository-wide Ruff and whitespace checks
+pass; the full suite passed **696 tests, 1 skipped in 522.71 seconds**. The skip
+is the existing platform-dependent offscreen OpenGL test. The owner requested
+Level 5 from a clean `main` working tree. Existing datasets, release metadata,
+and completed Level 4 checkpoint sections remain unchanged. No policy training,
+normalization fitting, held-out policy evaluation, or 5.1 implementation occurred.
+Level 5.0 is complete; stop here. Level 5.1 is planned but has not started.
 
 ---
 
@@ -981,7 +1007,7 @@ user confirmation before completing Level 5.
 # Level 5 Completion Checklist
 
 ```text
-[ ] 5.0 Level 3 evidence, model choices, protocols, gates, and artifacts are frozen
+[x] 5.0 Level 3 evidence, model choices, protocols, gates, and artifacts are frozen
 [ ] 5.1 loader/training infrastructure is deterministic and resumable
 [ ] 5.2 reach is evaluated against Level 3 failures and Level 5 gates
 [ ] 5.3 pick is evaluated across supported object families

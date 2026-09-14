@@ -188,20 +188,13 @@ def test_packager_rejects_incomplete_audit_without_creating_archive(tmp_path):
         collect_audited_files(tmp_path, "audit")
 
 
-def test_checkpoint_status_requires_completion_evidence_and_stops_at_level4():
+def test_completed_level4_preserves_completion_evidence_after_handoff():
     root = Path(__file__).resolve().parents[1]
-    status = (root / "docs/CURRENT_STATUS.md").read_text()
     progress = (root / "docs/progress_level_4.md").read_text()
-    if "## Last Completed Checkpoint\n\nLevel 4.9" in status:
-        receipt = json.loads((root / "datasets/level4-v1/completion_receipt.json").read_text())
-        assert receipt["clean_clone_retrieval_passed"]
-        assert receipt["owner_accepted_delegated_verification"]
-        assert "[x] 4.9 immutable release restores" in progress
-        assert "## Next Target Checkpoint\n\nNone" in status
-    else:
-        assert "## Last Completed Checkpoint\n\nLevel 4.8" in status
-        assert "## Next Target Checkpoint\n\nLevel 4.9" in status
-        assert "[ ] 4.9 immutable release restores" in progress
+    receipt = json.loads((root / "datasets/level4-v1/completion_receipt.json").read_text())
+    assert receipt["clean_clone_retrieval_passed"]
+    assert receipt["owner_accepted_delegated_verification"]
+    assert "[x] 4.9 immutable release restores" in progress
 
 
 def test_lfs_retrieval_uses_empty_repository_and_exact_object(tmp_path, monkeypatch):

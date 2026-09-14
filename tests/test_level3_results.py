@@ -174,15 +174,17 @@ def test_level38_completion_remains_recorded_after_level46() -> None:
     status = (ROOT / "docs/CURRENT_STATUS.md").read_text(encoding="utf-8")
     progress = (ROOT / "docs/progress_level_3.md").read_text(encoding="utf-8")
 
-    assert "Level 4 — Comprehensive Multi-Session Dataset Collection" in status
-    assert "`docs/progress_level_4.md`" in status
     assert "Level 3.8 — Feasibility Report and Level 4 Data Requirements" in status
     # Completion of later checkpoints must preserve the historical Level 3
     # result without pinning this regression to an obsolete active checkpoint.
-    active = (ROOT / "docs/progress_level_4.md").read_text(encoding="utf-8")
     for field in ("Last Completed Checkpoint", "Next Target Checkpoint"):
         match = re.search(rf"## {field}\n\n([^\n]+)", status)
         assert match is not None
-        assert f"## {match.group(1)}" in active
+        title = match.group(1)
+        if title.startswith("None"):
+            continue
+        level = re.match(r"Level (\d+)\.", title).group(1)
+        active = (ROOT / f"docs/progress_level_{level}.md").read_text(encoding="utf-8")
+        assert f"## {title}" in active
     assert "[x] Feasibility report defines the Level 4 data haul" in progress
     assert progress.count("[x] Every result traces to a config") == 1

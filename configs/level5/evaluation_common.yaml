@@ -1,0 +1,128 @@
+version: level5/evaluation-v1
+tracks:
+- state
+- perception
+reset_policy:
+  source: digest_bound_release_episode_metadata_and_saved_action_prefix
+  restore: recreate_exact_task_config_dynamics_reset_and_seed; replay_actions[0:start_frame] to reconstruct
+    physics and causal history
+  policy_start: immediately_before_action_at_start_frame
+  prefix_is_policy_success: false
+  precondition_check: fresh_world_state_after_prefix; reject_and_save_if_invalid; never_search_for_better_start
+  terminal_dwell: reset_task_success_dwell_at_policy_start
+  hidden_repairs: false
+  same_resets_all_models_seeds_tracks: true
+  matrices: per_skill_yaml_explicit_episode_ids_reset_seeds_start_frames
+  selection_rule: sort_cell_then_episode_id_take_max(3,ceil(30/cell_count))_per_cell_from_frozen_split
+rollouts:
+  minimum_per_checkpoint_track: 30
+  minimum_per_required_cell: 3
+  perception_conditions:
+  - nominal
+  - mild_illumination
+  - partial_occlusion
+  - bounded_distractors
+  condition_product: each_explicit_reset_cross_all_four_conditions_in_both_tracks
+  counting: unique_physical_resets_count_toward_minimum; render_repeats_do_not
+  validation_only_selection: true
+  test_once: true
+  save_every_attempt: true
+  retry_count: 0
+perception:
+  camera_config: configs/level4_visual_dataset.yaml
+  calibration_version: level4/visual-camera-v1
+  source: inferred_perception
+  simulator_truth_fallback: false
+  robot_proprioception_allowed: true
+  fixture_geometry: frozen_calibration_and_geometry_may_define_target_regions; requested_object_pose_and_identity_must_be_inferred
+  minimum_confidence: 0.8
+  maximum_age_s: 0.1
+  ambiguous: reject_before_execution_or_abort_during_execution
+  gates:
+    detection_recall_iou_0_5_min: 0.95
+    median_position_error_m_max: 0.01
+    p95_position_error_m_max: 0.025
+    identity_switches_per_1000_frames_max: 1
+    stale_ambiguous_rejection_fraction_min: 1.0
+common_gates:
+  invalid_actions_max: 0
+  workspace_violations_max: 0
+  joint_limit_violations_max: 0
+  object_workspace_violations_max: 0
+  explicit_terminal_result_fraction_min: 1.0
+  perception_success_min: 0.65
+  perception_worst_family_success_min: 0.5
+  perception_success_degradation_max: 0.15
+jerk:
+  metric: mean_L2_third_difference_of_full_27_applied_actions_divided_by_declared_field_ranges
+  units: normalized_action_units_per_control_sample_cubed
+  implementation_reference: dexvision.evaluation.benchmark_retargeters.mean_action_jerk
+  quaternion: normalize_sign_continuous; use_component_ranges_for_metric_only
+  short_trajectory: fewer_than_four_samples_returns_zero_but_never_bypasses_success_or_safety
+  reference_population: one_value_per_training_expert_skill_interval_no_validation_or_test
+  percentile: 95
+  percentile_method: linear
+  gate_multiplier: 1.25
+  aggregation: unweighted_mean_of_rollout_metrics_per_seed_track; each_seed_must_pass
+reporting:
+  denominator: all_scheduled_attempts_including_rejected_preconditions
+  required_breakdowns:
+  - seed
+  - track
+  - render_condition
+  - cell_id
+  - object_family
+  - object_instance
+  - target_id
+  - target_type
+  - session
+  - boundary_class
+  worst_family: minimum_success_over_each_required_nonempty_object_family_and_goal_family_group; missing_required_group_fails
+  normalized_terminal_error: mean_numeric_goal_error_divided_by_its_frozen_success_tolerance; missing_or_rejected_error_positive_infinity
+  record:
+  - request_id
+  - execution_id
+  - start_timestamp
+  - end_timestamp
+  - preconditions
+  - terminal_result
+  - terminal_reason
+  - final_metrics
+  - retry_count
+  - safety_counters
+  - raw_actions
+  - applied_actions
+  - states
+  - observations
+  - trajectory_path
+  - all_input_and_checkpoint_digests
+  skill_event_rate_denominators:
+    drop_rate: all_scheduled_pick_attempts
+    premature_release_rate: all_scheduled_place_attempts
+    settled_among_nominally_placed: attempts_with_object_released_inside_target; zero_denominator_fails
+  apply_skill_event_gates_to_both_tracks: true
+status:
+  failed_if_any:
+  - artifact_or_schema_incompatible
+  - cannot_execute
+  - invalid_actions
+  - workspace_violation
+  - joint_limit_violation
+  - missing_terminal_results
+  - object_workspace_violation
+  qualified_if_all:
+  - state_gates_each_seed
+  - perception_gates_each_seed
+  - common_safety_gates
+  - compatibility_gates
+  - required_manual_acceptance
+  otherwise: experimental
+  default_enabled:
+  - qualified
+  state_only: experimental
+terminal_results:
+- succeeded
+- failed
+- timed_out
+- cancelled
+- rejected_before_execution

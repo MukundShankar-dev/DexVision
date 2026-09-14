@@ -1,0 +1,835 @@
+version: level5/skill-protocol-v1
+skill: push_object_to_target
+learning_config: configs/level5/learning.yaml
+evaluation_config: configs/level5/evaluation_common.yaml
+source_skill: push_object_to_target
+training:
+  stream: expert_success
+  segment_skill: push_object_to_target
+  interval_rule: saved_segment_intersect_from_first_contact_phase
+  first_contact_phase: push_contact
+  expert_episode_count: 96
+contract:
+  enabled: true
+  task_id: push_object_to_target
+  episode_group: push
+  preconditions:
+  - field: object.supported
+    operator: equals
+    value: true
+  - field: object.family
+    operator: in
+    value:
+    - cuboid
+    - flat_puck
+  - field: approach_metric_passed
+    operator: equals
+    value: true
+  goal_fields:
+    object_id:
+      type: string
+      shape: scalar
+      units: id
+      coordinate_frame: none
+      required: true
+      allowed_ids:
+      - block_small
+      - block_large
+      - puck_light
+      - puck_heavy
+    target_zone:
+      type: string
+      shape: scalar
+      units: id
+      coordinate_frame: none
+      required: true
+      allowed_ids:
+      - return_bin_left
+      - return_bin_right
+      - inspection_pad
+      - setup_slot_a
+      - setup_slot_b
+  terminal_state_fields:
+  - planar_object_to_target_distance_m
+  - object_linear_speed_mps
+  - object_on_board
+  - object_supported
+  - object_upright_tilt_rad
+  - dwell_steps
+  - terminal_reason
+  success_metric:
+    required_consecutive_samples: 5
+    conditions:
+    - field: planar_object_to_target_distance_m
+      operator: less_equal
+      value: 0.035
+      units: m
+    - field: object_on_board
+      operator: equals
+      value: true
+      units: bool
+    - field: object_supported
+      operator: equals
+      value: true
+      units: bool
+    - field: object_upright_tilt_rad
+      operator: less_equal
+      value: 0.174533
+      units: rad
+    - field: object_linear_speed_mps
+      operator: less_equal
+      value: 0.02
+      units: m_per_s
+  failure_rules:
+  - reason: wrong_contact
+    predicate: non_goal_object_displaced
+    retryable: false
+  - reason: object_workspace_violation
+    predicate: object_outside_board_margin
+    retryable: false
+  - reason: timeout
+    predicate: timeout_steps_reached
+    retryable: true
+  timeout_steps: 300
+goal_binding:
+  object_id: typed_goal.object_id
+  target_zone: typed_goal.target_zone
+observation_contract: level5/causal-policy-input-v1
+action_contract: level5/bounded-delta-v1
+evaluation:
+  validation:
+    unique_reset_count: 30
+    rollouts_per_track_per_training_seed: 120
+    cells:
+    - cell_id: push_flat_puck_setup_slot_b_boundary
+      episode_ids:
+      - level45b_000677
+      - level45b_000678
+      - level45b_000679
+      - level45b_000680
+      - level45b_000681
+      - level45b_000682
+      - level45b_000683
+      - level45b_000684
+      - level45b_000685
+      - level45b_000686
+      - level45b_000687
+      - level45b_000688
+      - level45b_000689
+      - level45b_000690
+      - level4_workcell_20260906_082337
+      reset_seeds:
+      - 484703
+      - 484704
+      - 484705
+      - 484706
+      - 484707
+      - 484708
+      - 484709
+      - 484710
+      - 484711
+      - 484712
+      - 484713
+      - 484714
+      - 484715
+      - 484716
+      - 45006
+      start_frames:
+      - 112
+      - 111
+      - 112
+      - 113
+      - 111
+      - 112
+      - 112
+      - 111
+      - 111
+      - 111
+      - 111
+      - 111
+      - 112
+      - 111
+      - 111
+    - cell_id: push_flat_puck_setup_slot_b_interior
+      episode_ids:
+      - level45b_000663
+      - level45b_000664
+      - level45b_000665
+      - level45b_000666
+      - level45b_000667
+      - level45b_000668
+      - level45b_000669
+      - level45b_000670
+      - level45b_000671
+      - level45b_000672
+      - level45b_000673
+      - level45b_000674
+      - level45b_000675
+      - level45b_000676
+      - level4_workcell_20260906_082331
+      reset_seeds:
+      - 484603
+      - 484604
+      - 484605
+      - 484606
+      - 484607
+      - 484608
+      - 484609
+      - 484610
+      - 484611
+      - 484612
+      - 484613
+      - 484614
+      - 484615
+      - 484616
+      - 45004
+      start_frames:
+      - 112
+      - 111
+      - 112
+      - 111
+      - 112
+      - 111
+      - 112
+      - 111
+      - 111
+      - 111
+      - 111
+      - 112
+      - 112
+      - 111
+      - 111
+  test:
+    unique_reset_count: 32
+    rollouts_per_track_per_training_seed: 128
+    cells:
+    - cell_id: push_cuboid_setup_slot_b_boundary
+      episode_ids:
+      - level45b_v19_000706
+      - level45b_v19_000707
+      - level45b_v19_000708
+      - level45b_v19_000709
+      - level45b_v19_000710
+      - level45b_v19_000711
+      - level45b_v19_000712
+      - level45b_v19_000713
+      reset_seeds:
+      - 1994902
+      - 1994903
+      - 1994904
+      - 1994905
+      - 1994906
+      - 1994907
+      - 1994908
+      - 1994909
+      start_frames:
+      - 81
+      - 79
+      - 84
+      - 80
+      - 83
+      - 79
+      - 81
+      - 77
+    - cell_id: push_cuboid_setup_slot_b_interior
+      episode_ids:
+      - level45b_v19_000691
+      - level45b_v19_000692
+      - level45b_v19_000693
+      - level45b_v19_000694
+      - level45b_v19_000695
+      - level45b_v19_000696
+      - level45b_v19_000697
+      - level45b_v19_000698
+      reset_seeds:
+      - 1994802
+      - 1994803
+      - 1994804
+      - 1994805
+      - 1994806
+      - 1994807
+      - 1994808
+      - 1994809
+      start_frames:
+      - 77
+      - 83
+      - 78
+      - 83
+      - 77
+      - 83
+      - 83
+      - 84
+    - cell_id: push_flat_puck_inspection_pad_boundary
+      episode_ids:
+      - level45b_v19_000736
+      - level45b_v19_000737
+      - level45b_v19_000738
+      - level45b_v19_000739
+      - level45b_v19_000740
+      - level45b_v19_000741
+      - level45b_v19_000742
+      - level45b_v19_000743
+      reset_seeds:
+      - 1995102
+      - 1995103
+      - 1995104
+      - 1995105
+      - 1995106
+      - 1995107
+      - 1995108
+      - 1995109
+      start_frames:
+      - 76
+      - 75
+      - 75
+      - 74
+      - 73
+      - 75
+      - 73
+      - 76
+    - cell_id: push_flat_puck_inspection_pad_interior
+      episode_ids:
+      - level45b_v19_000721
+      - level45b_v19_000722
+      - level45b_v19_000723
+      - level45b_v19_000724
+      - level45b_v19_000725
+      - level45b_v19_000726
+      - level45b_v19_000727
+      - level45b_v19_000728
+      reset_seeds:
+      - 1995002
+      - 1995003
+      - 1995004
+      - 1995005
+      - 1995006
+      - 1995007
+      - 1995008
+      - 1995009
+      start_frames:
+      - 75
+      - 75
+      - 75
+      - 75
+      - 76
+      - 75
+      - 76
+      - 76
+gates:
+  state_success_min: 0.8
+  state_worst_family_success_min: 0.65
+  object_off_board_count_max: 0
+  mean_action_jerk_max: 0.002055254643585625
+expert_jerk:
+  source_split_manifest_sha256: 9d723821cd75bf5906c66f4c77e8db7b014b8713925f5e323719f95fa8579a42
+  percentile_95: 0.0016442037148685002
+  episode_count: 96
+  samples:
+  - episode_id: level45b_000579
+    frame_interval:
+    - 89
+    - 130
+    mean_jerk: 0.0015190173200684384
+  - episode_id: level45b_000580
+    frame_interval:
+    - 88
+    - 132
+    mean_jerk: 0.00140605936097006
+  - episode_id: level45b_000581
+    frame_interval:
+    - 90
+    - 130
+    mean_jerk: 0.0015505827178309956
+  - episode_id: level45b_000582
+    frame_interval:
+    - 92
+    - 137
+    mean_jerk: 0.0013643822240309745
+  - episode_id: level45b_000583
+    frame_interval:
+    - 88
+    - 129
+    mean_jerk: 0.0015161869760750815
+  - episode_id: level45b_000584
+    frame_interval:
+    - 88
+    - 134
+    mean_jerk: 0.001336474917136997
+  - episode_id: level45b_000585
+    frame_interval:
+    - 89
+    - 130
+    mean_jerk: 0.0015142866627027329
+  - episode_id: level45b_000586
+    frame_interval:
+    - 89
+    - 127
+    mean_jerk: 0.001645392214629211
+  - episode_id: level45b_000587
+    frame_interval:
+    - 88
+    - 129
+    mean_jerk: 0.0015063124379201224
+  - episode_id: level45b_000588
+    frame_interval:
+    - 87
+    - 127
+    mean_jerk: 0.0015574121995969529
+  - episode_id: level45b_000589
+    frame_interval:
+    - 89
+    - 132
+    mean_jerk: 0.001439057297440145
+  - episode_id: level45b_000590
+    frame_interval:
+    - 93
+    - 136
+    mean_jerk: 0.0014295562042267946
+  - episode_id: level45b_000591
+    frame_interval:
+    - 91
+    - 139
+    mean_jerk: 0.0012738184459503653
+  - episode_id: level45b_000592
+    frame_interval:
+    - 90
+    - 132
+    mean_jerk: 0.0014747500970085873
+  - episode_id: level45b_000593
+    frame_interval:
+    - 89
+    - 131
+    mean_jerk: 0.0014729805270212093
+  - episode_id: level45b_000594
+    frame_interval:
+    - 88
+    - 129
+    mean_jerk: 0.0015089815671703844
+  - episode_id: level45b_000595
+    frame_interval:
+    - 91
+    - 137
+    mean_jerk: 0.001331997311462076
+  - episode_id: level45b_000596
+    frame_interval:
+    - 88
+    - 133
+    mean_jerk: 0.0013666155180537105
+  - episode_id: level45b_000597
+    frame_interval:
+    - 88
+    - 131
+    mean_jerk: 0.001442569358364887
+  - episode_id: level45b_000598
+    frame_interval:
+    - 90
+    - 129
+    mean_jerk: 0.0015986331621599698
+  - episode_id: level45b_000599
+    frame_interval:
+    - 90
+    - 135
+    mean_jerk: 0.001368206171085151
+  - episode_id: level45b_000600
+    frame_interval:
+    - 90
+    - 137
+    mean_jerk: 0.0012980225881992686
+  - episode_id: level45b_000601
+    frame_interval:
+    - 89
+    - 130
+    mean_jerk: 0.0015077484788884141
+  - episode_id: level45b_000602
+    frame_interval:
+    - 90
+    - 133
+    mean_jerk: 0.0014338428580096747
+  - episode_id: level45b_000603
+    frame_interval:
+    - 89
+    - 127
+    mean_jerk: 0.0016438075482815967
+  - episode_id: level45b_000604
+    frame_interval:
+    - 89
+    - 130
+    mean_jerk: 0.0015111028690157884
+  - episode_id: level45b_000605
+    frame_interval:
+    - 90
+    - 135
+    mean_jerk: 0.0013668045227107108
+  - episode_id: level45b_000606
+    frame_interval:
+    - 89
+    - 132
+    mean_jerk: 0.0014368932950649428
+  - episode_id: level45b_000607
+    frame_interval:
+    - 85
+    - 293
+    mean_jerk: 0.00027990563791199113
+  - episode_id: level45b_000608
+    frame_interval:
+    - 83
+    - 255
+    mean_jerk: 0.00033961560196978905
+  - episode_id: level45b_000609
+    frame_interval:
+    - 84
+    - 299
+    mean_jerk: 0.00027075288460968723
+  - episode_id: level45b_000610
+    frame_interval:
+    - 85
+    - 281
+    mean_jerk: 0.00029725860666163966
+  - episode_id: level45b_000611
+    frame_interval:
+    - 85
+    - 278
+    mean_jerk: 0.0003019265578513038
+  - episode_id: level45b_000612
+    frame_interval:
+    - 85
+    - 304
+    mean_jerk: 0.0002653534546214221
+  - episode_id: level45b_000613
+    frame_interval:
+    - 85
+    - 302
+    mean_jerk: 0.0002678732491301224
+  - episode_id: level45b_000614
+    frame_interval:
+    - 85
+    - 303
+    mean_jerk: 0.00026674405782084346
+  - episode_id: level45b_000615
+    frame_interval:
+    - 83
+    - 279
+    mean_jerk: 0.0002973630728117064
+  - episode_id: level45b_000616
+    frame_interval:
+    - 85
+    - 255
+    mean_jerk: 0.00034359382931223304
+  - episode_id: level45b_000617
+    frame_interval:
+    - 84
+    - 299
+    mean_jerk: 0.00027068719202566607
+  - episode_id: level45b_000618
+    frame_interval:
+    - 83
+    - 302
+    mean_jerk: 0.00026584015495547975
+  - episode_id: level45b_000619
+    frame_interval:
+    - 84
+    - 255
+    mean_jerk: 0.0003413499106905751
+  - episode_id: level45b_000620
+    frame_interval:
+    - 86
+    - 300
+    mean_jerk: 0.00027186033863519277
+  - episode_id: level45b_000621
+    frame_interval:
+    - 85
+    - 303
+    mean_jerk: 0.0002667494692802764
+  - episode_id: level45b_000622
+    frame_interval:
+    - 85
+    - 305
+    mean_jerk: 0.00026431601508090203
+  - episode_id: level45b_000623
+    frame_interval:
+    - 84
+    - 300
+    mean_jerk: 0.0002691776610188878
+  - episode_id: level45b_000624
+    frame_interval:
+    - 83
+    - 293
+    mean_jerk: 0.0002772403884910363
+  - episode_id: level45b_000625
+    frame_interval:
+    - 84
+    - 301
+    mean_jerk: 0.0002683036664702784
+  - episode_id: level45b_000626
+    frame_interval:
+    - 84
+    - 302
+    mean_jerk: 0.0002670098814670929
+  - episode_id: level45b_000627
+    frame_interval:
+    - 84
+    - 290
+    mean_jerk: 0.0002827415955145154
+  - episode_id: level45b_000628
+    frame_interval:
+    - 83
+    - 301
+    mean_jerk: 0.00026687788931988103
+  - episode_id: level45b_000629
+    frame_interval:
+    - 84
+    - 302
+    mean_jerk: 0.0002668271088252586
+  - episode_id: level45b_000630
+    frame_interval:
+    - 83
+    - 304
+    mean_jerk: 0.000263267392422636
+  - episode_id: level45b_000631
+    frame_interval:
+    - 85
+    - 305
+    mean_jerk: 0.00026470000375492815
+  - episode_id: level45b_000632
+    frame_interval:
+    - 84
+    - 305
+    mean_jerk: 0.00026310522352538404
+  - episode_id: level45b_000633
+    frame_interval:
+    - 84
+    - 301
+    mean_jerk: 0.00026809832484987924
+  - episode_id: level45b_000634
+    frame_interval:
+    - 85
+    - 294
+    mean_jerk: 0.00027806318924535663
+  - episode_id: level45b_000635
+    frame_interval:
+    - 109
+    - 199
+    mean_jerk: 0.0006909564875926464
+  - episode_id: level45b_000636
+    frame_interval:
+    - 109
+    - 197
+    mean_jerk: 0.000707133439888258
+  - episode_id: level45b_000637
+    frame_interval:
+    - 108
+    - 196
+    mean_jerk: 0.0007072616098136426
+  - episode_id: level45b_000638
+    frame_interval:
+    - 109
+    - 195
+    mean_jerk: 0.0007243627639106244
+  - episode_id: level45b_000639
+    frame_interval:
+    - 109
+    - 196
+    mean_jerk: 0.0007140321216093528
+  - episode_id: level45b_000640
+    frame_interval:
+    - 108
+    - 194
+    mean_jerk: 0.0007230181727851783
+  - episode_id: level45b_000641
+    frame_interval:
+    - 109
+    - 197
+    mean_jerk: 0.0007063628281854984
+  - episode_id: level45b_000642
+    frame_interval:
+    - 108
+    - 193
+    mean_jerk: 0.0007322774716705943
+  - episode_id: level45b_000643
+    frame_interval:
+    - 108
+    - 196
+    mean_jerk: 0.0007058241987631933
+  - episode_id: level45b_000644
+    frame_interval:
+    - 109
+    - 197
+    mean_jerk: 0.0007065481737586526
+  - episode_id: level45b_000645
+    frame_interval:
+    - 108
+    - 202
+    mean_jerk: 0.0006601740005763212
+  - episode_id: level45b_000646
+    frame_interval:
+    - 107
+    - 196
+    mean_jerk: 0.0006999744529159815
+  - episode_id: level45b_000647
+    frame_interval:
+    - 108
+    - 197
+    mean_jerk: 0.0006970033720628755
+  - episode_id: level45b_000648
+    frame_interval:
+    - 109
+    - 197
+    mean_jerk: 0.0007048005567514349
+  - episode_id: level45b_000649
+    frame_interval:
+    - 108
+    - 194
+    mean_jerk: 0.0007223242331332525
+  - episode_id: level45b_000650
+    frame_interval:
+    - 108
+    - 198
+    mean_jerk: 0.0006899339783671815
+  - episode_id: level45b_000651
+    frame_interval:
+    - 108
+    - 197
+    mean_jerk: 0.000697012740629154
+  - episode_id: level45b_000652
+    frame_interval:
+    - 108
+    - 196
+    mean_jerk: 0.0007073588558943065
+  - episode_id: level45b_000653
+    frame_interval:
+    - 109
+    - 197
+    mean_jerk: 0.0007053487047632162
+  - episode_id: level45b_000654
+    frame_interval:
+    - 108
+    - 197
+    mean_jerk: 0.0006977393497571018
+  - episode_id: level45b_000655
+    frame_interval:
+    - 109
+    - 196
+    mean_jerk: 0.0007144705469996201
+  - episode_id: level45b_000656
+    frame_interval:
+    - 108
+    - 196
+    mean_jerk: 0.000706324745845356
+  - episode_id: level45b_000657
+    frame_interval:
+    - 109
+    - 199
+    mean_jerk: 0.0006891896754461748
+  - episode_id: level45b_000658
+    frame_interval:
+    - 109
+    - 198
+    mean_jerk: 0.0006991065332643085
+  - episode_id: level45b_000659
+    frame_interval:
+    - 109
+    - 198
+    mean_jerk: 0.0006986489298559027
+  - episode_id: level45b_000660
+    frame_interval:
+    - 109
+    - 195
+    mean_jerk: 0.0007218023052882424
+  - episode_id: level45b_000661
+    frame_interval:
+    - 109
+    - 198
+    mean_jerk: 0.000697969863965477
+  - episode_id: level45b_000662_retry_002
+    frame_interval:
+    - 105
+    - 199
+    mean_jerk: 0.000662195658538015
+  - episode_id: level4_workcell_20260906_081413
+    frame_interval:
+    - 89
+    - 118
+    mean_jerk: 0.0024109132991534804
+  - episode_id: level4_workcell_20260906_081415
+    frame_interval:
+    - 89
+    - 118
+    mean_jerk: 0.0024096360920591886
+  - episode_id: level4_workcell_20260906_081417
+    frame_interval:
+    - 89
+    - 118
+    mean_jerk: 0.002409270476534886
+  - episode_id: level4_workcell_20260906_081419
+    frame_interval:
+    - 89
+    - 118
+    mean_jerk: 0.0024095417712964055
+  - episode_id: level4_workcell_20260906_081958
+    frame_interval:
+    - 77
+    - 172
+    mean_jerk: 0.0006803182524360875
+  - episode_id: level4_workcell_20260906_082000
+    frame_interval:
+    - 77
+    - 199
+    mean_jerk: 0.0005258345521553315
+  - episode_id: level4_workcell_20260906_082003
+    frame_interval:
+    - 77
+    - 198
+    mean_jerk: 0.0005304473673037676
+  - episode_id: level4_workcell_20260906_082316
+    frame_interval:
+    - 84
+    - 302
+    mean_jerk: 0.0002668974011230477
+  - episode_id: level4_workcell_20260906_082320
+    frame_interval:
+    - 108
+    - 194
+    mean_jerk: 0.0007238619235842677
+  - episode_id: level4_workcell_20260906_082323
+    frame_interval:
+    - 108
+    - 196
+    mean_jerk: 0.0007060221555062357
+  - episode_id: level4_workcell_20260906_082326
+    frame_interval:
+    - 108
+    - 198
+    mean_jerk: 0.0006897354391589529
+  - episode_id: level4_workcell_20260906_082329
+    frame_interval:
+    - 108
+    - 197
+    mean_jerk: 0.0006989177988379224
+manual_verification: none_for_5.0; future_state_qualification_requires_checkpoint_specific_viewer_acceptance
+output_skill_directory: outputs/level5/level5-evaluation-v1/push_object_to_target
+numeric_goal_layout:
+- name: target_position
+  shape:
+  - 3
+  source: selected_target_region.position_m
+  units: m
+  dtype: float64
+- name: target_type
+  shape:
+  - 3
+  source: one_hot_receptacle_planar_zone_placement_slot
+  units: one_hot
+  dtype: float64
+numeric_goal_width: 6
+observation_width: 183
+goal_error_terms:
+- metric: planar_object_to_target_distance_m
+  scale: 0.035
+  operation: nonnegative_value
+goal_ids: validated_string_request_bindings_not_numeric_features; held_object_id_is_precondition_context_for_place
+target_type_mapping:
+  return_bin_left: receptacle
+  return_bin_right: receptacle
+  inspection_pad: planar_zone
+  setup_slot_a: placement_slot
+  setup_slot_b: placement_slot

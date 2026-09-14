@@ -1,0 +1,1361 @@
+version: level5/learning-plan-v1
+checkpoint: '5.0'
+required_skills:
+- reach_object
+- pick_object
+- place_held_object
+- push_object_to_target
+- press_button
+optional_dial:
+  enabled: false
+  reason: not_promoted_by_level4
+inputs:
+  release:
+    path: datasets/level4-v1/manifest.json
+    sha256: 19335e7db3dc541f1f5d803f63a0851260df875dc1c6bf39ea215312b3e73e82
+  archive:
+    path: datasets/level4-v1.tar.gz
+    sha256: 05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b
+  schemas:
+    path: datasets/level4-v1/schemas.json
+    sha256: 7be894f3861eb103f79956eb79b9b54596d7f5c060436c2c2c0b53921b9428f7
+  completion_receipt:
+    path: datasets/level4-v1/completion_receipt.json
+    sha256: d5cba7cc55d916fcd2a5dbbfc81135d3eb7963032308440f95cb8cdb16e21c8d
+  audit:
+    path: datasets/level4-v1/audit_report.json
+    sha256: 47f4cb7df42db5f6a5b9907a16d3393c83e6cbf2f56a8b678cb5955cf3b6cfee
+  level3_results:
+    path: docs/level3_results.md
+    sha256: 235c7fc0e5f6a6cf3a54468e673a85c303c4818b9cb5bfb1a00705953b4510d3
+  dataset_config:
+    path: configs/level4_dataset.yaml
+    sha256: 60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f
+  workcell_config:
+    path: configs/workcell.yaml
+    sha256: 4f8c7abd78c008dd00738ddf900abcb19160b9a100aa418644477c8c274ba774
+  visual_config:
+    path: configs/level4_visual_dataset.yaml
+    sha256: cfb222100c37cddbe35e89b5965371a01884917f6f5ad975ff4a496c60372736
+  splits:
+    train:
+      path: datasets/level4-v1/splits/train.json
+      sha256: 9d723821cd75bf5906c66f4c77e8db7b014b8713925f5e323719f95fa8579a42
+      manifest_digest: b6a7f3afeceb86fd94794bd8375e9f28df28dcd34900e61c4265d7895a5bb4e1
+    validation:
+      path: datasets/level4-v1/splits/validation.json
+      sha256: 8651b31b9de969bd6acc758d34f8cadb61c49647bc8cc964e8376a6580b2e8e7
+      manifest_digest: dc15288cdb5849baec47a832d4b8681d870a904a805734a06c0c6c9455ac9938
+    test:
+      path: datasets/level4-v1/splits/test.json
+      sha256: 06f9f1f354181b22e2a348c5c0be91f50059d3cea3c6b106fff730cfb861fa49
+      manifest_digest: befade89b65c4cb30dada456f0f151228054b9c855a1a959ad7cb41dd161b7e2
+  dataset_digest: 5a9a96575914e1b7604c71e10edde8d50025b293d1dd22e0820b3f2c2920989b
+readiness:
+  required: true
+  audit_passed: true
+  similarity_audit:
+    duplicate_exact_action_trajectory_count: 0
+    issues: []
+    minimum_descriptor_l2_distance: 0.00028136836130646044
+    passed: true
+    required_minimum_descriptor_l2_distance: 1.0e-08
+    trajectory_count: 890
+  scaling_report:
+    path: outputs/level4/scaling_probe_v1/scaling_probe.json
+    sha256: 8ef44c77f1113179460b6e4666d07a09e4322d55a46d21ae38d06d8a230065c1
+  scaling_report_embedded:
+    config_digest: sha256:60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f
+    config_version: level4/workcell-dataset-plan-v19
+    dataset_dir: data/demos/level4
+    dataset_sufficient: true
+    decision_frozen_at: '2026-09-09T14:58:39.396091+00:00'
+    decision_uses_test_data: false
+    improvement_8_to_16: -0.01388888888888884
+    model_recipe:
+      activation: tanh
+      batch_size: 256
+      epochs: 20
+      hidden_sizes:
+      - 64
+      - 64
+      learning_rate: 0.001
+      normalization: train_subset_only
+      optimizer: adam
+      residual_bound_m: 0.001
+      seed: 4501
+      type: state_grounded_nominal_plus_bounded_residual_mlp
+    readiness_gates:
+      insufficient_result: publish_new_plan_version_and_expand_train_validation_up_to_32_per_cell
+      material_improvement_fraction: 0.03
+      maximum_invalid_actions: 0
+      maximum_safety_violations: 0
+      minimum_aggregate_validation_success: 0.95
+      minimum_worst_cell_validation_success: 0.8
+      sufficient_result: largest_tranche_passes_all_gates_and_8_to_16_improvement_is_below_material_threshold
+    status: sufficient
+    test_episode_count_inspected: 0
+    train_cell_ids:
+    - pp_block_small_inspection_pad
+    - pp_block_small_return_bin_left
+    - pp_block_small_setup_slot_a
+    - pp_cylinder_short_inspection_pad
+    - pp_cylinder_short_return_bin_left
+    - pp_cylinder_short_setup_slot_a
+    - pp_puck_light_inspection_pad
+    - pp_puck_light_return_bin_left
+    - pp_puck_light_setup_slot_a
+    - press_008_centered_nominal
+    - press_010_centered_nominal
+    - press_010_oblique_interior
+    - press_012_centered_nominal
+    - press_012_oblique_interior
+    - press_014_centered_nominal
+    - push_cuboid_setup_slot_a_boundary
+    - push_cuboid_setup_slot_a_interior
+    - push_flat_puck_return_bin_left_boundary
+    - push_flat_puck_return_bin_left_interior
+    - push_flat_puck_setup_slot_a_boundary
+    - push_flat_puck_setup_slot_a_interior
+    - reach_block_small_interior
+    - reach_cylinder_short_interior
+    - reach_inspection_pad_centered
+    - reach_puck_light_near_boundary
+    - reach_setup_slot_a_oblique
+    tranches:
+    - aggregate_validation_success: 1.0
+      episodes_per_training_cell: 4
+      invalid_action_count: 0
+      model_seed: 4501
+      normalization_digest: sha256:bd89f316733fb65d9285924ae798adaafaaf4d3f002b39af70ff3ae45ec6c074
+      safety_violation_count: 0
+      training_cell_count: 26
+      training_episode_count: 104
+      training_loss: 0.001096796477213502
+      validation_episode_ids:
+      - level45a_anchor_000007
+      - level45a_anchor_000008
+      - level45b_000183
+      - level45b_000184
+      - level45b_000185
+      - level45b_000186
+      - level45b_000187
+      - level45b_000188
+      - level45a_anchor_000016
+      - level45a_anchor_000017
+      - level45b_000254
+      - level45b_000255
+      - level45b_000256
+      - level45b_000257
+      - level45b_000258
+      - level45b_000259
+      - level45a_anchor_000025
+      - level45a_anchor_000026
+      - level45b_000325
+      - level45b_000326
+      - level45b_000327
+      - level45b_000328
+      - level45b_000329
+      - level45b_000330
+      - level4_workcell_20260906_082405
+      - level4_workcell_20260906_082406
+      - level45b_000835
+      - level45b_000836
+      - level45b_000837
+      - level45b_000838
+      - level45b_000839
+      - level45b_000840
+      - level4_workcell_20260906_082408
+      - level4_workcell_20260906_082410
+      - level45b_000849
+      - level45b_000850
+      - level45b_000851
+      - level45b_000852
+      - level45b_000853
+      - level45b_000854
+      - level4_workcell_20260906_082337
+      - level4_workcell_20260906_082340
+      - level45b_000677
+      - level45b_000678
+      - level45b_000679
+      - level45b_000680
+      - level45b_000681
+      - level45b_000682
+      - level4_workcell_20260906_082331
+      - level4_workcell_20260906_082334
+      - level45b_000663
+      - level45b_000664
+      - level45b_000665
+      - level45b_000666
+      - level45b_000667
+      - level45b_000668
+      - level4_workcell_20260906_081410
+      - level4_workcell_20260906_081412
+      - level45b_000085
+      - level45b_000086
+      - level45b_000087
+      - level45b_000088
+      - level45b_000089
+      - level45b_000090
+      - level4_workcell_20260906_081407
+      - level4_workcell_20260906_081409
+      - level45b_000043
+      - level45b_000044
+      - level45b_000045
+      - level45b_000046
+      - level45b_000047
+      - level45b_000048
+      validation_rollout_count: 72
+      validation_success_by_cell:
+        pp_block_small_setup_slot_b: 1.0
+        pp_cylinder_short_setup_slot_b: 1.0
+        pp_puck_light_setup_slot_b: 1.0
+        press_009_centered_boundary: 1.0
+        press_013_oblique_boundary: 1.0
+        push_flat_puck_setup_slot_b_boundary: 1.0
+        push_flat_puck_setup_slot_b_interior: 1.0
+        reach_setup_slot_b_oblique: 1.0
+        reach_start_button_centered: 1.0
+      validation_success_count: 72
+      worst_cell_validation_success: 1.0
+    - aggregate_validation_success: 1.0
+      episodes_per_training_cell: 8
+      invalid_action_count: 0
+      model_seed: 4501
+      normalization_digest: sha256:ed4da61f8c9a3c495f7016ef223cc46363cb9ed2023981e0ef22e2f038718031
+      safety_violation_count: 0
+      training_cell_count: 26
+      training_episode_count: 208
+      training_loss: 0.0011349237756803632
+      validation_episode_ids:
+      - level45a_anchor_000007
+      - level45a_anchor_000008
+      - level45b_000183
+      - level45b_000184
+      - level45b_000185
+      - level45b_000186
+      - level45b_000187
+      - level45b_000188
+      - level45a_anchor_000016
+      - level45a_anchor_000017
+      - level45b_000254
+      - level45b_000255
+      - level45b_000256
+      - level45b_000257
+      - level45b_000258
+      - level45b_000259
+      - level45a_anchor_000025
+      - level45a_anchor_000026
+      - level45b_000325
+      - level45b_000326
+      - level45b_000327
+      - level45b_000328
+      - level45b_000329
+      - level45b_000330
+      - level4_workcell_20260906_082405
+      - level4_workcell_20260906_082406
+      - level45b_000835
+      - level45b_000836
+      - level45b_000837
+      - level45b_000838
+      - level45b_000839
+      - level45b_000840
+      - level4_workcell_20260906_082408
+      - level4_workcell_20260906_082410
+      - level45b_000849
+      - level45b_000850
+      - level45b_000851
+      - level45b_000852
+      - level45b_000853
+      - level45b_000854
+      - level4_workcell_20260906_082337
+      - level4_workcell_20260906_082340
+      - level45b_000677
+      - level45b_000678
+      - level45b_000679
+      - level45b_000680
+      - level45b_000681
+      - level45b_000682
+      - level4_workcell_20260906_082331
+      - level4_workcell_20260906_082334
+      - level45b_000663
+      - level45b_000664
+      - level45b_000665
+      - level45b_000666
+      - level45b_000667
+      - level45b_000668
+      - level4_workcell_20260906_081410
+      - level4_workcell_20260906_081412
+      - level45b_000085
+      - level45b_000086
+      - level45b_000087
+      - level45b_000088
+      - level45b_000089
+      - level45b_000090
+      - level4_workcell_20260906_081407
+      - level4_workcell_20260906_081409
+      - level45b_000043
+      - level45b_000044
+      - level45b_000045
+      - level45b_000046
+      - level45b_000047
+      - level45b_000048
+      validation_rollout_count: 72
+      validation_success_by_cell:
+        pp_block_small_setup_slot_b: 1.0
+        pp_cylinder_short_setup_slot_b: 1.0
+        pp_puck_light_setup_slot_b: 1.0
+        press_009_centered_boundary: 1.0
+        press_013_oblique_boundary: 1.0
+        push_flat_puck_setup_slot_b_boundary: 1.0
+        push_flat_puck_setup_slot_b_interior: 1.0
+        reach_setup_slot_b_oblique: 1.0
+        reach_start_button_centered: 1.0
+      validation_success_count: 72
+      worst_cell_validation_success: 1.0
+    - aggregate_validation_success: 0.9861111111111112
+      episodes_per_training_cell: 16
+      invalid_action_count: 0
+      model_seed: 4501
+      normalization_digest: sha256:25e47f4f395ddcd2b4f8b52baa066d4865257588911fc33504365c464e0ffd22
+      safety_violation_count: 0
+      training_cell_count: 26
+      training_episode_count: 416
+      training_loss: 0.00019093525770585984
+      validation_episode_ids:
+      - level45a_anchor_000007
+      - level45a_anchor_000008
+      - level45b_000183
+      - level45b_000184
+      - level45b_000185
+      - level45b_000186
+      - level45b_000187
+      - level45b_000188
+      - level45a_anchor_000016
+      - level45a_anchor_000017
+      - level45b_000254
+      - level45b_000255
+      - level45b_000256
+      - level45b_000257
+      - level45b_000258
+      - level45b_000259
+      - level45a_anchor_000025
+      - level45a_anchor_000026
+      - level45b_000325
+      - level45b_000326
+      - level45b_000327
+      - level45b_000328
+      - level45b_000329
+      - level45b_000330
+      - level4_workcell_20260906_082405
+      - level4_workcell_20260906_082406
+      - level45b_000835
+      - level45b_000836
+      - level45b_000837
+      - level45b_000838
+      - level45b_000839
+      - level45b_000840
+      - level4_workcell_20260906_082408
+      - level4_workcell_20260906_082410
+      - level45b_000849
+      - level45b_000850
+      - level45b_000851
+      - level45b_000852
+      - level45b_000853
+      - level45b_000854
+      - level4_workcell_20260906_082337
+      - level4_workcell_20260906_082340
+      - level45b_000677
+      - level45b_000678
+      - level45b_000679
+      - level45b_000680
+      - level45b_000681
+      - level45b_000682
+      - level4_workcell_20260906_082331
+      - level4_workcell_20260906_082334
+      - level45b_000663
+      - level45b_000664
+      - level45b_000665
+      - level45b_000666
+      - level45b_000667
+      - level45b_000668
+      - level4_workcell_20260906_081410
+      - level4_workcell_20260906_081412
+      - level45b_000085
+      - level45b_000086
+      - level45b_000087
+      - level45b_000088
+      - level45b_000089
+      - level45b_000090
+      - level4_workcell_20260906_081407
+      - level4_workcell_20260906_081409
+      - level45b_000043
+      - level45b_000044
+      - level45b_000045
+      - level45b_000046
+      - level45b_000047
+      - level45b_000048
+      validation_rollout_count: 72
+      validation_success_by_cell:
+        pp_block_small_setup_slot_b: 1.0
+        pp_cylinder_short_setup_slot_b: 1.0
+        pp_puck_light_setup_slot_b: 0.875
+        press_009_centered_boundary: 1.0
+        press_013_oblique_boundary: 1.0
+        push_flat_puck_setup_slot_b_boundary: 1.0
+        push_flat_puck_setup_slot_b_interior: 1.0
+        reach_setup_slot_b_oblique: 1.0
+        reach_start_button_centered: 1.0
+      validation_success_count: 71
+      worst_cell_validation_success: 0.875
+    validation_cell_ids:
+    - pp_block_small_setup_slot_b
+    - pp_cylinder_short_setup_slot_b
+    - pp_puck_light_setup_slot_b
+    - press_009_centered_boundary
+    - press_013_oblique_boundary
+    - push_flat_puck_setup_slot_b_boundary
+    - push_flat_puck_setup_slot_b_interior
+    - reach_setup_slot_b_oblique
+    - reach_start_button_centered
+    validation_episode_ids:
+    - level45a_anchor_000007
+    - level45a_anchor_000008
+    - level45b_000183
+    - level45b_000184
+    - level45b_000185
+    - level45b_000186
+    - level45b_000187
+    - level45b_000188
+    - level45a_anchor_000016
+    - level45a_anchor_000017
+    - level45b_000254
+    - level45b_000255
+    - level45b_000256
+    - level45b_000257
+    - level45b_000258
+    - level45b_000259
+    - level45a_anchor_000025
+    - level45a_anchor_000026
+    - level45b_000325
+    - level45b_000326
+    - level45b_000327
+    - level45b_000328
+    - level45b_000329
+    - level45b_000330
+    - level4_workcell_20260906_082405
+    - level4_workcell_20260906_082406
+    - level45b_000835
+    - level45b_000836
+    - level45b_000837
+    - level45b_000838
+    - level45b_000839
+    - level45b_000840
+    - level4_workcell_20260906_082408
+    - level4_workcell_20260906_082410
+    - level45b_000849
+    - level45b_000850
+    - level45b_000851
+    - level45b_000852
+    - level45b_000853
+    - level45b_000854
+    - level4_workcell_20260906_082337
+    - level4_workcell_20260906_082340
+    - level45b_000677
+    - level45b_000678
+    - level45b_000679
+    - level45b_000680
+    - level45b_000681
+    - level45b_000682
+    - level4_workcell_20260906_082331
+    - level4_workcell_20260906_082334
+    - level45b_000663
+    - level45b_000664
+    - level45b_000665
+    - level45b_000666
+    - level45b_000667
+    - level45b_000668
+    - level4_workcell_20260906_081410
+    - level4_workcell_20260906_081412
+    - level45b_000085
+    - level45b_000086
+    - level45b_000087
+    - level45b_000088
+    - level45b_000089
+    - level45b_000090
+    - level4_workcell_20260906_081407
+    - level4_workcell_20260906_081409
+    - level45b_000043
+    - level45b_000044
+    - level45b_000045
+    - level45b_000046
+    - level45b_000047
+    - level45b_000048
+    version: level4/scaling-probe-report-v1
+  historical_membership_note: Probe predates nine explicit replacements; frozen audit validates amendment
+    lineage and final membership. Probe is expert-assisted readiness evidence, not a standalone policy
+    scaling claim.
+  failure_action: stop_and_request_versioned_level4_amendment_without_test_rollouts
+models:
+  reference:
+    kind: goal_conditioned_mlp
+    hidden_sizes:
+    - 128
+    - 128
+    activation: relu
+    output: absolute_full_27
+    role: reproducible_failed_level3_family_comparison
+  baseline:
+    kind: phase_conditioned_mlp
+    hidden_sizes:
+    - 128
+    - 128
+    activation: relu
+    output: bounded_delta_from_prior_applied
+    heads:
+      base_translation: 3
+      base_rotation_vector: 3
+      wrist: 2
+      fingers: 18
+    head_activation: tanh
+    expert_at_execution: false
+    claim: standalone_policy
+    reason: Level3 immediate action-layout/safety failures support bounded heads and previous actions;
+      temporal ambiguity was not measured.
+  expert_residual:
+    enabled: false
+    kind: phase_conditioned_mlp
+    hidden_sizes:
+    - 128
+    - 128
+    activation: relu
+    head_activation: tanh
+    reference_action: deterministic_expert_requested_action_at_current_state
+    target: applied_minus_expert_requested
+    zero_residual_claim: scripted_expert
+    supervision_caveat: Nominal requested equals applied for accepted data; do not invent nonzero correction
+      targets.
+    bounds: same per-field delta caps as baseline; rotation cap shared; safety enforced on expert-plus-residual
+      sum
+  escalation:
+  - model: short_history_gru
+    trigger: validation current-state aliasing resolved by history or measured error accumulation after
+      action/safety held fixed
+    history_steps: 8
+    hidden_size: 128
+  - model: act_style_chunking
+    trigger: validation temporal ambiguity or compounding error plus failure of current-frame baseline
+    requires_new_versioned_config_before_comparison: true
+  unapproved:
+  - diffusion
+  - foundation_policy
+  - reinforcement_learning
+training:
+  seeds:
+  - 5001
+  - 5002
+  - 5003
+  device_default: cpu
+  optional_device: cuda
+  deterministic_algorithms: true
+  max_epochs: 100
+  batch_size: 256
+  optimizer:
+    name: adam
+    learning_rate: 0.001
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+    weight_decay: 0.0
+  scheduler: null
+  gradient_clip_norm: 1.0
+  workers: 0
+  sampling: uniform_cell_then_episode_then_eligible_frame_with_replacement
+  steps_per_epoch: ceil(number_of_eligible_frames / batch_size)
+  loss:
+    type: mean_group_normalized_mse
+    group_weights:
+      base_position: 1.0
+      base_orientation: 1.0
+      wrist: 1.0
+      fingers: 1.0
+    phase_mask: causal_phase_relevance
+    orientation: relative_rotation_vector_divided_by_maximum_angular_change
+    safety_masked_targets: excluded
+  early_stop:
+    patience_epochs: 20
+    minimum_improvement: 0.0
+    monitor: validation_offline_loss
+    tie_counts_as_no_improvement: true
+  selection:
+    candidate_epochs:
+    - 10
+    - 20
+    - 30
+    - 40
+    - 50
+    - 60
+    - 70
+    - 80
+    - 90
+    - 100
+    also_include:
+    - best_offline_validation_epoch
+    - last_executed_epoch
+    rollout_split: validation
+    sort_keys:
+    - safety_violation_count_ascending
+    - success_rate_descending
+    - worst_cell_success_rate_descending
+    - normalized_terminal_error_ascending
+    - offline_validation_loss_ascending
+    - epoch_ascending
+    seed_selection: retain_and_evaluate_all_three_seeds
+    test_evaluations_per_selected_checkpoint_per_track: 1
+    no_test_selection: true
+    normalized_terminal_error: defined per skill in goal_error_terms; mean of named nonnegative errors
+      / tolerance; missing or rejected yields positive infinity
+data:
+  release_root_argument: --release-root
+  membership: frozen_split_manifest_only
+  baseline_streams:
+  - expert_success
+  baseline_source: scripted
+  corrections: opt_in_at_5.8_intervention_only_same_split_ownership
+  ordinary_failures: diagnostic_only_never_expert_targets
+  policy_rollouts: excluded_until_explicitly_qualified
+  legacy_level2: separate_opt_in_comparison_no_fabricated_sessions
+  visual: frozen_frame_manifest_only
+  normalization:
+    owners: train.json:normalization_inputs
+    per_skill: true
+    interval: intersection_of_normalization_interval_and_skill_training_interval
+    exclude:
+    - validation
+    - test
+    - corrections
+    - ordinary_failures
+    - background_entities
+    - audited_phases
+    format: level5/normalization-v1
+    fields:
+    - ordered_feature_names
+    - count
+    - mean
+    - std
+    - epsilon
+    - training_episode_ids
+    - training_frame_intervals
+    - dataset_sha256
+    - split_sha256
+    - schema_sha256
+    - config_sha256
+    numeric_dtype: float64
+    variance_ddof: 0
+    epsilon: 1.0e-08
+    zero_variance_scale: 1.0
+    fit_for:
+    - continuous_observation
+    - continuous_goal
+    unscaled:
+    - one_hot
+    - binary_mask
+    - bounded_action_targets
+observations:
+  version: level5/causal-policy-input-v1
+  time_alignment: input_for_action_t_is_state_after_action_t_minus_1; t0_uses_reset_state; prior_action_arrays_at_t_are_causal
+  robot_fields:
+    robot_qpos:
+    - rh_base_freejoint/x
+    - rh_base_freejoint/y
+    - rh_base_freejoint/z
+    - rh_base_freejoint/qw
+    - rh_base_freejoint/qx
+    - rh_base_freejoint/qy
+    - rh_base_freejoint/qz
+    robot_qvel: rh_base_freejoint/*
+    finger_joint_positions: names_starting_rh_
+    finger_joint_velocities: names_starting_rh_
+  rotation_encoding: first_two_columns_of_rotation_matrix_column_major_6d
+  extra_arrays:
+    prior_commanded_actions: 27
+    prior_applied_actions: 27
+    previous_safety_masks: 27
+  previous_safety_masks: safety_masks[t-1]; all_false_at_reset
+  phase: causal_online_phase_one_hot_before_action_t; never_saved_future_transition_or_audited_phase
+  phase_vocabulary:
+  - approach
+  - acquire
+  - lift
+  - stabilize
+  - transport
+  - place
+  - release
+  - settle
+  - push_contact
+  - fixture_contact
+  - retract
+  entity:
+    selection: resolved_goal_entity_only; place_uses_unique_held_object
+    fields:
+      position_m: 3
+      rotation_6d: 6
+      linear_velocity_mps: 3
+      angular_velocity_radps: 3
+      supported: 1
+      held: 1
+      contact_with_hand: 1
+      confidence: 1
+      age_s: 1
+      valid_mask: 1
+    class_encoding:
+    - cuboid
+    - cylinder
+    - flat_puck
+    - button
+    - target
+    instance_id_encoding: excluded_from_numeric_inputs; retained_for_binding_and_reporting
+    missing_velocity: zero_with_validity_mask_false
+    missing_velocity_mask: 2
+    relation_inference: state:world_state; perception:inferred_metric_geometry_temporal_motion_and_robot_contact_sensors;
+      never_ground_truth_object_pose
+    class_selection: metadata class vocabulary; no numeric ordinal encoding; target=all target-region
+      entities
+  task_metrics: Supervisor-only terminal/safety metrics are never policy inputs. Policy receives selected
+    entity, robot, history, online phase and typed numeric goal only.
+  background_state_allowed: false
+  tracking_quality_allowed: false
+  saved_base_position_layout: commanded_target_not_measured_pose; use_named_freejoint_qpos_for_measured_pose
+  fixture_joint: start_button_joint_only_when_press_goal_requires_it; units_metres_not_hand_radians
+  feature_groups:
+  - group: robot_position
+    names:
+    - robot.position.x
+    - robot.position.y
+    - robot.position.z
+    source: robot_qpos:rh_base_freejoint/{x,y,z}
+    units: m
+    dtype: float64
+    shape:
+    - 3
+  - group: robot_rotation
+    names:
+    - robot.rotation6d.0
+    - robot.rotation6d.1
+    - robot.rotation6d.2
+    - robot.rotation6d.3
+    - robot.rotation6d.4
+    - robot.rotation6d.5
+    source: robot_qpos:rh_base_freejoint/{qw,qx,qy,qz}->rotation6d
+    units: unitless
+    dtype: float64
+    shape:
+    - 6
+  - group: robot_velocity
+    names:
+    - robot.velocity.rh_base_freejoint/vx
+    - robot.velocity.rh_base_freejoint/vy
+    - robot.velocity.rh_base_freejoint/vz
+    - robot.velocity.rh_base_freejoint/wx
+    - robot.velocity.rh_base_freejoint/wy
+    - robot.velocity.rh_base_freejoint/wz
+    source: robot_qvel:names_starting_rh_base_freejoint/
+    units: m/s_then_rad/s
+    dtype: float64
+    shape:
+    - 6
+  - group: finger_joint_positions
+    names:
+    - finger_joint_positions.rh_WRJ2
+    - finger_joint_positions.rh_WRJ1
+    - finger_joint_positions.rh_FFJ4
+    - finger_joint_positions.rh_FFJ3
+    - finger_joint_positions.rh_FFJ2
+    - finger_joint_positions.rh_FFJ1
+    - finger_joint_positions.rh_MFJ4
+    - finger_joint_positions.rh_MFJ3
+    - finger_joint_positions.rh_MFJ2
+    - finger_joint_positions.rh_MFJ1
+    - finger_joint_positions.rh_RFJ4
+    - finger_joint_positions.rh_RFJ3
+    - finger_joint_positions.rh_RFJ2
+    - finger_joint_positions.rh_RFJ1
+    - finger_joint_positions.rh_LFJ5
+    - finger_joint_positions.rh_LFJ4
+    - finger_joint_positions.rh_LFJ3
+    - finger_joint_positions.rh_LFJ2
+    - finger_joint_positions.rh_LFJ1
+    - finger_joint_positions.rh_THJ5
+    - finger_joint_positions.rh_THJ4
+    - finger_joint_positions.rh_THJ3
+    - finger_joint_positions.rh_THJ2
+    - finger_joint_positions.rh_THJ1
+    source: finger_joint_positions:names_starting_rh_
+    units: rad
+    dtype: float64
+    shape:
+    - 24
+  - group: finger_joint_velocities
+    names:
+    - finger_joint_velocities.rh_WRJ2
+    - finger_joint_velocities.rh_WRJ1
+    - finger_joint_velocities.rh_FFJ4
+    - finger_joint_velocities.rh_FFJ3
+    - finger_joint_velocities.rh_FFJ2
+    - finger_joint_velocities.rh_FFJ1
+    - finger_joint_velocities.rh_MFJ4
+    - finger_joint_velocities.rh_MFJ3
+    - finger_joint_velocities.rh_MFJ2
+    - finger_joint_velocities.rh_MFJ1
+    - finger_joint_velocities.rh_RFJ4
+    - finger_joint_velocities.rh_RFJ3
+    - finger_joint_velocities.rh_RFJ2
+    - finger_joint_velocities.rh_RFJ1
+    - finger_joint_velocities.rh_LFJ5
+    - finger_joint_velocities.rh_LFJ4
+    - finger_joint_velocities.rh_LFJ3
+    - finger_joint_velocities.rh_LFJ2
+    - finger_joint_velocities.rh_LFJ1
+    - finger_joint_velocities.rh_THJ5
+    - finger_joint_velocities.rh_THJ4
+    - finger_joint_velocities.rh_THJ3
+    - finger_joint_velocities.rh_THJ2
+    - finger_joint_velocities.rh_THJ1
+    source: finger_joint_velocities:names_starting_rh_
+    units: rad/s
+    dtype: float64
+    shape:
+    - 24
+  - group: prior_commanded_actions
+    names:
+    - prior_commanded_actions.base_position_target/x
+    - prior_commanded_actions.base_position_target/y
+    - prior_commanded_actions.base_position_target/z
+    - prior_commanded_actions.base_orientation_target/qw
+    - prior_commanded_actions.base_orientation_target/qx
+    - prior_commanded_actions.base_orientation_target/qy
+    - prior_commanded_actions.base_orientation_target/qz
+    - prior_commanded_actions.finger_actuator_targets/rh_A_WRJ2
+    - prior_commanded_actions.finger_actuator_targets/rh_A_WRJ1
+    - prior_commanded_actions.finger_actuator_targets/rh_A_THJ5
+    - prior_commanded_actions.finger_actuator_targets/rh_A_THJ4
+    - prior_commanded_actions.finger_actuator_targets/rh_A_THJ3
+    - prior_commanded_actions.finger_actuator_targets/rh_A_THJ2
+    - prior_commanded_actions.finger_actuator_targets/rh_A_THJ1
+    - prior_commanded_actions.finger_actuator_targets/rh_A_FFJ4
+    - prior_commanded_actions.finger_actuator_targets/rh_A_FFJ3
+    - prior_commanded_actions.finger_actuator_targets/rh_A_FFJ0
+    - prior_commanded_actions.finger_actuator_targets/rh_A_MFJ4
+    - prior_commanded_actions.finger_actuator_targets/rh_A_MFJ3
+    - prior_commanded_actions.finger_actuator_targets/rh_A_MFJ0
+    - prior_commanded_actions.finger_actuator_targets/rh_A_RFJ4
+    - prior_commanded_actions.finger_actuator_targets/rh_A_RFJ3
+    - prior_commanded_actions.finger_actuator_targets/rh_A_RFJ0
+    - prior_commanded_actions.finger_actuator_targets/rh_A_LFJ5
+    - prior_commanded_actions.finger_actuator_targets/rh_A_LFJ4
+    - prior_commanded_actions.finger_actuator_targets/rh_A_LFJ3
+    - prior_commanded_actions.finger_actuator_targets/rh_A_LFJ0
+    source: prior_commanded_actions
+    units: per_action_field
+    dtype: float64
+    shape:
+    - 27
+  - group: prior_applied_actions
+    names:
+    - prior_applied_actions.base_position_target/x
+    - prior_applied_actions.base_position_target/y
+    - prior_applied_actions.base_position_target/z
+    - prior_applied_actions.base_orientation_target/qw
+    - prior_applied_actions.base_orientation_target/qx
+    - prior_applied_actions.base_orientation_target/qy
+    - prior_applied_actions.base_orientation_target/qz
+    - prior_applied_actions.finger_actuator_targets/rh_A_WRJ2
+    - prior_applied_actions.finger_actuator_targets/rh_A_WRJ1
+    - prior_applied_actions.finger_actuator_targets/rh_A_THJ5
+    - prior_applied_actions.finger_actuator_targets/rh_A_THJ4
+    - prior_applied_actions.finger_actuator_targets/rh_A_THJ3
+    - prior_applied_actions.finger_actuator_targets/rh_A_THJ2
+    - prior_applied_actions.finger_actuator_targets/rh_A_THJ1
+    - prior_applied_actions.finger_actuator_targets/rh_A_FFJ4
+    - prior_applied_actions.finger_actuator_targets/rh_A_FFJ3
+    - prior_applied_actions.finger_actuator_targets/rh_A_FFJ0
+    - prior_applied_actions.finger_actuator_targets/rh_A_MFJ4
+    - prior_applied_actions.finger_actuator_targets/rh_A_MFJ3
+    - prior_applied_actions.finger_actuator_targets/rh_A_MFJ0
+    - prior_applied_actions.finger_actuator_targets/rh_A_RFJ4
+    - prior_applied_actions.finger_actuator_targets/rh_A_RFJ3
+    - prior_applied_actions.finger_actuator_targets/rh_A_RFJ0
+    - prior_applied_actions.finger_actuator_targets/rh_A_LFJ5
+    - prior_applied_actions.finger_actuator_targets/rh_A_LFJ4
+    - prior_applied_actions.finger_actuator_targets/rh_A_LFJ3
+    - prior_applied_actions.finger_actuator_targets/rh_A_LFJ0
+    source: prior_applied_actions
+    units: per_action_field
+    dtype: float64
+    shape:
+    - 27
+  - group: previous_safety_masks
+    names:
+    - previous_safety_masks.base_position_target/x
+    - previous_safety_masks.base_position_target/y
+    - previous_safety_masks.base_position_target/z
+    - previous_safety_masks.base_orientation_target/qw
+    - previous_safety_masks.base_orientation_target/qx
+    - previous_safety_masks.base_orientation_target/qy
+    - previous_safety_masks.base_orientation_target/qz
+    - previous_safety_masks.finger_actuator_targets/rh_A_WRJ2
+    - previous_safety_masks.finger_actuator_targets/rh_A_WRJ1
+    - previous_safety_masks.finger_actuator_targets/rh_A_THJ5
+    - previous_safety_masks.finger_actuator_targets/rh_A_THJ4
+    - previous_safety_masks.finger_actuator_targets/rh_A_THJ3
+    - previous_safety_masks.finger_actuator_targets/rh_A_THJ2
+    - previous_safety_masks.finger_actuator_targets/rh_A_THJ1
+    - previous_safety_masks.finger_actuator_targets/rh_A_FFJ4
+    - previous_safety_masks.finger_actuator_targets/rh_A_FFJ3
+    - previous_safety_masks.finger_actuator_targets/rh_A_FFJ0
+    - previous_safety_masks.finger_actuator_targets/rh_A_MFJ4
+    - previous_safety_masks.finger_actuator_targets/rh_A_MFJ3
+    - previous_safety_masks.finger_actuator_targets/rh_A_MFJ0
+    - previous_safety_masks.finger_actuator_targets/rh_A_RFJ4
+    - previous_safety_masks.finger_actuator_targets/rh_A_RFJ3
+    - previous_safety_masks.finger_actuator_targets/rh_A_RFJ0
+    - previous_safety_masks.finger_actuator_targets/rh_A_LFJ5
+    - previous_safety_masks.finger_actuator_targets/rh_A_LFJ4
+    - previous_safety_masks.finger_actuator_targets/rh_A_LFJ3
+    - previous_safety_masks.finger_actuator_targets/rh_A_LFJ0
+    source: previous_safety_masks
+    units: bool
+    dtype: float64
+    shape:
+    - 27
+  - group: online_phase
+    names:
+    - phase.approach
+    - phase.acquire
+    - phase.lift
+    - phase.stabilize
+    - phase.transport
+    - phase.place
+    - phase.release
+    - phase.settle
+    - phase.push_contact
+    - phase.fixture_contact
+    - phase.retract
+    source: causal_phase_before_action_t
+    units: one_hot
+    dtype: float64
+    shape:
+    - 11
+  - group: entity
+    names:
+    - entity.position_m.0
+    - entity.position_m.1
+    - entity.position_m.2
+    - entity.rotation_6d.0
+    - entity.rotation_6d.1
+    - entity.rotation_6d.2
+    - entity.rotation_6d.3
+    - entity.rotation_6d.4
+    - entity.rotation_6d.5
+    - entity.linear_velocity_mps.0
+    - entity.linear_velocity_mps.1
+    - entity.linear_velocity_mps.2
+    - entity.angular_velocity_radps.0
+    - entity.angular_velocity_radps.1
+    - entity.angular_velocity_radps.2
+    - entity.supported.0
+    - entity.held.0
+    - entity.contact_with_hand.0
+    - entity.confidence.0
+    - entity.age_s.0
+    - entity.valid_mask.0
+    - entity.class.cuboid
+    - entity.class.cylinder
+    - entity.class.flat_puck
+    - entity.class.button
+    - entity.class.target
+    - entity.linear_velocity_valid
+    - entity.angular_velocity_valid
+    source: typed_world_state:only_resolved_goal_entity
+    units: per_entity_field
+    dtype: float64
+    shape:
+    - 28
+  common_width: 183
+  units_and_frame: MuJoCo world SI; quaternion converted to 6D; bool/one_hot kept unnormalized
+action:
+  version: level5/bounded-delta-v1
+  record_layout: level1.13/full-action-v1
+  named_layout:
+  - index: 0
+    name: base_position_target/x
+    group: base_position
+    units: m
+    coordinate_frame: mujoco_world
+    semantics: absolute
+    lower: -0.18
+    upper: 0.22
+    max_change_per_sample: 0.025
+  - index: 1
+    name: base_position_target/y
+    group: base_position
+    units: m
+    coordinate_frame: mujoco_world
+    semantics: absolute
+    lower: -0.18
+    upper: 0.18
+    max_change_per_sample: 0.025
+  - index: 2
+    name: base_position_target/z
+    group: base_position
+    units: m
+    coordinate_frame: mujoco_world
+    semantics: absolute
+    lower: 0.08
+    upper: 0.24
+    max_change_per_sample: 0.025
+  - index: 3
+    name: base_orientation_target/qw
+    group: base_orientation
+    units: unit_quaternion
+    coordinate_frame: mujoco_world_from_hand_base
+    semantics: absolute
+    lower: -1.0
+    upper: 1.0
+    max_change_per_sample: 0.14
+  - index: 4
+    name: base_orientation_target/qx
+    group: base_orientation
+    units: unit_quaternion
+    coordinate_frame: mujoco_world_from_hand_base
+    semantics: absolute
+    lower: -1.0
+    upper: 1.0
+    max_change_per_sample: 0.14
+  - index: 5
+    name: base_orientation_target/qy
+    group: base_orientation
+    units: unit_quaternion
+    coordinate_frame: mujoco_world_from_hand_base
+    semantics: absolute
+    lower: -1.0
+    upper: 1.0
+    max_change_per_sample: 0.14
+  - index: 6
+    name: base_orientation_target/qz
+    group: base_orientation
+    units: unit_quaternion
+    coordinate_frame: mujoco_world_from_hand_base
+    semantics: absolute
+    lower: -1.0
+    upper: 1.0
+    max_change_per_sample: 0.14
+  - index: 7
+    name: finger_actuator_targets/rh_A_WRJ2
+    group: wrist
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.524
+    upper: 0.175
+    max_change_per_sample: 0.15
+  - index: 8
+    name: finger_actuator_targets/rh_A_WRJ1
+    group: wrist
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.698
+    upper: 0.489
+    max_change_per_sample: 0.15
+  - index: 9
+    name: finger_actuator_targets/rh_A_THJ5
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -1.047
+    upper: 1.047
+    max_change_per_sample: 0.15
+  - index: 10
+    name: finger_actuator_targets/rh_A_THJ4
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 1.222
+    max_change_per_sample: 0.15
+  - index: 11
+    name: finger_actuator_targets/rh_A_THJ3
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.209
+    upper: 0.209
+    max_change_per_sample: 0.15
+  - index: 12
+    name: finger_actuator_targets/rh_A_THJ2
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.698
+    upper: 0.698
+    max_change_per_sample: 0.15
+  - index: 13
+    name: finger_actuator_targets/rh_A_THJ1
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.262
+    upper: 1.571
+    max_change_per_sample: 0.15
+  - index: 14
+    name: finger_actuator_targets/rh_A_FFJ4
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.349
+    upper: 0.349
+    max_change_per_sample: 0.15
+  - index: 15
+    name: finger_actuator_targets/rh_A_FFJ3
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.262
+    upper: 1.571
+    max_change_per_sample: 0.15
+  - index: 16
+    name: finger_actuator_targets/rh_A_FFJ0
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 3.142
+    max_change_per_sample: 0.15
+  - index: 17
+    name: finger_actuator_targets/rh_A_MFJ4
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.349
+    upper: 0.349
+    max_change_per_sample: 0.15
+  - index: 18
+    name: finger_actuator_targets/rh_A_MFJ3
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.262
+    upper: 1.571
+    max_change_per_sample: 0.15
+  - index: 19
+    name: finger_actuator_targets/rh_A_MFJ0
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 3.142
+    max_change_per_sample: 0.15
+  - index: 20
+    name: finger_actuator_targets/rh_A_RFJ4
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.349
+    upper: 0.349
+    max_change_per_sample: 0.15
+  - index: 21
+    name: finger_actuator_targets/rh_A_RFJ3
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.262
+    upper: 1.571
+    max_change_per_sample: 0.15
+  - index: 22
+    name: finger_actuator_targets/rh_A_RFJ0
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 3.142
+    max_change_per_sample: 0.15
+  - index: 23
+    name: finger_actuator_targets/rh_A_LFJ5
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 0.785
+    max_change_per_sample: 0.15
+  - index: 24
+    name: finger_actuator_targets/rh_A_LFJ4
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.349
+    upper: 0.349
+    max_change_per_sample: 0.15
+  - index: 25
+    name: finger_actuator_targets/rh_A_LFJ3
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: -0.262
+    upper: 1.571
+    max_change_per_sample: 0.15
+  - index: 26
+    name: finger_actuator_targets/rh_A_LFJ0
+    group: fingers
+    units: rad
+    coordinate_frame: actuator_joint
+    semantics: absolute
+    lower: 0.0
+    upper: 3.142
+    max_change_per_sample: 0.15
+  control_interval_s: 0.034
+  simulation_steps_per_action: 17
+  simulation_timestep_s: 0.002
+  base_and_actuator_rule: prior_applied + tanh(head) * max_change_per_sample
+  rotation_rule: left_multiply_prior_wxyz_by_exp_rotation_vector; cap_vector_L2_at_maximum_angular_change
+  maximum_angular_change_rad: 0.139626
+  quaternion:
+    field_order:
+    - qw
+    - qx
+    - qy
+    - qz
+    convention: mujoco_wxyz
+    normalization_required: true
+    sign_continuity_required: true
+    sign_rule: maximize_dot_with_previous_applied
+    first_sample_canonical_rule: qw_positive_else_first_nonzero_component_positive
+    maximum_angular_change_per_sample_rad: 0.139626
+  phase_relevance:
+    approach:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: false
+    acquire:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    lift:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    stabilize:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    transport:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    place:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    release:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    settle:
+      base_position: false
+      base_orientation: false
+      wrist: false
+      fingers: false
+    push_contact:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    fixture_contact:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: true
+    retract:
+      base_position: true
+      base_orientation: true
+      wrist: true
+      fingers: false
+  irrelevant_action: hold_previous_applied
+  full_layout_recorded: true
+  safety: check_raw_and_applied_actions; record_clip_and_abort_on_workspace_or_joint_violation; finite_safe_fallback_on_invalid;
+    no_hidden_expert_fallback
+ablations:
+  arms:
+  - unmodified_scripted_expert
+  - standalone_policy
+  - expert_plus_zero_residual
+  - expert_plus_learned_residual
+  same_data_splits_seeds_resets: true
+  expert_residual_training: disabled_until_5.8_opt_in
+  material_improvement:
+    minimum_absolute_success_gain: 0.05
+    minimum_paired_normalized_terminal_error_reduction_fraction: 0.1
+    operator: success_gain_OR_error_reduction
+    success_must_not_decrease: true
+    all_safety_and_worst_family_gates_must_pass: true
+    required_splits:
+    - validation
+    - single_predeclared_test
+    zero_expert_error: relative_error_reduction_not_satisfied
+  no_measured_improvement_label: scripted_expert_with_experimental_learned_component
+  residual_never_claims_standalone: true
+  test_failure: retain_negative_result_disable_claim_no_retuning
+artifacts:
+  root: outputs/level5
+  run_template: outputs/level5/{protocol_slug}/{skill}/{model}/seed_{seed}/run_{run_id}
+  existing_output: refuse_overwrite
+  required:
+  - training_manifest.json
+  - normalization.json
+  - config_snapshot.yaml
+  - environment.json
+  - last.pt
+  - best_offline.pt
+  - selected.pt
+  - selection.json
+  - validation_candidates/
+  - state/
+  - perception/
+  - SHA256SUMS
+  retain: all_seeds_candidates_trajectories_failures_rejections_and_negative_results
+  checksums: sha256_all_files_except_checksum_index; sorted_posix_relative_paths
+  resume: only_same_run_and_all_input_digests; preserve_optimizer_rng_sampler_scheduler_and_selection_state
+  publication:
+    destination: releases/level5-v1
+    metadata: git
+    binary_payload: git_lfs_if_host_limits_verified_else_owner_selected_immutable_object_storage
+    existing_release: never_overwrite_create_new_version
+    working_outputs: ignored_no_silent_commit
+    publish_only_after: qualification_and_release_checkpoint_authorization
+    licenses: preserve_level4_and_third_party_notices_no_unverified_model_license_claim
+  protocol_slug: level5-evaluation-v1
