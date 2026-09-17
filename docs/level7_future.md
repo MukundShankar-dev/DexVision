@@ -98,8 +98,16 @@ remains held before execution.
 
 ## Required Level 5 exports
 
+Apply the handoff in `docs/level5_training_guidance.md`: consume the exact
+qualified policy bundle, including feature calibration/scales, active outputs,
+action decoder, causal phase/history rules and control cadence. Architecture
+and learned-versus-engineered behaviour are skill-specific. A state-only reach
+pass does not qualify a perception-driven or contact skill. The planner cannot
+swap decoders, change frames or retrain weights to rescue an execution.
+
 ```text
 qualified policy checkpoints and digests
+feature transform, scale, decoder, cadence and selection evidence with digests
 policy input/output and compatibility schemas
 typed skill parameter schemas
 task and world-state metadata

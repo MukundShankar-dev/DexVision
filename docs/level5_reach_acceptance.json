@@ -1,0 +1,52 @@
+{
+  "version": "level5/reach-owner-acceptance-v1",
+  "checkpoint": "5.2A",
+  "accepted_on": "2026-09-17",
+  "acceptance_source": "owner statements in the project conversation",
+  "owner_review_statement": "Look okay to me, but before we mark as complete, I want to know how we're learning this and what model architecture we're using?",
+  "owner_completion_statement": "Okay 5.2 can be considered complete now, do final docs pass and then commit/push",
+  "scope_interpretation": "Completes reach repair 5.2A; original failed 5.2 experiment remains preserved.",
+  "manual_acceptance": "owner_confirmed",
+  "observation_claim": "Owner-reported review; no agent visual observation or local viewer-log completion is asserted.",
+  "state_reach_gate": "passed_with_owner_acceptance",
+  "perception_qualified": false,
+  "default_registry_admission": false,
+  "recipe_path": "configs/level5/reach_repair_v5.yaml",
+  "recipe_sha256": "c43002ccbcb4d21cb7e9c32a73399b94d34b34b7960d618c4362eec930a43fb0",
+  "automated_audit_path": "outputs/level5/reach_repair/final_audit_v5/receipt.json",
+  "automated_audit_sha256": "734b249857021ce4d63f5bd3c5f50546a33aa04112be9c7cc6b1ce5827eca4e2",
+  "historical_receipt_policy": "Original automated receipts remain unchanged, including their then-pending manual status.",
+  "runs": [
+    {
+      "seed": 5001,
+      "selected_epoch": 300,
+      "checkpoint_path": "outputs/level5/reach_repair/goal_plane_height_hold/seed_5001/run_v5/selected.pt",
+      "checkpoint_sha256": "19afdb40a3614e8d890b102aceb9300ee5e9edcb6c1d5be3c877acee40d43653",
+      "physical_audit_path": "outputs/level5/reach_repair/physical_audit_v5/seed_5001/audit.json",
+      "physical_audit_sha256": "f3008502b7ea277cd866ef1446e65e12115aa2aafd462b79f9dfad729ab875c5"
+    },
+    {
+      "seed": 5002,
+      "selected_epoch": 207,
+      "checkpoint_path": "outputs/level5/reach_repair/goal_plane_height_hold/seed_5002/run_v5/selected.pt",
+      "checkpoint_sha256": "b23224280a6554b5ec29b281fa68f197a338f942b4d540da1debfe51f051c342",
+      "physical_audit_path": "outputs/level5/reach_repair/physical_audit_v5/seed_5002/audit.json",
+      "physical_audit_sha256": "dfa84bf594cb5972610f7a1ab3cab593c9ed677795f74329c77d9f9ca7bcbb19"
+    },
+    {
+      "seed": 5003,
+      "selected_epoch": 300,
+      "checkpoint_path": "outputs/level5/reach_repair/goal_plane_height_hold/seed_5003/run_v5/selected.pt",
+      "checkpoint_sha256": "61de27d5b23f4a6c27d92ae2969b5f9fc72223ab0c4083f90d65557069bafaff",
+      "physical_audit_path": "outputs/level5/reach_repair/physical_audit_v5/seed_5003/audit.json",
+      "physical_audit_sha256": "9f77a5576126d349571da24df2e4fa0e9ebf3882dec1fb9e316fe023c07041d4"
+    }
+  ],
+  "confirmation_attempts": 720,
+  "unique_reset_identities": 60,
+  "conditions_per_reset": 4,
+  "training_seeds": 3,
+  "generalization_limit": "Fresh resets of previously evaluated families; render-only labels do not vary state inputs or physics.",
+  "next_checkpoint": "5.3",
+  "next_checkpoint_started": false
+}

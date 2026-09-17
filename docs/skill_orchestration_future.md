@@ -138,3 +138,20 @@ structured SkillResult examples
 ```
 
 Do not implement Level 7 orchestration in this repository yet.
+
+## Policy and transition compatibility
+
+Use `docs/level5_training_guidance.md` when consuming Level 5/6 artifacts.
+Weights, causal feature transforms, physical calibration/scales, active action
+masks, decoder and control cadence form one versioned policy bundle. Keep
+standalone, expert-assisted, state-only and perception-qualified claims
+distinct; a planner does not change their qualification status.
+
+Before chaining skills, check the actual predecessor terminal state against
+the next skill's supported entry envelope, including object identity, held
+state and frame conventions. Carry the prior applied command and initialize
+phase/history from observed state. Do not repair a mismatch by injecting a
+scripted training prefix, hidden reset or unqualified expert fallback. Return
+a structured rejection when the transition is unsupported. Language chooses
+typed requests; it cannot edit the policy's feature/decoder contract or tune
+weights during execution.

@@ -174,6 +174,21 @@ real robot deployment
 
 ## Standard Checkpoint Procedure
 
+### Training amendment after 5.2A
+
+For all unstarted checkpoints, follow
+[`level5_training_guidance.md`](level5_training_guidance.md). It supersedes
+automatic reuse of the historical 5.0 full-action/scaling/early-stop recipe.
+Completed 5.0–5.2 sections and their checksum-locked configs remain historical
+evidence. Each future skill must freeze its own justified recipe before runs;
+the reach architecture and 1,000-epoch budget are not universal defaults.
+
+Future command blocks below are implementation targets, not currently supported
+CLIs or authorization to train. `<versioned-skill-recipe>` must become a real,
+independently locked recipe and have loader/test support within that checkpoint.
+Do not substitute the old skill YAML without auditing its inherited settings.
+Add recipe and lock paths to that checkpoint's files when the recipe is frozen.
+
 Every Level 5 checkpoint must preserve dataset/split/config/schema/checkpoint
 digests and provide exact focused tests, lint commands, generated artifacts,
 and manual pass/fail criteria. Automated tests use synthetic data, tiny CPU
@@ -453,6 +468,8 @@ is the next planned checkpoint and has not started.
 
 ## Level 5.2 — State-Grounded Reach Policy
 
+**Complete — September 14, 2026; policy qualification failed.**
+
 ### Goal
 
 Train and qualify `reach_object` against the frozen Level 4 state-grounded
@@ -489,11 +506,11 @@ conda run -n dexvision pytest -q tests/test_reach_skill_training.py tests/test_r
 ### Pass criteria
 
 ```text
-[ ] Three seeded runs and the frozen checkpoint-selection rule complete
-[ ] At least 30 held-out state rollouts are saved with explicit terminal results
-[ ] Aggregate and worst-family success gates pass or the skill is marked experimental/failed
-[ ] Invalid, workspace, and joint-limit violations are zero for qualification
-[ ] Level 3.4 failure categories are compared directly, not hidden by aggregate success
+[x] Three seeded runs and the frozen checkpoint-selection rule complete
+[x] At least 30 held-out state rollouts are saved with explicit terminal results
+[x] Aggregate and worst-family success gates pass or the skill is marked experimental/failed
+[x] Zero invalid/workspace/joint-limit violations is enforced for qualification; unsafe policies are failed
+[x] Level 3.4 failure categories are compared directly, not hidden by aggregate success
 ```
 
 Manual verification is required only if the state policy meets numerical
@@ -507,9 +524,103 @@ Pass when all displayed targets match their ids, trajectories remain inside
 the workspace, and visible contact/dwell agrees with the terminal result. Stop
 for user confirmation before marking the policy state-qualified.
 
+Completion evidence: all three baseline and three frozen reference runs finish
+under the unchanged protocol. The 29 candidates receive 3,480 validation
+attempts; every seed selects from validation only. All six selected checkpoints
+receive 120 saved held-out attempts each (30 distinct resets crossed with four
+conditions), for 720 total. All six obtain zero success and are explicitly
+**failed**, with workspace/actuator-limit failures preserved. No policy is
+state-qualified. Manual verification is not required because every numerical
+qualification gate set fails; no owner acceptance is claimed.
+
+The 19 focused tests pass, including two final added guards. Focused reach plus
+documentation checks pass 31 tests. The full suite passed **749 tests, 1 skipped
+in 606.78 seconds** before those two test-only additions, with no subsequent
+implementation changes. Repository-wide Ruff and whitespace checks pass.
+Independent artifact readback verifies all 720 trajectories, file checksums,
+selection rankings, matrix coverage, action/state history and recomputed metrics
+without rerunning physics. Exact commands, per-seed results, historical Level
+3.4 comparisons, artifact paths and limitations are in
+`docs/level5_reach_results.md`.
+
+The pinned Level 3 selected checkpoint has incompatible observation/goal
+semantics, so zero direct Level 4 legacy rollouts are claimed. The frozen
+absolute-action reference is trained separately with otherwise matching
+choices. Existing WorldState reach pose metrics use commanded mocap base pose;
+learner proprioception uses measured free-joint pose. The report preserves this
+limitation. Frozen plan/config hashes, datasets, releases and completed 5.0/5.1
+sections remain unchanged. No perception, correction training, later skill,
+registry or executor was implemented. Stop here; 5.3 is not started.
+
+---
+
+## Level 5.2A — Reach Training Diagnosis and Repair
+
+**Complete — September 17, 2026; owner accepted the reach repair.**
+
+Final implementation: state-based behavior cloning with five calibrated/scaled
+inputs, two 128-unit ReLU hidden layers and two active outputs in the retained
+26-output scaffold. Learned planar progress and vertical movement pass through
+an explicit goal-direction/bounded-step decoder; orientation and joints hold.
+The complete data, masked loss, optimizer, 1,000-epoch budget and runtime
+description is in **Final V5 learning method** in `docs/level5_reach_repair.md`.
+This is a reach-specific method, with no learned RGB perception claim.
+
+### Goal
+
+Explain the failed reach training method with measured training/validation
+comparisons, repair the demonstrated causes, and document the method and its
+limits for later skills. Preserve the completed 5.2 experiment and frozen v1
+protocol. No other skill training is part of this checkpoint.
+
+### Acceptance
+
+- [x] Reproducible diagnosis distinguishes feature scaling, action identifiability,
+      accumulated control error, and checkpoint stopping/selection.
+- [x] A versioned, preregistered validation comparison isolates the proposed fix.
+- [x] All three seeds meet original state success/worst-family/jerk/safety gates
+      on the full validation matrix with complete retained trajectories.
+- [x] Generalization evidence is evaluated only after method selection; previously
+      inspected test cases are disclosed, never relabeled as untouched evidence.
+- [x] Focused tests, full regression checks, artifact integrity and exact commands pass.
+- [x] Future training documentation adopts measured decisions with per-skill caveats.
+- [x] Required manual review passes before state qualification is claimed.
+
+Manual review is required only after the numerical repair gates pass. Preserve
+pending status until owner confirmation. Document exact replay commands and
+criteria with the resulting artifacts.
+
+Automated commands (use the `dexvision` environment):
+
+```bash
+conda run -n dexvision pytest -q tests/test_reach_repair.py tests/test_level5_learning_plan.py
+conda run -n dexvision pytest -q
+conda run -n dexvision ruff check .
+```
+
+Training, screening, validation, confirmation and saved-state review commands
+are recorded with versioned paths in `docs/level5_reach_repair.md`. V5's three
+validation-selected policies pass 120/120 attempts each with zero safety
+violations; selection epochs are 300, 207 and 300. Each also passes 240/240
+fresh confirmation attempts; all 720 pass independent measured pose/dwell
+audit. The full regression suite passes 763 tests with one platform-dependent
+skip; Ruff, hashes and retained-artifact checks pass. The owner accepted the
+review and authorized completion, commit and push on September 17, 2026.
+`docs/level5_reach_acceptance.json` binds that acceptance to all three selected
+V5 model digests without rewriting historical evaluation receipts. The bounded
+state reach gate is complete; perception and registry qualification remain
+future work. Next target is 5.3, which has not started.
+
 ---
 
 ## Level 5.3 — State-Grounded Pick Policy
+
+Before training, apply `docs/level5_training_guidance.md` and retain the reach
+diagnosis as evidence. Audit object-relative geometry, tracking error, finger
+closure, lift height and causal acquire/lift/hold information. Keep required
+closure/orientation outputs active; reach's fixed posture cannot grasp. Freeze
+the pick recipe, scales, active channels and validation candidate schedule.
+Verify actual object acquisition and retention, not hand motion alone.
 
 ### Goal
 
@@ -538,8 +649,8 @@ unwanted contact, jerk, workspace, and joint-limit counters
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config configs/level5/skills/pick_object.yaml
-python -m dexvision.apps.evaluate_skill --config configs/level5/skills/pick_object.yaml --checkpoint <checkpoint> --track state --output-dir outputs/level5/pick_object/state
+python -m dexvision.apps.train_skill --config <versioned-pick-recipe>
+python -m dexvision.apps.evaluate_skill --config <versioned-pick-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-pick-evaluation-directory>
 conda run -n dexvision pytest -q tests/test_pick_skill_training.py tests/test_pick_skill_rollout.py
 ```
 
@@ -562,6 +673,12 @@ confirmation.
 ---
 
 ## Level 5.4 — State-Grounded Place-Held-Object Policy
+
+Apply `docs/level5_training_guidance.md`. Freeze a place-specific recipe with
+held-object-to-target geometry, grasp offset, clearance, retention and causal
+transport/lower/release/settle information. Keep finger release outputs active;
+do not inherit reach's fixed joints. Validate object pose and post-release
+settling independently of the commanded hand endpoint.
 
 ### Goal
 
@@ -590,8 +707,8 @@ safety and unwanted-contact counters
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config configs/level5/skills/place_held_object.yaml
-python -m dexvision.apps.evaluate_skill --config configs/level5/skills/place_held_object.yaml --checkpoint <checkpoint> --track state --output-dir outputs/level5/place_held_object/state
+python -m dexvision.apps.train_skill --config <versioned-place-recipe>
+python -m dexvision.apps.evaluate_skill --config <versioned-place-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-place-evaluation-directory>
 conda run -n dexvision pytest -q tests/test_place_skill_training.py tests/test_place_skill_rollout.py
 ```
 
@@ -613,6 +730,14 @@ scene. Stop for user confirmation.
 ---
 
 ## Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
+
+Apply `docs/level5_training_guidance.md` and freeze separate recipes for push
+and press. Push needs object-to-zone and hand-to-object geometry plus contact
+and object-motion feedback; hand arrival alone is not success. Press needs
+fixture alignment, measured depth and causal press/dwell/retract state, with
+both pressing and release directions. Do not copy reach's positive planar
+progress restriction into either skill without evidence. The earlier
+expert-assisted push probe does not qualify a standalone learned controller.
 
 ### Goal
 
@@ -642,10 +767,10 @@ all: Level 2 seed comparison reported separately from Level 4 generalization
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config configs/level5/skills/push_object_to_target.yaml
-python -m dexvision.apps.train_skill --config configs/level5/skills/press_button.yaml
-python -m dexvision.apps.evaluate_skill --config configs/level5/skills/push_object_to_target.yaml --checkpoint <checkpoint> --track state --output-dir outputs/level5/push_object_to_target/state
-python -m dexvision.apps.evaluate_skill --config configs/level5/skills/press_button.yaml --checkpoint <checkpoint> --track state --output-dir outputs/level5/press_button/state
+python -m dexvision.apps.train_skill --config <versioned-push-recipe>
+python -m dexvision.apps.train_skill --config <versioned-press-recipe>
+python -m dexvision.apps.evaluate_skill --config <versioned-push-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-push-evaluation-directory>
+python -m dexvision.apps.evaluate_skill --config <versioned-press-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-press-evaluation-directory>
 conda run -n dexvision pytest -q tests/test_push_skill_rollout.py tests/test_press_skill_rollout.py
 ```
 
@@ -669,6 +794,11 @@ confirmation.
 ---
 
 ## Level 5.6 — Detector, Tracker, and Metric Pose Baseline
+
+Apply the perception section of `docs/level5_training_guidance.md`: check metric
+frame/calibration/timestamp parity with policy inputs, not just detector scores.
+Preserve split ownership across rendered variants and metric-label consistency
+under augmentation. Freeze confidence/staleness decisions from validation.
 
 ### Goal
 
@@ -738,6 +868,13 @@ and ambiguity is visibly rejected. Stop for user confirmation.
 
 ## Level 5.7 — Perception-Grounded Skill Rollouts
 
+The paired baseline must load the whole selected state-policy bundle: feature
+transform, scales, phase rules, active outputs, decoder and cadence as well as
+weights. Audit derived goals/features/phases for hidden simulator truth.
+Attribute noise, dropout, bias and latency failures on validation before any
+separate robustness-training amendment; retain the unchanged comparison.
+See `docs/level5_training_guidance.md` for the amendment and isolation rules.
+
 ### Goal
 
 Run the selected policies unchanged while the detector/tracker supplies ids and
@@ -787,6 +924,13 @@ terminal result remain consistent. Stop for user confirmation.
 ---
 
 ## Level 5.8 — Corrective Learning and Evidence-Gated Model Escalation
+
+First rule out frame, scale, observation aliasing and action-representation
+errors using `docs/level5_training_guidance.md`. A failed MLP or low offline
+loss alone does not justify a larger model. History must resolve measured
+ambiguity; chunking must address feedback/contact changes and interruption.
+Scripted correction arms retain lineage and use declared sampling/update
+budgets; abort-only failures cannot become expert action targets.
 
 ### Goal
 
@@ -868,6 +1012,9 @@ tests/test_skill_qualification.py
 name and semantic version
 dataset/split/config/schema/checkpoint digests
 observation, goal, and action schemas
+feature transform, calibration, scales, active action mask, and decoder digests
+causal phase/history rules, control interval, and selected-epoch evidence
+learned versus engineered behaviour and any expert assistance
 preconditions and supported object/target ids
 timeout, retryability, safety limits, and terminal conditions
 state/perception metrics and status
@@ -921,6 +1068,7 @@ tests/test_skill_result_contract.py
 
 ```text
 load only qualified, digest-compatible registry entries by default
+load the selected weights together with their exact transform/decoder bundle
 validate parameters, ids, frames, units, and observation freshness
 check preconditions before actions
 enforce action bounds, workspace, joint limits, timeout, and cancellation
@@ -992,6 +1140,13 @@ tests/test_pilot_result_contract.py
 The sequence is deterministic YAML/Python, not generated by an LLM. A human may
 reset between trials but may not repair state between skills.
 
+Before pilot test runs, validate composition on actual predecessor terminal
+states. A scripted standalone start is not evidence that the preceding policy
+produces a supported entry state. Preserve object identity, retention and prior
+applied commands; initialize phase/history from physical state. Reject invalid
+transitions without teleporting, hidden resets or expert rescue. Follow
+`docs/level5_training_guidance.md` for diagnosis and amendment boundaries.
+
 ### Evaluation matrix and gates
 
 ```text
@@ -1057,6 +1212,7 @@ tests/test_level5_release.py
 
 ```text
 per-skill training and checkpoint-selection manifests
+complete selected policy bundles, including transforms/scales/decoders and cadence
 state/perception held-out metrics for every seed and condition
 qualified/experimental/failed registry with negative results
 perception model metrics, license, latency, and hardware use
@@ -1097,7 +1253,8 @@ user confirmation before completing Level 5.
 ```text
 [x] 5.0 Level 3 evidence, model choices, protocols, gates, and artifacts are frozen
 [x] 5.1 loader/training infrastructure is deterministic and resumable
-[ ] 5.2 reach is evaluated against Level 3 failures and Level 5 gates
+[x] 5.2 reach is evaluated against Level 3 failures and Level 5 gates
+[x] 5.2A reach repair receives manual acceptance after passing automated gates
 [ ] 5.3 pick is evaluated across supported object families
 [ ] 5.4 place-held-object is evaluated across targets and held-out goals
 [ ] 5.5 push and press are evaluated; optional dial status is explicit

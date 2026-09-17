@@ -1,6 +1,6 @@
 # DexVision / Hand2Bot Project Overview
 
-Version: September 14, 2026
+Version: September 17, 2026
 
 The repository PDF remains the historical September 8 overview snapshot;
 this Markdown and `docs/CURRENT_STATUS.md` contain the current release status.
@@ -38,8 +38,17 @@ and 114-episode anchor were expanded and audited into 1,112 active nominal,
 failure and correction episodes with 2,633 aligned visual frames. All 74 coverage
 cells pass, splits are frozen, and the immutable Git LFS release passed normal
 clean-clone retrieval alongside the unchanged Level 2 archive. The owner accepted
-delegated restoration and authorized completion. Level 5 has not started.
+delegated restoration and authorized completion.
 See `datasets/level4-v1/README.md` and `docs/CURRENT_STATUS.md` for exact evidence.
+
+Level 5.0–5.2A are complete; 5.2 records failed baseline policies. The 5.2A
+reach repair passes automated validation and fresh confirmation for all three
+selected V5 models, with owner manual acceptance on September 17, 2026.
+Its five-input MLP learns planar progress and vertical movement through an
+explicit geometric decoder; it is state-based and has no learned perception.
+The next target is 5.3 (pick), which has not started. Later skills are
+unimplemented. Their prospective method is documented in
+`docs/level5_training_guidance.md`, with results in `docs/level5_reach_repair.md`.
 
 ## Architecture
 
@@ -58,11 +67,12 @@ future Level 7:
 language request -> typed plan -> deterministic supervisor -> qualified skills
 ```
 
-The initial learned interface is deliberately small. State-grounded policies
-receive task-relative geometry, causal phase, relevant robot state, and previous
-applied action. They emit bounded task-local deltas or residuals around the
-deterministic expert. More expressive temporal models are allowed only after a
-measured failure justifies them.
+The active reach repair consumes calibrated goal-relative geometry, tracking
+lag and commanded height. It predicts bounded progress and vertical deltas
+from the previous applied action, with no expert at execution. Later skills
+must justify their own state/phase inputs, active joints and decoder; reach's
+fixed posture cannot be reused for grasp/release. Expert-assisted residuals
+remain separately labeled, and temporal models require measured evidence.
 
 ## Roadmap
 
@@ -110,13 +120,19 @@ press_button
 The optional dial remains deferred. Level 4 ends with coverage and bias reports,
 frozen train/validation/test manifests, checksums, and an immutable release.
 
-### Level 5 — Full-scale skill learning and qualification (planned)
+### Level 5 — Full-scale skill learning and qualification (complete through 5.2A)
 
 Level 5 trains the smallest justified state-grounded skill policies first. It
 then qualifies conventional rendered detector/tracker/pose perception, measures
 perception-grounded rollouts, and admits only compatible qualified policies to a
 typed supervised executor. Training consumes the immutable scripted release; it
 does not recollect human demonstrations to rescue failures.
+
+Future training follows `docs/level5_training_guidance.md`: audit frames,
+feature scales, phase information and action variation; freeze a versioned
+recipe; select each seed using closed-loop validation. The checksum-locked
+5.0 plan records the original method, not an instruction to repeat its failed
+reach assumptions. More epochs or a larger network alone are not a repair.
 
 The deterministic expert remains a required baseline. A residual policy that
 does not materially beat its zero-residual ablation is not presented as a

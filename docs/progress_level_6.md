@@ -26,6 +26,13 @@ future work, not implemented in this repo. It can live in a separate repository 
 consumes qualified Level 5 policies, task metadata, world-state contracts, and
 skill descriptions exported from DexVision.
 
+Follow [`level5_training_guidance.md`](level5_training_guidance.md) for method
+and artifact semantics. A policy release includes its selected weights,
+feature transform, calibration/scales, active outputs, decoder and control
+cadence. Do not publish an old full-action recipe as the current method or
+describe engineered geometry/expert assistance as learned behaviour. This is
+future documentation guidance, not a claim that Level 5 qualification is done.
+
 ---
 
 ## Level 6.1 — Project README Rewrite
@@ -89,14 +96,21 @@ Create a simple visual pipeline.
 ### Diagram
 
 ```text
-Typed task + simulator world state
-→ deterministic expert
-→ MuJoCo
-→ Demo Dataset
-→ Imitation Policy
-→ Supervised Skill Executor
-→ Evaluation
+Training:
+typed task + simulator state -> scripted expert -> recorded demonstrations
+-> causal features + action targets -> supervised training
+-> closed-loop validation -> selected policy bundle
+
+Runtime:
+typed goal + measured robot state + state/perception entity observations
+-> selected feature transform/scales -> neural network -> action decoder
+-> safety supervisor -> MuJoCo -> new observations and physical success checks
 ```
+
+Show learned outputs, engineered geometry and supervision separately. Expert
+assistance appears at runtime only for an explicitly labeled, qualified
+assisted method. The reach-specific five-input/two-active-output design is an
+example, not the architecture for every future skill.
 
 If future Level 7 is shown, place it outside the DexVision boundary:
 
@@ -207,6 +221,10 @@ Policy:
 ```text
 policy
 dataset
+recipe/decoder version and selected epoch per seed
+standalone versus expert-assisted method
+state versus perception track
+unique physical resets versus repeated condition labels
 success rate
 final distance
 action jerk
@@ -220,6 +238,8 @@ notes
 [ ] Tables included in docs
 [ ] Plots included
 [ ] Failure modes described
+[ ] Every seed, negative result and prior test/family exposure is reported
+[ ] Measured physical success is distinguished from commanded-target metrics
 ```
 
 ### Codex Prompt
@@ -326,6 +346,8 @@ rendered perception overlay
 [ ] Clean-checkout environment creation is tested
 [ ] CI runs lint, unit tests, health check, and headless MuJoCo checks
 [ ] Dependency versions used for published results are captured
+[ ] Clean reload verifies the selected transform/scales/decoder as well as weights
+[ ] Offline/live feature parity and headless action decoding are checked
 [ ] Manual checks documented separately
 [ ] CI-friendly tests do not require webcam/GPU
 ```
@@ -407,6 +429,9 @@ Export demos into a format that can later be adapted to LeRobot-style training.
 [ ] Metadata preserved
 [ ] Observations/actions documented
 [ ] Does not break existing dataset format
+[ ] State-before-action alignment, body frames, units and control cadence preserved
+[ ] Network targets and decoded physical actions are distinguished
+[ ] Split/session ownership, phase masks and correction lineage preserved
 ```
 
 ### Codex Prompt
@@ -485,6 +510,13 @@ open-world scenes or end-to-end VLM control
 These extensions are not prerequisites for a complete portfolio project. The
 stable claim remains the bounded tabletop workcell and its three Level 5
 pilots.
+
+New learners require an explicitly authorized checkpoint and a measured
+failure hypothesis, as described in `docs/level5_training_guidance.md`.
+Compare against the qualified policy bundle under matched splits and validation
+resets; retain a larger/temporal model only for a predeclared improvement with
+unchanged safety gates. The list above does not authorize diffusion, RL,
+hardware or other deferred work by itself.
 
 Pass criteria:
 

@@ -2048,3 +2048,152 @@ checksum-bound `completion_receipt.json`; it validates the archive/manifest
 binding, verified clone commit, legacy retrieval, automated checks and owner
 acceptance fields. The archive and original payload manifest remain unchanged.
 `--require-ready` passes only with that evidence. Level 5 has not started.
+
+---
+
+## Level 5.2 State-Grounded Reach Evaluation
+
+Modules: `dexvision/evaluation/evaluate_skill.py` and
+`dexvision/apps/evaluate_skill.py`.
+
+The evaluator accepts only the frozen `reach_object` state track. Each candidate
+uses the complete validation matrix before `select_checkpoint` applies the
+existing ranking. Test requires `selected.pt`; an exclusive run-local reservation
+prevents repeating the single test evaluation under another output path.
+
+Reach starts at frame zero. Reset metadata comes from checksum-verified release
+bytes; no test action arrays or expert continuation are read. Live 192-value
+features match the causal training layout, including measured free-joint pose,
+named hand state, prior actions/safety, physical phase, selected entity, and
+numeric goal. Baseline actions decode from the previous applied action. The
+frozen absolute-action reference uses identical data, inputs, seeds, sampling,
+selection and reset matrices, with its declared reference head/loss.
+
+Every physical reset executes independently under each of the four condition
+labels. Render-only conditions have no effect on state inputs or physics; this
+track makes no RGB/perception claim. Every attempted rollout retains the initial
+state, requested/commanded/applied action history, safety masks/reasons, named
+observations, state/action timestamps, full qpos/qvel and typed world states,
+terminal metrics and reason. Rejections remain in the denominator with an
+unavailable terminal error. Raw invalid/workspace/actuator-limit predictions
+remain failures even after a finite fallback or clipping. Wrong-entity contact
+and objects leaving the board also fail explicitly.
+
+The existing frozen WorldState reach pose/dwell metric uses the mocap base
+target; the learner's proprioception uses measured free-joint pose. Physical
+object displacement supplies the scene-disturbance metric. Actuator target-limit
+counts follow Level 3; they are not a claim of zero soft-joint qpos overshoot.
+These semantics remain visible in the comparison report.
+
+Reports retain per-seed condition/cell/family/instance/target/session/boundary
+breakdowns, full input/checkpoint and execution-code digests, training curves,
+and historical Level 3 safety categories. The pinned Level 3 checkpoint's
+contact-only xyz goal and legacy observation contract are incompatible with
+Level 4 approach-pose goals; no synthetic adapter or paired transfer claim is
+made. State-only numerical success remains experimental pending the required
+manual and later perception gates. Manual review replays saved states and never
+reruns held-out physics or records owner acceptance automatically. No future
+skill, perception pipeline, runtime registry, correction training or executor
+is implemented here.
+
+---
+
+## Level 5.2A Reach Training Repair
+
+Modules: `dexvision/learning/reach_repair.py`,
+`dexvision/evaluation/reach_repair.py`,
+`dexvision/evaluation/reach_repair_review.py`, and
+`dexvision/apps/repair_reach.py`. Method evidence and limits are documented in
+`docs/level5_reach_repair.md`.
+
+Each repair recipe has its own version and checksum. Historical v1 Level 5
+configs, datasets, labels, models and evaluation artifacts remain unchanged.
+The cache contains only checksum-verified train/validation slices with frozen
+whole-episode/cell ownership. Physical feature scales are fixed by the recipe;
+validation and confirmation cannot fit them. Training runs through the entire
+preregistered budget and retains early, late and best-offline candidates.
+Selection requires full closed-loop validation evidence bound to each candidate.
+
+The V3 reach representation is four physically scaled values: planar goal
+distance, vertical goal error, radial tracking lag and vertical tracking lag.
+Measured forearm pose is converted through the model's frozen weld transform
+into the same body origin as the action command before computing tracking lag.
+This is a rigid coordinate conversion, not a fitted bias correction. The model
+XML and recipe transform must agree. The historical 192-field source schema
+remains readable and unchanged.
+
+The MLP learns planar progress fraction and vertical displacement. The decoder
+constrains planar movement to nonnegative progress toward the goal without
+overshoot. Training proves this constraint and the zero orientation/joint
+deltas before enabling them. The complete 27-field commanded/applied record
+and original safety checks remain mandatory. Zero model output produces zero
+movement. No expert or saved continuation is consulted during inference.
+This reach-specific structure does not authorize fixed joints, fixed
+orientation, or straight planar paths for contact or obstacle-avoidance skills.
+
+The selected method binds a previously frozen fresh-reset manifest. Confirmation
+requires all three full-validation selections to pass and verifies their model
+weights against the evaluated candidates. An exclusive per-run reservation
+prevents repeating confirmation under a new output path. Fresh seeds do not
+make previously evaluated task families unseen; that limitation is explicit.
+All failed attempts remain in metrics and artifacts.
+
+Saved-state audit independently computes physical pose and dwell by converting
+the measured forearm pose into the command frame. It does not integrate physics
+or treat commanded pose as measured pose. Manual review replays saved qpos/qvel
+with the corresponding commands, shows each family/boundary stratum, and leaves
+acceptance pending owner confirmation. Neither the audit nor opening the viewer
+qualifies a policy. Later perception qualification remains a separate checkpoint.
+
+
+V5 is the final automatically verified repair recipe. It adds previous applied
+command height as a fifth input, keeping the calibrated goal-plane decoder.
+Its `SkillMLP` is 5 -> 128/ReLU -> 128/ReLU -> bounded output heads.
+The existing heads retain widths 3/3/2/18 (26 outputs); only coordinates 0 and 1
+are supervised and decoded as planar fraction and normalized vertical delta.
+The other 24 coordinates are masked and ignored, not learned joint control.
+Masked MSE fits scripted expert actions; the decoder supplies planar direction,
+nonnegative progress and no planar overshoot. Inference reads current simulator
+state on every control sample; it uses no RGB, online weight updates, expert
+action query or saved trajectory continuation. The full training recipe and
+input/output units are in **Final V5 learning method** in the method report.
+All three seeds run 1,000 epochs; closed-loop validation selects epochs 300,
+207 and 300. Each passes 120/120 validation and 240/240 fresh confirmation
+attempts with zero safety violations; all saved confirmation trajectories also
+pass physical pose/dwell audit. The owner accepted the review and completion on
+September 17, 2026; `docs/level5_reach_acceptance.json` binds the acceptance to
+the selected model digests. The bounded state reach gate is complete; this
+does not establish perception qualification or default registry admission. Later skills
+must follow the per-skill audit and selection decisions in
+`docs/level5_reach_repair.md`; the reach-specific posture and planar constraints
+must not be copied into contact skills without independent evidence.
+
+---
+
+## Prospective Level 5.3+ Policy Bundle Contract
+
+Planning only; no future loader, skill or executor is implemented by this
+section. `docs/level5_training_guidance.md` is the method amendment for unstarted
+skills. Historical Level 3 and frozen Level 5.0 schemas remain readable and
+unchanged; they do not mandate the same input/output representation for a new
+versioned experiment.
+
+A future skill recipe must explicitly bind the source schema, causal feature
+transform, body-origin calibration, physical scales or training-only statistics
+with justified floors, named active output targets, invariant channels, action
+decoder, phase/history rules and control interval. The selected weights alone
+are not a complete deployable policy. All components and their code/config
+digests travel together through validation, perception, registry and release.
+
+Train/live feature parity, target decoding, zero-output behaviour and raw-action
+safety checks need tests. Do not infer a channel is safely invariant from its
+being absent in one phase; verify training variation and whole-skill semantics.
+Perception may replace the declared entity observation source, but cannot
+secretly use truth in derived goals or phases. Terminal success needs measured
+physical evidence, not only commanded pose. New fields/contracts require a
+versioned recipe and executable support in the appropriate future checkpoint.
+
+Keep the original safety/qualification gates, split isolation and per-seed
+reporting. Freeze a training budget and candidate schedule, then select by full
+closed-loop validation before one-time test/confirmation. Offline-loss patience
+from the historical v1 trainer is not the default for future skill recipes.

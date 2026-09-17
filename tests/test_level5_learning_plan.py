@@ -126,7 +126,17 @@ def test_input_digests_and_config_lock(plan):
         assert relative not in checked
         checked.add(relative)
     expected = {p.relative_to(ROOT).as_posix() for p in (ROOT / "configs/level5").rglob("*.yaml")}
-    assert checked == expected | {"docs/level5_learning_plan.md"}
+    # Owner-requested 5.2A amendments have independent immutable locks; they must
+    # not rewrite the completed 5.0 lock merely to add a new experiment.
+    amendments = set()
+    for path in (ROOT / "configs/level5").glob("reach_repair_v*.yaml"):
+        digest, name = path.with_suffix(".sha256").read_text().strip().split("  ", 1)
+        assert name == path.name
+        relative = path.relative_to(ROOT).as_posix()
+        check({"path": relative, "sha256": digest})
+        assert relative not in checked
+        amendments.add(relative)
+    assert checked | amendments == expected | {"docs/level5_learning_plan.md"}
 
 
 def test_split_ownership_normalization_and_replacement_membership(plan):
