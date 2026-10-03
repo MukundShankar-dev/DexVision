@@ -2197,3 +2197,175 @@ Keep the original safety/qualification gates, split isolation and per-seed
 reporting. Freeze a training budget and candidate schedule, then select by full
 closed-loop validation before one-time test/confirmation. Offline-loss patience
 from the historical v1 trainer is not the default for future skill recipes.
+
+---
+
+## Level 5.3 State-Grounded Pick Policy
+
+Modules: `dexvision/learning/pick_policy.py`,
+`dexvision/learning/phase_losses.py`, and
+`dexvision/evaluation/pick_policy.py`. The existing training/evaluation apps
+dispatch only explicitly versioned pick recipes to these adapters. Method,
+negative attempts and exact commands are in `docs/level5_pick_results.md`.
+
+The pick bundle binds its selected weights to 121 causal features, the verified
+forearm-to-command body-origin transform, fixed physical scales, entry object
+height/orientation, seventeen active outputs, the bounded delta decoder and the
+original control cadence. Current contact-derived retention and measured height
+define acquire/lift/stabilize; saved sequence phases, expert stage and future
+success do not enter policy inputs. Varying closure and orientation channels
+remain active. Nine zero-delta channels are held only after a whole-interval
+training-data invariant check. Zero output holds every command.
+
+A checksum-bound cache preserves whole episode/session/cell ownership and the
+exact frozen pick slices. Source/prior actions must pass a preflight against
+the recipe's safety bounds. Full-budget training retains early/late/best-offline
+candidates; all receive the full validation matrix for each of three seeds.
+One-time test evaluation requires weights identical to the selected candidate
+and an exclusive run-local reservation. Failed and interrupted attempts remain
+available; no test action can become a learned target or a policy continuation.
+
+V1 preserves the diagnosed metadata conflict. V2 explicitly uses the immutable
+Level 4 recorder and task runtime's workspace (`workcell.safe_workspace`, z min
+0.01 m), verified against the frozen config, instead of the generic action
+layout's stale z min 0.08 m. Historical layouts/config locks are unchanged.
+Actuator limits, rate caps, zero-safety and task/jerk thresholds are unchanged;
+jerk keeps its original frozen normalization ranges. This is a versioned binding
+to the original collection-time workspace, not a new wider runtime envelope.
+
+The standalone evaluator replays only the prefix before the exact frozen entry,
+then resets dwell and rejects unsupported, held, distant or stale entries
+without another start search. Scripted setup is excluded from policy metrics.
+Physical success requires correct object contact/retention, measured lift,
+velocity and unsupported stable dwell, plus the original frozen pick metric.
+Every attempted rollout retains raw/applied actions, safety reasons, physical
+states and acquisition/lift/drop/hold results. Background objects intentionally
+parked off the board are distinguished from the selected object. This establishes
+neither learned reach-to-pick composition nor perception qualification. Any
+triggered viewer acceptance remains pending until owner confirmation.
+
+---
+
+## Level 5.3A Pick Repair Amendment
+
+`configs/level5/pick_policy_v3.yaml` freezes a training-proven rank-one closure
+representation. The 26-value MLP interface remains, but output 8 means a signed
+closure fraction increment divided by 0.05; other finger outputs are masked and
+ignored. The decoder supplies the common direction between audited open/closed
+postures and bounds aperture to [0,1]. Targets must reconstruct this direction
+exactly; incompatible prior commands are rejected. This prevents independent
+finger drift while retaining learned closure, lift and three orientation outputs.
+It does not claim independently learned full-hand control or vision.
+
+Source demonstrations used object-orientation overwrites during lifting.
+The repair preserves that source provenance but prohibits those overwrites in
+policy evaluation. A saved-action validation ablation is diagnostic, never a
+policy or confirmation controller. The original 5.3 report remains historical.
+
+The repair app freezes fresh procedural resets before validation selection,
+using only pre-acquisition source prefixes. All entries remain in the evaluation
+denominator, including rejected preconditions. It verifies passing full-matrix
+validation for all three seeds and exact selected weights before reserving a
+single fresh confirmation per run. Exposed original tests are forbidden for
+repair recipes. Fresh seeds do not make exposed families or instances unseen.
+Saved-state audit reconstructs contacts, measured lift and stable dwell without
+physics integration. Review replays saved physical states, and leaves visual
+acceptance to the owner. No later skill is authorized by this amendment.
+
+V4 adds the independently audited compact-geometry variant in
+`dexvision/learning/pick_geometry.py`. Its 28 inputs use prior-command hand-frame
+relative geometry and causal entry context; the latter adds entry command
+height to object height/orientation. Rotation outputs are learned hand-frame
+increments converted back to world. Puck rotation stays fixed only after a
+whole-training invariant check. The decoder prevents lift before full closure,
+keeps closure/lift monotone, and bounds lift by demonstrated family travel.
+At saturated closure/lift bounds the corresponding gains are unidentifiable and
+masked; all recorded actions must still reconstruct exactly. V3 artifacts retain
+their original semantics and failed confirmation. V4 receives its own fresh
+reset manifest and cannot rerun either exposed confirmation as untouched evidence.
+
+
+The separate `pick_setup_v3` protocol corrects fresh-reset approach setup while
+locking all three V4 selected weight hashes. The shared
+`dexvision/sim/scripted_expert_settings.py` resolver preserves the collection
+app's exact settings. The frozen collection expert supplies only open-hand
+approach commands, stopping before acquire. Its copied-state grasp-template
+preflight retains historical orientation assistance on the scratch copy only;
+live setup and policy rollout never overwrite object poses. This limits any
+qualification to scripted family-aware approach starts. The earlier literal
+source-prefix failures remain preserved and are not relabeled as successes.
+
+Fresh validation and confirmation matrices are frozen together before evaluation.
+No reset filtering, replacement, retraining or reselection is allowed. Every seed
+must pass full validation before one reserved confirmation. The guarded setup
+viewer additionally requires all three passing confirmations and matching saved
+physical audits; it replays saved states and includes recorded failure reasons.
+Only the owner can supply manual acceptance. Original families are exposed, and
+no perception, arbitrary-start, skill-composition or deployment claim follows.
+
+
+The owner-authorized teacher amendment adds an explicit ordinary-physics grasp
+mode while preserving historical defaults. `pick_teacher_v2` tests each original
+fallback using the identical controller loop and initial state used live; no
+object-orientation writes occur in either. Its 24/24 development result and the
+unchanged V4 policy's 24/24 diagnostic result motivate `pick_setup_v4`: fixed
+weights, a checksum-bound teacher recipe, and separately frozen fresh validation
+and confirmation. This version replaces scratch orientation assistance with
+ordinary-physics planning but still uses full-state scripted grasp selection
+before entry. No learned-policy command is queried during setup; no expert
+continuation is used after entry. The setup viewer covers nominal/boundary cases
+for every object instance and requires all three numerical and physical audits.
+The approved additive data route is versioned separately below.
+
+
+The additive pick release adapter (`learning/pick_data.py`) verifies compressed
+archive and per-member hashes, preserves original Level 4 ownership documents,
+and declares its separate train/validation episode, session and seed ownership.
+All six instances are now exposed; fresh confirmation establishes only new-reset
+performance. A source scene named pick/place does not imply any completed place
+trajectory. Raw working episodes and old immutable releases remain unchanged.
+
+V5 introduces 29 inputs: V4 geometry plus a causal consecutive full-closure/held
+counter scaled by ten. Three learned scalar outputs control closure increment,
+lift speed and orientation-correction magnitude. The explicit direction decoder
+uses current object versus entry orientation (cuboid full rotation, cylinder axis,
+puck fixed), bounds remaining error and forbids reverse correction. Source-action
+reconstruction and offline/online history parity are required. This is constrained
+state behavior cloning, with engineered directions and bounds, not learned vision.
+
+V5 was stopped before training because the independent V1 source audit found
+191/192 physically passing. MuJoCo's cached derived state after integration gave
+one extra apparent stable sample. Teacher V4 and the prospective V6 policy instead
+use `physical_evidence_world` for terminal evidence: copy MuJoCo data, recompute
+contacts/pose/velocity, and read the resulting world without changing live data,
+warm starts, controller inputs or commands. Original recipes retain their cached
+state semantics. No speed, contact, dwell or safety threshold changes. Data V2
+re-records the same cases in a new immutable archive, preserving V1 and its failure.
+The repair viewer requires every seed's passing numerical result and matching
+complete saved-state audit, covers each instance/boundary and failure reason, and
+leaves acceptance pending owner confirmation.
+
+
+V7 separately freezes binary close/lift gates after the training audit proves
+all active targets are 0 or 1 (closure is always 1). The MLP still emits bounded
+scores, but values above the configured 0.5 midpoint enable the demonstrated
+maximum closing/lift rate. Rate, direction, aperture/travel bounds and the
+full-closure interlock are engineered; zero output holds. Orientation magnitude
+remains continuously learned. Cache construction rejects nonbinary active source
+targets instead of silently quantizing data. The schema names gate scores
+explicitly. Fixed-weight validation diagnostics compare timing with source data;
+they do not qualify models or consume confirmation. V6 failures remain immutable,
+and V7 must complete its own budget, full candidate selection and fresh reset
+confirmation before any owner review.
+
+
+Level 5.3A V7 completion: all three selected policies pass the original bounded
+state pick gates (212/216 fresh confirmation successes each, zero safety
+violations), with 648/648 physical-audit agreements. Owner manual acceptance was
+confirmed October 3, 2026 and is bound to model/recipe/report hashes in
+`docs/level5_pick_acceptance.json`. The six instances are training-exposed and
+scripted family-aware approach/preflight remains required. This is not vision,
+arbitrary-start, composition, default registry or deployment qualification.
+Level 5.4 has not started. Generated weights and run evidence remain saved
+locally in Git-ignored outputs; the completion commit contains source, recipes,
+documentation and additive LFS dataset releases, not a published model release.

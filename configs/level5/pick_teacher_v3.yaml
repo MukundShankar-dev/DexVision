@@ -1,0 +1,38 @@
+version: level5/pick-teacher-v3
+checkpoint: 5.3A
+parent_recipe: configs/level5/pick_policy_v4.yaml
+parent_sha256: 4a9682038ef7c55887815e3cbe8d856ed06ce86b156e0c66445515b8c9480985
+purpose: Owner-authorized feasibility only; no training data until teacher qualifies.
+  Exposed instances are explicitly development cases.
+seed_start: 690260900
+resets_per_cell: 4
+cells:
+- pp_block_small_return_bin_left
+- pp_block_large_return_bin_left
+- pp_cylinder_short_return_bin_left
+- pp_cylinder_tall_return_bin_left
+- pp_puck_light_return_bin_left
+- pp_puck_heavy_return_bin_left
+maximum_actions: 1000
+grasp_overrides:
+  orientation_preservation_policy: ordinary_physics_no_object_pose_writes
+  maximum_object_orientation_deviation_rad: 3.141592653589793
+  maximum_terminal_orientation_error_rad: 3.141592653589793
+orientation_decision: Pick qualification has no orientation preservation requirement.
+  Remove the extra historical teacher-only orientation gate, retaining physical pick,
+  safety, workspace, contact, speed and retention gates unchanged.
+gates:
+  success_min: 0.95
+  worst_family_success_min: 0.9
+  safety_violations_max: 0
+selection: First original fallback candidate passing the identical ordinary-physics
+  live controller loop on a fresh exact initial state. Same 24 development cases for
+  paired comparison; no qualification/confirmation independence claim.
+output_dir: outputs/level5/pick_repair/teacher_v3
+exact_controller_preflight: true
+orientation_reference: skill_entry
+record_causal_features: true
+reference_decision: Capture object orientation immediately before the first acquisition
+  action, matching policy boundary context. Teacher base orientation feedback is the
+  commanded mocap pose, not measured wrist. Record causal pre-action simulator features
+  without expert phase labels in the input.

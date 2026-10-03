@@ -126,10 +126,15 @@ def test_input_digests_and_config_lock(plan):
         assert relative not in checked
         checked.add(relative)
     expected = {p.relative_to(ROOT).as_posix() for p in (ROOT / "configs/level5").rglob("*.yaml")}
-    # Owner-requested 5.2A amendments have independent immutable locks; they must
+    # Reach repair and pick recipes have independent immutable locks; they must
     # not rewrite the completed 5.0 lock merely to add a new experiment.
     amendments = set()
-    for path in (ROOT / "configs/level5").glob("reach_repair_v*.yaml"):
+    recipe_paths = [*(ROOT / "configs/level5").glob("reach_repair_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("pick_policy_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("pick_setup_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("pick_teacher_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("pick_data_v*.yaml")]
+    for path in recipe_paths:
         digest, name = path.with_suffix(".sha256").read_text().strip().split("  ", 1)
         assert name == path.name
         relative = path.relative_to(ROOT).as_posix()

@@ -1,0 +1,51 @@
+version: level5/pick-policy-v1
+checkpoint: '5.3'
+parent_config: configs/level5/skills/pick_object.yaml
+cache_dir: outputs/level5/pick_53_v1/cache
+output_dir: outputs/level5/pick_53_v1
+seeds: [5001, 5002, 5003]
+max_epochs: 200
+candidate_epochs: [20, 80, 200]
+also_include: [best_offline_validation_epoch, last_executed_epoch]
+training_decision: >-
+  18401 training frames from 144 episodes; 72 balanced batches per epoch.
+  Run all 200 epochs (14400 updates per seed) with no offline-loss early stop.
+  Keep the parent 128x128 ReLU MLP, Adam 0.001, batch 256 and uniform
+  cell/episode/frame sampling. Causal contact/height phases and finger aperture
+  disambiguate acquisition/lift. Report phase errors without additional weights
+  in this first pick experiment; no correction data or larger model.
+position_scale_m: 0.1
+other_feature_scale: 1.0
+lift_height_m: 0.04
+invariant_tolerance: 1.0e-12
+output_scales: [0, 0, 0.04, 0.15, 0.15, 0.15, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+action_decision: >-
+  Training independently proves zero planar command, wrist and listed abduction
+  deltas across the entire pick interval. Hold only those channels. Learn vertical
+  motion, all three rotation axes and 13 varying finger channels. Fixed output
+  scales resolve the 0.001m lift step and <=0.02rad orientation feedback without
+  empirically tiny divisors. Active channels permit positive and negative deltas.
+  Zero model output holds every command. No expert action at inference.
+phase_decision: >-
+  Recompute acquire/lift/stabilize from current contact-derived held state and
+  object height relative to the entry height; never use sequence transport labels
+  or the scripted controller's stage. Closure remains supervised before contact.
+  Initial object height and rotation are causal entry context, retained throughout.
+preconditions:
+  maximum_grasp_site_distance_m: 0.06
+  require_supported: true
+  require_unheld: true
+  entry_rule: exact_parent_start_frame_no_search
+  approach_definition: measured_grasp_site_within_6cm_of_selected_object_center
+terminal:
+  minimum_height_m: 0.04
+  consecutive_samples: 10
+  maximum_speed_mps: 0.02
+  maximum_retention_gap_samples: 5
+  evidence: two_distinct_hand_contact_bodies_and_measured_object_height_motion
+  no_table_support_at_success: true
+selection: full_parent_validation_matrix_each_candidate_each_seed
+confirmation: single_parent_test_matrix_after_validation_selection_each_seed
+safety: unchanged_parent_limits_and_raw_action_checks
+render_conditions: independent_physics_runs_no_RGB_or_perception_claim
+weld_relpose: [-0.33701, 0.0, 0.045, 0.7071067811865476, 0.0, 0.7071067811865476, 0.0]

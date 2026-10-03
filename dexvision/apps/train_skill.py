@@ -11,6 +11,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--release-root", type=Path, help="Verified extracted release root; defaults to immutable archive")
+    parser.add_argument("--cache-dir", type=Path, help="Verified cache for a versioned pick recipe")
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--seed", type=int)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
@@ -19,13 +20,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--stop-after-steps", type=int, help="Checkpoint and stop after this many steps; resume retains the frozen epoch budget")
     args = parser.parse_args(argv)
-    print(f"DexVision Level 5.1 skill training: {args.config}", flush=True)
+    print(f"DexVision skill training: {args.config}", flush=True)
     try:
-        from dexvision.learning.train_skill import run_training_command
+        import yaml
+
+        if yaml.safe_load(args.config.read_text()).get("version") in {"level5/pick-policy-v1", "level5/pick-policy-v2", "level5/pick-policy-v3", "level5/pick-policy-v4", "level5/pick-policy-v5", "level5/pick-policy-v6", "level5/pick-policy-v7"}:
+            from dexvision.learning.pick_policy import train_pick as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        else:
+            from dexvision.learning.train_skill import run_training_command
+            if args.cache_dir is not None:
+                raise ValueError("--cache-dir requires a versioned pick recipe")
+            extra = {}
 
         result = run_training_command(args.config, release_root=args.release_root, output_dir=args.output_dir,
             seed=args.seed, device=args.device, model=args.model, dry_run=args.dry_run, resume=args.resume,
-            stop_after_steps=args.stop_after_steps)
+            stop_after_steps=args.stop_after_steps, **extra)
     except (ImportError, OSError, ValueError, KeyError, RuntimeError) as exc:
         print(f"ERROR: {exc}. Use the dexvision Conda environment and verified release files.", file=sys.stderr)
         return 2

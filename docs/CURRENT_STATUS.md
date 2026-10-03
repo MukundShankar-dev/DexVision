@@ -20,47 +20,54 @@ Level 5 — Workcell Skill Learning and Qualification
 
 ## Last Completed Checkpoint
 
-Level 5.2A — Reach Training Diagnosis and Repair
+Level 5.3A — Pick Training Diagnosis and Repair
 
-Completed September 17, 2026 after the owner accepted the reach review and
-authorized completion, commit and push. Acceptance and selected model digests
-are recorded in `docs/level5_reach_acceptance.json`. All three V5 seeds pass
-120/120 validation and 240/240 fresh confirmation attempts, with zero safety
-violations, passing jerk gates and independently verified physical pose/dwell.
-The bounded state-grounded reach repair is accepted. Perception qualification,
-registry admission and other skills remain future work.
+Completed October 3, 2026 with automated gates and owner manual acceptance.
+The owner confirmed “Manual review passed” and subsequently authorized commit
+and push. `docs/level5_pick_acceptance.json` binds acceptance to the selected
+V7 artifacts. Original 5.3 remains a completed negative experiment; all failed
+repairs and datasets are preserved. No further manual verification is needed.
 
-V5 uses five calibrated/scaled inputs, two 128-unit ReLU layers and two active
-outputs in the retained 26-output scaffold. The network learns planar progress
-and vertical movement; the decoder supplies goal direction and fixed posture.
-All seeds trained for 1,000 epochs; validation selected epochs 300, 207 and 300.
-The full suite passed 763 tests with one skip; Ruff, original config locks,
-artifact integrity and release checks passed. See `docs/level5_reach_repair.md`
-for exact commands, method, negative attempts and fresh-reset limitations.
+V7 completes three 200-epoch / 14,400-update runs. Full validation selects
+epochs 138, 20 and 80, each passing 192/192. One-time fresh confirmation passes
+212/216 for every seed with zero safety violations, 94.4444% worst-family
+success, 1.85185% drops and passing jerk. All 648 saved-state audits agree with
+the reported physical outcomes, including the retained small-block drop.
 
-The original 5.2 negative experiment remains complete and preserved in
-`docs/level5_reach_results.md`. Historical protocols, completed 5.0/5.1 sections,
-datasets and release archives are unchanged. Working outputs remain ignored.
+The owner-authorized additive V2 release contains 144 training and 48 validation
+episodes, all independently physically verified. It preserves V1 and its failed
+191/192 audit, all original datasets/config locks and earlier failed repairs
+through V6. V7 uses binary close/lift scores plus learned orientation magnitude;
+rates, directions, posture synergy and bounds are engineered. All six instances
+are exposed, and scripted approach/preflight is required. No vision, arbitrary
+starts, composition, registry or deployment qualification is claimed.
+
+Full regression: 808 passed, one skipped; focused V7 tests: 46 passed. Ruff,
+artifact/bundle integrity, current execution-code hashes, original config locks,
+archive checksums and LFS attributes pass. Exact commands, limitations, numerical
+results, physical audits and manual pass/fail criteria are in
+`docs/level5_pick_repair.md` and `docs/level5_pick_repair_verification.json`.
+Last Completed is 5.3A; Next Target is 5.4, which has not started.
+
+Training checkpoints and run artifacts remain saved locally under
+`outputs/level5/pick_repair/v7/`, including each seed’s `selected.pt`, `last.pt`,
+`best_offline.pt`, validation candidates, configuration/scaling snapshots,
+training manifests, selections, confirmation trajectories and physical audits.
+These generated outputs are Git-ignored and are not included in this push.
+Source, versioned recipes, documentation, acceptance/digest records and the two
+additive dataset release archives (Git LFS) are included. A clone alone will not
+restore local trained weights; model release publication is a later checkpoint.
 
 ---
 
 ## Next Target Checkpoint
 
-Level 5.3 — State-Grounded Pick Policy
+Level 5.4 — State-Grounded Place-Held-Object Policy
 
-Not started. Read `docs/level5_training_guidance.md` before selecting this
-checkpoint. Freeze a pick-specific recipe after auditing frames, scales,
-closure/orientation outputs and causal acquire/lift/hold state. Do not copy
-reach's fixed joints or blindly inherit the historical v1 early-stop recipe.
-Completion of 5.2A does not authorize automatically starting 5.3 in this task.
-
-At the owner's September 17 request, future-stage documentation was audited.
-`docs/level5_training_guidance.md` now supplies prospective per-skill training,
-selection, perception and deployment guidance for Levels 5.3–7. Future command
-templates require new versioned recipes instead of silently inheriting the
-historical full-action/scaling/early-stop settings. This is documentation only;
-frozen protocols and completed sections are preserved, 5.2A is now complete, and
-no later checkpoint is implemented or marked complete.
+Not started. Stop after the 5.3A completion commit and push; do not implement
+5.4 without a new task. Its scope and acceptance criteria remain in
+`docs/progress_level_5.md`. Freeze a place-specific recipe before training as
+required by `docs/level5_training_guidance.md` and `docs/module_contracts.md`.
 
 ---
 
@@ -71,6 +78,22 @@ no later checkpoint is implemented or marked complete.
 ---
 
 ## Manual Verification Status
+
+Level 5.3A V7 owner manual acceptance was confirmed on October 3, 2026 with
+“Manual review passed.” `docs/level5_pick_acceptance.json` binds that statement
+to the three selected models, recipe, confirmation reports and physical audits.
+All three numerical confirmations and 648 saved-state physical audits pass; the
+known small-block drop remains a failed attempt. No manual check remains.
+The owner authorized the completion commit and push. Last Completed is 5.3A
+and Next Target is 5.4; Level 5.4 has not started. Original automated
+receipts retain their historical pending status; owner acceptance is separate.
+
+Level 5.3 is complete with automated verification and a negative qualification
+result. All three selected policies fail the numerical gates, so no manual
+viewer check is required or outstanding. No owner acceptance, human observation,
+state qualification or registry admission is claimed. The guarded viewer path
+and exact pass/fail criteria remain documented in `docs/level5_pick_results.md`;
+it refuses these failed reports. All failed policies and attempts are preserved.
 
 Level 5.2A owner manual acceptance was confirmed on September 17, 2026, following
 the owner's earlier "Look okay to me" review and subsequent completion request.
@@ -85,8 +108,9 @@ Exact viewer commands, pass/fail criteria, method evidence and limitations are
 in `docs/level5_reach_repair.md`. The selected V5 policies pass the bounded
 state-grounded reach gate, including owner acceptance. No perception or default
 registry qualification is claimed. No manual check remains for 5.2A; 5.3 has
-not started. Historical automated receipts retain their original pending
-manual status; the later owner acceptance is a separate record.
+since completed with failed numerical gates and no manual acceptance. Historical
+automated receipts retain their original pending manual status; the later owner
+acceptance is a separate record.
 
 Level 5.2 is complete with automated verification and an explicit negative
 qualification result. Every selected policy fails the state numerical gates,

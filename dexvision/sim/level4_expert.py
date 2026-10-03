@@ -595,13 +595,12 @@ class DeterministicGraspLiftConfig:
             raise Level4ExpertError(
                 "grasp minimum acquisition contacts must not exceed eight."
             )
-        if (
-            self.orientation_preservation_policy
-            != "shape_aware_hammer_grip_with_world_orientation_hold"
-        ):
+        if self.orientation_preservation_policy not in {
+            "shape_aware_hammer_grip_with_world_orientation_hold",
+            "ordinary_physics_no_object_pose_writes",
+        }:
             raise Level4ExpertError(
-                "grasp orientation preservation must use the shape-aware hammer grip "
-                "with a world-orientation hold."
+                "grasp orientation policy must explicitly declare historical hold or ordinary physics."
             )
         if (
             self.maximum_terminal_orientation_error_rad
@@ -1808,6 +1807,7 @@ class DeterministicGraspLiftExpert:
         open_finger_targets: Mapping[str, float],
         closed_finger_targets: Mapping[str, float],
         config: DeterministicGraspLiftConfig,
+        validate_on_reset: bool = True,
     ) -> None:
         if tuple(open_finger_targets) != tuple(closed_finger_targets):
             raise Level4ExpertError(
@@ -1827,6 +1827,7 @@ class DeterministicGraspLiftExpert:
             str(name): float(value) for name, value in closed_finger_targets.items()
         }
         self.config = config
+        self._validate_on_reset = validate_on_reset
         self._names = level4_action_names(tuple(self._open_targets))
         self._task: object | None = None
         self._template: GraspFamilyTemplate | None = None
@@ -1870,7 +1871,11 @@ class DeterministicGraspLiftExpert:
         return self._validation
 
     def reset(self, task: object, world_state: WorldState) -> None:
-        """Resolve the object-relative family template and validate a copied run."""
+        """Resolve a family template; the default validates a copied run.
+
+        Disabling this legacy preflight is reserved for callers that execute and
+        verify the identical controller loop separately before live use.
+        """
 
         goal = getattr(task, "goal", None)
         if getattr(task, "skill_name", None) != "pick_object" or not isinstance(
@@ -1953,7 +1958,7 @@ class DeterministicGraspLiftExpert:
             closed_finger_targets=self._closed_targets,
             template=template,
             config=self.config,
-        )
+        ) if self._validate_on_reset else WaypointValidationResult(True, None, 0, 0.0)
         if not self._validation.valid:
             self._terminal_reason = self._validation.reason
 
@@ -3179,7 +3184,8 @@ def validate_grasp_lift_trajectory_on_copy(
                 orientation_quat=orientation,
             )
             scratch.env.set_joint_targets(targets)
-            if hold_orientation:
+            if (hold_orientation and config.orientation_preservation_policy
+                    == "shape_aware_hammer_grip_with_world_orientation_hold"):
                 state = _step_with_orientation_hold(
                     scratch,
                     object_id=object_id,

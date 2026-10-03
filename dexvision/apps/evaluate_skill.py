@@ -1,4 +1,4 @@
-"""Evaluate the frozen Level 5.2 state-grounded reach policy."""
+"""Evaluate a frozen state-grounded reach or versioned pick policy."""
 from __future__ import annotations
 
 import argparse
@@ -21,9 +21,16 @@ def main(argv=None):
     parser.add_argument("--viewer", action="store_true")
     parser.add_argument("--scenario-set", choices=("manual_stratified",))
     args = parser.parse_args(argv)
-    print(f"DexVision Level 5.2 reach evaluation: {args.config} ({args.track})", flush=True)
+    print(f"DexVision skill evaluation: {args.config} ({args.track})", flush=True)
     try:
-        from dexvision.evaluation.evaluate_skill import run_evaluation_command
+        import yaml
+
+        if yaml.safe_load(args.config.read_text()).get("version") in {"level5/pick-policy-v1", "level5/pick-policy-v2", "level5/pick-policy-v3", "level5/pick-policy-v4", "level5/pick-policy-v5", "level5/pick-policy-v6", "level5/pick-policy-v7"}:
+            from dexvision.evaluation.pick_policy import run_pick_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError("Reach comparison is not supported for pick recipes")
+        else:
+            from dexvision.evaluation.evaluate_skill import run_evaluation_command
 
         if args.compare_runs:
             from dexvision.evaluation.evaluate_skill import compare_reach_runs

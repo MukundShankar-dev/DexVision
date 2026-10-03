@@ -1,0 +1,195 @@
+version: level5/pick-policy-v6
+checkpoint: 5.3A
+parent_config: configs/level5/skills/pick_object.yaml
+cache_dir: outputs/level5/pick_repair/v6/cache
+output_dir: outputs/level5/pick_repair/v6
+seeds:
+- 5001
+- 5002
+- 5003
+max_epochs: 200
+candidate_epochs:
+- 20
+- 80
+- 200
+also_include:
+- best_offline_validation_epoch
+- last_executed_epoch
+training_decision: 144 additive unassisted training episodes; 48 separate validation
+  episodes, six exposed object instances. Parent 128x128 ReLU MLP, Adam0.001, balanced
+  sampling, batch256, 200 full epochs without offline early stopping. Select epochs20/80/best-offline/200
+  by the complete 192-attempt validation matrix for each seed. Freeze fresh confirmation
+  before training/selection.
+position_scale_m: 0.1
+other_feature_scale: 1.0
+lift_height_m: 0.04
+invariant_tolerance: 1.0e-12
+output_scales:
+- 0
+- 0
+- 0.04
+- 0.15
+- 0.15
+- 0.15
+- 0
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 1
+- 0
+- 1
+- 1
+action_decision: 'Three learned scalars: closure increment, lift speed, orientation
+  correction magnitude. Engineered closure synergy, positive lift with full-closure
+  interlock and family travel bounds, plus causal geometric orientation direction
+  toward entry reference (cuboid full rotation, cylinder axial, puck fixed). Correction
+  never exceeds remaining error or0.02001rad per sample. No expert commands or object-state
+  writes at inference. Targets reconstruct source within2e-6rad; this tolerance discloses
+  the legacy teacher quaternion-interpolation approximation.'
+phase_decision: Recompute acquire/lift/stabilize from current contact-derived held
+  state and object height relative to the entry height; never use sequence transport
+  labels or the scripted controller's stage. Closure remains supervised before contact.
+  Initial object height and rotation are causal entry context, retained throughout.
+preconditions:
+  maximum_grasp_site_distance_m: 0.06
+  require_supported: true
+  require_unheld: true
+  entry_rule: exact_parent_start_frame_no_search
+  approach_definition: measured_grasp_site_within_6cm_of_selected_object_center
+terminal:
+  minimum_height_m: 0.04
+  consecutive_samples: 10
+  maximum_speed_mps: 0.02
+  maximum_retention_gap_samples: 5
+  evidence: two_distinct_hand_contact_bodies_and_measured_object_height_motion
+  no_table_support_at_success: true
+selection: full_parent_validation_matrix_each_candidate_each_seed
+confirmation:
+  fresh_reset_seed_start: 780260900
+  resets_per_source_cell: 3
+  source_cells: all original test matrix cells
+  conditions: all original four conditions
+  reservation: one-time after all three full validation selections pass
+  disclosure: All prior pick tests and confirmations are exposed and preserved. All
+    six instance types occur in the new training amendment. These are fresh randomized
+    resets in exposed families/instances, not unseen-instance evidence. Preflight
+    uses ordinary-physics full-state scripted grasp selection; learned control is
+    evaluated only after that bounded approach. No retraining or selection after this
+    one-time confirmation.
+  setup_mode: unassisted_exact_teacher
+safety: Preserve frozen Level 4 recording runtime workspace and original actuator/rate
+  limits; zero violations remains required.
+render_conditions: independent_physics_runs_no_RGB_or_perception_claim
+weld_relpose:
+- -0.33701
+- 0.0
+- 0.045
+- 0.7071067811865476
+- 0.0
+- 0.7071067811865476
+- 0.0
+workspace_authority: frozen_level4_recording_runtime
+workspace_bounds:
+  min:
+  - -0.18
+  - -0.18
+  - 0.01
+  max:
+  - 0.22
+  - 0.18
+  - 0.24
+supersedes: V5 stopped untrained after one cached-state source success failed the
+  saved-state audit (191/192). V6 retains the same model, representation, budget and
+  frozen collection cases; teacher V4 and policy terminal evidence recompute current
+  physical state on a separate copy. New data V2 preserves V1 and all failures. New
+  confirmation was frozen before any V6 training or selection.
+closure:
+  open_targets:
+  - 0.0
+  - 0.0
+  - 0.2
+  - 0.1
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.1
+  - 0.0
+  - -0.15
+  - 0.05
+  closed_targets:
+  - 0.0
+  - 0.0
+  - 0.65
+  - 0.9
+  - 0.0
+  - 0.3
+  - 1.05
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.35
+  - 0.0
+  - 1.2
+  - 2.25
+  maximum_step: 0.05
+  derivation: Training-only rank-one action audit; full residual rejection at cache
+    generation. Learn signed closure increment, bound remaining aperture to [0,1];
+    zero output holds.
+source_physics_disclosure: Data V2 repeats the same 192 V1 cases without replacement
+  using unassisted exact-loop teacher V4 and post-integration physical evidence. No
+  object pose writes after reset in scratch or live runs. All six instances are exposed.
+  Causal controller inputs retain original timing; terminal evidence is independently
+  recomputed.
+geometry:
+  maximum_lift_m:
+  - 0.08
+  - 0.1
+  - 0.11
+  feature_decision: V4 compact28 causal geometry inputs plus consecutive full-closure/held
+    observation count divided by10 and capped at1. This counter uses only present
+    and preceding policy observations; no expert phase labels or future frames.
+  target_decision: Independently re-audit monotone closure/lift, full-closure interlock,
+    family lift bounds and fixed puck rotation on the new data. Replace free rotation-vector
+    prediction with learned magnitude and explicit audited correction direction. Mask
+    only directionless orientation targets; preserve all source records unchanged.
+closed_contact_scale: 10
+unassisted_dataset:
+  version: level5/pick-unassisted-data-v2
+  manifest: datasets/level5-pick-unassisted-v2_manifest.json
+  manifest_sha256: a938f53cb76ee597c97e030d3f12d23c902cb14347e0e8b18524230a315722d0
+  archive_sha256: 8b050164d3b09fa6817721e3d2378eadb79f0dcb7267e7e84cc11f61dca499b3
+orientation_feedback:
+  maximum_step_rad: 0.02001
+  reconstruction_tolerance_rad: 2.0e-06
+  unidentifiable_error_rad: 1.0e-08
+teacher_recipe: configs/level5/pick_teacher_v4.yaml
+teacher_recipe_sha256: 8994d5cb9674ce1ed2e7848254c76e5865ed6965a8a515bb60d4c525d3fb7fad
+physical_evidence_state: recomputed_post_integration_copy
+source_physical_audit: outputs/level5/pick_repair/data_v2/physical_audit

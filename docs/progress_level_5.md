@@ -609,11 +609,23 @@ review and authorized completion, commit and push on September 17, 2026.
 `docs/level5_reach_acceptance.json` binds that acceptance to all three selected
 V5 model digests without rewriting historical evaluation receipts. The bounded
 state reach gate is complete; perception and registry qualification remain
-future work. Next target is 5.3, which has not started.
+future work. At that completion handoff, 5.3 was the unstarted next target.
 
 ---
 
 ## Level 5.3 — State-Grounded Pick Policy
+
+**Complete — September 17, 2026, with negative state qualification.**
+Three seeds completed 200 epochs and four full candidate validation matrices
+each. Validation selected epochs 200, 80 and 20. One-time held-out tests achieved
+136/216, 120/216 and 140/216 successes; all fail success/drop/safety gates and
+remain **failed**. No manual verification is required after this negative result.
+The full suite passes 775 tests with one skip; Ruff, recipe/config locks, release
+integrity and artifact checks pass. V1's workspace metadata conflict and all
+negative attempts remain preserved; v2 binds the original recorded runtime
+workspace. See [`level5_pick_results.md`](level5_pick_results.md) and
+[`level5_pick_verification.json`](level5_pick_verification.json). No future skill,
+perception qualification, registry admission or owner acceptance is claimed.
 
 Before training, apply `docs/level5_training_guidance.md` and retain the reach
 diagnosis as evidence. Audit object-relative geometry, tracking error, finger
@@ -630,7 +642,12 @@ lift, and stability phases for the three supported rigid-object families.
 ### Files
 
 ```text
-configs/level5/skills/pick_object.yaml
+configs/level5/pick_policy_v1.yaml and .sha256 (preserved diagnostic)
+configs/level5/pick_policy_v2.yaml and .sha256
+dexvision/learning/pick_policy.py
+dexvision/evaluation/pick_policy.py
+docs/level5_pick_results.md
+docs/level5_pick_verification.json
 dexvision/learning/phase_losses.py
 tests/test_pick_skill_training.py
 tests/test_pick_skill_rollout.py
@@ -649,19 +666,23 @@ unwanted contact, jerk, workspace, and joint-limit counters
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config <versioned-pick-recipe>
-python -m dexvision.apps.evaluate_skill --config <versioned-pick-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-pick-evaluation-directory>
+python -m dexvision.apps.train_skill --config configs/level5/pick_policy_v2.yaml --seed 5001 --release-root .
+python -m dexvision.apps.evaluate_skill --config configs/level5/pick_policy_v2.yaml --checkpoint outputs/level5/pick_53_v2/seed_5001/selected.pt --track state --release-root . --output-dir outputs/level5/pick_53_v2/test_5001
 conda run -n dexvision pytest -q tests/test_pick_skill_training.py tests/test_pick_skill_rollout.py
 ```
+
+Run each training/selection/test command for seeds 5001, 5002 and 5003.
+Full candidate-selection commands and exact viewer criteria are in the result
+report; test requires a validation-selected checkpoint and runs only once.
 
 ### Pass criteria
 
 ```text
-[ ] Held-object success is recomputed from contact/object motion, not predicted action
-[ ] Internal phase outcomes remain visible in every report
-[ ] Failed acquisitions, slips, drops, and worst-family results are retained
-[ ] Required success/drop/safety gates pass or status is experimental/failed
-[ ] Held-out object instances never influence checkpoint selection
+[x] Held-object success is recomputed from contact/object motion, not predicted action
+[x] Internal phase outcomes remain visible in every report
+[x] Failed acquisitions, slips, drops, and worst-family results are retained
+[x] Required success/drop/safety gates pass or status is experimental/failed
+[x] Held-out object instances never influence checkpoint selection
 ```
 
 Manual verification is required only after numerical gates pass. Use the same
@@ -669,6 +690,53 @@ evaluation command with `--viewer --scenario-set manual_stratified`. Pass when
 one rollout per object family visibly acquires the correct object, clears the
 lift height, and holds without table penetration or hidden reset. Stop for user
 confirmation.
+
+---
+
+## Level 5.3A — Pick Training Diagnosis and Repair
+
+**Complete — October 3, 2026: automated gates and owner manual acceptance pass;
+the owner authorized the completion commit and push.**
+The completed 5.3 negative result and all failed repairs through V6 remain
+preserved. The owner approved the versioned unassisted expert/data amendment.
+Source V1's 191/192 physical audit failure is retained; corrected V2 repeats all
+192 frozen cases and passes independent physical verification without replacing
+resets or overwriting original data. Teacher V4 uses ordinary physics and
+recomputed post-integration evidence on a separate state copy.
+
+V7's state MLP emits binary close/lift gate scores and continuous orientation
+magnitude. Rates, posture synergy, geometric direction and bounds are engineered;
+closure targets are constant one. Its causal 29-feature transform, decoder,
+scales, selected weights and cadence remain a single bound bundle. No expert
+continuation or object pose writes assist the learned rollout. All instances
+are exposed and scripted family-aware approach/preflight remains required.
+
+### Acceptance
+
+- [x] Training/validation diagnosis and separate checksum-locked recipe recorded.
+- [x] Causal transform, target/decoder parity, zero-action and safety tests pass.
+- [x] V7 completes all three training budgets and all full validation selections.
+- [x] One-time fresh confirmation passes all unchanged gates for all three seeds.
+- [x] All 648 saved physical outcomes pass independent reconstruction audit.
+- [x] Owner manual review accepted October 3, 2026 (“Manual review passed”);
+  selected artifact hashes are recorded in `docs/level5_pick_acceptance.json`.
+
+All three runs complete 200 epochs / 14,400 updates. Full candidate validation
+selects epochs 138/20/80, each at 192/192. Each fresh confirmation passes 212/216,
+with zero safety violations, worst-family success 94.4444%, drop rate 1.85185%
+and passing jerk. One small-block reset drops under all four conditions for all
+seeds; those failures remain visible and are included in owner review. These are
+54 unique fresh starts per seed, not unseen-instance or perception evidence.
+
+Full regression: 808 passed, one skipped; focused checks: 46 passed. Ruff,
+original locks, archive hashes, LFS attributes and model/report/code integrity
+pass. Exact commands, methods, failed attempts, selected digests and manual
+pass/fail criteria are in `docs/level5_pick_repair.md` and its verification JSON.
+Owner manual acceptance is recorded; no further manual check is needed.
+Last Completed is 5.3A; Next Target is 5.4. No 5.4, registry, deployment or later
+checkpoint work is started. Saved training artifacts remain local under
+`outputs/level5/pick_repair/v7/` (Git-ignored); this commit publishes source,
+recipes, evidence documentation and dataset archives, not the trained weights.
 
 ---
 
@@ -1255,7 +1323,8 @@ user confirmation before completing Level 5.
 [x] 5.1 loader/training infrastructure is deterministic and resumable
 [x] 5.2 reach is evaluated against Level 3 failures and Level 5 gates
 [x] 5.2A reach repair receives manual acceptance after passing automated gates
-[ ] 5.3 pick is evaluated across supported object families
+[x] 5.3 pick is evaluated across supported object families
+[x] 5.3A pick repair passes automated gates and owner manual acceptance
 [ ] 5.4 place-held-object is evaluated across targets and held-out goals
 [ ] 5.5 push and press are evaluated; optional dial status is explicit
 [ ] 5.6 detector/tracker/pose pipeline meets frozen visual gates

@@ -1,0 +1,160 @@
+version: level5/pick-policy-v3
+checkpoint: 5.3A
+parent_config: configs/level5/skills/pick_object.yaml
+cache_dir: outputs/level5/pick_repair/v3/cache
+output_dir: outputs/level5/pick_repair/v3
+seeds:
+- 5001
+- 5002
+- 5003
+max_epochs: 200
+candidate_epochs:
+- 20
+- 80
+- 200
+also_include:
+- best_offline_validation_epoch
+- last_executed_epoch
+training_decision: 18401 training frames from 144 episodes; 72 balanced batches per
+  epoch. Run all 200 epochs (14400 updates per seed) with no offline-loss early stop.
+  Keep the parent 128x128 ReLU MLP, Adam 0.001, batch 256 and uniform cell/episode/frame
+  sampling. Causal contact/height phases and finger aperture disambiguate acquisition/lift.
+  Report phase errors without additional weights in this first pick experiment; no
+  correction data or larger model.
+position_scale_m: 0.1
+other_feature_scale: 1.0
+lift_height_m: 0.04
+invariant_tolerance: 1.0e-12
+output_scales:
+- 0
+- 0
+- 0.04
+- 0.15
+- 0.15
+- 0.15
+- 0
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 0
+- 1
+- 1
+- 1
+- 0
+- 1
+- 1
+action_decision: Learn vertical delta, three rotation deltas and one signed closure
+  fraction increment (output8, max .05/sample). Decoder supplies audited closure direction
+  and no aperture overshoot. Other varying finger coordinates masked because exactly
+  rank one across training; closure stays learned. Hold original nine invariant channels.
+  No object orientation hold or expert control at inference.
+phase_decision: Recompute acquire/lift/stabilize from current contact-derived held
+  state and object height relative to the entry height; never use sequence transport
+  labels or the scripted controller's stage. Closure remains supervised before contact.
+  Initial object height and rotation are causal entry context, retained throughout.
+preconditions:
+  maximum_grasp_site_distance_m: 0.06
+  require_supported: true
+  require_unheld: true
+  entry_rule: exact_parent_start_frame_no_search
+  approach_definition: measured_grasp_site_within_6cm_of_selected_object_center
+terminal:
+  minimum_height_m: 0.04
+  consecutive_samples: 10
+  maximum_speed_mps: 0.02
+  maximum_retention_gap_samples: 5
+  evidence: two_distinct_hand_contact_bodies_and_measured_object_height_motion
+  no_table_support_at_success: true
+selection: full_parent_validation_matrix_each_candidate_each_seed
+confirmation:
+  fresh_reset_seed_start: 530260900
+  resets_per_source_cell: 3
+  source_cells: all original test matrix cells
+  conditions: all original four conditions
+  reservation: one-time after all three full validation selections pass
+  disclosure: Original pick test results exposed. Fresh resets in previously exposed
+    instance/family cells; not unseen-family evidence. No source test continuation
+    used.
+safety: Preserve frozen Level 4 recording runtime workspace and original actuator/rate
+  limits; zero violations remains required.
+render_conditions: independent_physics_runs_no_RGB_or_perception_claim
+weld_relpose:
+- -0.33701
+- 0.0
+- 0.045
+- 0.7071067811865476
+- 0.0
+- 0.7071067811865476
+- 0.0
+workspace_authority: frozen_level4_recording_runtime
+workspace_bounds:
+  min:
+  - -0.18
+  - -0.18
+  - 0.01
+  max:
+  - 0.22
+  - 0.18
+  - 0.24
+supersedes: V1/V2 preserved unchanged. V3 tests a single learned closure increment
+  on the independently proven training synergy, with unchanged features, vertical/rotation
+  channels, optimizer and budget.
+closure:
+  open_targets:
+  - 0.0
+  - 0.0
+  - 0.2
+  - 0.1
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.0
+  - -0.15
+  - 0.05
+  - 0.1
+  - 0.0
+  - -0.15
+  - 0.05
+  closed_targets:
+  - 0.0
+  - 0.0
+  - 0.65
+  - 0.9
+  - 0.0
+  - 0.3
+  - 1.05
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.0
+  - 1.2
+  - 2.25
+  - 0.35
+  - 0.0
+  - 1.2
+  - 2.25
+  maximum_step: 0.05
+  derivation: Training-only rank-one action audit; full residual rejection at cache
+    generation. Learn signed closure increment, bound remaining aperture to [0,1];
+    zero output holds.
+source_physics_disclosure: Released expert applies rotation-only object state hold
+  during lift/transport. Training is assisted-source imitation; learned evaluation
+  uses ordinary MuJoCo without that intervention. No claim of unassisted expert provenance.

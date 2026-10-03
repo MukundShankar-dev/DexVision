@@ -1,0 +1,46 @@
+version: level5/pick-setup-confirmation-v4
+checkpoint: 5.3A
+policy_recipe: configs/level5/pick_policy_v4.yaml
+policy_recipe_sha256: 4a9682038ef7c55887815e3cbe8d856ed06ce86b156e0c66445515b8c9480985
+output_dir: outputs/level5/pick_repair/conditioned_setup_v4
+seeds:
+- 5001
+- 5002
+- 5003
+selected_weights:
+  '5001':
+    path: outputs/level5/pick_repair/v4/seed_5001/selected.pt
+    sha256: 42bd8f90f1586c816d25b1ab7d28c4c12d46f7de50c423406f1075111366edc6
+  '5002':
+    path: outputs/level5/pick_repair/v4/seed_5002/selected.pt
+    sha256: 19956db5f80e4f4108cb1417082f0a767226af5c9778e7a40a729cfebee0e476
+  '5003':
+    path: outputs/level5/pick_repair/v4/seed_5003/selected.pt
+    sha256: 5320cbe5067da6861eb204392020e70054ca0dbb6c6c4ef45d146217d111edfa
+validation:
+  seed_start: 730260900
+  resets_per_cell: 10
+confirmation:
+  seed_start: 740260900
+  resets_per_cell: 3
+setup: Choose the first original grasp fallback passing the identical live controller
+  loop under ordinary physics on a separate identical initial state. Apply only its
+  open-hand approach before skill entry; no acquire action is queried or applied in
+  live setup. No learned policy is queried during preflight. Failed setup stays in
+  the denominator. All post-entry commands use the unchanged V4 selected model bundle.
+selection: V4 weights frozen before this setup audit. No retraining, re-ranking or
+  weight mutation. Require complete conditioned validation for all three models before
+  one-time conditioned confirmation.
+disclosure: Original test, V3/V4 literal-prefix confirmation and setup V1-V3 are exposed
+  and preserved. All six instance types have now appeared in teacher development.
+  Setup V4 uses fresh frozen validation and confirmation seeds; no unseen-instance/family
+  claim. The frozen V4 seed5001 passed 24 corrected development starts without retraining;
+  no weights may be changed or reselected in this study. Qualification remains limited
+  to scripted preflight-qualified approach starts.
+setup_mode: unassisted_exact_teacher
+preflight_disclosure: No object orientation hold or pose writes after reset in either
+  scratch preflight or live execution. Preflight uses the deterministic teacher and
+  full state to select a grasp template; this is engineered planning assistance before
+  entry. This does not qualify arbitrary starts or learned skill composition.
+teacher_recipe: configs/level5/pick_teacher_v2.yaml
+teacher_recipe_sha256: 0485a985421b76cf699fab8b9da7e886ebddb7d23eea11ad7c7b43b2d1f622f7

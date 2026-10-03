@@ -1,0 +1,58 @@
+version: level5/pick-unassisted-data-v2
+checkpoint: 5.3A
+teacher_recipe: configs/level5/pick_teacher_v4.yaml
+teacher_sha256: 8994d5cb9674ce1ed2e7848254c76e5865ed6965a8a515bb60d4c525d3fb7fad
+teacher_feasibility_report: outputs/level5/pick_repair/teacher_v4/report.json
+teacher_feasibility_sha256: 73a1468acbda01292192af8c877c6f237f60b5067ccc924875675e155f8a534c
+release_name: level5-pick-unassisted-v2
+splits:
+  train:
+    seed_start: 750260900
+    episodes_per_cell: 8
+    cells:
+    - pp_block_small_return_bin_left
+    - pp_block_small_inspection_pad
+    - pp_block_small_setup_slot_a
+    - pp_block_large_return_bin_left
+    - pp_block_large_inspection_pad
+    - pp_block_large_setup_slot_a
+    - pp_cylinder_short_return_bin_left
+    - pp_cylinder_short_inspection_pad
+    - pp_cylinder_short_setup_slot_a
+    - pp_cylinder_tall_return_bin_left
+    - pp_cylinder_tall_inspection_pad
+    - pp_cylinder_tall_setup_slot_a
+    - pp_puck_light_return_bin_left
+    - pp_puck_light_inspection_pad
+    - pp_puck_light_setup_slot_a
+    - pp_puck_heavy_return_bin_left
+    - pp_puck_heavy_inspection_pad
+    - pp_puck_heavy_setup_slot_a
+  validation:
+    seed_start: 760260900
+    episodes_per_cell: 8
+    cells:
+    - pp_block_small_setup_slot_b
+    - pp_block_large_setup_slot_b
+    - pp_cylinder_short_setup_slot_b
+    - pp_cylinder_tall_setup_slot_b
+    - pp_puck_light_setup_slot_b
+    - pp_puck_heavy_setup_slot_b
+session_rule: One simulator recording session per split/cell; eight independent resets
+  each. These are deterministic simulator sessions, not human demonstrations or camera
+  sessions.
+failure_rule: Record every frozen attempt. Keep rejected/failed episodes out of supervision
+  without replacement. Require at least 95 percent teacher success and zero live safety
+  violations before publishing.
+publication_success_min: 0.95
+disclosure: All six object instances and original test families are exposed. This
+  is an owner-authorized additive amendment; original Level4 splits and releases remain
+  immutable. No unseen-instance/family or vision claim. State features and actions
+  are recorded causally from an unassisted deterministic teacher; expert phase annotations
+  are provenance only.
+new_confirmation_seed_start: 780260900
+confirmation_resets_per_source_cell: 3
+episode_namespace: pick_unassisted_v2
+amendment: Same 192 frozen cases and partitions as v1, no replacements. Re-record
+  with corrected post-integration physical evidence after v1 saved-state audit found
+  191/192 passing. Preserve v1 archive and failed audit.
