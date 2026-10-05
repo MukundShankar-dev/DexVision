@@ -837,6 +837,9 @@ the completed negative V1 result above intact. This checkpoint repairs only
 the place source, policy and qualification path. Method evidence and current
 limits are in [`level5_place_repair.md`](level5_place_repair.md).
 
+Earlier failed versions and their then-pending gates are preserved below as
+history. The final V25 evidence and acceptance conclude this checkpoint section.
+
 ### Required work
 
 ```text
@@ -1715,6 +1718,7 @@ user confirmation before completing Level 5.
 [x] 5.3A pick repair passes automated gates and owner manual acceptance
 [x] 5.4 place-held-object is evaluated across targets and held-out goals;
     state qualification is negative and no manual review is triggered
+[x] 5.4A place repair passes frozen state gates, physical audits and owner manual acceptance
 [ ] 5.5 push and press are evaluated; optional dial status is explicit
 [ ] 5.6 detector/tracker/pose pipeline meets frozen visual gates
 [ ] 5.7 perception-grounded rollouts have no simulator-truth fallback

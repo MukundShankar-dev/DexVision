@@ -2410,7 +2410,15 @@ deployment admission, and no Level 5.5 implementation follows from this result.
 
 ---
 
-## Level 5.4A Place Repair Source Feasibility (In Progress)
+## Level 5.4A Place Repair Source Feasibility and Policy Qualification (Complete)
+
+V25 passed the frozen state gates, independent physical audits and owner
+manual acceptance on October 5, 2026. The acceptance receipt is
+`docs/level5_place_acceptance.json`; the accepted runtime is described at
+the end of this section. Pending and failed statuses in the history below
+refer to earlier versions and do not describe the accepted V25 bundle.
+
+### Preserved source and policy repair history
 
 `dexvision/evaluation/place_repair.py` and
 `dexvision/apps/qualify_place_teacher.py` run checksum-locked scripted-teacher
@@ -2642,6 +2650,8 @@ hand-table contacts and seed 5003 for one object-workspace violation.
 Seed 5001 passed its selection gates; no three-seed bundle exists. The
 1380 matrix is exposed and 1400 confirmation remains unused. V20 has no
 physical qualification or owner viewer acceptance.
+
+### Accepted V25 runtime
 
 The final V25 runtime binds those exact V19 weights (epochs 20, 20 and 200)
 to the frozen V24 wrist hold and copied-state collision preview, plus an
