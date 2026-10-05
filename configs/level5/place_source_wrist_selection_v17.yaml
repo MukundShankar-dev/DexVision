@@ -1,0 +1,32 @@
+version: level5/place-source-wrist-selection-v17
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_source_wrist_v17.yaml
+policy_recipe_sha256: bfe9b8486a253ace610f21620f823c0be6b9cca3915405e72ff13a53a2b7f819
+selection_implementation_sha256: ae2a18da369b3d6bc96e2512660e3f58c589ae30c24ffba415400cf285dbba09
+seeds:
+- 5001
+- 5002
+- 5003
+training_output_dir: outputs/level5/place_repair/policy_v6
+validation_output_dir: outputs/level5/place_repair/policy_v17_validation
+output_dir: outputs/level5/place_repair/policy_v17_selection
+candidate_epochs:
+  '5001':
+  - 80
+  '5002':
+  - 20
+  '5003':
+  - 20
+selection_screen:
+  seed_start: 1260260900
+  resets_per_cell: 2
+  render_condition: nominal
+confirmation:
+  seed_start: 1280260900
+  resets_per_cell: 2
+  one_time: true
+ranking: Require full validation, all-cell numerical gates and complete saved-state physical
+  audit; then safety, success, worst family, settling, validation success and terminal error.
+source_exposure: V2 learned weights lack right-bin source. V3 source and exposed 1160 development
+  informed engineered V17 controls. The 1260 selection and 1280 confirmation resets have not
+  been used for source, training, or diagnostics.

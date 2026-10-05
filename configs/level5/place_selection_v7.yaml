@@ -1,0 +1,40 @@
+version: level5/place-selection-v7
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_guarded_v6.yaml
+policy_recipe_sha256: 51cc2f34967223a4d9baaae2370c5393f619b5b8169984b5287757fdbf6f4b87
+policy_output_dir: outputs/level5/place_repair/policy_v6
+output_dir: outputs/level5/place_repair/policy_v7_selection
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_filter: Complete frozen 48-reset by four-condition validation; every original 5.4
+  state gate must pass before an all-target selection screen.
+selection_screen:
+  seed_start: 990260900
+  resets_per_cell: 2
+  cells: all 30 original pick/place cells
+  render_condition: nominal
+  one_time: true
+ranking:
+- passing_all_target_state_gates
+- zero_safety
+- all_target_success_desc
+- all_target_worst_family_desc
+- all_target_settled_fraction_desc
+- validation_success_desc
+- validation_terminal_error_asc
+- epoch_asc
+confirmation:
+  seed_start: 930260900
+  resets_per_cell: 2
+  conditions: all four frozen independent state/physics runs
+  one_time: true
+source_exposure: V6 source families/targets, exposed slot-B validation, 940/950 seed5001 and
+  960 seed5002 development screens were seen before this selection recipe. 990 all-target
+  selection and 930 confirmation resets remain unused at freeze.
+reason: The original V6 safety-first ranking selected seed5002 epoch200, which narrowly failed
+  the validation settling gate and had one object-workspace violation on a separate 60-reset
+  all-target development screen. Epoch80 passed all validation gates and the same exposed
+  development screen at 51/60 with zero safety. V7 versions selection only; V6 training weights,
+  features, decoder, safety and release thresholds remain immutable.

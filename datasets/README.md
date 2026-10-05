@@ -123,3 +123,77 @@ tar -xzf datasets/level5-pick-unassisted-v2.tar.gz
 Training can read the verified archive directly; extraction is optional. No
 existing release or raw working episode is overwritten, and local packaging does
 not imply a remote upload or commit.
+
+## Level 5 unassisted place amendment v2
+
+`level5-place-unassisted-v2.tar.gz` is an additive, immutable state-only place
+source for checkpoint 5.4A. Its deterministic expert establishes a physically
+held object through unassisted scripted pick and bounded setup, then performs
+ordinary-physics placement. Only the place interval supplies training labels:
+195 causal pre-action features, applied actions, safety masks and saved physical
+states. Setup actions are replayed exactly and excluded from supervision.
+
+The frozen plan contains 144 training and 48 validation resets in disjoint
+cells and simulator sessions. Collection retained all attempts: 140/144 and
+47/48 succeeded with zero live safety violations. The five failures have no
+training payload and remain in the manifest. Independent saved-state MuJoCo
+reconstruction passed all 187 successful payloads. The 561 archive members
+are the three canonical files for each success; source candidate previews and
+failed-attempt staging remain local. The manifest binds plan, teacher screen,
+search outcomes, per-file digests, split ownership and the physical audit.
+
+The earlier V1 collection stopped after a board-margin safety violation and
+was never published. This V2 archive has new frozen resets and does not
+overwrite V1 staging or any Level 4/5 release. All object families and target
+types were previously exposed. Session ids denote deterministic simulator
+sessions, not human, camera or cross-operator provenance. This release alone
+does not qualify a learned place policy.
+
+```bash
+git lfs install
+git lfs pull
+shasum -a 256 -c datasets/level5-place-unassisted-v2.tar.gz.sha256
+tar -xzf datasets/level5-place-unassisted-v2.tar.gz
+```
+
+See [`../docs/level5_place_repair.md`](../docs/level5_place_repair.md) for
+collection and audit commands. The local archive is LFS tracked; packaging
+does not imply a remote upload or commit.
+
+## Level 5 unassisted place amendment v3
+
+`level5-place-unassisted-v3.tar.gz` is a new immutable, additive state-only
+source for checkpoint 5.4A. V2 had no right-receptacle cell in either source
+split and kept slot B only in validation. V3 records all 30 object/target
+cells in both training and validation, with disjoint reset seeds, episode ids
+and deterministic simulator sessions. The cell identities are deliberately
+exposed across splits, so this release does not claim unseen-cell or
+unseen-family generalization or change the historical Level 4 split owners.
+
+The frozen plan attempted 240 training and 120 validation resets. It retained
+all six failures without replacement: 237/240 training and 117/120 validation
+attempts produced successful source payloads. Every live safety counter is
+zero; each split exceeds the 95% success and 90% worst-family publication
+gates. Independent saved-state MuJoCo reconstruction passed all 354 successful
+trajectories. Only the place interval supplies the canonical 195-field
+pre-action state and applied-action labels. The unassisted scripted pick/setup
+prefix is excluded. The archive has 1,062 canonical episode members; all
+candidate previews and failed staging attempts remain local. The manifest
+binds their outcomes, the plan, source screen, file digests and physical audit.
+
+V1 stopped without a release; V2 and all historical failed policy reports
+remain unchanged. V16 trained on V2 and failed its fresh selection audit, so
+this V3 release alone does not qualify a learned policy. Simulator session ids
+do not imply human, camera or cross-operator provenance.
+
+```bash
+git lfs install
+git lfs pull
+shasum -a 256 -c datasets/level5-place-unassisted-v3.tar.gz.sha256
+tar -xzf datasets/level5-place-unassisted-v3.tar.gz
+```
+
+The local archive has the Git LFS filter and its checksum was verified. See
+[`../docs/level5_place_repair.md`](../docs/level5_place_repair.md) for the
+collection and audit commands. Local packaging does not imply an upload or
+commit.

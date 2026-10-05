@@ -1,0 +1,35 @@
+version: level5/place-policy-recovery-v13
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_adaptive_v12.yaml
+parent_policy_recipe_sha256: 39eb6989b1a2ab3cc8380debcaeef2141060727ce9d88abdcd04c0e066370225
+output_dir: outputs/level5/place_repair/policy_v13
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+recovery_controls:
+  negative_lateral_gap_threshold_m: -0.003
+  early_release_distance_m: 0.024
+  early_release_downward_speed_mps: -0.02
+  early_opening_step: 0.0125
+implementation_sha256:
+  dexvision/learning/place_recovery_policy.py: 5797ac974e0f703558b8a1a7f0e36c4b27a4edadb7cad3ce9fb6178c71742b5a
+  dexvision/evaluation/place_recovery_policy.py: eac3c6d07218e9aaea8f0ee1b279469cde28adb5da2f81b63d1b7ff37b0a07b5
+source_exposure: All families and targets occur in scripted training. V11 validation
+  and the 1000, 1020, 1040 and 1060 all-target matrices are exposed development
+  evidence. V12 partial validation and targeted failed physical audit are also
+  exposed. The V13 1100 selection and original 930 confirmation resets were unused
+  at freeze.
+reason: V12's low-offset puck pad hold numerically rescued an exposed bounce but one
+  success had table contact before opening in independent saved-state reconstruction.
+  On that failure the hand command was more than 3 mm to the negative-y side of
+  the puck, outside the successful training pad release range of +0.7 to +1.2 mm.
+  Only for that short-offset lateral-drift state while genuinely held and descending,
+  V13 may open at 0.024 m, inside the original 0.025 m physical release limit,
+  using the source-supported coupled 0.0125 opening step. All other V12 behavior,
+  the exact V6 learned weights and the original safety/terminal gates are preserved.
+  The extra release is engineered physical feedback, not a learned decision.
+selection: Keep V6 epochs 80, 20 and 20 predeclared. Run complete V13 validation,
+  then a separate fresh 1100 all-target selection screen for each seed. Use the
+  original untouched 930 confirmation only if every selected bundle passes.

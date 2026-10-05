@@ -1,0 +1,29 @@
+version: level5/place-wrist-hold-selection-v24
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_wrist_hold_v24.yaml
+policy_recipe_sha256: 6e0feb4425013e96a4ad682b2ca4729b0a0edfc5b5376b072adb1a8f6a4a5b44
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001': 20
+  '5002': 20
+  '5003': 200
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v24_validation
+output_dir: outputs/level5/place_repair/policy_v24_selection
+selection_screen:
+  seed_start: 1540260900
+  resets_per_cell: 2
+  render_condition: nominal
+confirmation:
+  seed_start: 1560260900
+  resets_per_cell: 2
+ranking: Only the predeclared validation-passing V19 epoch for each seed may be screened;
+  require all original state gates and every saved-state physical audit before packaging
+  exact weights.
+source_exposure: V3 train/validation plus 1330/1340/1380/1420/1440/1460/1500 policy
+  screens expose all cells. V24 1540 selection and 1560 one-time confirmation are
+  disjoint fresh resets. No unseen-family claim.
+selection_implementation_sha256: df00d6225f50c2fbf721286567f6dbf149d6f7f9ec9f7c319bbb24109a2daf62

@@ -742,6 +742,20 @@ recipes, evidence documentation and dataset archives, not the trained weights.
 
 ## Level 5.4 — State-Grounded Place-Held-Object Policy
 
+**Complete — October 3, 2026, with negative state qualification.** All three
+seeds completed the locked 200-epoch budget and full candidate validation.
+Validation selected epochs 20, 56 and 20. The one-time held-out state tests
+achieved 4/216, 0/216 and 12/216 successes, with premature release and safety
+failures across all seeds. Every target type was evaluated. All 16 reported
+successes pass independent saved-state physical reconstruction; this does not
+change the failed numerical gates. The full suite passes 816 tests with one
+skip, focused checks pass 18, and Ruff/artifact/source/recipe integrity pass.
+See [`level5_place_results.md`](level5_place_results.md) and
+[`level5_place_verification.json`](level5_place_verification.json). No manual
+viewer gate is triggered because no selected policy passes numerical gates.
+No perception, registry, composition, deployment or later checkpoint work is
+claimed.
+
 Apply `docs/level5_training_guidance.md`. Freeze a place-specific recipe with
 held-object-to-target geometry, grasp offset, clearance, retention and causal
 transport/lower/release/settle information. Keep finger release outputs active;
@@ -756,9 +770,16 @@ through transport, placement, controlled release, and settling.
 ### Files
 
 ```text
-configs/level5/skills/place_held_object.yaml
+configs/level5/skills/place_held_object.yaml (frozen historical parent)
+configs/level5/place_policy_v1.yaml and .sha256
+dexvision/learning/place_policy.py
+dexvision/evaluation/place_policy.py
+dexvision/apps/train_skill.py and evaluate_skill.py (version dispatch)
+dexvision/learning/train_skill.py (place causal-phase sampler support)
+docs/level5_place_results.md and level5_place_verification.json
 tests/test_place_skill_training.py
 tests/test_place_skill_rollout.py
+tests/test_level5_learning_plan.py (independent recipe lock inventory)
 ```
 
 ### Required metrics
@@ -775,25 +796,392 @@ safety and unwanted-contact counters
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config <versioned-place-recipe>
-python -m dexvision.apps.evaluate_skill --config <versioned-place-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-place-evaluation-directory>
-conda run -n dexvision pytest -q tests/test_place_skill_training.py tests/test_place_skill_rollout.py
+conda run --no-capture-output -n dexvision python -m dexvision.apps.train_skill --config configs/level5/place_policy_v1.yaml --seed 5001 --dry-run
+conda run --no-capture-output -n dexvision python -m dexvision.apps.train_skill --config configs/level5/place_policy_v1.yaml --seed 5001
+conda run --no-capture-output -n dexvision python -m dexvision.apps.evaluate_skill --config configs/level5/place_policy_v1.yaml --select-candidates outputs/level5/place_54_v1/locked/seed_5001 --split validation --track state --output-dir outputs/level5/place_54_v1/locked/validation_5001
+conda run --no-capture-output -n dexvision python -m dexvision.apps.evaluate_skill --config configs/level5/place_policy_v1.yaml --checkpoint outputs/level5/place_54_v1/locked/seed_5001/selected.pt --split test --track state --output-dir outputs/level5/place_54_v1/locked/test_5001
+conda run --no-capture-output -n dexvision pytest -q tests/test_place_skill_training.py tests/test_place_skill_rollout.py
 ```
+
+Repeat train, full candidate selection and the single selected test for seeds
+5002 and 5003, with new output directories. The complete loop, evidence paths
+and integrity commands are in `docs/level5_place_results.md`. Test runs are
+single-use and must not be repeated under new paths.
 
 ### Pass criteria
 
 ```text
-[ ] Execution rejects missing, multiple, wrong, or stale held-object state
-[ ] Transport, place, release, and settle phases are independently measurable
-[ ] Every required target and held-out goal region is evaluated
-[ ] Misplacements and unstable post-release states remain failures
-[ ] Required success/release/safety gates pass or status is experimental/failed
+[x] Execution rejects missing, multiple, wrong, or stale held-object state
+[x] Transport, place, release, and settle phases are independently measurable
+[x] Every required target and held-out goal region is evaluated
+[x] Misplacements and unstable post-release states remain failures
+[x] Required success/release/safety gates pass or status is experimental/failed;
+    status is **failed** for all three selected policies
 ```
 
-Manual verification is required after numerical gates pass. Run the viewer on
-at least one target of each type. Pass when the same held object is transported,
-released inside tolerance, remains stable, and the reported result matches the
-scene. Stop for user confirmation.
+Manual verification is required only after numerical gates pass. None of the
+three selected policies passes, so no viewer review is required or accepted in
+this checkpoint. For a later numerically passing version, run the guarded
+viewer on at least one target of each type and stop for owner confirmation.
+Pass when the same held object is transported, released inside tolerance,
+remains stable, and the reported result matches the scene.
+
+---
+
+## Level 5.4A — Place-Held-Object Policy Repair
+
+**Complete (October 5, 2026).** The owner confirmed the prescribed V25 manual
+viewer review with "Passed". The acceptance receipt is
+[`level5_place_acceptance.json`](level5_place_acceptance.json). Keep
+the completed negative V1 result above intact. This checkpoint repairs only
+the place source, policy and qualification path. Method evidence and current
+limits are in [`level5_place_repair.md`](level5_place_repair.md).
+
+### Required work
+
+```text
+[x] Qualify a versioned ordinary-physics place teacher on exposed development resets
+[x] Publish any needed additive, immutable train/validation source with split and physical audits
+[x] Freeze a place-specific learned feature/action/decoder recipe and fresh confirmation resets
+[x] Train all three seeds through the frozen budget and select by full closed-loop validation
+[x] Preserve the V15 one-time numerical confirmation as historical evidence;
+    its later independent physical audit failed
+[x] Run each physically screened final repair bundle once on fresh confirmation;
+    pass every frozen 5.4 state gate
+[x] Independently audit saved physical states and artifact/recipe integrity
+[x] Obtain owner manual viewer acceptance after numerical gates pass
+```
+
+Do not use the V1 held-out outcomes for repair selection, weaken its place
+success/safety limits, rewrite Level 4 or failed V1 artifacts, or begin 5.5.
+Validation and development resets already exposed by prior experiments are
+development evidence only. A fresh reset does not make a previously exposed
+family or target type unseen. An unassisted scripted pick may establish the
+verified held-object precondition; it is disclosed and excluded from the place
+policy's actions and metrics. Failed setup and policy attempts stay counted.
+
+The manual gate remains conditional. Once all numerical and independent
+physical checks pass, replay at least one saved attempt for each of receptacle,
+planar-zone and placement-slot targets. Pass only when the correct held object
+is transported, released within the frozen tolerance, remains stable, and the
+scene matches the saved report. Stop for owner confirmation before checking
+completion or advancing the status file to 5.5.
+
+### Current diagnostic and software commands
+
+```bash
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_v2.yaml --output-dir outputs/level5/place_repair/teacher_v2
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_coverage_v1.yaml --output-dir outputs/level5/place_repair/teacher_coverage_v1
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_coverage_v2.yaml --output-dir outputs/level5/place_repair/teacher_coverage_v2
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_coverage_v3.yaml --output-dir outputs/level5/place_repair/teacher_coverage_v3
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_search_coverage_v1.yaml --output-dir outputs/level5/place_repair/teacher_search_coverage_v1
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.qualify_place_teacher --config configs/level5/place_teacher_search_coverage_v2.yaml --output-dir outputs/level5/place_repair/teacher_search_coverage_v2
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment freeze --config configs/level5/place_data_v1.yaml --output-dir outputs/level5/place_repair/data_v1
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment freeze --config configs/level5/place_data_v2.yaml --output-dir outputs/level5/place_repair/data_v2
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment collect --config configs/level5/place_data_v2.yaml --output-dir outputs/level5/place_repair/data_v2 --split train
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment collect --config configs/level5/place_data_v2.yaml --output-dir outputs/level5/place_repair/data_v2 --split validation
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment verify --config configs/level5/place_data_v2.yaml --output-dir outputs/level5/place_repair/data_v2
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment release --config configs/level5/place_data_v2.yaml --output-dir outputs/level5/place_repair/data_v2 --release-dir datasets
+shasum -a 256 -c datasets/level5-place-unassisted-v2.tar.gz.sha256
+conda run --no-capture-output -n dexvision pytest -q tests/test_place_repair_teacher.py tests/test_level5_learning_plan.py
+conda run --no-capture-output -n dexvision ruff check dexvision tests
+```
+
+Those output directories are immutable evidence already created in this
+workspace. Reproduction must use new directories. The first teacher screen
+passes; the three frozen static all-cell screens fail (15/30, 22/30 and 26/30).
+The frozen copied-task search screen passes **29/30** new `850260900` resets
+with 9/10 worst-family success and zero safety violations; the one premature
+release remains a failed attempt. This clears the scripted-teacher feasibility
+item only. It is not learned-policy qualification, and the 5.4A checkpoint
+remains open.
+
+The additive data V1 collection stopped after a board-margin failure, so it
+has no release. Search V2 passed 59/60 fresh nominal/boundary resets with
+zero selected live safety violations. Data V2 has new frozen assignments;
+train passed 140/144 and validation 47/48 with zero live safety violations.
+Independent saved-state reconstruction passed all 187 successful payloads;
+all five failed resets remain excluded and counted. The new immutable archive,
+checksum and manifest are under `datasets/level5-place-unassisted-v2*`.
+Versioned learned V2/V3/V4/V5/V6 recipes and separate fresh confirmation resets
+are frozen. V2 direct-delta control drifted and released prematurely in a partial
+validation diagnostic; V3's fixed hand waypoint stopped too high in two
+single-reset diagnostics. All three seeds finished the 200-epoch budget for
+each recipe, and those negative weights remain local. V4 uses live object
+feedback and training-only release geometry, but every candidate failed a
+worst-family gate on completed family attempts; its resolved source transport
+step was mapped too slowly. V5 corrected that step to 0.005 m and selected all
+three seeds after full validation, but a new all-target development screen
+failed the zero-safety and settling gates. V6 freezes a bounded held-object
+waypoint, cuboid release at 0.0245 m within the original 0.025 m limit, and
+slower cylinder opening. Its separate nominal and boundary all-target
+development screens each passed 27/30 with zero safety and all numerical
+gates. All three V6 seeds completed 200 epochs / 12,200 updates. Full V6
+validation selected all three, but seed 5002's selected epoch missed the
+settling gate and failed a separate all-target safety screen. The frozen V7
+all-target selector rejected both eligible seed 5002 candidates for safety;
+no three-seed bundle or confirmation resulted. V8 reuses the exact V6 learned
+weights and freezes a measured command/object lag hold, target-specific
+cuboid opening and a conditional geometric release for an outward-moving
+cuboid near a receptacle edge. Its exact decoder passed 53/60 on exposed
+all-target development resets with zero safety and all original gates.
+Complete V8 validation and its distinct fresh all-target selection screen
+selected seeds 5001 and 5002, but neither eligible seed-5003 candidate passed
+all gates; no three-seed bundle resulted. V9 freezes slower opening for
+nonplanar cuboids, cylinders and pucks on the exact V6 weights. Predeclared
+epochs 80, 20 and 20 passed all gates on the now-exposed V8 selection resets
+with zero safety and then passed full V9 validation. The distinct fresh
+all-target screen passed seed 5001 but rejected seeds 5002 and 5003 on the
+unchanged settling gate. No V9 three-seed bundle exists; the one-time
+confirmation resets remain unused.
+
+V10 added a target-aware 0–3 mm palm rise at first release on the same
+learned weights. It passed two complete exposed all-target development
+matrices for all three seeds with zero safety, but full validation rejected
+seed 5002 on the original worst-family gate (36/64 cuboid successes). No V10
+selection or confirmation was run. V11 freezes zero extra rise for cuboid
+placement slots after that diagnosed bounce regression, with all other V10
+controls and the frozen gates intact. All three V11 candidates passed complete
+validation. Its fresh 1060 all-target selection selected seed 5001 but
+rejected seeds 5002 and 5003 on the unchanged settling gate (52/58 and 49/58
+settled nominal placements). The original 930 one-time confirmation remains
+unused. V12 froze a targeted initial descent waypoint for short-grasp heavy
+pucks on the inspection pad and a measured-state opening choice for cuboids
+over the left receptacle. Its targeted exposed numeric prediction was rejected
+by an independent saved-state audit: one nominal success had 15 pre-release
+hand-table-contact frames. Partial V12 validation was stopped without fresh
+selection. V13 gates an earlier physical release on the measured negative
+lateral-drift state; six exposed low-offset pad attempts passed independent
+development audits. Complete V13 validation passed all three seeds, but its
+fresh 1100 selection rejected seeds 5001 and 5002 for one object-workspace
+violation each, and seed 5003 for 51/59 settled nominal placements. No V13
+selected bundle or 930 confirmation exists. A V14 wrist guard now passes
+targeted exposed 1100 development checks for all three seeds, with all changed
+attempts passing saved-state audit. Complete V14 validation passed all seeds,
+but the separate fresh 1120 selection passed only seed 5001: seed 5002 had
+one object-workspace violation, and seed 5003 settled 51/59 nominal placements.
+No three-seed V14 bundle or reserved 930 confirmation exists. The 5.4A
+checkpoint stays open. A V15 measured-state opening and collision decoder
+passes targeted exposed 1100/1120 development checks for all three seeds.
+Complete V15 validation, a distinct unused 1140 all-target selection, the
+original 930 confirmation, independent audit and owner viewer acceptance
+remained required before 5.4A could be completed. Complete V15 validation,
+fresh 1140 selection and the one-time 930 confirmation passed all frozen
+numerical state gates for all three seeds with zero recorded safety violations.
+The independent saved-state audit then rejected all three selected bundles:
+8, 2 and 7 distinct reported successful resets had pre-opening hand-table
+contact. The 930 matrix is consumed and exposed, and V15 is not qualified.
+The failed reports are retained. A further source-grounded repair needs a
+new frozen selection and confirmation matrix and passing physical audit
+before owner viewer review. The 5.4A checkpoint stays open.
+V2 source coverage was audited: training has only 18 left-bin/pad/slot-A
+cells, validation only six slot-B cells, and neither contains any right-bin
+cell. A checksum-locked V3 data plan freezes 240 training and 120 validation
+resets, covering all 30 cells in both splits with disjoint resets and
+simulator sessions. Collection passed 237/240 training and 117/120
+validation attempts with zero live safety; all six failures remain counted
+without payloads. Independent saved-state audit passed all 354 successful
+trajectories. The immutable V3 archive, checksum and manifest are under
+`datasets/level5-place-unassisted-v3*`, with LFS and checksum verification.
+V2 and every failed policy report remain unchanged. The V3 source alone
+does not qualify a learned policy.
+
+The frozen V3 source commands are:
+
+```bash
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment freeze --config configs/level5/place_data_v3.yaml --output-dir outputs/level5/place_repair/data_v3
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment collect --config configs/level5/place_data_v3.yaml --output-dir outputs/level5/place_repair/data_v3 --split train
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment collect --config configs/level5/place_data_v3.yaml --output-dir outputs/level5/place_repair/data_v3 --split validation
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment verify --config configs/level5/place_data_v3.yaml --output-dir outputs/level5/place_repair/data_v3
+conda run --no-capture-output -n dexvision python -m dexvision.apps.collect_place_amendment release --config configs/level5/place_data_v3.yaml --output-dir outputs/level5/place_repair/data_v3 --release-dir datasets
+shasum -a 256 -c datasets/level5-place-unassisted-v3.tar.gz.sha256
+```
+
+Verification and release passed after both full split reports were complete.
+The publication command requires the same source safety and success gates.
+
+V16 separately freezes a source-calibrated measured-orientation and
+hand-clearance overlay on the exact V6 epochs 80, 20 and 20. The 930, 1100
+and 1140 exposed nominal development matrices pass the original numerical
+gates and independent saved-state audits after narrow per-seed contact fixes.
+The checksum-locked policy and selection recipes reserved fresh 1160
+all-target selection and 1180 one-time confirmation resets. Full V16
+validation passed all state gates for all three seeds (180/192, 172/192,
+172/192; zero recorded safety). The fresh 1160 screen rejected all three:
+seed 5001 failed the 90% settling gate (51/59) and one physical audit;
+seeds 5002 and 5003 passed numerical gates but had one and three
+reported-success pre-opening hand-table contacts on independent saved-state
+audit. No V16 bundle was selected. The 1180 confirmation remains unused and
+the manual viewer gate is not triggered.
+
+V17 uses successful V3 source geometry to freeze a narrow engineered wrist
+and pad-clearance overlay around the exact V2-trained V6 weights. Four
+packaged trajectories matched exposed 1160 diagnostic actions exactly; those
+replays are development evidence. Full V17 validation passed all state gates
+for three seeds (172/192, 164/192, 168/192, zero recorded safety). The fresh
+1260 all-cell selection passed all numerical and independent saved-state
+physical gates for each seed: 52/60, 51/60 and 52/60, with zero physical
+audit failures among 180 attempts. Epochs 80, 20 and 20 are selected. The
+1260 screen is exposed. One-time 1280 confirmation passed the numerical
+gates for seeds 5001 and 5002 at 212/240 each, but seed 5003 failed the
+90% settling gate at 192/220 settled nominal placements (87.3%). Independent
+saved-state audits passed all 720 attempts as physically consistent; that
+does not satisfy the failed numerical gate. V17 is not qualified, the 1280
+matrix is exposed and owner viewer review is not triggered. V17 learned
+weights still come from V2, which lacks right-bin source; V3 informed
+engineered controls only.
+
+V18 freezes a seed-5003 large-block geometric opening fallback within the
+unchanged 0.0245 m cuboid release limit after V17's consumed 1280 numerical
+failure. Exposed 1280 targeted replays converted four of five distinct
+unreleased pad/slot attempts to settled placements; the fifth remained a
+failure outside the bound. All changed 1160/1260/1280 diagnostics passed
+independent saved-state physical audit, and one packaged V18 trajectory
+matched the diagnostic actions exactly. These are development evidence.
+Fresh 1300 all-cell selection and 1320 one-time confirmation are frozen;
+complete V18 validation passed all numerical gates (172/192, 164/192 and
+172/192, zero recorded safety). Fresh 1300 selection rejected all seeds on
+the unchanged settling gate (51/59, 47/56 and 53/59). Seed 5001 also had
+one saved-state physical audit failure. No V18 bundle was selected; 1300 is
+exposed, 1320 confirmation is unused, and owner viewer review is not
+triggered. V18 is not qualified.
+
+V19 now freezes a separate three-seed learned recipe on the audited V3
+all-cell source (237 training and 117 validation episodes). It keeps the
+V18 bounded decoder, original physical and numerical gates, causal features,
+fixed scales, phase-balanced sampling and a full 200-epoch budget; V6 weights
+initialize decoder controls only and are replaced before V19 inference.
+The old V2-specific validation helper rejected V3's 120 source-validation
+resets before training began, so V19 freezes new disjoint 1330 all-cell
+policy-validation resets (60), 1340 selection (60) and 1360 one-time
+confirmation (60). Source dry run and focused ownership tests pass. All
+three seeds completed 200 epochs and 20,400 updates; offline best epochs
+were 199, 195 and 173, while full closed-loop validation compares frozen
+candidates 20, 80 and 200. All nine 1330 validation reports are complete;
+the frozen ranking chose epochs 20, 20 and 200, passing every numerical
+gate at 220/240, 220/240 and 216/240 with zero recorded safety. Seed-5003
+epochs 20/80 and seed-5001 epoch 80 remain failed evidence. Fresh 1340
+all-cell selection rejected all three seeds on the unchanged settling gate:
+50/59, 51/58 and 50/58 nominal placements settled, below 90%. Aggregate
+successes were 50/60, 51/60 and 50/60, with zero recorded safety. Independent
+saved-state audit found one reported-success pre-opening hand-table contact
+for seeds 5001 and 5003; seed 5002 had none. No V19 bundle was selected.
+The 1340 resets are exposed, 1360 confirmation is unused, and owner viewer
+review is not triggered. The 5.4A checklist remains open.
+
+V20 freezes a separate object-calibrated decoder on the exact V19 learned
+weights. Six release waypoint vectors come from V3 successful **training**
+episodes only; the recipe recomputes and verifies them from the archive.
+Bounded supported descent applies only while a cylinder remains held above
+target during opening, and a 0.073 m hand-height guard applies only to a
+small block over slot B. The exposed 1340 development matrix passed all
+frozen numerical gates for epochs 20, 20 and 200 (54/60 successes each;
+54/59, 54/58 and 54/58 settled nominal placements) with zero saved-state
+physical audit failures. Complete 1330 V20 validation passed all original
+numerical gates at 220/240, 212/240 and 216/240 successes, zero recorded
+safety. Fresh 1380 all-cell selection passed seed 5001 (54/60 successes,
+zero audit failures), but rejected seed 5002 for two reported-success
+pre-opening hand-table contacts and seed 5003 for one object-workspace
+violation. The 1380 matrix is exposed. No three-seed V20 bundle was
+selected; one-time 1400 confirmation, independent confirmation audit and
+owner viewer acceptance remain unstarted. No 5.4A completion checkbox
+changes from these results.
+
+V21 was a copied-state transport preview layered on exact V19
+weights and the V20 decoder. It is restricted to two source-exposed risk
+cells and does not alter finger opening or release. All twelve affected-cell
+attempts on exposed 1380 resets passed a disposable development replay and
+independent saved-state audit; mixing untouched cases predicts passing
+numerical gates for all three seeds. The checksum-locked implementation adds
+action-bound filtering and passed an integrated contact-case replay. Complete
+1330 validation passed all original numerical gates at 212/240, 208/240 and
+212/240 successes with zero recorded safety. Fresh 1420 selection passed at
+55/60, 57/60 and 54/60 successes with all original numerical gates, zero
+recorded safety and 180/180 independent physical audits. Exact epochs 20,
+20 and 200 were selected. One-time 1440 confirmation rejected V21: seeds
+5001 and 5002 each settled 204/228 nominal placements (89.47%), below the
+unchanged 90% gate; seed 5003 passed numerically at 208/228 (91.23%). All
+three had zero recorded safety. Independent 1440 saved-state audit passed
+720/720 attempts.
+No V21 bundle qualifies, and the 5.4A checklist remains open.
+
+V22 freezes a narrow 2 mm held short-cylinder opening descent over the exact
+V21 policy for the two bin targets. On exposed 1440 resets it repaired nine
+bounced attempts, with all twelve cylinder-bin attempts physically audited;
+exposed 1420 selection totals were preserved and all twelve 1330 cylinder-bin
+attempts passed audit. Fresh 1460 selection and 1480 one-time confirmation
+resets were frozen. Complete 1330 V22 validation passed all original gates at
+216/240, 212/240 and 216/240 successes with zero recorded safety. Fresh
+1460 selection then rejected V22: seeds 5001 and 5003 missed the original
+settling gate at 52/58 and 50/58, while seed 5002 passed numerical gates at
+53/58. Seeds 5001 and 5002 each had one reported-success pre-opening
+hand-table contact on the same small-block slot-B reset. No three-seed bundle
+was selected; 1460 is exposed and 1480 confirmation remains unused. The 5.4A
+checklist stays open.
+
+V23 freezes a bounded follow-up over exact V19 learned weights, V20 object
+calibration and V21 copied-state transport preview. The small-block slot-B
+preview intervenes only when its baseline predicts hand-table contact; while
+held above bin targets, short-cylinder opening descends 3 mm per action above
+8 mm object clearance and heavy-puck opening descends 1 mm per action above
+5 mm clearance. Every changed attempt on complete exposed 1330, 1420, 1440
+and 1460 matrices passed saved-state audit; merged development estimates pass
+all original numerical gates for all three seeds on each matrix. Two frozen
+integrated replays passed physical audit. Complete 1330 V23 validation passed
+all original gates at 204/240, 200/240 and 204/240 successes, with 92.7%,
+90.9% and 92.7% settling and zero recorded safety. Fresh 1500 selection
+passed all numerical gates at 54/60, 54/60 and 53/60 successes, zero
+recorded safety and settling above 96%, but seed 5002 failed one independent
+saved-state audit: a reported-success large-block/right-bin placement had
+11 pre-opening hand-table contact samples. V23 is rejected, 1500 is exposed,
+1520 confirmation remains unused, and the 5.4A checklist stays open.
+
+V24 freezes a verified setup wrist hold only during large-block/right-bin
+transport, retaining exact V19 learned weights and V23 controls. The V23
+failed seed rotated the wrist and moved the block upward relative to the
+hand; the hold lets it qualify for release before forearm contact. All six
+exposed 1500 right-bin attempts and six 1330 right-bin validation probes
+succeed with passing physical audits. Six 1460 probes pass audit with one
+counted bounce per seed. The integrated V24 replay matches diagnostic actions
+and states exactly. Focused tests pass 16/16; Ruff passes. Distinct 1540
+selection and 1560 one-time confirmation resets are frozen and unused.
+Full V24 regression passed 888 tests with one skip. Complete validation
+passed every original numerical gate at 204/240, 200/240 and 204/240
+successes, zero recorded safety and 92.7%, 90.9% and 92.7% settling.
+Fresh 1540 selection passed every numerical gate at 53/60, 53/60 and
+51/60 successes, zero recorded safety and 96.4%, 94.6% and 92.7%
+settling. Its physical audit passed 179/180 attempts: seed 5002's
+large-block/inspection-pad reported success had one pre-opening hand-table
+contact sample. V24 is rejected, 1540 is exposed and 1560 confirmation
+remains unused. No qualification or manual acceptance is claimed.
+
+V25 freezes a large-block/inspection-pad geometric release at the first held
+measured distance inside the unchanged 0.0245 m cuboid bound. Existing
+opening rate, release rise, V24 wrist hold and exact V19 weights remain.
+All six exposed 1540 pad attempts settle with passing physical audits; six
+1330 probes preserve a counted timeout and an audited success per seed.
+Integrated actions and states match the passing diagnostic exactly. Focused
+tests pass 18/18; Ruff passes. Distinct 1580 selection and 1600 one-time
+confirmation resets were frozen before use. Full regression passed 890 tests
+with one skip. Complete validation passed every numerical gate at 204/240,
+200/240 and 204/240 successes, 92.7%, 90.9% and 92.7% settling, and
+zero recorded safety. Fresh 1580 selection passed every numerical and
+physical gate at 53/60, 53/60 and 52/60 successes, zero recorded safety
+and 180/180 passing saved-state audits. Exact epochs 20, 20 and 200 are
+packaged; their model tensors and manifests match the frozen candidates.
+One-time 1600 confirmation passes every frozen numerical gate for all three
+seeds at 196/240, 204/240 and 192/240 successes; 94.2%, 94.4% and
+92.3% settling; worst-family success 65%, 75% and 65%; premature release
+8.33% each; zero recorded safety violations. All 720 independent physical
+audits pass, including counted failures. Source/config pins, artifact indexes,
+exact selected candidate tensors/manifests, confirmation markers and all
+three guarded viewer inputs verify. Evidence is recorded in
+`docs/level5_place_repair_verification_v25.json`. Owner manual acceptance was
+confirmed on October 5, 2026 with "Passed" and is separately bound to the
+recipes, selected bundles, confirmation reports and audits in
+`docs/level5_place_acceptance.json`. Historical automated receipts retain
+their then-pending manual status. Checkpoint 5.4A is complete with bounded
+state qualification; 5.5 has not started.
 
 ---
 
@@ -1325,7 +1713,8 @@ user confirmation before completing Level 5.
 [x] 5.2A reach repair receives manual acceptance after passing automated gates
 [x] 5.3 pick is evaluated across supported object families
 [x] 5.3A pick repair passes automated gates and owner manual acceptance
-[ ] 5.4 place-held-object is evaluated across targets and held-out goals
+[x] 5.4 place-held-object is evaluated across targets and held-out goals;
+    state qualification is negative and no manual review is triggered
 [ ] 5.5 push and press are evaluated; optional dial status is explicit
 [ ] 5.6 detector/tracker/pose pipeline meets frozen visual gates
 [ ] 5.7 perception-grounded rollouts have no simulator-truth fallback

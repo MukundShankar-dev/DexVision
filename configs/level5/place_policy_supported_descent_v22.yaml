@@ -1,0 +1,41 @@
+version: level5/place-policy-supported-descent-v22
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_shadow_v21.yaml
+parent_policy_recipe_sha256: 73ef842b025b054e6a65bc7e1b61caa28db3ed1a83287b33d8b75a88bd50fef5
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001': 20
+  '5002': 20
+  '5003': 200
+validation_seed_start: 1330260900
+selection_seed_start: 1460260900
+confirmation_seed_start: 1480260900
+selection_resets_per_cell: 2
+confirmation_resets_per_cell: 2
+supported_descent_object_id: cylinder_short
+supported_descent_target_ids:
+- return_bin_left
+- return_bin_right
+supported_descent_step_m: 0.002
+supported_descent_min_object_height_above_target_m: 0.008
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v22_validation
+selection_output_dir: outputs/level5/place_repair/policy_v22_selection
+source_exposure: V3 train/validation and 1330/1340/1380/1420/1440 policy matrices
+  expose all cells; V22 1460 selection and 1480 one-time confirmation are disjoint
+  fresh resets. No unseen-family claim.
+method_decision: Exact V19 learned weights, V20 object calibration and V21 copied-state
+  transport preview are retained. While a short cylinder remains held and more than
+  0.008 m above either bin target during opening, descend the hand by 0.002 m per
+  action instead of V20 0.001 m. No gate, other object, finger opening or rollout
+  change.
+development_result: 'Exposed 1440 short-cylinder bin cells: 12/12 audited successes;
+  exposed 1420 selection cells preserve each seed total by swapping which right-bin
+  reset bounces; exposed 1330 validation cells: 12/12 audited successes. Development
+  only.'
+implementation_sha256:
+  dexvision/learning/place_supported_descent_policy.py: 020bdcb6fa508f742a97d075330944dfa1e8160c37704d671d0108478184b491
+  dexvision/evaluation/place_supported_descent_policy.py: 57a1ff2fa0629cc45a735e2b04f49ea0f5b08862e2d7fec93b8b138ae2ba1004

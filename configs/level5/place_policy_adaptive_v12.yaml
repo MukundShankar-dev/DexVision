@@ -1,0 +1,37 @@
+version: level5/place-policy-adaptive-v12
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_slot_clearance_v11.yaml
+parent_policy_recipe_sha256: 9d9c671a61b7d7b3e2fbedc2c784697e25905649ac8a71722e93352fcd9a02c9
+output_dir: outputs/level5/place_repair/policy_v12
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+adaptive_controls:
+  short_grasp_offset_threshold_m: 0.053
+  cuboid_left_bin_slow_gap_m: 0.03
+  cuboid_left_bin_slow_velocity_mps: -0.02
+  cuboid_left_bin_slow_opening_step: 0.00625
+  cuboid_left_bin_fast_opening_step: 0.0125
+implementation_sha256:
+  dexvision/learning/place_adaptive_policy.py: eff3e80cdd53668b760845861349c82b4ba79c468e5158d9f02d1de2ac0714bb
+  dexvision/evaluation/place_adaptive_policy.py: edbd1593618bb703b455537625bdb8c8278aca46f645a5866d34acc8cfda4f04
+source_exposure: All object families and target types occur in scripted training.
+  V11 validation and 1000, 1020, 1040 and 1060 nominal all-target reset sets are
+  exposed development evidence. The V12 1080 selection and original 930 confirmation
+  resets were unused when this rule was frozen.
+reason: Successful source and failed V11 saved states show that repeatedly chasing the
+  descending heavy puck lowers the command below its initial release waypoint on
+  short-offset inspection-pad grasps. Freeze that initial waypoint only when the
+  causal entry command/object vertical gap is under 0.053 m. The seven successful
+  training pad grasps had gaps of 0.0565 to 0.0586 m; the lower-gap condition is
+  an explicitly exposed extrapolation repair, not a training-distribution claim.
+  For cuboids over the left receptacle only, use the measured command/object gap
+  and downward object velocity to select one of two bounded coupled opening steps.
+  V6 learned move, orientation and release scores, V11 clearance, safety checks,
+  source data, frozen 5.4 terminal gates and original confirmation boundary stay
+  unchanged. No RGB or unconstrained full-hand learning is claimed.
+selection: Keep V6 epochs 80, 20 and 20 predeclared. Run complete V12 validation,
+  then a separate fresh 1080 all-target selection screen per seed. Use untouched
+  930 confirmation only if all three selected bundles pass every original gate.

@@ -1,0 +1,49 @@
+version: level5/place-policy-bin-opening-v23
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_supported_descent_v22.yaml
+parent_policy_recipe_sha256: 6842e5d84ab5ff7884e54ab85dce7c3dc21fa27da4b78c755d8ce5b51cbc3578
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001': 20
+  '5002': 20
+  '5003': 200
+validation_seed_start: 1330260900
+selection_seed_start: 1500260900
+confirmation_seed_start: 1520260900
+selection_resets_per_cell: 2
+confirmation_resets_per_cell: 2
+cylinder_object_id: cylinder_short
+cylinder_target_ids:
+- return_bin_left
+- return_bin_right
+cylinder_descent_step_m: 0.003
+cylinder_min_height_above_target_m: 0.008
+puck_object_id: puck_heavy
+puck_target_ids:
+- return_bin_left
+- return_bin_right
+puck_descent_step_m: 0.001
+puck_min_height_above_target_m: 0.005
+slot_b_preview_mode: predicted_hand_table_contact_only
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v23_validation
+selection_output_dir: outputs/level5/place_repair/policy_v23_selection
+source_exposure: V3 train/validation plus 1330/1340/1380/1420/1440/1460 policy screens
+  expose all cells. V23 1500 selection and 1520 one-time confirmation are disjoint
+  fresh resets. No unseen-family claim.
+method_decision: Retain exact V19 learned weights, V20 object calibration and V21
+  copied-state transport preview. Use collision-only copied-state preview on small-block
+  slot B; while held above bin targets, descend short cylinder 0.003 m/action above
+  0.008 m and heavy puck 0.001 m/action above 0.005 m. No other object/target, finger-opening
+  or gate change.
+development_result: Changed attempts on complete exposed 1330,1420,1440,1460 matrices
+  pass saved-state audits. Replacing only affected rows makes all original numerical
+  gates pass for all three seeds on each matrix. Development only.
+implementation_sha256:
+  dexvision/learning/place_bin_opening_policy.py: 0a46ef13cea546aeb202d518771d646e6c4821112b081a5b5b21c77a8d7be1dd
+  dexvision/evaluation/place_collision_preview.py: 7c2f0b6484e406a03a7667c7a2fab45d8d4cfaeb21d64c3c3d67298312a53208
+  dexvision/evaluation/place_collision_rollout.py: 0a16aaab641aa2f3bbb34cf6cae58854ecb2dd9996b289b3985ec0dcf252e2d6
+  dexvision/evaluation/place_bin_opening_policy.py: 817c6c99807f964af3b848cb05fa84f90719bf5e381ca08db2a4c91c627042a6

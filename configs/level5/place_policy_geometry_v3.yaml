@@ -1,0 +1,176 @@
+version: level5/place-policy-geometry-v3
+checkpoint: 5.4A
+parent_place_recipe: configs/level5/place_policy_v1.yaml
+parent_place_recipe_sha256: ba7773bffddef078514124a6023e24a54570f94a98071613c0985a4775883180
+output_dir: outputs/level5/place_repair/policy_v3
+seeds:
+- 5001
+- 5002
+- 5003
+max_epochs: 200
+candidate_epochs:
+- 20
+- 80
+- 200
+position_scale_m: 0.1
+velocity_scale_mps: 0.1
+workspace_bounds:
+  min:
+  - -0.18
+  - -0.18
+  - 0.01
+  max:
+  - 0.22
+  - 0.18
+  - 0.24
+terminal:
+  consecutive_samples: 10
+  maximum_linear_speed_mps: 0.02
+  maximum_angular_speed_radps: 0.2
+  target_distance_m: 0.025
+  release_distance_m: 0.025
+  minimum_transport_displacement_m: 0.04
+motion_output_scales:
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+- 1.0
+loss_group_weights:
+  base_position: 1.0
+  base_orientation: 1.0
+  wrist: 0.0
+  fingers: 1.0
+release_gate_threshold: 0.0
+alignment_stop_distance_m: 0.014
+alignment_step_m: 0.001
+open_targets:
+- 0.0
+- 0.0
+- 0.2
+- 0.1
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- -0.15
+- 0.05
+- 0.0
+- -0.15
+- 0.05
+- 0.0
+- -0.15
+- 0.05
+- 0.1
+- 0.0
+- -0.15
+- 0.05
+closed_targets:
+- 0.0
+- 0.0
+- 0.65
+- 0.9
+- 0.0
+- 0.3
+- 1.05
+- 0.0
+- 1.2
+- 2.25
+- 0.0
+- 1.2
+- 2.25
+- 0.0
+- 1.2
+- 2.25
+- 0.35
+- 0.0
+- 1.2
+- 2.25
+release_step_by_family:
+  cuboid: 0.025
+  cylinder: 0.025
+  flat_puck: 0.0125
+additive_data:
+  manifest: datasets/level5-place-unassisted-v2_manifest.json
+  manifest_sha256: a90f63c7f02ec5308117bcc2481ffee56dc0ea4e4e1eb428f6ee483eb8fb2dfd
+  archive: datasets/level5-place-unassisted-v2.tar.gz
+  archive_sha256: 51ff78f082b79e533c0fd28ae01617cf8a4dfe168cf790a830d82425115557e7
+  source_physical_audit: outputs/level5/place_repair/data_v2/audit/report.json
+  source_physical_audit_sha256: 63b9b75ab1c7a4430b4a8bd0c1ee96e5c9a32a31f3063763f84c1193a340333f
+feature_decision: V2 causal relative place geometry and tracking feedback. Learn a
+  binary move gate, bounded orientation correction and release gate; source expert
+  phases are labels only.
+action_decision: Typed goal geometry chooses raise, planar transfer, lower and local
+  alignment direction. The model gates movement, predicts orientation deltas and requests
+  coupled release. Frozen physical distance and held-state interlocks prevent early
+  opening; zero move score holds.
+source_decision: Train only on successful additive place intervals. Unassisted pick/setup
+  is excluded. Balance by cell, episode and source phase; expert phase is a training
+  label only.
+selection: Full 48-reset validation matrix times all frozen render conditions per
+  candidate and seed; safety-first ranking.
+confirmation:
+  seed_start: 930260900
+  resets_per_cell: 2
+  cells: all 30 original pick/place cells
+  one_time: true
+  source_exposure: All object families, instances and target types previously exposed;
+    fresh resets only.
+preconditions: Correct object genuinely held and unsupported after fixed unassisted
+  pick/setup.
+safety: Original workspace, action caps, zero safety and 5.4 numerical gates remain
+  frozen.
+weld_relpose:
+- -0.33701
+- 0.0
+- 0.045
+- 0.7071067811865476
+- 0.0
+- 0.7071067811865476
+- 0.0
+setup_teacher_recipe: configs/level5/place_teacher_v4.yaml
+setup_teacher_recipe_sha256: 1710f9c48c8ba9026fd7009c3b417d4c186789ba90ca0e1a66b45b93a86e6b02
+geometry:
+  move_gate_threshold: 0.0
+  transport_object_height_default_m: 0.12
+  transport_object_height_by_family_m:
+    cylinder: 0.09
+    flat_puck: 0.09
+  transport_object_height_by_object_m:
+    block_large: 0.1
+  target_offset_xy_by_family_m:
+    cuboid:
+    - -0.01
+    - 0.0
+    cylinder:
+    - -0.01
+    - 0.0
+    flat_puck:
+    - -0.02
+    - 0.009
+  maximum_placement_center_x_m: 0.01
+  resting_height_by_object_m:
+    block_small: 0.018
+    block_large: 0.02
+    cylinder_short: 0.018
+    cylinder_tall: 0.03
+    puck_light: 0.008
+    puck_heavy: 0.008
+  placement_clearance_default_m: 0.03
+  placement_clearance_by_family_m:
+    cylinder: 0.015
+  transport_step_m: 0.002
+  descent_step_m: 0.001
+  waypoint_tolerance_m: 0.004
+  planar_tolerance_m: 0.004
+  release_distance_by_family_m:
+    cuboid: 0.023
+    cylinder: 0.023
+    flat_puck: 0.015
+supersedes: 'V2 direct delta policy completed all three 200-epoch budgets. A validation-only
+  diagnostic of epoch 43 seed 5001 was stopped after 19 attempts: 11 premature releases,
+  4 object workspace exits, 4 timeouts. Its direct motion drifted and failed to lower
+  reliably. Preserve those weights and partial rollout attempts; new V3 direction
+  is geometric and release interlocks are family-specific, with fresh confirmation
+  reserved.'

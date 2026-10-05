@@ -25,7 +25,12 @@ def main(argv=None):
     try:
         import yaml
 
-        if yaml.safe_load(args.config.read_text()).get("version") in {"level5/pick-policy-v1", "level5/pick-policy-v2", "level5/pick-policy-v3", "level5/pick-policy-v4", "level5/pick-policy-v5", "level5/pick-policy-v6", "level5/pick-policy-v7"}:
+        version = yaml.safe_load(args.config.read_text()).get("version")
+        if version == 'level5/place-policy-v1':
+            from dexvision.evaluation.place_policy import run_place_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for place recipes')
+        elif version in {"level5/pick-policy-v1", "level5/pick-policy-v2", "level5/pick-policy-v3", "level5/pick-policy-v4", "level5/pick-policy-v5", "level5/pick-policy-v6", "level5/pick-policy-v7"}:
             from dexvision.evaluation.pick_policy import run_pick_evaluation as run_evaluation_command
             if args.compare_runs:
                 raise ValueError("Reach comparison is not supported for pick recipes")

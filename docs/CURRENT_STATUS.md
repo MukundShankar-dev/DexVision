@@ -20,54 +20,381 @@ Level 5 — Workcell Skill Learning and Qualification
 
 ## Last Completed Checkpoint
 
-Level 5.3A — Pick Training Diagnosis and Repair
+Level 5.4A — Place-Held-Object Policy Repair
 
-Completed October 3, 2026 with automated gates and owner manual acceptance.
-The owner confirmed “Manual review passed” and subsequently authorized commit
-and push. `docs/level5_pick_acceptance.json` binds acceptance to the selected
-V7 artifacts. Original 5.3 remains a completed negative experiment; all failed
-repairs and datasets are preserved. No further manual verification is needed.
+Completed October 5, 2026 with V25 bounded state qualification and owner
+manual viewer acceptance ("Passed"). The exact V19 learned weights at epochs
+20, 20 and 200 are packaged with the frozen V25 runtime, source/config pins,
+engineered geometric decoder, wrist hold, collision preview and bounded
+pad opening. Full validation and fresh all-cell selection pass every state
+gate; all 180 selection physical audits pass. One-time 1600 confirmation
+passes all three seeds at 196/240, 204/240 and 192/240 successes, with
+94.2%, 94.4% and 92.3% settling and zero recorded safety violations.
+All 720 independent confirmation audits and artifact integrity checks pass.
+Full regression: 890 passed, one skipped; focused tests: 18 passed; Ruff passes.
 
-V7 completes three 200-epoch / 14,400-update runs. Full validation selects
-epochs 138, 20 and 80, each passing 192/192. One-time fresh confirmation passes
-212/216 for every seed with zero safety violations, 94.4444% worst-family
-success, 1.85185% drops and passing jerk. All 648 saved-state audits agree with
-the reported physical outcomes, including the retained small-block drop.
-
-The owner-authorized additive V2 release contains 144 training and 48 validation
-episodes, all independently physically verified. It preserves V1 and its failed
-191/192 audit, all original datasets/config locks and earlier failed repairs
-through V6. V7 uses binary close/lift scores plus learned orientation magnitude;
-rates, directions, posture synergy and bounds are engineered. All six instances
-are exposed, and scripted approach/preflight is required. No vision, arbitrary
-starts, composition, registry or deployment qualification is claimed.
-
-Full regression: 808 passed, one skipped; focused V7 tests: 46 passed. Ruff,
-artifact/bundle integrity, current execution-code hashes, original config locks,
-archive checksums and LFS attributes pass. Exact commands, limitations, numerical
-results, physical audits and manual pass/fail criteria are in
-`docs/level5_pick_repair.md` and `docs/level5_pick_repair_verification.json`.
-Last Completed is 5.3A; Next Target is 5.4, which has not started.
-
-Training checkpoints and run artifacts remain saved locally under
-`outputs/level5/pick_repair/v7/`, including each seed’s `selected.pt`, `last.pt`,
-`best_offline.pt`, validation candidates, configuration/scaling snapshots,
-training manifests, selections, confirmation trajectories and physical audits.
-These generated outputs are Git-ignored and are not included in this push.
-Source, versioned recipes, documentation, acceptance/digest records and the two
-additive dataset release archives (Git LFS) are included. A clone alone will not
-restore local trained weights; model release publication is a later checkpoint.
+`docs/level5_place_acceptance.json` binds the owner's prescribed seed-5001
+three-target-type review to the exact three selected bundles, recipes,
+confirmation reports and physical audits. The original automated verification
+in `docs/level5_place_repair_verification_v25.json` retains its historical
+pending manual status. Failed policy versions and counted attempts remain
+preserved; original datasets were not overwritten. This is state-based
+qualification on fresh resets of exposed families, without learned vision,
+unseen-family, default registry admission or deployment qualification.
+Commands and limits are documented in `docs/level5_place_repair.md`.
 
 ---
 
 ## Next Target Checkpoint
 
+Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
+
+Not started. Select a single skill/checkpoint from the active progress file
+only when the owner requests new work. Apply the per-skill recipe and method
+handoff; do not inherit the reach or place decoder without separate evidence.
+No Level 5.5 implementation, training or evaluation was performed as part of
+5.4A completion.
+
+---
+
+## Historical Level 5.4 Result
+
 Level 5.4 — State-Grounded Place-Held-Object Policy
 
-Not started. Stop after the 5.3A completion commit and push; do not implement
-5.4 without a new task. Its scope and acceptance criteria remain in
-`docs/progress_level_5.md`. Freeze a place-specific recipe before training as
-required by `docs/level5_training_guidance.md` and `docs/module_contracts.md`.
+Completed October 3, 2026 with automated verification and a **negative state
+qualification** result. The independently locked place V1 recipe trained all
+three seeds for 200 epochs / 13,200 updates. Full closed-loop validation selected
+epochs 20, 56 and 20. One-time held-out evaluations achieved 4/216, 0/216 and
+12/216 successes; every seed fails success, premature-release and safety gates.
+All three target types and held-out goal regions were evaluated. No viewer check
+is required after these numerical failures, and no owner visual acceptance or
+qualified place skill is claimed.
+
+The source is the unchanged immutable Level 4 pick/place release. The new
+policy uses causal state features, calibrated measured-to-command geometry,
+active finger release and a post-integration physical outcome check. The exact
+selected weights are bound to the recipe and validation candidates. All 16
+reported held-out successes pass independent saved-state reconstruction of the
+final ten physical states. Full regression: 816 passed, one skipped; focused
+tests: 18 passed. Ruff, config/source checksums, LFS attribute, artifact indexes
+and selected-weight integrity pass. Exact commands, per-seed metrics, diagnostic
+limits and hashes are in `docs/level5_place_results.md` and
+`docs/level5_place_verification.json`.
+
+Failed place attempts, draft runs and the validation-only release-gating
+diagnostic remain in Git-ignored `outputs/level5/place_54_v1/`. Selected V1
+weights, rollouts and audit evidence also remain local and are not a published
+model release. Original Level 4 and Level 5 pick data, historical configs and
+completed checkpoint results are unchanged. Level 5.5 has not started.
+
+---
+
+## Level 5.4A Repair History
+
+Level 5.4A — Place-Held-Object Policy Repair
+
+Completed October 5, 2026 after the owner confirmed V25 manual review with
+"Passed". The history below preserves failed repair versions and development
+evidence; acceptance is bound in `docs/level5_place_acceptance.json`.
+The completed negative 5.4 result remains historical evidence. The active
+repair work and its validation-only diagnosis are in
+`docs/level5_place_repair.md`; its separate checkpoint section is in
+`docs/progress_level_5.md`. The V2 ordinary-physics teacher passes its exposed
+slot-B screen (29/30, zero safety), but its all-cell screen fails (15/30). A
+frozen V3 teacher passed 30/30 on the exposed development matrix, then **failed
+a separate fresh all-cell screen at 22/30**. Frozen V4 passed 29/30 on that
+exposed matrix and failed another fresh all-cell screen at **26/30**. A bounded
+exact-reset candidate search passed a further fresh development screen at
+**29/30**, with 9/10 worst-family success and zero safety violations. This
+cleared only the scripted-source feasibility item. All negative attempts are
+retained. At that stage no additive release or learned policy existed. The
+earlier regression passed 823 tests with one skip before the search changes.
+Frozen additive data V1 collection stopped after a new
+`860260906` object-workspace safety failure; no archive was published.
+Search V2 preserves that failure, uses a safe no-success fallback and is
+passed a fresh 60-reset nominal/boundary screen at **59/60**, worst family
+19/20, zero selected live safety violations. Additive data V2 is frozen with
+new assignments. Collection passed 140/144 training and 47/48 validation
+resets with zero live safety violations. Independent saved-state reconstruction
+passed all 187 successful payloads; the five failures remain counted and
+excluded from supervision. The immutable V2 archive, checksum and manifest
+are under `datasets/level5-place-unassisted-v2*` with the LFS attribute
+verified. Versioned learned V2/V3/V4/V5/V6 recipes and fresh confirmation
+resets are frozen. V2 direct action deltas and V3 fixed hand waypoints failed
+development diagnostics after all three 200-epoch training budgets; their
+weights and attempts remain local negative evidence. V4 object-feedback
+partial validation proves every candidate fails a worst-family gate; its
+task-local transport cadence was incorrectly mapped. V5 corrected that
+0.005 m step and selected all three seeds after full validation, but a
+separate all-target development screen exposed one object-workspace violation
+and a failed settling gate. Its one-time confirmation was not used. V6 keeps
+the same learned targets and adds a bounded held-object waypoint, a 0.0245 m
+cuboid release trigger within the frozen 0.025 m limit, and slower coupled
+cylinder opening. It passed separate 27/30 nominal and 27/30 boundary
+all-target development screens with zero safety, then completed all three
+200-epoch training runs. Complete V6 validation selected epochs 20, 200 and
+80, but seed 5002 epoch 200 failed the settling gate and one separate
+all-target development safety check. A frozen V7 all-target selection screen
+rejected both eligible seed 5002 candidates for object-workspace violations;
+no V7 three-seed bundle was completed. V8 retains the exact three full-budget
+V6 weight sets and freezes a measured command/object lag hold, target-specific
+cuboid opening, and a geometric release fallback for an outward-moving
+cuboid near a receptacle edge. Its exact decoder passed 53/60 on an exposed
+all-target development matrix, with zero safety and all original gates.
+Full V8 validation completed. Its fresh all-target selector chose seed 5001
+epoch 80 and seed 5002 epoch 20, but rejected both eligible seed 5003
+candidates: epoch 20 missed the original settling gate (50/58 settled
+nominal placements), and epoch 80 had two object-workspace violations. No
+V8 three-seed bundle or confirmation resulted. A V9 decoder overlay freezes
+slower opening for nonplanar cuboids, cylinders and pucks on the exact V6
+weights. Predeclared epochs 80, 20 and 20 passed all gates on the now-exposed
+V8 selection starts, with zero safety, and then passed full V9 validation.
+The distinct fresh 1020-series selection screen passed seed 5001 but rejected
+seeds 5002 and 5003 on the unchanged 90% settling gate (50/56 and 53/60
+settled nominal placements). No V9 three-seed bundle exists. V10 froze a
+target-aware 0–3 mm release clearance on the same exact V6 weights. It
+passed both complete exposed 1000/1020 all-target development screens for
+all three seeds with zero safety, but full validation rejected seed 5002:
+36/64 cuboid successes missed the unchanged worst-family gate. Its new 1040
+selection was not run. V11 freezes zero added rise for cuboids over placement
+slots after diagnosing those bounces. All three predeclared candidates passed
+complete V11 validation. The fresh 1060 selection passed seed 5001 (49/60,
+49/54 settled, zero safety) but
+rejected seed 5002 (52/60, 52/58 settled) and seed 5003 (49/60, 49/58
+settled) on the unchanged 90% settling gate. Seed 5001 is selected, but no
+three-seed V11 bundle exists. The original one-time 930 confirmation remains
+unused; no V11 qualification or manual acceptance is claimed. V12 added a
+short-grasp heavy-puck inspection-pad descent waypoint and a measured-state
+left-bin cuboid opening choice on the unchanged V6 weights. Its targeted
+exposed-reset numeric diagnostics predicted all 1060 gates pass, but an
+independent saved-state audit found 15 hand-table-contact frames before
+opening on a nominal success. Partial V12 validation was stopped without a
+fresh 1080 selection or confirmation. V13 adds an opening fallback for that
+measured negative lateral drift, only within the original physical release
+limit. Six exposed low-offset pad attempts passed its development physical
+audit. Complete V13 validation passed all three seeds, but the fresh 1100
+selection rejected all three: seeds 5001 and 5002 each had one object-
+workspace violation, and seed 5003 settled 51/59 nominal placements,
+below 90%. No V13 selected bundle exists. The 1100 resets are now exposed
+development evidence; the original 930 confirmation is still unused.
+V14 now freezes a narrowly gated post-setup wrist hold for the measured
+large-block left-bin and short-cylinder/heavy-puck slot failure states.
+Targeted exposed 1100 development replays predict all three numerical gates
+pass, with every changed attempt passing independent saved-state audit.
+Complete V14 validation passed every state gate, but its fresh 1120 selection
+passed only seed 5001. Seed 5002 had one object-workspace violation, and seed
+5003 settled 51/59 nominal placements, below 90%. No three-seed V14 bundle
+exists. The 1120 resets are now exposed development evidence; the 930
+confirmation remains untouched. Level 5.5 has not started.
+V15 now freezes bounded measured-state opening rates and an inboard lift for
+the observed large-block collision. Its targeted live changes plus unchanged
+saved outcomes pass every frozen gate on the exposed 1100 and 1120 matrices
+for all three seeds; all changed attempts pass saved-state audit. Complete
+V15 complete validation and the distinct fresh 1140 selection passed all
+three seeds with zero recorded safety violations. The original one-time 930
+confirmation also passed every numerical state gate (204/240, 208/240 and
+216/240), but independent saved-state audit rejected all three bundles:
+8, 2 and 7 distinct reported successful resets had hand-table contact before
+opening. The 930 confirmation is consumed and exposed. V15 is not qualified;
+a source-grounded wrist/clearance diagnostic was tested within 5.4A. Its
+full exposed 930 nominal matrix passed the original numerical gates but
+still had one and two audited-success contact failures for seeds 5001 and
+5002. No V16 recipe or fresh qualification run was frozen.
+Any subsequent candidate needs a newly frozen selection and confirmation
+matrix plus independent physical audit. Level 5.4A is still open.
+The V2 source has no right-bin cell in either split and keeps slot B out of
+training. A checksum-locked V3 additive data plan now assigns all 30 cells to
+both train and validation using 240 and 120 disjoint new resets and distinct
+simulator sessions. The V3 release was published after 237/240 training and 117/120
+validation successes, zero live safety, and 354/354 passing saved-state
+source audits. The six failures remain counted without payloads. The new
+archive, checksum and manifest are under `datasets/level5-place-unassisted-v3*`
+with Git LFS and checksum verification. Historical V2 data, V15 failed
+confirmation and the 5.4A completion gates remain unchanged.
+V16 also freezes measured-object wrist feedback and bounded commanded-hand
+clearance around the exact V6 weights. Its exposed 930/1100/1140 nominal
+diagnostics pass numerical and saved-state physical checks for all three
+seeds. Full V16 validation passed every state gate on 192 rollouts per seed:
+180/192, 172/192 and 172/192 successes, with zero recorded safety.
+The fresh 1160 all-cell selection rejected all three seeds: seed 5001
+settled 51/59 nominal placements (below 90%) and had one reported-success
+pre-opening hand-table contact; seeds 5002 and 5003 passed numerical gates
+but had one and three such physical audit failures. No V16 bundle was
+selected. The 1180 one-time confirmation remains unused. V3 all-cell
+source is available for a separately frozen learning repair; owner viewer
+acceptance remains conditional. No place qualification exists yet.
+V17 freezes source-grounded wrist holds, a bounded pad clearance change and
+two targeted seed-5003 orientation-feedback cases on the exact V6 weights.
+The V3 all-cell release informed these engineered controls but did not train
+those weights. Full V17 validation passed all numerical gates (172/192,
+164/192, 168/192; zero recorded safety). The fresh 1260 all-cell selection
+passed 52/60, 51/60 and 52/60, with all numerical gates, zero recorded
+safety and zero physical-audit failures among 180 saved attempts. Exactly
+epochs 80, 20 and 20 were selected. The 1260 matrix is now exposed; the
+one-time 1280 confirmation passed numerical gates for seeds 5001 and 5002
+at 212/240 each, but seed 5003 failed the 90% settling gate at 192/220
+settled nominal placements (87.3%). Independent saved-state audits found
+all 720 attempts physically consistent, but cannot override the numerical
+failure. V17 is not qualified; 1280 is now exposed, no owner viewer review
+is triggered, and a later recipe needs distinct unused selection and
+confirmation resets. Level 5.4A remains open and 5.5 has not started.
+V18 now freezes a bounded geometric release fallback for seed 5003's large
+block within the unchanged 0.0245 m cuboid release distance. Exposed 1280
+targeted diagnostics converted four of five unreleased pad/slot attempts to
+settled placements, with all changed 1160/1260/1280 attempts passing
+independent saved-state audit. Fresh 1300 selection and 1320 confirmation
+resets are frozen but unused. V18 has no qualification claim yet.
+Complete V18 validation passed all numerical gates for the three seeds
+(172/192, 164/192 and 172/192; zero recorded safety). Fresh 1300 selection
+rejected all seeds on the 90% settling gate (51/59, 47/56 and 53/59);
+seed 5001 additionally had one saved-state physical audit failure. No V18
+bundle was selected. The 1300 matrix is exposed, 1320 confirmation remains
+unused, and owner viewer review is not triggered. Level 5.4A remains open.
+V19 is a separate learned recipe on the published V3 all-cell source: 237
+successful training episodes and 117 successful source-validation episodes,
+with 30 cells in each split. It keeps the V18 bounded decoder and unchanged
+physical and numerical gates, but trains new learned scores for three seeds
+over the full frozen 200-epoch budget. New disjoint 1330 policy-validation,
+1340 selection and 1360 one-time confirmation matrices are frozen. Source
+dry run and focused ownership tests pass. All three 200-epoch, 20,400-update
+training runs have finished. All nine closed-loop validation reports are
+complete; the frozen ranking selected epochs 20, 20 and 200 at 220/240,
+220/240 and 216/240 successes, all numerical gates and zero recorded safety.
+The distinct 1340 all-cell selection rejected all three seeds on the
+unchanged settling gate: 50/59, 51/58 and 50/58 nominal placements settled
+(84.7%, 87.9%, 86.2%). Aggregate successes were 50/60, 51/60 and 50/60,
+with zero recorded safety. Independent saved-state audit found one
+reported-success pre-opening hand-table contact for seeds 5001 and 5003;
+seed 5002 had none. No V19 bundle was selected. The 1340 matrix is exposed,
+1360 one-time confirmation remains unused, and no owner viewer review is
+triggered. Targeted development probes of slower opening and post-detachment
+hand retreat did not fix the shared bounces. Bounded supported descent fixed
+five targeted failures without audit contact, but its complete exposed 1340
+screen regressed previously successful cells: 47/60, 48/60 and 48/60
+successes, with all three settling gates failing and one physical audit
+failure per seed. It is rejected as a general repair and does not change
+the frozen V19 result. Level 5.4A
+remains open and 5.5 has not started.
+
+V20 is now a separately frozen 5.4A decoder repair on the exact V19 learned
+weights. It replaces the V2 family release waypoint offsets with six
+training-only V3 object medians, adds bounded supported descent during
+cylinder opening, and guards small-block slot-B hand height at 0.073 m.
+Its exposed 1340 development screen passed every frozen numerical gate
+for epochs 20, 20 and 200: 54/60 successes each, 54/59, 54/58 and 54/58
+settled nominal placements, zero recorded safety and zero independent
+saved-state audit failures across 180 attempts. These exposed results do
+not qualify V20. Complete 1330 V20 policy validation passed all original
+numerical gates: 220/240, 212/240 and 216/240 successes, zero recorded
+safety. Fresh 1380 selection then passed seed 5001 (54/60 successes, zero
+physical audit failures), but rejected seed 5002 for two reported-success
+pre-opening hand-table contacts and seed 5003 for one object-workspace
+violation. The 1380 matrix is exposed, no three-seed V20 bundle was
+selected, and 1400 one-time confirmation remains untouched. The 1360 V19
+confirmation also remains unused. Level 5.4A is open; Level 5.5 has not started.
+
+An exposed V20 follow-up with source-height floors for large-block left-bin
+and small-block slot-A placements was rejected: it left pre-opening table
+contact, caused long stalls and introduced premature releases. No V21
+recipe or fresh qualification matrix was frozen.
+Software regression after V20: 876 passed, one skipped; Ruff, V3 archive
+checksum, LFS filter, and Git diff whitespace checks passed. V20 remains
+unqualified because its fresh selection failed physical/safety gates.
+
+V21 was a checksum-locked copied-state transport preview
+using exact V19 learned weights and the V20 decoder. Twelve attempts in the
+two exposed 1380 risk cells passed a disposable development replay and
+saved-state audit; one integrated replay of the frozen implementation also
+passed. Complete 1330 validation passed all original numerical gates for
+three seeds (212/240, 208/240, 212/240), with zero recorded safety. Fresh
+1420 selection passed all original numerical gates at 55/60, 57/60 and
+54/60 successes, zero recorded safety and 180/180 independent physical
+audits. Exact epochs 20, 20 and 200 were selected. One-time 1440 confirmation
+rejected seeds 5001 and 5002 on the unchanged settling gate (204/228 each,
+89.47%); seed 5003 passed numerically (208/228, 91.23%). All three had zero
+recorded safety. Independent saved-state confirmation audit passed all 720
+attempts; 1440 is exposed. This is still Level 5.4A; no place
+qualification or owner manual acceptance is claimed.
+
+V22 is now a separately frozen 5.4A repair over exact V21 weights and
+decoder. It uses a bounded 2 mm supported opening descent only for held
+short-cylinder placements over bins. Exposed 1330/1420/1440 diagnostics and
+an integrated saved-state audit pass the targeted screen; this is development
+evidence. Complete 1330 V22 validation passed every original numerical gate
+at 216/240, 212/240 and 216/240 successes with zero recorded safety. Fresh
+1460 selection rejected V22: seeds 5001 and 5003 settled 52/58 and 50/58
+nominal placements, below the original 90% gate; seed 5002 passed numerical
+gates at 53/58. Seeds 5001 and 5002 each had one reported-success
+pre-opening hand-table contact on a small-block slot-B reset. The 1460
+matrix is exposed, no three-seed V22 bundle exists, and 1480 one-time
+confirmation is unused. Level 5.4A remains open.
+
+V23 is a separately checksum-locked repair on exact V19 learned weights and
+the V21 copied-state transport preview. It changes small-block slot-B preview
+only when the baseline action predicts hand-table contact; over bins it uses
+3 mm short-cylinder and 1 mm heavy-puck held opening descent above frozen
+height thresholds. Disposable changed-attempt probes on complete exposed
+1330/1420/1440/1460 matrices pass all original numerical gates for all seeds,
+with passing saved-state audits for every changed attempt. These are
+development estimates, not V23 qualification. Distinct 1500 all-cell
+selection and 1520 one-time confirmation resets are frozen. Two integrated
+replays, including the prior slot-B contact and puck-bin bounce cells, pass
+saved-state audit. Complete 1330 V23 validation passed every original
+numerical gate at 204/240, 200/240 and 204/240 successes, with 92.7%,
+90.9% and 92.7% settling and zero recorded safety. Fresh 1500 selection
+passed all original numerical gates at 54/60, 54/60 and 53/60 successes,
+with zero recorded safety, but seed 5002 failed one independent saved-state
+audit: a reported-success large-block/right-bin placement had 11 pre-opening
+hand-table contact samples. V23 is rejected; 1500 is exposed, 1520 one-time
+confirmation is unused, and no owner viewer review is triggered. A narrower
+follow-up repair is under development inside 5.4A.
+
+V24 now freezes the verified setup wrist during large-block/right-bin
+transport on exact V19 weights and the V23 decoder. The failed V23 seed's
+learned wrist rotation caused the held block to rise relative to the hand,
+requiring unsafe descent before release. The source-entry hold converted
+that exposed failure to a settled placement with zero pre-opening table
+contact. All six exposed 1500 right-bin attempts and six 1330 right-bin
+validation attempts succeed and pass physical audit; all six 1460 probes
+pass audit with one counted bounce per seed. The integrated frozen V24 replay
+matches its passing diagnostic actions and states exactly. New disjoint 1540
+selection and 1560 one-time confirmation resets are frozen and unused.
+Full V24 software regression passed 888 tests with one skip; Ruff and recipe
+checksums pass. Complete V24 validation passed every numerical gate at
+204/240, 200/240 and 204/240 successes, 92.7%, 90.9% and 92.7% settling,
+and zero recorded safety. Fresh 1540 selection passed every numerical gate
+at 53/60, 53/60 and 51/60 successes, with zero recorded safety. Its physical
+audit passed 179/180 attempts: seed 5002's large-block/inspection-pad reported
+success had one pre-opening hand-table contact sample. V24 is rejected,
+1540 is exposed and 1560 one-time confirmation remains unused. Level 5.4A
+remains open; a release-timing follow-up is under development.
+
+V25 now freezes a geometric large-block/inspection-pad opening trigger at
+the first held measured distance inside the unchanged 0.0245 m cuboid bound.
+It retains exact V19 weights, V24 wrist hold, opening rate and release rise.
+All six exposed 1540 pad attempts settle with passing physical audits; six
+1330 pad probes preserve one counted timeout outside the bound and one
+audited success per seed. The integrated V25 replay matches diagnostic
+actions and states exactly. Focused tests pass 18/18 and Ruff passes. New
+1580 selection and 1600 one-time confirmation resets were frozen before use;
+full regression passed 890 tests with one skip. Complete V25 validation
+passed every numerical gate at 204/240, 200/240 and 204/240 successes,
+92.7%, 90.9% and 92.7% settling, and zero recorded safety. Fresh 1580
+selection passed every numerical and physical gate at 53/60, 53/60 and
+52/60 successes, zero recorded safety and 180/180 passing saved-state
+audits. Exact epochs 20, 20 and 200 are packaged; selected model tensors
+and manifests match the frozen V19 candidates. One-time 1600 confirmation
+passes every frozen numerical gate for all three seeds: 196/240, 204/240
+and 192/240 successes; 94.2%, 94.4% and 92.3% settling; worst-family
+success 65%, 75% and 65%; premature release 8.33% each; zero recorded
+safety violations. All 720 independent saved-state physical audits pass,
+including counted failures. Artifact indexes, source/config pins, exact
+candidate tensors/manifests, confirmation markers and viewer prerequisites
+verify. Evidence hashes and metrics are recorded in
+`docs/level5_place_repair_verification_v25.json`. Owner viewer acceptance
+was confirmed on October 5, 2026 with "Passed" and is separately recorded in
+`docs/level5_place_acceptance.json`. Historical automated receipts remain
+unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 
 ---
 
@@ -79,13 +406,32 @@ required by `docs/level5_training_guidance.md` and `docs/module_contracts.md`.
 
 ## Manual Verification Status
 
+Level 5.4A V25 owner manual viewer acceptance was confirmed on October 5,
+2026 with "Passed" after the prescribed seed-5001 saved-state review of one
+successful attempt per planar-zone, placement-slot and receptacle target.
+`docs/level5_place_acceptance.json` binds that owner statement to the exact
+recipes, selected weights, confirmation reports and physical audits. All
+three one-time numerical confirmations and 720/720 independent physical
+audits pass. This is owner-reported acceptance; no agent visual observation
+or local viewer-log completion is claimed. Historical automated receipts
+retain their then-pending manual status. No manual gate remains for 5.4A.
+Last Completed is now 5.4A, Next Target is 5.5, and 5.5 has not started.
+Earlier failed versions and all failed attempts remain preserved.
+
+Level 5.4 numerical gates fail for all three selected state policies, so the
+conditional manual viewer review is not triggered. No manual check is
+outstanding, and no owner observation or acceptance is claimed. The guarded
+viewer refuses these failed reports. The later owner-requested 5.4A repair has since completed with bounded
+state qualification and owner acceptance; 5.5 has not started.
+
 Level 5.3A V7 owner manual acceptance was confirmed on October 3, 2026 with
 “Manual review passed.” `docs/level5_pick_acceptance.json` binds that statement
 to the three selected models, recipe, confirmation reports and physical audits.
 All three numerical confirmations and 648 saved-state physical audits pass; the
 known small-block drop remains a failed attempt. No manual check remains.
-The owner authorized the completion commit and push. Last Completed is 5.3A
-and Next Target is 5.4; Level 5.4 has not started. Original automated
+The owner authorized the 5.3A completion commit and push. At that handoff,
+Last Completed was 5.3A and Next Target was 5.4; 5.4 has since completed with
+negative state qualification. Original automated
 receipts retain their historical pending status; owner acceptance is separate.
 
 Level 5.3 is complete with automated verification and a negative qualification

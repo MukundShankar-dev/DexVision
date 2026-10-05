@@ -1,0 +1,26 @@
+version: level5/place-policy-slot-clearance-v11
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_clearance_v10.yaml
+parent_policy_recipe_sha256: 91c866bbda8adde9acd303205389ea8ddef98bbfd4415680f2ada71190da975b
+output_dir: outputs/level5/place_repair/policy_v11
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+cuboid_placement_slot_clearance_m: 0.0
+implementation_sha256:
+  dexvision/learning/place_slot_clearance_policy.py: 6dea91ca065b6b3b9d33000b7340d6b349031403c5abbee4cf899b895a5f8b20
+  dexvision/evaluation/place_slot_clearance_policy.py: a8255eeb1a4d4e0c3fd5a0bf60dbdb951e93f3f333c4743af905e418507bb847
+source_exposure: All source families and targets occur in the scripted training source.
+  V8 1000 and V9 1020 selection matrices and V10 validation are exposed V11 development
+  evidence. The 1060 selection and original 930 confirmation resets were unused at
+  freeze.
+reason: V10 full validation seed 5002 failed the original worst-family gate because
+  the added 1.5 mm cuboid slot clearance caused 12 new bounces. Keep V10 target-dependent
+  clearance elsewhere, but apply zero extra rise to cuboids above both placement slots.
+  Saved complete V9/V10 rollouts predict all gates pass on exposed validation and
+  both exposed screens; this prediction is not qualification.
+selection: Keep V6 epochs 80, 20 and 20 predeclared. Run complete V11 validation and
+  separate fresh 1060 all-target screen per seed; use untouched 930 confirmation only
+  if all selection gates pass.

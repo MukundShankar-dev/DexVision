@@ -126,11 +126,37 @@ def test_input_digests_and_config_lock(plan):
         assert relative not in checked
         checked.add(relative)
     expected = {p.relative_to(ROOT).as_posix() for p in (ROOT / "configs/level5").rglob("*.yaml")}
-    # Reach repair and pick recipes have independent immutable locks; they must
+    # New skill recipes have independent immutable locks; they must
     # not rewrite the completed 5.0 lock merely to add a new experiment.
     amendments = set()
     recipe_paths = [*(ROOT / "configs/level5").glob("reach_repair_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_policy_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("place_policy_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("place_policy_*_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("place_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_safety_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_slow_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_clearance_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_slot_clearance_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_adaptive_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_recovery_selection_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_wrist_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_physical_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_contact_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_source_wrist_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_geometric_release_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_full_source_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_object_calibration_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_shadow_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_supported_descent_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_bin_opening_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_wrist_hold_selection_v*.yaml"),
+                            *(ROOT / "configs/level5").glob("place_pad_release_selection_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("place_teacher_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_teacher_coverage_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_teacher_search_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_teacher_search_coverage_v*.yaml"),
+                        *(ROOT / "configs/level5").glob("place_data_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_setup_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_teacher_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_data_v*.yaml")]

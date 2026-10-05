@@ -1,0 +1,30 @@
+version: level5/place-object-calibration-selection-v20
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_object_calibration_v20.yaml
+policy_recipe_sha256: 4b3d597bccf641359f987ec894317fcd04bc911c3ebcb6e074023b6a4fe418aa
+selection_implementation_sha256: 50f9959594e3836784df8d24c9a052a8893190aa0e2e7ab13dc3405239b0af43
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001': 20
+  '5002': 20
+  '5003': 200
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v20_validation
+output_dir: outputs/level5/place_repair/policy_v20_selection
+selection_screen:
+  seed_start: 1380260900
+  resets_per_cell: 2
+  render_condition: nominal
+confirmation:
+  seed_start: 1400260900
+  resets_per_cell: 2
+source_exposure: V3 training and validation source cover all 30 cells. V19 1330 validation
+  and 1340 selection are exposed development evidence. V20 reuses 1330 for full validation;
+  fresh 1380 selection and 1400 one-time confirmation are disjoint from source and
+  each other. No unseen-family claim.
+ranking: Only the predeclared validation-passing V19 epoch for each seed may be screened;
+  require all original state gates and every saved-state physical audit before packaging
+  exact weights.

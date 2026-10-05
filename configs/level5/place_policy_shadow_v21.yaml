@@ -1,0 +1,52 @@
+version: level5/place-policy-shadow-v21
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_object_calibration_v20.yaml
+parent_policy_recipe_sha256: 4b3d597bccf641359f987ec894317fcd04bc911c3ebcb6e074023b6a4fe418aa
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001': 20
+  '5002': 20
+  '5003': 200
+validation_seed_start: 1330260900
+selection_seed_start: 1420260900
+confirmation_seed_start: 1440260900
+selection_resets_per_cell: 2
+confirmation_resets_per_cell: 2
+preview_cells:
+- - block_large
+  - return_bin_left
+- - block_small
+  - setup_slot_a
+preview_max_hand_z_m: 0.135
+preview_rotation_degrees:
+- -3.0
+- 3.0
+preview_rise_m:
+- 0.002
+- 0.005
+preview_lateral_m:
+- -0.002
+- 0.002
+preview_progress_margin_m: 0.001
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v21_validation
+selection_output_dir: outputs/level5/place_repair/policy_v21_selection
+source_exposure: V3 train/validation contain all cells. V19/V20 1330/1340/1380 screens
+  and V21 preview development on 1380 are exposed. V21 1420 selection and 1440 one-time
+  confirmation are disjoint fresh resets. No unseen-family claim.
+method_decision: Retain exact V19 learned weights and V20 decoder. In two source-exposed
+  risk cells, preview the learned transport action and 12 bounded pose alternatives
+  in copied MuJoCo state, select a contact-free in-board candidate only if the baseline
+  is unsafe or target progress improves by more than 0.001 m. No finger or latched
+  release modification. Original gates and independent saved-state audit remain unchanged.
+development_result: On exposed 1380 affected cells, 12/12 nominal attempts physically
+  audited; mixing unchanged other cells gives numerical gates for all three seeds.
+  Development only.
+implementation_sha256:
+  dexvision/learning/place_shadow_policy.py: 12d8095be99a639ca7835fde1cd50b9bb5e7f034756cd23904d9221a6516fd89
+  dexvision/evaluation/place_shadow_action.py: f44d11a977f5fb473a1498d790729a1d791e99e6623ea5802c3d17a2f9c92eb3
+  dexvision/evaluation/place_shadow_rollout.py: ee79f3448e5e4370765c278464a01bc37429d55937073a32912e647445eae362
+  dexvision/evaluation/place_shadow_policy.py: e341ef162f5444e49f10db59eb564e30cf8704af25ac94b42721dbb705b88aba

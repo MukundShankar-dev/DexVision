@@ -1,0 +1,46 @@
+version: level5/place-teacher-v2
+checkpoint: 5.4A
+place_recipe: configs/level5/place_policy_v1.yaml
+place_recipe_sha256: ba7773bffddef078514124a6023e24a54570f94a98071613c0985a4775883180
+pick_teacher_recipe: configs/level5/pick_teacher_v4.yaml
+pick_teacher_recipe_sha256: 8994d5cb9674ce1ed2e7848254c76e5865ed6965a8a515bb60d4c525d3fb7fad
+purpose: >-
+  Exposed validation-only feasibility for a new ordinary-physics place source.
+  The completed V1 weights, source archive, frozen qualification gates and
+  failed test remain unchanged. This recipe is not a learned policy.
+development_matrix: frozen_level4_place_validation_30_unique_resets
+pick_setup: exact_unassisted_v4_teacher_full_pick_with_original_fallback_preflight
+placement_clearance_m: 0.03
+release_step_scale: 0.5
+release_position_tolerance_m: 0.023
+release_distance_by_family_m:
+  cuboid: 0.023
+  cylinder: 0.015
+  flat_puck: 0.015
+alignment_stop_distance_m: 0.014
+alignment_step_m: 0.001
+maximum_place_actions: 450
+decoder: >-
+  Retain the audited grasp throughout transport. While genuinely held and
+  within 0.025 m of target, make at most 0.001 m per sample of measured
+  object-to-target correction. Couple all twenty finger actuators to the
+  source's single release-synergy increment. Latch the hand command pose
+  when the family-specific measured release distance is reached and hold it
+  while opening and settling. Workspace saturation is recorded explicitly.
+physics: ordinary_unassisted_no_post_entry_object_pose_or_orientation_writes
+gates:
+  success_min: 0.95
+  worst_family_success_min: 0.9
+  safety_violations_max: 0
+disclosure: >-
+  The validation family, target and reset starts have been exposed in V1 and
+  prior repair diagnostics. Teacher feasibility here supports a future
+  additive data recipe only. It is not a qualification or an independent test.
+
+revision_decision: >-
+  V1 source feasibility was 28/30: one cuboid grip loss and one cylinder
+  rebound despite zero safety interventions. A validation-only paired
+  diagnostic on the rebound reset succeeded when the audited opening step
+  was halved. Freeze that single rate change here before repeating the full
+  thirty-reset development screen. Preserve V1 outcomes and all frozen
+  place qualification thresholds.

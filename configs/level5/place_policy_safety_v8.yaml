@@ -1,0 +1,34 @@
+version: level5/place-policy-safety-v8
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_guarded_v6.yaml
+parent_policy_recipe_sha256: 51cc2f34967223a4d9baaae2370c5393f619b5b8169984b5287757fdbf6f4b87
+output_dir: outputs/level5/place_repair/policy_v8
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+command_object_lag_hold_m: 0.05
+cuboid_opening_step_nonplanar: 0.0125
+cuboid_opening_step_planar: 0.025
+edge_release:
+  target_abs_y_min_m: 0.09
+  object_abs_y_min_m: 0.09
+  outward_velocity_min_mps: 0.02
+implementation_sha256:
+  dexvision/learning/place_safety_policy.py: 5cd1768f3903673dc9c0007b58546f339f785243e396057b4eb65454b72d3ea2
+  dexvision/evaluation/place_safety_policy.py: db887279ea82f30fcba657b6847bfbbb3bc92625ee904ddf42fcc93e69799e04
+source_exposure: All object families and target types are exposed in source data and prior
+  940/950/960 development and 990 V7 selection screens. The V8 1000-series all-target selection
+  and 930-series confirmation resets are distinct and unused at freeze.
+reason: V7 all-target selection rejected every validation-qualified seed5002 candidate on
+  zero safety. A 0.05 m change in initial command-to-object offset pauses abnormal transport;
+  slower cuboid opening on nonplanar targets reduces bounces; an outward-moving cuboid near
+  a receptacle edge may release at the unchanged physical distance without waiting for a negative
+  learned gate. The exact combined decoder passed 53/60 on exposed 990 development resets
+  with zero safety and all unchanged gates. V6 weights, learned features, physical scales,
+  transport/descent cadence, parent release trigger and all safety gates are preserved.
+selection: 'Full V8 48-reset by four-condition validation for every V6 candidate; then fresh
+  60-reset all-target nominal/boundary selection for validation-gate-passers, with a separate
+  versioned selector. No V8 model training: the three 200-epoch / 12,200-update V6 weight
+  sets are reused unchanged and bound to this decoder.'

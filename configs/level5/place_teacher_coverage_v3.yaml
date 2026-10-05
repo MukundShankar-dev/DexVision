@@ -1,0 +1,41 @@
+version: level5/place-teacher-coverage-v3
+checkpoint: 5.4A
+teacher_recipe: configs/level5/place_teacher_v4.yaml
+teacher_recipe_sha256: 1710f9c48c8ba9026fd7009c3b417d4c186789ba90ca0e1a66b45b93a86e6b02
+seed_start: 840260900
+boundary_case: false
+cells:
+- pp_block_small_return_bin_left
+- pp_block_small_inspection_pad
+- pp_block_small_setup_slot_a
+- pp_block_small_setup_slot_b
+- pp_block_small_return_bin_right
+- pp_cylinder_short_return_bin_left
+- pp_cylinder_short_inspection_pad
+- pp_cylinder_short_setup_slot_a
+- pp_cylinder_short_setup_slot_b
+- pp_cylinder_short_return_bin_right
+- pp_puck_light_return_bin_left
+- pp_puck_light_inspection_pad
+- pp_puck_light_setup_slot_a
+- pp_puck_light_setup_slot_b
+- pp_puck_light_return_bin_right
+- pp_block_large_return_bin_left
+- pp_block_large_inspection_pad
+- pp_block_large_setup_slot_a
+- pp_block_large_setup_slot_b
+- pp_block_large_return_bin_right
+- pp_cylinder_tall_return_bin_left
+- pp_cylinder_tall_inspection_pad
+- pp_cylinder_tall_setup_slot_a
+- pp_cylinder_tall_setup_slot_b
+- pp_cylinder_tall_return_bin_right
+- pp_puck_heavy_return_bin_left
+- pp_puck_heavy_inspection_pad
+- pp_puck_heavy_setup_slot_a
+- pp_puck_heavy_setup_slot_b
+- pp_puck_heavy_return_bin_right
+disclosure: New nominal development resets after V4 recipe freeze across all six exposed
+  objects and five goal cells. The 830260900 matrix informed V4, so these outcomes
+  cannot be used as independent learned-policy confirmation. Preserve every failed
+  case.

@@ -1,0 +1,29 @@
+version: level5/place-policy-slow-v9
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_safety_v8.yaml
+parent_policy_recipe_sha256: 8bfe8b2b114496196343923bfdc891a59d62ec8414fd8ad52f2d8b5abaf1902e
+output_dir: outputs/level5/place_repair/policy_v9
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+cuboid_opening_step_nonplanar: 0.00625
+cylinder_opening_step: 0.00625
+flat_puck_opening_step: 0.00625
+implementation_sha256:
+  dexvision/learning/place_slow_policy.py: 644d661d476bbe02852a944ec3bc2fb7155c6be78087b7cf3c4f70d7edca18d6
+  dexvision/evaluation/place_slow_policy.py: 2886a8e9170a0cac6778674ff6262f0e607e9b1d19086d0218d1b495f7b49f52
+source_exposure: All families and targets occur in the scripted source. V7 990 selection
+  and V8 1000 selection were exposed. V9 opening-rate development reused the exposed
+  V8 1000 matrix. Fresh 1020 selection and original 930 confirmation resets remain
+  unused at freeze.
+reason: 'V8 fresh selection rejected seed 5003: epoch 20 had 50/58 settled nominal
+  placements, while epoch 80 had two object-workspace violations. Bounded slower opening
+  of nonplanar cuboids, cylinders and pucks passed 51/60, 54/60 and 53/60 on the exposed
+  V8 selection starts for seeds 5001, 5002 and 5003, zero safety, all frozen gates.
+  Planar cuboid opening, V8 lag and edge-release rules, learned weights and all physical
+  thresholds stay unchanged.'
+selection: Predeclare V6 epochs 80, 20 and 20 from V8 validation/selection evidence.
+  Run complete V9 validation and a fresh all-target screen for each, then one-time
+  untouched confirmation only if all gates pass.

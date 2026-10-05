@@ -1,0 +1,42 @@
+version: level5/place-physical-selection-v15
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_physical_v15.yaml
+policy_recipe_sha256: 9c0f3679735f27f0f13f83a0b5783820818fa71f4b318cf79e19313aef7a552b
+selection_implementation_sha256: 56591c6a3e9e2964fcf5dd559e3b1ac61813f831a239c6dd9158541c984c66df
+training_output_dir: outputs/level5/place_repair/policy_v6
+validation_output_dir: outputs/level5/place_repair/policy_v15
+output_dir: outputs/level5/place_repair/policy_v15_selection
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001':
+  - 80
+  '5002':
+  - 20
+  '5003':
+  - 20
+candidate_filter: Only predeclared V6 epochs enter complete V15 validation and fresh
+  selection; do not tune on V15 selection outcomes.
+selection_screen:
+  seed_start: 1140260900
+  resets_per_cell: 2
+  cells: all 30 original pick/place cells
+  render_condition: nominal
+  one_time: true
+ranking:
+- passing_validation_state_gates
+- passing_all_target_state_gates
+- zero_safety
+confirmation:
+  seed_start: 930260900
+  resets_per_cell: 2
+  conditions: all four frozen independent state/physics runs
+  one_time: true
+source_exposure: All families and targets occur in scripted training. Validation and
+  the 1000, 1020, 1040, 1060, 1100 and 1120 matrices are exposed development evidence.
+  V15 1140 selection and original 930 confirmation resets were unused at freeze.
+reason: V14 fresh 1120 rejected two seeds. V15 physical controls passed changed attempts
+  on both exposed 1100 and 1120 matrices with zero safety and passing saved-state
+  audits; complete validation and distinct selection remain mandatory.

@@ -5,3 +5,7 @@ docs/licenses/level4-v1/CC-BY-4.0.txt whitespace=-blank-at-eof
 datasets/level4-v1/licenses/CC-BY-4.0.txt whitespace=-blank-at-eof
 # Preserve checksum-bound pick confirmation code byte-for-byte.
 dexvision/sim/scripted_expert_settings.py whitespace=-blank-at-eof
+# Preserve checksum-bound place qualification rollouts byte-for-byte.
+dexvision/evaluation/place_shadow_rollout.py whitespace=-blank-at-eof
+dexvision/evaluation/place_collision_rollout.py whitespace=-blank-at-eof
+dexvision/evaluation/place_wrist_hold_rollout.py whitespace=-blank-at-eof

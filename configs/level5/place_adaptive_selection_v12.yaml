@@ -1,0 +1,45 @@
+version: level5/place-adaptive-selection-v12
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_adaptive_v12.yaml
+policy_recipe_sha256: 39eb6989b1a2ab3cc8380debcaeef2141060727ce9d88abdcd04c0e066370225
+selection_implementation_sha256: f65d5d8de0e75c1385bd4a625def327e4eead0b6c7302272ba21151677dff1b6
+training_output_dir: outputs/level5/place_repair/policy_v6
+validation_output_dir: outputs/level5/place_repair/policy_v12
+output_dir: outputs/level5/place_repair/policy_v12_selection
+seeds:
+- 5001
+- 5002
+- 5003
+candidate_epochs:
+  '5001':
+  - 80
+  '5002':
+  - 20
+  '5003':
+  - 20
+candidate_filter: Only the predeclared V6 epochs may enter complete V12 validation
+  and fresh selection; do not tune on V12 selection outcomes.
+selection_screen:
+  seed_start: 1080260900
+  resets_per_cell: 2
+  cells: all 30 original pick/place cells
+  render_condition: nominal
+  one_time: true
+ranking:
+- passing_validation_state_gates
+- passing_all_target_state_gates
+- zero_safety
+confirmation:
+  seed_start: 930260900
+  resets_per_cell: 2
+  conditions: all four frozen independent state/physics runs
+  one_time: true
+source_exposure: All object families and target types occur in the scripted source.
+  V11 validation and the 1000, 1020, 1040 and 1060 all-target reset sets are
+  exposed development evidence. The 1080 selection and original 930 confirmation
+  resets were unused at freeze.
+reason: V11 fresh 1060 screen rejected seeds 5002 and 5003 on settling. Paired
+  saved-state diagnosis and training-source audits support one short-grasp
+  inspection-pad descent hold and a measured left-bin cuboid opening choice.
+  Complete exposed 1020 and 1060 targeted cross-checks preserved or rescued
+  every changed attempt, but they are development evidence only.

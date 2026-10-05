@@ -1,0 +1,58 @@
+version: level5/place-policy-v1
+checkpoint: '5.4'
+parent_config: configs/level5/skills/place_held_object.yaml
+cache_dir: outputs/level5/place_54_v1/locked/cache
+output_dir: outputs/level5/place_54_v1/locked
+seeds: [5001, 5002, 5003]
+max_epochs: 200
+candidate_epochs: [20, 80, 200]
+also_include: [best_offline_validation_epoch, last_executed_epoch]
+training_decision: >-
+  Frozen Level 4 place intervals: 144 training and 48 validation episodes. The
+  audited training phases have 13009 transport, 188 place, 144 release, 1691
+  settle and 1813 retract frames. Use the inherited 128x128 ReLU MLP, Adam
+  0.001, batch 256, 200 full epochs and cell/episode/causal-phase/frame
+  sampling to expose the short release phase. No offline-loss early stop.
+  Select every candidate by the full 120-attempt validation matrix per seed.
+position_scale_m: 0.1
+velocity_scale_mps: 0.1
+invariant_tolerance: 1.0e-12
+output_scales: [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1]
+action_decision: >-
+  Learn all three bidirectional translation deltas, all three rotation-vector
+  deltas and thirteen varying finger-release deltas. Whole-interval training
+  audit proves the remaining nine channels invariant. Zero network output
+  holds the prior command. The original action rate caps and absolute safety
+  bounds apply. No source or expert action is read after the exact entry.
+phase_decision: >-
+  Use the Level 4 workcell's causal online state machine (transport, place,
+  release, settle, retract) together with current measured object/target state.
+  No saved expert stage, future success or post-action state is a policy input.
+source_disclosure: >-
+  Original Level 4 scripted pick/place sources used a declared rotation-only
+  object orientation hold. Replay it only in the scripted setup prefix before
+  entry. Policy control and its physical terminal evidence use ordinary physics
+  without orientation writes. Source test families and goal regions remain held
+  out by the frozen Level 4 split; earlier project exposure is disclosed.
+preconditions:
+  require_exactly_one_held: true
+  require_correct_object: true
+  require_unsupported: true
+  require_fresh_observation: true
+  entry_rule: exact_parent_start_frame_no_search
+terminal:
+  consecutive_samples: 10
+  maximum_linear_speed_mps: 0.02
+  maximum_angular_speed_radps: 0.2
+  target_distance_m: 0.025
+  release_distance_m: 0.025
+  minimum_transport_displacement_m: 0.04
+selection: full_parent_validation_matrix_each_candidate_each_seed
+confirmation: single_parent_test_matrix_after_validation_selection_each_seed
+safety: Preserve the frozen collection runtime workspace, original actuator and
+  rate limits, original jerk and qualification gates; zero violations required.
+render_conditions: independent_state_physics_no_RGB_claim
+weld_relpose: [-0.33701, 0.0, 0.045, 0.7071067811865476, 0.0, 0.7071067811865476, 0.0]
+workspace_bounds:
+  min: [-0.18, -0.18, 0.01]
+  max: [0.22, 0.18, 0.24]

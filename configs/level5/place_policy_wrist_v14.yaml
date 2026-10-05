@@ -1,0 +1,32 @@
+version: level5/place-policy-wrist-v14
+checkpoint: 5.4A
+parent_policy_recipe: configs/level5/place_policy_recovery_v13.yaml
+parent_policy_recipe_sha256: d2a6c50b379cb601d650043fb5a3e4ea3d8c73111b7b284a62528998438ea261
+output_dir: outputs/level5/place_repair/policy_v14
+seeds:
+- 5001
+- 5002
+- 5003
+confirmation_seed_start: 930260900
+wrist_controls:
+  large_block_left_bin_entry_quaternion_w_min: 0.82
+  short_cylinder_slot_b_freeze_on_initial_w_decrease: true
+  heavy_puck_slot_a_short_grasp_offset_m: 0.053
+  heavy_puck_slot_a_freeze_on_initial_w_decrease: true
+implementation_sha256:
+  dexvision/learning/place_wrist_policy.py: 0ca90edce62ec2d9687b9368ee6ce159e6a84a422ff29a241c5000d194cf999d
+  dexvision/evaluation/place_wrist_policy.py: 683a08bb61f28e6941011a52a99ad5d1767ca9895d51ddbe09ee78d62c3b394f
+source_exposure: All families and targets occur in scripted training. Validation and
+  the 1000, 1020, 1040, 1060 and 1100 all-target reset sets are exposed development
+  evidence. V12 and V13 failed physical or fresh selection gates. The V14 1120 selection
+  and original 930 confirmation resets were unused at freeze.
+reason: V13 1100 safety and settling failures exposed wrist-dependent contact. Keep
+  the verified post-setup wrist only for high-w large-block left-bin entry, for a
+  short-grasp or initial away-turn heavy-puck slot A, or for an initial away-turn
+  short-cylinder slot B. The 1100 scripted source had bounded wrist excursion and
+  avoided the board violation but bounced; the V14 guard is engineered state feedback.
+  Other learned wrist actions and the exact V6 weights remain active; the frozen terminal
+  and safety gates are unchanged.
+selection: Keep V6 epochs 80, 20 and 20 predeclared. Complete V14 validation, then
+  use separate fresh 1120 all-target selection. Reserve the untouched 930 confirmation
+  for candidates that pass every selection gate.

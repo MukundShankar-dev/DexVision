@@ -1,0 +1,32 @@
+version: level5/place-contact-selection-v16
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_contact_v16.yaml
+policy_recipe_sha256: 4b235d04ee20a297ce389983e1857c9918b9d854f440b403f626061ba75b314f
+selection_implementation_sha256: 1cadffd03a55802dee6951c053bf60b5e1961e27c4f68559024ccaa06349dd6b
+seeds:
+- 5001
+- 5002
+- 5003
+training_output_dir: outputs/level5/place_repair/policy_v6
+validation_output_dir: outputs/level5/place_repair/policy_v16_validation
+output_dir: outputs/level5/place_repair/policy_v16_selection
+candidate_epochs:
+  '5001':
+  - 80
+  '5002':
+  - 20
+  '5003':
+  - 20
+selection_screen:
+  seed_start: 1160260900
+  resets_per_cell: 2
+  render_condition: nominal
+confirmation:
+  seed_start: 1180260900
+  resets_per_cell: 2
+  one_time: true
+ranking: Require full validation, all-cell numerical gates and complete saved-state physical
+  audit; then safety, success, worst family, settling, validation success and terminal error.
+source_exposure: V2 training has no right-bin source; all 30 cells, 930, 1100 and 1140 resets
+  are exposed development evidence. The 1160 selection and 1180 confirmation resets have not
+  been used in source collection, training or prior policy diagnostics.

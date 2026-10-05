@@ -1,0 +1,39 @@
+version: level5/place-full-source-selection-v19
+checkpoint: 5.4A
+policy_recipe: configs/level5/place_policy_full_source_v19.yaml
+policy_recipe_sha256: b3fe45f2e4dc7da6fd110d6d901fd6e6110e2b3d4b7599d9d3244f26882fcaae
+selection_implementation_sha256: cdda031d4abd2cf3d7cd001109d97b21b7ac62519e6a9a1e755b27abaef668e6
+seeds:
+- 5001
+- 5002
+- 5003
+training_output_dir: outputs/level5/place_repair/policy_v19
+validation_output_dir: outputs/level5/place_repair/policy_v19_validation
+output_dir: outputs/level5/place_repair/policy_v19_selection
+candidate_epochs:
+  '5001':
+  - 20
+  - 80
+  - 200
+  '5002':
+  - 20
+  - 80
+  - 200
+  '5003':
+  - 20
+  - 80
+  - 200
+selection_screen:
+  seed_start: 1340260900
+  resets_per_cell: 2
+  render_condition: nominal
+confirmation:
+  seed_start: 1360260900
+  resets_per_cell: 2
+  one_time: true
+ranking: Evaluate every epoch 20, 80 and 200 on complete validation. Among gate-passing candidates
+  screen only the safety-first best by success, worst family, settling, terminal error and
+  epoch; require all-cell numerical and saved-state physical gates before selection.
+source_exposure: V3 source covers all 30 cells; V18 1300 selection is exposed. Fresh 1330
+  all-cell validation, 1340 all-cell selection and 1360 one-time confirmation are disjoint
+  from source and each other.

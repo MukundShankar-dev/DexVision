@@ -132,8 +132,14 @@ def train_skill(datasets: dict[str, SkillDataset], *, schema: dict, settings: di
         raise ValueError("Validation must use the same training-only normalization")
     if stop_after_steps is not None and stop_after_steps <= 0:
         raise ValueError("stop_after_steps must be positive")
-    if settings["sampling"] != "uniform_cell_then_episode_then_eligible_frame_with_replacement":
+    if settings["sampling"] not in {
+        "uniform_cell_then_episode_then_eligible_frame_with_replacement",
+        "uniform_cell_episode_causal_phase_frame_with_replacement",
+    }:
         raise ValueError("Unsupported sampling policy")
+    if (settings["sampling"] == "uniform_cell_episode_causal_phase_frame_with_replacement"
+            and not all(hasattr(d, 'phase_buckets') for d in datasets.values())):
+        raise ValueError("Causal-phase sampling requires place datasets")
     if settings["scheduler"] is not None or settings["optimizer"]["name"] != "adam":
         raise ValueError("This frozen protocol uses Adam and no scheduler")
     if settings["batch_size"] <= 0 or settings["max_epochs"] <= 0:
