@@ -1190,6 +1190,26 @@ state qualification; 5.5 has not started.
 
 ## Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
+**V1 automated work finished; press owner accepted; push repair requested
+(October 13, 2026).**
+Separate push/press V1 recipes implement contact-phase standalone behavior
+cloning on the unchanged immutable release. All six 200-epoch budgets and full
+candidate validation/selection completed. One-time held-out press evaluations
+pass every state gate at 120/120 per seed; push fails at 40/128, 56/128 and
+44/128, with workspace/wrong-contact failures and zero flat-puck successes.
+Every saved-state physical consistency audit passes, including failures.
+Dial is explicitly absent, not promoted. Full regression: 900 passed, one
+skipped; focused: 20 passed; Ruff and artifact/selected-weight checks pass.
+The owner confirmed "Press passes"; the separate acceptance receipt is
+`docs/level5_press_acceptance.json`. Failed push does not trigger review. The
+owner explicitly requires push to pass too, so this checkpoint and its overall
+checklist box remain open. Repair must preserve V1, freeze a separate recipe
+and fresh confirmation, and retain the original state/safety gates. The accepted
+press runtime stays unchanged. No 5.6 work or remote push is authorized.
+See [`level5_contact_results.md`](level5_contact_results.md) for the audited
+method, previous pick/place adjustments, exact commands and manual criteria.
+No completed checkpoint or future feature is changed by this work.
+
 Apply `docs/level5_training_guidance.md` and freeze separate recipes for push
 and press. Push needs object-to-zone and hand-to-object geometry plus contact
 and object-motion feedback; hand arrival alone is not success. Press needs
@@ -1209,6 +1229,11 @@ evaluation interfaces.
 configs/level5/skills/push_object_to_target.yaml
 configs/level5/skills/press_button.yaml
 configs/level5/skills/rotate_dial.yaml, only if promoted
+configs/level5/push_policy_v1.yaml and push_policy_v1.sha256
+configs/level5/press_policy_v1.yaml and press_policy_v1.sha256
+dexvision/learning/contact_policy.py
+dexvision/evaluation/contact_policy.py
+dexvision/apps/train_skill.py and evaluate_skill.py (recipe dispatch only)
 tests/test_push_skill_rollout.py
 tests/test_press_skill_rollout.py
 tests/test_dial_skill_rollout.py, only if promoted
@@ -1226,23 +1251,27 @@ all: Level 2 seed comparison reported separately from Level 4 generalization
 ### Commands
 
 ```bash
-python -m dexvision.apps.train_skill --config <versioned-push-recipe>
-python -m dexvision.apps.train_skill --config <versioned-press-recipe>
-python -m dexvision.apps.evaluate_skill --config <versioned-push-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-push-evaluation-directory>
-python -m dexvision.apps.evaluate_skill --config <versioned-press-recipe> --checkpoint <selected-checkpoint> --track state --output-dir <new-press-evaluation-directory>
+python -m dexvision.apps.train_skill --config configs/level5/push_policy_v1.yaml --seed 5001 --release-root .
+python -m dexvision.apps.train_skill --config configs/level5/press_policy_v1.yaml --seed 5001 --release-root .
+python -m dexvision.apps.evaluate_skill --config configs/level5/push_policy_v1.yaml --select-candidates outputs/level5/push_55_v1/seed_5001 --split validation --track state --release-root . --output-dir outputs/level5/push_55_v1/validation_5001
+python -m dexvision.apps.evaluate_skill --config configs/level5/press_policy_v1.yaml --select-candidates outputs/level5/press_55_v1/seed_5001 --split validation --track state --release-root . --output-dir outputs/level5/press_55_v1/validation_5001
+python -m dexvision.apps.evaluate_skill --config configs/level5/push_policy_v1.yaml --checkpoint outputs/level5/push_55_v1/seed_5001/selected.pt --track state --release-root . --output-dir outputs/level5/push_55_v1/test_5001
+python -m dexvision.apps.evaluate_skill --config configs/level5/press_policy_v1.yaml --checkpoint outputs/level5/press_55_v1/seed_5001/selected.pt --track state --release-root . --output-dir outputs/level5/press_55_v1/test_5001
 conda run -n dexvision pytest -q tests/test_push_skill_rollout.py tests/test_press_skill_rollout.py
 ```
 
 Run equivalent dial commands/tests only when the Level 4 manifest promotes it.
+Repeat train/selection/test for seeds 5001, 5002 and 5003. Existing output
+directories must not be overwritten; use new paths when reproducing.
 
 ### Pass criteria
 
 ```text
-[ ] Push and press each complete three seeded training runs and frozen rollouts
-[ ] Physical task state recomputes every success and failure
-[ ] Wrong contact, contact loss, overshoot, and object-off-board failures remain visible
-[ ] Required per-skill success and safety gates pass or status is experimental/failed
-[ ] Optional dial is qualified, experimental, failed, or explicitly absent
+[x] Push and press each complete three seeded training runs and frozen rollouts
+[x] Physical task state recomputes every success and failure
+[x] Wrong contact, contact loss, overshoot, and object-off-board failures remain visible
+[ ] Push and press both pass required state success and safety gates (owner-required)
+[x] Optional dial is qualified, experimental, failed, or explicitly absent
 ```
 
 Manual verification is required after numerical gates pass. View one

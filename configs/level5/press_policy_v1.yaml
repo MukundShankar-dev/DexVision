@@ -1,0 +1,104 @@
+checkpoint: '5.5'
+seeds:
+- 5001
+- 5002
+- 5003
+max_epochs: 200
+candidate_epochs:
+- 20
+- 80
+- 200
+also_include:
+- best_offline_validation_epoch
+- last_executed_epoch
+position_scale_m: 0.1
+velocity_scale_mps: 0.1
+depth_scale_m: 0.01
+invariant_tolerance: 1.0e-12
+weld_relpose:
+- -0.33701
+- 0.0
+- 0.045
+- 0.7071067811865476
+- 0.0
+- 0.7071067811865476
+- 0.0
+workspace_bounds:
+  min:
+  - -0.18
+  - -0.18
+  - 0.01
+  max:
+  - 0.22
+  - 0.18
+  - 0.24
+preconditions:
+  maximum_hand_distance_m: 0.18
+  entry_rule: exact_parent_first_contact_frame_no_search
+  hand_distance_definition: measured_hand_site_to_entity_center; source entry sites
+    exceed 0.12m despite fingertip contact; bounded contact-phase envelope, not a
+    safety relaxation
+selection: full_parent_validation_matrix_each_candidate_each_seed_safety_first
+confirmation: one_parent_test_matrix_after_validation_selection_no_retries
+training_decision: 128x128 ReLU MLP, Adam 0.001, batch 256; 200 full epochs; no offline-loss
+  early stop. Balance cell/episode/present causal phase/frame. Retain early/late/final/best-offline
+  candidates. Separate skill recipe; no corrective data or expert residual.
+render_conditions: Independent identical state physics; no RGB/perception claim
+dial_status: absent_not_promoted_by_Level4_manifest
+version: level5/press-policy-v1
+parent_config: configs/level5/skills/press_button.yaml
+cache_dir: outputs/level5/press_55_v1/cache
+output_dir: outputs/level5/press_55_v1
+output_scales:
+- 1.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+fixture_axis_world:
+- 1.0
+- 0.0
+- 0.0
+action_decision: Learn signed world-X press and retract deltas within the original
+  0.025 m cap. Independently audited contact-through-retract source holds Y/Z/orientation/all
+  joints. No reach progress restriction; zero output holds.
+phase_decision: Measured fixture depth from known rest pose and pinned slide axis,
+  target shortfall and causal latch of three-sample physical pressed dwell; no saved
+  expert stage.
+terminal:
+  press_dwell_samples: 3
+  release_dwell_samples: 3
+  release_depth_m: 0.002
+  maximum_depth_m: 0.0225
+  maximum_non_target_displacement_m: 0.002
+source_audit:
+  train_episodes: 96
+  train_frames: 1744
+  validation_episodes: 32
+  validation_frames: 592
+  active_indices:
+  - 0
+  active_delta_range_m:
+  - -0.005
+  - 0.021

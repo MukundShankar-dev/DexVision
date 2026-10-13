@@ -25,7 +25,10 @@ def main(argv: list[str] | None = None) -> int:
         import yaml
 
         version = yaml.safe_load(args.config.read_text()).get("version")
-        if version == 'level5/place-policy-v1':
+        if version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
+            from dexvision.learning.contact_policy import train_contact as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version == 'level5/place-policy-v1':
             from dexvision.learning.place_policy import train_place as run_training_command
             extra = {"cache_dir": args.cache_dir}
         elif version in {"level5/pick-policy-v1", "level5/pick-policy-v2", "level5/pick-policy-v3", "level5/pick-policy-v4", "level5/pick-policy-v5", "level5/pick-policy-v6", "level5/pick-policy-v7"}:

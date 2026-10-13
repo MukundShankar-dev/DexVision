@@ -49,11 +49,28 @@ Commands and limits are documented in `docs/level5_place_repair.md`.
 
 Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
-Not started. Select a single skill/checkpoint from the active progress file
-only when the owner requests new work. Apply the per-skill recipe and method
-handoff; do not inherit the reach or place decoder without separate evidence.
-No Level 5.5 implementation, training or evaluation was performed as part of
-5.4A completion.
+V1 automated work finished October 13, 2026; owner press viewer review passed.
+Separate checksum-locked push/press recipes and standalone contact-phase
+interfaces are implemented. All six runs completed 200 epochs and every
+candidate received full closed-loop validation, then each selected seed ran
+its held-out matrix once. Press epochs 200/189/199 pass every state gate at
+120/120 successes each, zero safety, and 360/360 passing physical audits.
+Push epochs 20/200/200 fail success/worst-family and safety gates at 40/128,
+56/128 and 44/128 successes, with zero flat-puck test successes; all failures
+remain counted and 384/384 physical consistency audits pass. Dial is absent,
+not promoted. Full regression: 900 passed, one skipped; focused: 20 passed;
+Ruff, source/release integrity and selected-weight binding pass.
+
+The owner confirmed "Press passes" and explicitly requested a push repair,
+keeping 5.5 incomplete. Press acceptance is separately bound in
+`docs/level5_press_acceptance.json`; the original automated verification keeps
+its historical pending-manual status. Next action is a versioned, training/
+validation-only push repair with unchanged gates, preserved V1 failures and
+fresh predeclared confirmation resets. Do not rerun or tune against V1's
+consumed held-out matrix. No perception/default registry or deployment
+qualification is claimed. Last Completed remains 5.4A; 5.5 is not marked
+complete and no 5.6 work is started. The owner requested a local commit only;
+do not push.
 
 ---
 
@@ -405,6 +422,15 @@ unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 ---
 
 ## Manual Verification Status
+
+Level 5.5 press owner viewer acceptance was confirmed October 13, 2026 with
+"Press passes" after the prescribed seed-5001 stratified review. This is
+owner-reported acceptance, not agent observation. The separate
+`docs/level5_press_acceptance.json` binds the exact three passing press bundles
+and their evidence; historical automated receipts are unchanged. Push V1 fails
+numerical gates and does not trigger review. A future repaired push still needs
+all numerical/physical checks and owner viewer acceptance. Checkpoint 5.5
+remains open at the owner's explicit request until push also passes.
 
 Level 5.4A V25 owner manual viewer acceptance was confirmed on October 5,
 2026 with "Passed" after the prescribed seed-5001 saved-state review of one

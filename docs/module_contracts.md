@@ -2673,3 +2673,44 @@ retain their then-pending manual status. Checkpoint 5.4A is complete with
 bounded state qualification, without perception or default registry
 admission. See `docs/level5_place_repair_verification_v25.json` for hashes
 and `docs/level5_place_repair.md` for exact commands and manual criteria.
+
+---
+
+## Level 5.5 State-Grounded Push and Press
+
+`dexvision/learning/contact_policy.py` and
+`dexvision/evaluation/contact_policy.py` implement only standalone state-based
+contact-phase push/press. Each has an independent recipe/sidecar checksum and
+uses the unchanged Level 4 split, initial setup and exact first-contact boundary.
+Scripted prefixes establish entry and are excluded from policy supervision,
+jerk and task metrics. Inference receives no expert or saved continuation.
+Dial remains absent under the unchanged manifest.
+
+Push learns signed planar deltas at fixed 5 mm/component scale from object-
+to-zone geometry, hand/object tracking, motion, support/contact and causal
+physical phase. Press learns signed world-X deltas at the original 25 mm cap,
+with fixture-relative geometry, measured slide displacement, target shortfall
+and a causal pressed-dwell latch. The +X fixture axis and measured/commanded
+body-origin calibration must agree with the checksum-pinned model. Source
+whole-interval audits license fixed height/orientation/joints for push and
+fixed Y/Z/orientation/joints for press; these are contact-entry invariants, not
+learned full-hand control, free-space approach or vision. Zero output holds.
+
+Both recipes use fixed physical feature scales, three full 200-epoch budgets
+and cell/episode/present-phase/frame sampling. Early/late/final/best-offline
+weights receive full validation. Selected weights bind transforms, scales,
+decoder, cadence, recipe/source/schema/code digests and candidate selection.
+Exclusive test reservations prevent retesting under another output path.
+All failures remain counted; conditions repeat identical state physics and
+do not qualify RGB robustness or globally unseen families.
+
+Every terminal metric uses copied post-integration physical state. Separate
+saved-state reconstruction checks every attempt without integrating physics.
+Push requires object-zone settling, support, tilt, speed and board containment;
+hand arrival is insufficient. Press requires physical depth/state dwell and
+subsequent no-contact release. Contact loss, overshoot, wrong contacts,
+non-target disturbance/activation, raw safety violations and timeouts are
+retained. Original jerk/qualification gates remain unchanged. Conditional
+owner saved-state viewer acceptance is still required for numerical passes;
+no perception, registry, executor or deployment admission is implemented.
+Method and exact commands are in `docs/level5_contact_results.md`.

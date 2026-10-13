@@ -26,7 +26,11 @@ def main(argv=None):
         import yaml
 
         version = yaml.safe_load(args.config.read_text()).get("version")
-        if version == 'level5/place-policy-v1':
+        if version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
+            from dexvision.evaluation.contact_policy import run_contact_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for contact recipes')
+        elif version == 'level5/place-policy-v1':
             from dexvision.evaluation.place_policy import run_place_evaluation as run_evaluation_command
             if args.compare_runs:
                 raise ValueError('Reach comparison is not supported for place recipes')
