@@ -119,6 +119,29 @@ metrics. Image augmentation cannot change metric labels without a corresponding
 geometric transform; keep episode ownership across all render variants. Select
 confidence/staleness handling from training/validation, not policy test cases.
 
+The October 13, 2026 specification amendment in
+[`progress_level_5.md`](progress_level_5.md#level-56--detector-tracker-and-metric-pose-baseline)
+and the Level 5.6 contract in [`module_contracts.md`](module_contracts.md)
+make this audit specific to accepted reach V5, pick V7, place V25/V19,
+push V8/V7 and press V1 bundles. Inventory every consumed field, engineered
+control and causal history source before selecting a perception method.
+Object centers alone do not supply orientation, motion, contact/retention,
+fixture depth or the privileged live-state place collision preview. Use
+explicit inferred/sensor/calibration provenance and unsupported dispositions;
+evaluation-only truth cannot supply a policy feature, latch or action preview.
+
+Freeze an independent perception recipe and coverage/selection protocol;
+retain original visual and safety gates and historical locks. Audit body-center
+geometry, pose symmetries and the fixed camera calibration. Use episode-local
+sequences and real timestamp differences for motion/identity metrics because
+the original visual export is subsampled and contains excluded frames. Report
+missing/rejected observations and task-specific error/predicate sensitivity
+alongside generic accuracy. Preserve accepted policy bundles; unsupported
+fields or preview dependencies are explicit 5.7 handoff blockers, not an
+authorization to alter the paired policy comparison. 5.6 manual acceptance
+requires both labeled held-out panels and temporal review; no 5.7 work begins
+as part of this specification amendment.
+
 For 5.7, run the exact selected state-policy bundle first, including transforms,
 normalization, action decoder and cadence. Replace only the declared entity
 observation source; do not leak truth through derived goals, features or phase.

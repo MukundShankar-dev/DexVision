@@ -15,7 +15,7 @@ Level 1  legacy camera hand-control prototype                         complete
 Level 2  recording, replay, quality, datasets, retargeting benchmarks complete
 Level 3  learning feasibility on the existing Level 2 datasets       complete
 Level 4  comprehensive multi-session skill dataset                   complete
-Level 5  full-scale skill learning and qualification                   planned
+Level 5  full-scale skill learning and qualification                   active
 Level 6  robustness, reproducibility, results, and portfolio polish    planned
 Level 7  language-guided composition of typed skills                   future
 ```
@@ -27,10 +27,16 @@ with all 74 coverage cells qualified, frozen whole-session splits, deterministic
 expert generation, causal phases, explicit failures and scripted corrections.
 Both Level 2 and Level 4 passed independent Git LFS retrieval and restoration
 from a clean clone. See [release instructions](datasets/level4-v1/README.md)
-and [current status](docs/CURRENT_STATUS.md). Level 5 has not started.
-No live hand-control collection is part of the remaining plan. Level 5 will train and qualify five core
+and [current status](docs/CURRENT_STATUS.md). Level 5 is active: checkpoints
+through 5.5 are complete, including owner acceptance of state-based push V8 and
+press V1. [Acceptance evidence](docs/level5_push_acceptance.json) binds the exact
+bundles and records their engineered controls and limits. Checkpoint 5.6,
+the detector/tracker/metric-pose baseline, is next and remains unstarted.
+Perception qualification and default registry admission remain outstanding;
+dial is absent, not promoted.
+No live hand-control collection is part of the remaining plan. Level 5 targets five core
 skills—reach, pick, place-held-object, push, and button press—through a
-supervised runtime. It will validate a coherent tabletop workcell assistant on
+supervised runtime. Later checkpoints will validate a coherent tabletop workcell assistant on
 workspace clearing, inspection-station operation, and workspace setup; dial
 rotation is optional. Learned drop recovery, general arbitrary-object
 grasping, tools, kitchen tasks, cutting, pouring, deformables, and open-world

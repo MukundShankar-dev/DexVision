@@ -42,7 +42,14 @@ default registry admission or deployment qualification is claimed.
 
 Level 5.6 — Detector, Tracker, and Metric Pose Baseline
 
-Unstarted. No 5.6 implementation is included in the 5.5 acceptance update.
+Unstarted. The October 13, 2026 documentation-only amendment updates the 5.6
+specification for accepted reach V5, pick V7, place V25/V19, push V8/V7 and
+press V1 bundles. Its first required work is a field-source/observability audit
+and independently frozen perception recipe. Temporal metrics, task-specific
+error diagnostics and the privileged place-preview compatibility gap are now
+explicit in `docs/progress_level_5.md`, `docs/module_contracts.md` and
+`docs/level5_training_guidance.md`. Original numerical gates remain unchanged.
+No 5.6 implementation, training, held-out evaluation or 5.7 work has started.
 
 ---
 
@@ -74,6 +81,10 @@ Commands and limits are documented in `docs/level5_place_repair.md`.
 ---
 
 ## Level 5.5 Qualification History
+
+Earlier version and checkpoint narratives below retain their status at the time
+of those results. The current selection and manual acceptance are defined by
+Last Completed, Next Target and Manual Verification Status.
 
 Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 

@@ -1,5 +1,11 @@
 # Progress Level 5 — Workcell Skill Learning and Qualification
 
+Current status (October 13, 2026): Last Completed **5.5**; Next Target **5.6**,
+unstarted. Push V8 and press V1 have owner manual acceptance; dial is absent.
+See [CURRENT_STATUS.md](CURRENT_STATUS.md) for checkpoint selection and
+[level5_push_acceptance.json](level5_push_acceptance.json) for the final receipt.
+Earlier checkpoint notes retain the status at the time of their results.
+
 Level 5 goal:
 
 > Train, evaluate, and package a compact library of vision-grounded skills for
@@ -1366,16 +1372,52 @@ Checkpoint 5.5 is complete; 5.6 remains unstarted.
 
 ## Level 5.6 — Detector, Tracker, and Metric Pose Baseline
 
-Apply the perception section of `docs/level5_training_guidance.md`: check metric
-frame/calibration/timestamp parity with policy inputs, not just detector scores.
-Preserve split ownership across rendered variants and metric-label consistency
-under augmentation. Freeze confidence/staleness decisions from validation.
+**Unstarted; specification amended October 13, 2026 after the 5.5 audit.**
+Apply `docs/level5_training_guidance.md` and the Level 5.6 contract in
+`docs/module_contracts.md`. This amendment defines future acceptance work;
+it implements no perception module or policy rollout and completes no checkpoint.
 
 ### Goal
 
 Train or integrate a lightweight visual pipeline that converts the Level 4
-single-camera images into the same object-observation schema used by the state
-policies.
+single-camera images into the shared typed object observations, with explicit
+field provenance and compatibility with the actual accepted state bundles.
+Preserve the selected policies, transforms, scales, decoders, cadence and
+historical receipts. Closed-loop perception qualification belongs to 5.7.
+
+### Accepted-bundle input and observability audit
+
+Start from the exact selected artifacts in each owner acceptance receipt, not
+the original 5.0 model/input defaults. Inspect runtime consumers and engineered
+controls as well as the neural feature transform.
+
+| Accepted bundle | Dependencies to audit |
+| --- | --- |
+| Reach V5, `level5_reach_acceptance.json` | Requested approach geometry, calibrated measured/commanded robot origins and tracking lag; provenance of any entity-derived goal |
+| Pick V7, `level5_pick_acceptance.json` | Object pose/orientation, motion, supported/held/contact state, entry reference, closure/contact history and family-aware geometry |
+| Place V25 with V19 weights, `level5_place_acceptance.json` | Object/target geometry, orientation/motion, retention, release/settling phases, wrist/entry context and collision-preview state |
+| Push V8 with V7 weights, `level5_push_acceptance.json` | Initial object/goal basis, current position/speed, contact/support, tracking predicates, causal phases/completion latch and engineered settling holds |
+| Press V1, `level5_press_acceptance.json` | Fixture rest pose and +X slide axis, measured displacement/depth, orientation/motion, contact and pressed/release dwell history |
+
+Produce a field-source inventory for every consumed input, derived goal,
+phase, latch and preview dependency. Classify its producer as inferred vision,
+declared robot/fixture sensor telemetry, frozen calibration/geometry,
+evaluation-only simulator truth, or unsupported. Record units, coordinate/body
+origin, timestamps, validity/confidence, reset/history rules and consumer.
+An available simulator field does not establish a deployment sensor source.
+Missing values, fabricated identity quaternions, zero velocities or empty
+contact lists cannot masquerade as valid measurements. Unknown relation or
+fixture state must block the affected consumer explicitly.
+
+The accepted place runtime's `place_wrist_hold_preview.py` calls
+`place_collision_preview.py`, which copies live MuJoCo state and uses predicted
+contacts/object positions to choose an action. Record this as a privileged
+compatibility gap; object-pose replacement alone cannot remove it. Do not
+silently disable, rewrite or requalify that accepted decoder in 5.6. Any later
+estimated-state preview requires an explicitly versioned integration amendment
+and paired evaluation; otherwise the affected skill remains unsupported for the
+perception track. Evaluation truth must never feed policy-visible history,
+terminal-derived latches or action selection.
 
 ### Files
 
@@ -1387,21 +1429,69 @@ dexvision/evaluation/evaluate_perception.py
 dexvision/apps/train_perception.py
 dexvision/apps/evaluate_perception.py
 configs/level5/perception.yaml
+configs/level5/perception.sha256
 tests/test_object_perception.py
 tests/test_perception_metrics.py
+docs/level5_perception_results.md (recipe, field-source inventory and compatibility report)
 ```
 
 ### Build order
 
 ```text
-1. deterministic simulator-truth observation adapter
-2. conventional detector or segmenter baseline
-3. stable temporal ids and stale-observation rejection
-4. metric pose/center estimate with confidence and calibration
-5. optional compact VLM semantic selector behind a separate interface
+1. accepted-bundle field-source inventory and frozen perception recipe
+2. deterministic truth adapter for labels, evaluation and parity tests only
+3. conventional detector or segmenter baseline with stable temporal ids
+4. calibrated world-frame pose/orientation and timestamp-aware motion estimates
+5. explicit validity, confidence, ambiguity and stale-observation rejection
+6. optional compact VLM semantic selector only with a separately justified recipe
 ```
 
-Default visual gates, frozen before training:
+### Recipe, data and temporal evaluation
+
+Freeze a separately versioned, checksum-locked perception recipe before fitting
+or selection. Name the immutable visual/source manifests, camera calibration,
+implementation/schema digests, accepted policy references, method/model,
+feature/preprocessing scales, supervision, training budget, candidate schedule,
+selection ranking, evaluation denominators and artifact paths. Declare three
+training seeds for a trained baseline, or explain why training/seeds are not
+applicable to a deterministic method. Do not inherit policy-specific MLP heads,
+normalization or offline-loss early stopping. Select candidates and confidence/
+staleness handling on training/validation only; freeze the final configuration
+before one held-out evaluation. Retain failed candidates and missing cells.
+
+Keep the 5.0 locks and `evaluation_common.yaml` unchanged. Explicitly bind the
+parent confidence 0.8 and maximum age 0.1 s, or document any separate versioned
+validation-selected handling; never choose thresholds from held-out outcomes.
+Preserve every original numerical qualification/safety gate.
+
+Use the released `level4/visual-camera-v1` intrinsics/extrinsics, metre units,
+camera right/down/forward axes and world-frame wxyz pose convention. Declare
+the object body origin, height/dimensions, symmetry and geometric assumptions
+needed to recover metric pose from one RGB view. A visible-mask centroid or
+board-plane intersection is not automatically the object's 3D body center.
+Report unobservable orientations/occluded objects as ambiguous or unsupported;
+retained truth annotations for invisible entities are not inferred detections.
+Audit measured forearm versus command-body calibration separately.
+
+Audit visual coverage against all accepted skill entries and phases, including
+the later pick/place source releases and scripted setups. The original compact
+Level 4 visual subset does not automatically cover their changed geometry.
+Keep session/episode/cell ownership across all derived render variants and
+augmentations. Geometric augmentation must transform calibration/metric labels
+consistently. Missing coverage requires an explicit versioned data amendment,
+not edits to immutable releases or use of test scenes for training.
+
+The existing visual export samples every fifth source frame and excludes some
+duplicates. Build episode-local timestamped sequences with declared gaps;
+reset tracking at episode boundaries. Estimate velocity using real elapsed time,
+never array position or an assumed policy sample interval. Evaluate identity,
+motion, occlusion, reacquisition and stale rejection on sequences with a frozen
+gap policy, not only shuffled frames/contact sheets. Report inference latency,
+observation age and delivery cadence against each bundle's control cadence.
+
+### Metrics and compatibility
+
+Original visual gates remain unchanged:
 
 ```text
 core-class detection recall at IoU 0.5 >= 0.95
@@ -1412,28 +1502,77 @@ stale or ambiguous observation rejection = 100 percent in synthetic tests
 optional semantic selector accuracy >= 0.90 if it is claimed
 ```
 
+Define visible/eligible instance counts, missing detections/poses, rejected
+observations and conditional pose-error denominators before evaluation; report
+coverage/rejection alongside accuracy so omissions cannot inflate results.
+Break down detection, identity, position, orientation, linear/angular velocity,
+fixture displacement, availability and latency by split, class/instance,
+condition and relevant skill/phase. Declare symmetry-aware orientation scoring
+and any supplemental validity/error limits from training/validation before test.
+
+Add offline feature-parity and task-sensitivity diagnostics using the exact
+accepted transforms. Press release depth is 2 mm; push tracking envelope is
+10 mm and its original speed predicate is 20 mm/s. The generic 10/25 mm pose
+gates alone do not prove those predicates reliable. Report bias, velocity/depth
+error, phase/predicate disagreements and uncertainty near decision boundaries.
+Do not relax gates or claim closed-loop success from these diagnostics.
+
+Every required field must have a tested source or an explicit unsupported
+disposition. An honestly documented incompatible skill need not prevent 5.6's
+baseline acceptance when its own gates and manual review pass, but it blocks
+that skill's perception qualification/default admission. Resolve and evaluate
+integration changes separately in the authorized later checkpoint.
+
+Synthetic isolation tests must vary withheld truth labels/state while holding
+RGB, allowed telemetry and calibration fixed: inferred observations and offline
+policy-visible features/history must stay unchanged. Separately test missing
+orientation/velocity/contact/fixture fields, explicit invalidity, stale ages,
+ambiguous identities and reset/gap handling without a webcam, GPU or visible GUI.
+
 ### Commands
 
+These are implementation targets, not currently available CLI functionality.
+The implementation must document exact frozen artifact paths and manual review
+commands. Use new output directories for intentional reproductions; do not
+overwrite evidence or rerun consumed held-out evaluations.
+
 ```bash
+conda activate dexvision
 python -m dexvision.apps.train_perception --config configs/level5/perception.yaml
 python -m dexvision.apps.evaluate_perception --config configs/level5/perception.yaml --output-dir outputs/level5/perception
 conda run -n dexvision pytest -q tests/test_object_perception.py tests/test_perception_metrics.py
+conda run -n dexvision ruff check dexvision tests
+conda run -n dexvision pytest -q
 ```
 
 ### Pass criteria
 
 ```text
 [ ] Train/validation/test visual splits match Level 4 episode ownership
-[ ] Detection, identity, pose, and optional semantic metrics are separate
+[ ] Versioned recipe, budget, selection, thresholds and data/code/artifact digests are frozen
+[ ] All five accepted bundles have a field-source inventory and explicit compatibility disposition
+[ ] Truth labels/evaluation are isolated from inferred observations, derived phases and action selection
+[ ] Detection, identity, position/orientation, motion, fixture depth and availability metrics are separate
+[ ] Timestamped sequence tests cover gaps, occlusion, reacquisition and identity continuity
 [ ] Ground-truth and inferred observations use the same typed world-state schema
+[ ] Frame/body-origin calibration and exact accepted feature transforms have offline parity checks
+[ ] Original visual gates pass; task-specific sensitivity and unsupported fields remain disclosed
 [ ] Ambiguous, low-confidence, and stale results fail closed
-[ ] Model size, license, latency, device, and RTX 5070 Ti memory use are documented
+[ ] Model size, license, latency, cadence and measured hardware/memory use are documented; unavailable RTX 5070 Ti testing is explicitly untested
 [ ] No visual model emits actuator commands
+[ ] Manual held-out contact-sheet and temporal-video review is owner accepted
 ```
 
-Manual verification is required on a held-out contact sheet/video. Pass when
-ids remain attached to the correct objects, boxes/masks and pose markers align,
-and ambiguity is visibly rejected. Stop for user confirmation.
+Manual verification requires both a held-out contact sheet and temporal video,
+with source episode/frame/timestamp and inferred id, confidence/age, mask/box,
+pose axes and rejection reason. Include supported skill/fixture strata and
+occlusion/reacquisition cases, and label unsupported strata explicitly.
+Pass when every scheduled panel/sequence is present, ids stay with the correct
+objects, pose/box/mask overlays align with visible geometry, timestamps and
+units agree, and missing/stale/ambiguous observations visibly reject. Fail for
+identity swaps, unexplained pose jumps, misaligned overlays, hidden truth-filled
+estimates, missing strata, silent stale acceptance or review errors. Stop for
+owner confirmation after automated checks; do not complete 5.6 or start 5.7.
 
 ---
 

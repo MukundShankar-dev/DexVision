@@ -1,7 +1,19 @@
 # State-grounded push and press (5.5)
 
-Checkpoint 5.5 only. Automated implementation and frozen evaluations finished
-October 13, 2026. **Press passes every numerical state gate; push fails state
+**Current status (October 13, 2026): checkpoint 5.5 is complete.** Push V8 and
+press V1 pass all three seeded state qualifications and owner viewer acceptance.
+The separate [push acceptance](level5_push_acceptance.json) binds the final
+V8 bundles, confirmation evidence and prior [press acceptance](level5_press_acceptance.json).
+See [push repair](level5_push_repair.md) for the V2–V8 method, retained failures,
+engineered entry/settling/workspace controls and final 116/128, 116/128,
+120/128 confirmation successes. Last Completed is 5.5; Next Target is 5.6,
+unstarted. No perception, default registry or deployment qualification is claimed.
+Dial remains absent, not promoted.
+
+## Historical V1 outcome
+
+Checkpoint 5.5 V1 automated implementation and frozen evaluations finished
+October 13, 2026. **Press passes every numerical state gate; push V1 fails state
 qualification.** The owner subsequently confirmed "Press passes" and requested
 push repair while explicitly keeping 5.5 incomplete. Acceptance is separately
 bound in `level5_press_acceptance.json`; the historical automated receipt is
@@ -177,8 +189,9 @@ Final full regression: **900 passed, one platform-dependent offscreen skip** in
 793.08 seconds. Original 5.0 checksums, Level 4 archive hash, LFS attribute and
 release integrity/publication-readiness checks pass. The interview PDF alone
 was added to `.gitignore` at the owner's request; its bytes were not modified.
-Datasets and completed checkpoint sections are preserved. Last Completed
-remains 5.4A, Next Target remains 5.5, and no 5.6 work was started.
+Datasets and completed checkpoint sections are preserved. At this V1 stage,
+Last Completed was 5.4A and Next Target was 5.5. The later V8 acceptance above
+completes 5.5; no 5.6 work has started.
 
 ## Commands
 

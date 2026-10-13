@@ -2,6 +2,13 @@
 
 This file defines expected inputs/outputs between modules. Keep it updated as the repo evolves.
 
+Current staging: Level 5.5 is complete with owner acceptance of state-based
+push V8 and press V1. Level 5.6 is next and unstarted; perception and default
+registry qualification remain outstanding. [CURRENT_STATUS.md](CURRENT_STATUS.md)
+governs selection; [level5_push_acceptance.json](level5_push_acceptance.json)
+binds final acceptance. Versioned contracts below preserve earlier methods
+and their historical gates; the accepted V8 status is recorded at the end.
+
 ---
 
 ## Camera
@@ -2729,7 +2736,8 @@ confirmation of all original test cells. Failed setup and policy attempts cannot
 be filtered; each seed has one exclusive confirmation reservation. Fresh resets
 of V1-exposed families do not establish unseen-family or perception qualification.
 See `docs/level5_push_repair.md` for the source audit, exact recipe, commands and
-remaining owner acceptance gate. This amendment stays within checkpoint 5.5.
+the historical owner acceptance gate, since satisfied by the final V8 receipt
+below. This amendment stays within checkpoint 5.5.
 
 The separate V3 overlay (`dexvision/evaluation/push_settled.py`) binds the exact
 V2 full-budget candidates to a fixed 120-sample ordinary-physics hold of the
@@ -2843,3 +2851,67 @@ is unchanged. Owner push viewer acceptance ("Passed", October 13, 2026) is
 bound separately in `docs/level5_push_acceptance.json`; checkpoint 5.5 is
 complete. Historical automated receipts remain unchanged. Checkpoint 5.6 is
 unstarted; perception and default registry admission remain unqualified.
+
+---
+
+## Level 5.6 Perception Baseline and Accepted-Bundle Compatibility
+
+Planning contract amended October 13, 2026; implementation remains unstarted.
+The authoritative build/checklist/manual criteria are in the Level 5.6 section
+of `docs/progress_level_5.md`. Accepted recipes and selected artifacts come from
+the reach V5, pick V7, place V25 (V19 weights), push V8 (V7 weights) and press V1
+owner acceptance receipts. Historical 5.0 configs and all accepted runtime
+bundles remain immutable inputs to this work.
+
+The perception boundary uses `ObjectObservation` and `WorldState`, preserving
+stable semantic ids, metre/world-frame positions, wxyz orientation, timestamps,
+confidence and validity. An inferred observation has `source=inferred_perception`.
+Optional linear/angular velocity must have explicit availability. Per-field
+provenance/availability is required in the proposed adapter/report; this prose
+does not introduce a new implemented schema or grant permission to invent
+missing measurements. Relations, contacts, fixture depth, robot telemetry,
+entry references, derived goals and causal phase/history also need declared
+producers. Schema shape alone is insufficient proof of equivalent inputs.
+
+Maintain a field-source inventory naming consumer, units/body origin/frame,
+time alignment, confidence/validity and reset/history rules. Producers are
+inferred vision, declared robot/fixture sensors, frozen calibration/geometry,
+evaluation-only truth or unsupported. Simulator contact/state availability
+does not establish a deployment sensor. Never silently fill unknown state
+with identity orientation, zero motion, false held/contact, or an empty list
+and then present it as a valid estimate. Reject or explicitly block consumers
+that require unavailable fields. Truth labels and parity/evaluation oracles
+must be separate from policy-visible inferred features and action decisions.
+
+In particular, the V25 evaluation path uses `place_wrist_hold_preview.py` and
+`place_collision_preview.py`. The latter copies live MuJoCo data and scores
+actions using predicted contacts/object positions. This is a privileged
+dependency even when the neural input pose is replaced. Record an unsupported
+perception compatibility disposition until an explicitly versioned later
+integration amendment provides and evaluates an estimated-state alternative;
+do not modify or disable the accepted preview in 5.6.
+
+Bind the immutable visual manifest and `level4/visual-camera-v1` calibration.
+Audit 3D body-center/height assumptions, pose symmetries, occlusion and object
+coverage against later skill source releases/setups. Invisible truth pose
+labels are not detections. Preserve split/session/episode ownership and
+geometric consistency across render variants/augmentations. Track within each
+episode, respecting subsampling/excluded-frame timestamp gaps; velocity uses
+elapsed time. Freeze gap/reset/reacquisition rules and score temporal sequences.
+
+The separate `configs/level5/perception.yaml` recipe and sidecar checksum must
+freeze the method, supervision, scales, budget/seeds, candidate selection,
+validation-selected confidence/age handling, metrics/denominators and artifact
+digests before held-out evaluation. Explicitly record inheritance or versioned
+changes to the parent 0.8 confidence and 0.1-second age limits without editing
+the historical locks. Retain the original recall, position-error, identity-switch
+and rejection gates. Add orientation, motion, fixture-depth, availability,
+latency and task-predicate diagnostics with limits declared before test; generic
+pose accuracy does not guarantee compatibility with millimetre contact rules.
+Missing estimates and unsupported strata remain visible in the report.
+
+5.6 can qualify its perception baseline only after its own automated gates and
+owner panel/video acceptance pass, with an explicit compatibility disposition
+for each skill. It does not qualify any closed-loop skill, authorize a truth
+fallback, admit a skill to the default registry or start 5.7. Unsupported inputs
+and privileged preview dependencies block the affected later perception track.
