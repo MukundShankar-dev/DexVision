@@ -2839,4 +2839,7 @@ Confirmation retains12/12/8 timeouts and discloses348/532/876 workspace-bound
 samples plus 468/476/480 settling holds. Exact artifacts/source/reset/code
 bindings and successful actual contact pass verification. This is the complete
 engineered/learned state bundle, not learned safety or vision. Accepted press
-is unchanged. Owner push review is pending; checkpoint 5.5 stays incomplete.
+is unchanged. Owner push viewer acceptance ("Passed", October 13, 2026) is
+bound separately in `docs/level5_push_acceptance.json`; checkpoint 5.5 is
+complete. Historical automated receipts remain unchanged. Checkpoint 5.6 is
+unstarted; perception and default registry admission remain unqualified.

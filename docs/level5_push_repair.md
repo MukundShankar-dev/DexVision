@@ -1,9 +1,9 @@
 # Checkpoint 5.5 push repair
 
 Development started October 13, 2026 after the owner accepted press and required
-push to pass. Last Completed remains 5.4A. This work stays within 5.5; manual
-push acceptance remains required. Local commits are authorized; remote push is
-not authorized.
+push to pass. At development start, Last Completed was 5.4A and push manual
+acceptance was required; only local commits were authorized. The later owner
+acceptance below completes 5.5 and authorizes commit and push. No 5.6 work starts.
 
 ## Preserved evidence and diagnosis
 
@@ -594,7 +594,7 @@ bindings pass. Only now is the reserved 22755000-series confirmation opened,
 once per selected seed. Numerical success still requires owner review.
 
 
-## Final V8 automated result; owner review pending
+## Final V8 automated result and owner acceptance
 
 One-time fresh confirmation passes every original state gate for all three
 selected seeds, with **116/128, 116/128, 120/128** successes and worst-family
@@ -622,10 +622,17 @@ serialization-failure snapshot remain preserved. Original datasets, release
 archive and 5.0 locks are unchanged. Full regression passes **914 tests,
 one skipped**; focused **34**; Ruff passes.
 
-The V8 manual command and explicit criteria above are now eligible. **5.5
-remains incomplete until the owner confirms push viewer review passed**.
-Press already has separate acceptance. Last Completed remains 5.4A, Next
-Target remains 5.5. No 5.6 work or remote push is performed.
+The owner confirmed **"Passed"** on October 13, 2026 after receiving the exact
+V8 manual command and four-cell pass/fail criteria above. This is owner-reported
+acceptance; no agent visual observation or local viewer-log completion is
+asserted. `level5_push_acceptance.json` binds the exact three selected bundles,
+overlays, confirmation reports, selection evidence and four prescribed review
+attempts. It also binds the unchanged prior press acceptance. Original automated
+verification retains its then-pending status, and failures remain preserved.
+
+**Checkpoint 5.5 is complete.** Last Completed is 5.5; Next Target is 5.6,
+unstarted. Dial remains absent, not promoted. The latest owner instruction
+("Feel free to commit and push") authorizes publishing the checkpoint commits.
 
 
 ## Changed files

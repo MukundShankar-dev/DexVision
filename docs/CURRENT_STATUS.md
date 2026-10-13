@@ -20,6 +20,34 @@ Level 5 — Workcell Skill Learning and Qualification
 
 ## Last Completed Checkpoint
 
+Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
+
+Completed October 13, 2026 after the owner accepted press ("Press passes") and
+push ("Passed"). Push V8 selected epochs 200/61/20 pass one-time confirmation
+at 116/128, 116/128 and 120/128 successes, zero executed safety/wrong contact,
+and 384/384 physical/decoder/phase audits. Press V1 selected epochs 200/189/199
+pass at 120/120 each with 360/360 physical audits. Dial is explicitly absent.
+Full regression: 914 passed, one skipped; focused: 34 passed; Ruff passes.
+
+`docs/level5_push_acceptance.json` and `docs/level5_press_acceptance.json` bind
+owner-reported reviews to exact artifacts. Historical automated receipts,
+failed attempts and datasets remain unchanged. Qualification applies to frozen
+state bundles on fresh resets of exposed families, with disclosed engineered
+geometry, entry/settling control and bounds; no learned vision, unseen-family,
+default registry admission or deployment qualification is claimed.
+
+---
+
+## Next Target Checkpoint
+
+Level 5.6 — Detector, Tracker, and Metric Pose Baseline
+
+Unstarted. No 5.6 implementation is included in the 5.5 acceptance update.
+
+---
+
+## Historical Level 5.4A Owner Acceptance
+
 Level 5.4A — Place-Held-Object Policy Repair
 
 Completed October 5, 2026 with V25 bounded state qualification and owner
@@ -45,13 +73,15 @@ Commands and limits are documented in `docs/level5_place_repair.md`.
 
 ---
 
-## Next Target Checkpoint
+## Level 5.5 Qualification History
 
 Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
-**Current outcome:** V8 push passes all three automated state qualifications;
-accepted V1 press is unchanged. Push owner viewer review remains pending,
-so checkpoint 5.5 is incomplete. Last Completed: 5.4A. Next Target: 5.5.
+**Current outcome:** Checkpoint 5.5 is complete after owner push viewer
+acceptance ("Passed", October 13, 2026). V8 push passes all three state gates;
+accepted V1 press is unchanged. `docs/level5_push_acceptance.json` binds the
+owner statement to the exact bundles and four prescribed review cells.
+Last Completed: 5.5. Next Target: 5.6, unstarted. Dial is absent, not promoted.
 
 V1 automated work finished October 13, 2026; owner press viewer review passed.
 Separate checksum-locked push/press recipes and standalone contact-phase
@@ -149,14 +179,15 @@ in `docs/level5_push_repair_verification_v8.json` passes exact tensor,
 source/code/config/reset and checksum bindings, observed physical contact
 for every success, and unchanged accepted press bundles. Final regression:
 914 passed, one skipped; focused 34; Ruff passes. Owner push viewer
-confirmation is pending. Last Completed stays 5.4A; Next Target stays 5.5.
+acceptance is recorded separately in `docs/level5_push_acceptance.json`;
+original automated verification retains its historical pending status.
+Last Completed is 5.5; Next Target is 5.6, unstarted.
 No consumed V1/V3/V6 matrix is retried.
 See `docs/level5_push_repair.md`.
 Do not rerun or tune against V1's
 consumed held-out matrix. No perception/default registry or deployment
-qualification is claimed. Last Completed remains 5.4A; 5.5 is not marked
-complete and no 5.6 work is started. The owner requested a local commit only;
-do not push.
+qualification is claimed. Checkpoint 5.5 is complete; 5.6 remains unstarted.
+The owner's latest acceptance authorizes committing and pushing this update.
 
 ---
 
@@ -509,29 +540,15 @@ unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 
 ## Manual Verification Status
 
-Level 5.5 press owner viewer acceptance was confirmed October 13, 2026 with
-"Press passes" after the prescribed seed-5001 stratified review. This is
-owner-reported acceptance, not agent observation. The separate
-`docs/level5_press_acceptance.json` binds the exact three passing press bundles
-and their evidence; historical automated receipts are unchanged. Push V8 now passes all three one-time numerical confirmations and all
-physical/decoder/phase audits. Its exact bundles and engineered entry,
-settling and workspace limits are bound in
-`docs/level5_push_repair_verification_v8.json`. Owner push review is pending:
-
-```bash
-conda activate dexvision
-mjpython -m dexvision.apps.evaluate_skill --config configs/level5/push_policy_v8.yaml --checkpoint outputs/level5/push_55_v8/seed_5001/selected.pt --track state --viewer --scenario-set manual_stratified
-```
-
-Review all four successful fresh-confirmation cells: cuboid/slot B and
-puck/inspection pad, each interior/boundary. Pass only when the intended
-object is visibly pushed, upright/supported on the board, without wrong
-contact or neighbor disturbance, and the settled endpoint matches the report.
-Stalls, tipping, board exit, mismatches, missing clips, cancellation or errors
-fail. Numerical limits remain 35 mm planar error, 20 mm/s speed, 10 degrees
-tilt and five qualifying samples. Playback does not record owner acceptance.
-5.5 remains incomplete until explicit owner confirmation; Last Completed
-stays 5.4A and Next Target stays 5.5. No subsequent checkpoint is started.
+Level 5.5 manual verification is complete. The owner confirmed "Press passes"
+and then "Passed" for the prescribed V8 push seed-5001 saved-state viewer
+review of all four cuboid/slot-B and puck/inspection-pad interior/boundary cells.
+`docs/level5_press_acceptance.json` and `docs/level5_push_acceptance.json` bind
+these owner-reported statements to the exact passing bundles and evidence.
+No agent visual observation or local viewer-log completion is claimed.
+Historical automated receipts retain their then-pending manual status.
+No manual gate remains for 5.5. Last Completed is 5.5; Next Target is 5.6,
+unstarted. The latest owner instruction authorizes commit and push.
 
 Level 5.4A V25 owner manual viewer acceptance was confirmed on October 5,
 2026 with "Passed" after the prescribed seed-5001 saved-state review of one
@@ -542,7 +559,7 @@ three one-time numerical confirmations and 720/720 independent physical
 audits pass. This is owner-reported acceptance; no agent visual observation
 or local viewer-log completion is claimed. Historical automated receipts
 retain their then-pending manual status. No manual gate remains for 5.4A.
-Last Completed is now 5.4A, Next Target is 5.5, and 5.5 has not started.
+At that October 5 acceptance, Last Completed was 5.4A and Next Target was 5.5.
 Earlier failed versions and all failed attempts remain preserved.
 
 Level 5.4 numerical gates fail for all three selected state policies, so the

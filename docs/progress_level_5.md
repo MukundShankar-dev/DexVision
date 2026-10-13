@@ -1190,9 +1190,11 @@ state qualification; 5.5 has not started.
 
 ## Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
-**Current outcome:** V8 push passes all three automated state qualifications;
-accepted V1 press is unchanged. Push owner viewer review remains pending,
-so checkpoint 5.5 is incomplete. Last Completed: 5.4A. Next Target: 5.5.
+**Current outcome:** Checkpoint 5.5 is complete after owner push viewer
+acceptance ("Passed", October 13, 2026). V8 push passes all three state gates;
+accepted V1 press is unchanged. `docs/level5_push_acceptance.json` binds the
+owner statement to the exact bundles and four prescribed review cells.
+Last Completed: 5.5. Next Target: 5.6, unstarted. Dial is absent, not promoted.
 
 **V1 automated work finished; press owner accepted; push repair requested
 (October 13, 2026).**
@@ -1206,8 +1208,8 @@ Dial is explicitly absent, not promoted. Full regression: 900 passed, one
 skipped; focused: 20 passed; Ruff and artifact/selected-weight checks pass.
 The owner confirmed "Press passes"; the separate acceptance receipt is
 `docs/level5_press_acceptance.json`. Failed push does not trigger review. The
-owner explicitly requires push to pass too, so this checkpoint and its overall
-checklist box remain open. Repair must preserve V1, freeze a separate recipe
+owner explicitly required push to pass too, leaving this checkpoint and its
+checklist box open at that stage. Repair must preserve V1, freeze a separate recipe
 and fresh confirmation, and retain the original state/safety gates. The accepted
 press runtime stays unchanged. V2 completes three full training budgets but fails parked-puck disturbance;
 V3 preserves those weights and fixes the ordinary-physics entry setup.
@@ -1269,9 +1271,11 @@ in `docs/level5_push_repair_verification_v8.json` passes exact tensor,
 source/code/config/reset and checksum bindings, observed physical contact
 for every success, and unchanged accepted press bundles. Final regression:
 914 passed, one skipped; focused 34; Ruff passes. Owner push viewer
-confirmation is pending. Last Completed stays 5.4A; Next Target stays 5.5.
+acceptance is recorded separately in `docs/level5_push_acceptance.json`;
+original automated verification retains its historical pending status.
+Last Completed is 5.5; Next Target is 5.6, unstarted.
 All original gates and immutable data stay unchanged. See `docs/level5_push_repair.md` and the failed-result receipts.
-No 5.6 work or remote push is authorized.
+No 5.6 work is started. The latest owner acceptance authorizes commit and push.
 See [`level5_contact_results.md`](level5_contact_results.md) for the audited
 method, previous pick/place adjustments, exact commands and manual criteria.
 No completed checkpoint or future feature is changed by this work.
@@ -1351,6 +1355,12 @@ Manual verification is required after numerical gates pass. View one
 stratified push and one press rollout; add one dial rollout only if promoted.
 Pass when contact and terminal state visibly match each report. Stop for user
 confirmation.
+
+Owner acceptance is complete as of October 13, 2026: "Press passes" and then
+"Passed" for the prescribed four-cell V8 push review. Separate receipts are
+`docs/level5_press_acceptance.json` and `docs/level5_push_acceptance.json`.
+The original automated receipts and all failed attempts remain unchanged.
+Checkpoint 5.5 is complete; 5.6 remains unstarted.
 
 ---
 
@@ -1821,7 +1831,7 @@ user confirmation before completing Level 5.
 [x] 5.4 place-held-object is evaluated across targets and held-out goals;
     state qualification is negative and no manual review is triggered
 [x] 5.4A place repair passes frozen state gates, physical audits and owner manual acceptance
-[ ] 5.5 push and press are evaluated; optional dial status is explicit
+[x] 5.5 push and press are evaluated; optional dial status is explicit
 [ ] 5.6 detector/tracker/pose pipeline meets frozen visual gates
 [ ] 5.7 perception-grounded rollouts have no simulator-truth fallback
 [ ] 5.8 corrections/model escalation are evidence-gated
