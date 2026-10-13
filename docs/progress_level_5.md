@@ -1190,6 +1190,10 @@ state qualification; 5.5 has not started.
 
 ## Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
+**Current outcome:** V8 push passes all three automated state qualifications;
+accepted V1 press is unchanged. Push owner viewer review remains pending,
+so checkpoint 5.5 is incomplete. Last Completed: 5.4A. Next Target: 5.5.
+
 **V1 automated work finished; press owner accepted; push repair requested
 (October 13, 2026).**
 Separate push/press V1 recipes implement contact-phase standalone behavior
@@ -1205,7 +1209,69 @@ The owner confirmed "Press passes"; the separate acceptance receipt is
 owner explicitly requires push to pass too, so this checkpoint and its overall
 checklist box remain open. Repair must preserve V1, freeze a separate recipe
 and fresh confirmation, and retain the original state/safety gates. The accepted
-press runtime stays unchanged. No 5.6 work or remote push is authorized.
+press runtime stays unchanged. V2 completes three full training budgets but fails parked-puck disturbance;
+V3 preserves those weights and fixes the ordinary-physics entry setup.
+Every V3 validation candidate passes, but its one-time confirmation fails
+success/worst-family gates (92/128, 96/128, 68/128; zero safety, all physical
+audits passing). Those failures and consumed resets remain preserved.
+V4 completes all training/validation but fails the three-seed requirement:
+seed 5003 has zero cuboid success, and V4 confirmation remains unopened.
+V5 separately freezes entry-relative geometry, removing constant family/height
+cues, and one learned signed along rate after whole-interval lateral invariance
+and 4/4 long-cuboid ordinary-physics feasibility evidence. New disjoint
+selection/confirmation starts are frozen; all three 200-epoch budgets finish.
+V5 focused tests pass 29 tests, feature parity is exact, and full regression
+passes 909 tests with one skip. Every V5 candidate matrix finishes, but all
+selected seeds fail worst-family gates (140/152, 25% cuboid success each);
+confirmation is unopened and all failures remain preserved. V6 adds
+a separately frozen causal physical-goal-success latch after a source-only
+retraction audit, retains every original label/gate and freezes new disjoint
+selection/confirmation before training. V6 focused tests pass 30 tests; full
+training finishes. Every epoch-20 complete selection matrix passes at 148/152,
+75% cuboid success, zero safety and all physical audits passing. All
+candidates finish; epochs 80/20/20 are selected. Final regression passes
+910 tests with one skip. One-time fresh V6 confirmation fails at
+100/128, 100/128 and 96/128 successes, with cuboid rates below 65%; safety
+is zero and all 384 physical audits pass. Consumed failures are preserved.
+V7 separately freezes physical predicates in place of continuous tracking
+and velocity proxies. It preserves signed learned action, causal latch and
+all physical gates, with 46-reset/184-attempt candidate selection (original
+30 plus 16 fresh all-cell resets) and disjoint 32-reset confirmation.
+All attempts, including one failed scripted confirmation setup, remain counted.
+V7 focused tests pass 31 tests; all three 200-epoch / 8,400-update budgets
+finish. Full regression passes 911 tests with one skip; Ruff passes. All
+three epoch-20 selection matrices pass at 184/184 with zero safety and
+passing physical audits. All 12 complete candidate matrices pass (2,208/2,208 successes), and
+validation selects epochs 200/61/80. One-time V7 confirmation finishes at 124/128, 112/128 and 116/128.
+All success thresholds pass, but seeds 5002/5003 record 12/8 workspace
+violations; all 384 physical audits pass. The failed three-seed result is
+preserved in `docs/level5_push_repair_v7_failed.json`, and those resets are
+consumed. V8 preserves exact full-budget V7 candidates with a separately
+frozen causal entry/settling and original-workspace decoder overlay.
+Every alias, hold and bound is recorded and independently audited. Source
+advancing-before-contact and whole-interval workspace identity audits pass.
+V8 focused tests pass 34 tests; Ruff passes. New 22555000-series all-cell
+selection (32 fresh plus original 30; 62 unique/248 attempts) and disjoint
+22755000-series confirmation are frozen before overlay selection.
+All 62 selection and 32 confirmation setups freeze ready. An original
+validation smoke passes with zero safety; all four engineered dwell holds
+independently qualify. Final V8 regression passes 914 tests with one skip; focused tests pass 34
+and Ruff passes after the reporting fix. All 12 complete candidate matrices pass across 2,976 attempts, with every
+physical/decoder/phase audit passing and zero executed safety. Validation
+selects epochs 200/61/20 at 244/248, 244/248, 248/248 successes. The timeouts
+and 36/176/0 selected workspace-bound samples remain disclosed. One-time fresh V8 confirmation passes every original state gate at
+116/128, 116/128, 120/128 successes, with worst-family rates 81.25%, 81.25%,
+87.5%, zero executed safety/wrong contacts and all 384 physical/decoder/phase
+audits passing. The 12/12/8 goal timeouts stay counted. Confirmation records
+348/532/876 engineered workspace-bound samples and 468/476/480 physical
+settling holds; these are not learned safety/terminal control. Verification
+in `docs/level5_push_repair_verification_v8.json` passes exact tensor,
+source/code/config/reset and checksum bindings, observed physical contact
+for every success, and unchanged accepted press bundles. Final regression:
+914 passed, one skipped; focused 34; Ruff passes. Owner push viewer
+confirmation is pending. Last Completed stays 5.4A; Next Target stays 5.5.
+All original gates and immutable data stay unchanged. See `docs/level5_push_repair.md` and the failed-result receipts.
+No 5.6 work or remote push is authorized.
 See [`level5_contact_results.md`](level5_contact_results.md) for the audited
 method, previous pick/place adjustments, exact commands and manual criteria.
 No completed checkpoint or future feature is changed by this work.
@@ -1231,6 +1297,13 @@ configs/level5/skills/press_button.yaml
 configs/level5/skills/rotate_dial.yaml, only if promoted
 configs/level5/push_policy_v1.yaml and push_policy_v1.sha256
 configs/level5/press_policy_v1.yaml and press_policy_v1.sha256
+configs/level5/push_policy_v2.yaml and push_policy_v2.sha256
+configs/level5/push_policy_v3.yaml and push_policy_v3.sha256
+configs/level5/push_setup_v3.yaml and push_setup_v3.sha256
+dexvision/learning/push_repair.py
+dexvision/evaluation/push_repair.py and push_settled.py
+tests/test_push_repair.py
+docs/level5_push_repair.md and versioned verification/failure receipts
 dexvision/learning/contact_policy.py
 dexvision/evaluation/contact_policy.py
 dexvision/apps/train_skill.py and evaluate_skill.py (recipe dispatch only)
@@ -1270,7 +1343,7 @@ directories must not be overwritten; use new paths when reproducing.
 [x] Push and press each complete three seeded training runs and frozen rollouts
 [x] Physical task state recomputes every success and failure
 [x] Wrong contact, contact loss, overshoot, and object-off-board failures remain visible
-[ ] Push and press both pass required state success and safety gates (owner-required)
+[x] Push and press both pass required state success and safety gates (owner-required; V8 push, accepted V1 press)
 [x] Optional dial is qualified, experimental, failed, or explicitly absent
 ```
 

@@ -25,7 +25,26 @@ def main(argv: list[str] | None = None) -> int:
         import yaml
 
         version = yaml.safe_load(args.config.read_text()).get("version")
-        if version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
+        if version == 'level5/push-policy-v8':
+            raise ValueError('Push V8 reuses exact full-budget V7 weights; select V8 candidates with evaluate_skill')
+        elif version == 'level5/push-policy-v7':
+            from dexvision.learning.push_predicates import train_push as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version == 'level5/push-policy-v6':
+            from dexvision.learning.push_latched import train_push as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version == 'level5/push-policy-v5':
+            from dexvision.learning.push_canonical import train_push as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version == 'level5/push-policy-v4':
+            from dexvision.learning.push_distance import train_push as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version == 'level5/push-policy-v3':
+            raise ValueError('Push V3 reuses exact full-budget V2 weights; train push_policy_v2.yaml then select V3 candidates')
+        elif version == 'level5/push-policy-v2':
+            from dexvision.learning.push_repair import train_push as run_training_command
+            extra = {"cache_dir": args.cache_dir}
+        elif version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
             from dexvision.learning.contact_policy import train_contact as run_training_command
             extra = {"cache_dir": args.cache_dir}
         elif version == 'level5/place-policy-v1':

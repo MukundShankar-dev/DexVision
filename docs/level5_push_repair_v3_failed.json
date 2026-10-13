@@ -1,0 +1,3704 @@
+{
+  "accepted_press_unchanged": true,
+  "attempts_per_seed": 128,
+  "cache_sha256": "8db128282a41d26616dcde11bd6d024ea94c35b069c2f4e739f7db70d119577c",
+  "checkpoint": "5.5",
+  "checkpoint_complete": false,
+  "confirmation_resets_sha256": "5dc50b36db8bb2d9e8ca0b0b26782dcda08a69fc84986fb3232a740430eafe7f",
+  "focused_tests": "25 passed; zero-policy failure remains counted and independently audited",
+  "manual_acceptance": "not_triggered_failed_state_gates",
+  "offline_live_first_validation_feature_max_abs_error": 0.0,
+  "parent_learning_recipe_sha256": "c04d176679cf8c986660c91aebe0cb9f208a0e61bd588e8f801dbb3eccc70140",
+  "press_acceptance_sha256": "2b4598145a75dfbf4be81fa5f01a03356f56e6189f87db07ca9d36ef6f049366",
+  "recipe_content_sha256": "71775cf9cdf7325ccf73cf05c2ef8f58c3d4b1fbcc1d5a64dc29e45e053c5907",
+  "recipe_path": "configs/level5/push_policy_v3.yaml",
+  "recipe_sha256": "f2199bb075e4411d95eeaa5b86d2289f8207724dfa0d6dceabfc2e85150c2f27",
+  "regression_log": "outputs/level5/push_55_v3/logs/regression_pass.log",
+  "regression_log_sha256": "81dad2e5f68524d3de77e7ca1b0aa8e53d70081c49aa1639a9414af8bad3ab7f",
+  "runs": [
+    {
+      "breakdowns": {
+        "boundary_class": {
+          "boundary": {
+            "count": 64,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 48,
+              "timeout": 16
+            }
+          },
+          "nominal": {
+            "count": 64,
+            "success_rate": 0.6875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 44,
+              "timeout": 20
+            }
+          }
+        },
+        "cell_id": {
+          "push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.375,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 12,
+              "timeout": 20
+            }
+          },
+          "push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "object_family": {
+          "rigid_cuboid": {
+            "count": 64,
+            "success_rate": 0.4375,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 28,
+              "timeout": 36
+            }
+          },
+          "rigid_flat_puck": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_friction": {
+          "[0.7768818596213314, 0.009711023245266643, 0.0009711023245266643]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7770320470984503, 0.009712900588730628, 0.0009712900588730629]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7786928746248073, 0.009733660932810091, 0.0009733660932810091]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7788864096943015, 0.009736080121178768, 0.0009736080121178767]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.779080136283774, 0.009738501703547175, 0.0009738501703547176]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.78027369630429, 0.009753421203803623, 0.0009753421203803624]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7885415332512862, 0.009856769165641077, 0.0009856769165641076]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7891225164120357, 0.009864031455150446, 0.0009864031455150445]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7931758492453944, 0.00991469811556743, 0.000991469811556743]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8086883853062989, 0.010108604816328737, 0.0010108604816328737]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8115822285000119, 0.01014477785625015, 0.0010144777856250149]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8131515102256943, 0.01016439387782118, 0.0010164393877821179]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8135655676177029, 0.010169569595221287, 0.0010169569595221287]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8200295184217641, 0.010250368980272052, 0.0010250368980272051]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8227753084649962, 0.010284691355812453, 0.0010284691355812452]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8228011597194449, 0.010285014496493062, 0.001028501449649306]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8285248545930295, 0.015064088265327808, 0.001506408826532781]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8479034526124417, 0.015416426411135303, 0.0015416426411135303]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8480958216970481, 0.015419924030855419, 0.001541992403085542]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8486430759348415, 0.015429874107906208, 0.0015429874107906207]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9077568850525989, 0.016504670637319977, 0.0016504670637319978]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9080785921823731, 0.01651051985786133, 0.0016510519857861328]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.908855051108104, 0.01652463729287462, 0.0016524637292874619]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9105883279621898, 0.016556151417494357, 0.0016556151417494358]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9584913666522015, 0.017427115757312754, 0.0017427115757312752]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9597130037420017, 0.017449327340763668, 0.0017449327340763668]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9600842553557632, 0.017456077370104787, 0.0017456077370104786]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9613266822549245, 0.017478666950089535, 0.0017478666950089534]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9729790047032741, 0.017690527358241347, 0.0017690527358241346]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9820552470847127, 0.017855549946994776, 0.0017855549946994775]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9825008310224222, 0.01786365147313495, 0.001786365147313495]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9876120637207572, 0.017956582976741037, 0.0017956582976741038]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "object_instance": {
+          "block_small": {
+            "count": 64,
+            "success_rate": 0.4375,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 28,
+              "timeout": 36
+            }
+          },
+          "puck_light": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_mass_kg": {
+          "0.024257172887150947": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024315880626019186": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024323685926078156": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02432897319981664": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02435071195959201": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024352728387541357": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024390960048091638": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024449131510508815": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024718266245672974": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024780257539541283": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02479838148817145": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024821484110509107": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025462540665891195": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025480168236169293": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025611659609461962": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02563086503304073": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04366908780381757": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043683035880413": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04371267256037311": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043761656013147625": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04380524511977332": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.0439899299104153": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.044315287713673435": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04452641655405854": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04528050657330213": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04562795430236187": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04619953888533833": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04620175046383321": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04627527270977185": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04627547120840891": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04629511236497961": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.046317528207375454": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          }
+        },
+        "object_size_m": {
+          "[0.017339250161529297, 0.017339250161529297, 0.017339250161529297]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017339731680632846, 0.017339731680632846, 0.017339731680632846]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017345965770043704, 0.017345965770043704, 0.017345965770043704]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.01734666388232617, 0.01734666388232617, 0.01734666388232617]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017354128463686256, 0.017354128463686256, 0.017354128463686256]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017365394847794622, 0.017365394847794622, 0.017365394847794622]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017411264518056375, 0.017411264518056375, 0.017411264518056375]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017412755961567404, 0.017412755961567404, 0.017412755961567404]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017504391140044817, 0.017504391140044817, 0.017504391140044817]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017552728753986706, 0.017552728753986706, 0.017552728753986706]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017617786072942267, 0.017617786072942267, 0.017617786072942267]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017660357120335, 0.017660357120335, 0.017660357120335]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017660431615053526, 0.017660431615053526, 0.017660431615053526]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.0176608484329739, 0.0176608484329739, 0.0176608484329739]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017664397278173382, 0.017664397278173382, 0.017664397278173382]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017672243738607537, 0.017672243738607537, 0.017672243738607537]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.029708027872138172, 0.005941605574427635, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029708694068050115, 0.005941738813610023, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029714145338774752, 0.005942829067754951, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029724498574631997, 0.005944899714926399, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02972871532221432, 0.005945743064442864, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029759064483223865, 0.005951812896644774, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029793378414658126, 0.005958675682931625, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02980532039114124, 0.005961064078228249, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029805962674418058, 0.005961192534883612, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029806148682421825, 0.005961229736484365, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030051837515152818, 0.006010367503030563, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030076251876336692, 0.006015250375267339, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030240715171971855, 0.006048143034394372, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030262060372952822, 0.006052412074590565, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030263713812982446, 0.006052742762596489, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030287715655954485, 0.006057543131190897, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "push_direction_xy": {
+          "[0.23420879361258345, 0.9721863201025502]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.2346459136251086, 0.972080909811029]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24205484158903293, 0.970262569443606]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24502973747359505, 0.9695155634406398]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2451367274620584, 0.9694885171311688]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2462404358884542, 0.9692087740695831]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24701366475806197, 0.9690119965319272]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24736230705503742, 0.9689230563096378]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24858636433834366, 0.9686097353759379]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24864806301873113, 0.9685938987816479]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24960803748664626, 0.9683469562207881]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24986388502793178, 0.9682809710816115]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25455718875929056, 0.9670577219850773]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25550024140549327, 0.9668089918084826]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25859346842940206, 0.9659862411471769]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2602008328456198, 0.9655545176666338]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.9994916235415945, -0.03188251041225477]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995165051583002, -0.03109269875931695]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995234150100549, 0.030869772377481522]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9998607085872127, 0.016690219395712375]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999107779426657, -0.013357999629187005]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999353885134066, 0.011367444679555111]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999364994870815, 0.011269294277886156]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999585959769747, 0.009099798445983116]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999631110091753, -0.008589331804718457]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999659707730444, -0.00824968459537009]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999743576921447, -0.007161281881239329]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999817033057055, 0.006049219273597516]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999895165842995, 0.004578943273194002]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999916745622148, 0.0040805399467811155]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.999995933568731, -0.002851814510526566]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999976015060319, -0.0021902014024678096]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "render_condition": {
+          "bounded_distractors": {
+            "count": 32,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 23,
+              "timeout": 9
+            }
+          },
+          "mild_illumination": {
+            "count": 32,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 23,
+              "timeout": 9
+            }
+          },
+          "nominal": {
+            "count": 32,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 23,
+              "timeout": 9
+            }
+          },
+          "partial_occlusion": {
+            "count": 32,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 23,
+              "timeout": 9
+            }
+          }
+        },
+        "session": {
+          "evaluation_only_push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "evaluation_only_push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.375,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 12,
+              "timeout": 20
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "source": {
+          "scripted": {
+            "count": 128,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 92,
+              "timeout": 36
+            }
+          }
+        },
+        "target_depth_m": {
+          "null": {
+            "count": 128,
+            "success_rate": 0.71875,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 92,
+              "timeout": 36
+            }
+          }
+        },
+        "target_id": {
+          "inspection_pad": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          },
+          "setup_slot_b": {
+            "count": 64,
+            "success_rate": 0.4375,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 28,
+              "timeout": 36
+            }
+          }
+        }
+      },
+      "candidate_sha256": "e4679e9eb9bfd6d8032317f6f4773a52e7b9ae8099b334f5cd9eebb1e7791185",
+      "confirmation_report": "outputs/level5/push_55_v3/confirmation_5001/report.json",
+      "confirmation_report_sha256": "8062473e9e1ce8977a81f7fa6992cf76bf89ba311bae62e110050a4546d96c77",
+      "entry_overlay_sha256": "eeb84d42141c0b0fef39c9ed6a8f56ac718bfaed8b37a13614801bf82cb6699f",
+      "epochs": 200,
+      "gates": {
+        "aggregate_success": false,
+        "explicit_terminal_results": true,
+        "invalid_actions": true,
+        "joint_limit_violations": true,
+        "mean_action_jerk": true,
+        "object_workspace_violations": true,
+        "physical_audit": true,
+        "workspace_violations": true,
+        "worst_family_success": false,
+        "wrong_button_activation": true,
+        "wrong_contact": true
+      },
+      "mean_action_jerk": 0.000513021901143529,
+      "physical_audits_passed": 128,
+      "rollout_count": 128,
+      "safety_counters": {
+        "invalid_actions": 0,
+        "joint_limit_violations": 0,
+        "object_workspace_violations": 0,
+        "workspace_violations": 0
+      },
+      "seed": 5001,
+      "selected_checkpoint": "outputs/level5/push_55_v3/seed_5001/selected.pt",
+      "selected_checkpoint_sha256": "d45b590f67b7d2dd95c55be906485a2f3bd55e68c1b6e8376e834af3bc544702",
+      "selected_epoch": 80,
+      "successes": 92,
+      "unique_resets": 32,
+      "updates": 8400,
+      "validation_reports": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "283c917e8c7406c6dd447165666ea71456b9d3061bf18a34b00f5af7b58b522b",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "80d8892637426024a1c1017654204eb914da7db47848f11b519d58c04bd194c9",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "6e7068835a5fcb9940b1049ed4adb7ea2210d38fb6e1f4e0c3350c469bb665fe",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        }
+      ],
+      "worst_family_success_rate": 0.4375,
+      "wrong_contact_count": 0
+    },
+    {
+      "breakdowns": {
+        "boundary_class": {
+          "boundary": {
+            "count": 64,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 48,
+              "timeout": 16
+            }
+          },
+          "nominal": {
+            "count": 64,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 48,
+              "timeout": 16
+            }
+          }
+        },
+        "cell_id": {
+          "push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "object_family": {
+          "rigid_cuboid": {
+            "count": 64,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32,
+              "timeout": 32
+            }
+          },
+          "rigid_flat_puck": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_friction": {
+          "[0.7768818596213314, 0.009711023245266643, 0.0009711023245266643]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7770320470984503, 0.009712900588730628, 0.0009712900588730629]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7786928746248073, 0.009733660932810091, 0.0009733660932810091]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7788864096943015, 0.009736080121178768, 0.0009736080121178767]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.779080136283774, 0.009738501703547175, 0.0009738501703547176]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.78027369630429, 0.009753421203803623, 0.0009753421203803624]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7885415332512862, 0.009856769165641077, 0.0009856769165641076]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.7891225164120357, 0.009864031455150446, 0.0009864031455150445]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7931758492453944, 0.00991469811556743, 0.000991469811556743]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8086883853062989, 0.010108604816328737, 0.0010108604816328737]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8115822285000119, 0.01014477785625015, 0.0010144777856250149]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8131515102256943, 0.01016439387782118, 0.0010164393877821179]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8135655676177029, 0.010169569595221287, 0.0010169569595221287]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8200295184217641, 0.010250368980272052, 0.0010250368980272051]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8227753084649962, 0.010284691355812453, 0.0010284691355812452]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8228011597194449, 0.010285014496493062, 0.001028501449649306]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8285248545930295, 0.015064088265327808, 0.001506408826532781]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8479034526124417, 0.015416426411135303, 0.0015416426411135303]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8480958216970481, 0.015419924030855419, 0.001541992403085542]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8486430759348415, 0.015429874107906208, 0.0015429874107906207]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9077568850525989, 0.016504670637319977, 0.0016504670637319978]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9080785921823731, 0.01651051985786133, 0.0016510519857861328]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.908855051108104, 0.01652463729287462, 0.0016524637292874619]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9105883279621898, 0.016556151417494357, 0.0016556151417494358]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9584913666522015, 0.017427115757312754, 0.0017427115757312752]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9597130037420017, 0.017449327340763668, 0.0017449327340763668]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9600842553557632, 0.017456077370104787, 0.0017456077370104786]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9613266822549245, 0.017478666950089535, 0.0017478666950089534]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9729790047032741, 0.017690527358241347, 0.0017690527358241346]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9820552470847127, 0.017855549946994776, 0.0017855549946994775]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9825008310224222, 0.01786365147313495, 0.001786365147313495]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9876120637207572, 0.017956582976741037, 0.0017956582976741038]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "object_instance": {
+          "block_small": {
+            "count": 64,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32,
+              "timeout": 32
+            }
+          },
+          "puck_light": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_mass_kg": {
+          "0.024257172887150947": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024315880626019186": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024323685926078156": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02432897319981664": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02435071195959201": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024352728387541357": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024390960048091638": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024449131510508815": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024718266245672974": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024780257539541283": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02479838148817145": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024821484110509107": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025462540665891195": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025480168236169293": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025611659609461962": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02563086503304073": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04366908780381757": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043683035880413": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04371267256037311": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043761656013147625": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04380524511977332": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.0439899299104153": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.044315287713673435": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04452641655405854": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04528050657330213": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04562795430236187": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04619953888533833": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04620175046383321": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04627527270977185": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04627547120840891": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04629511236497961": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.046317528207375454": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          }
+        },
+        "object_size_m": {
+          "[0.017339250161529297, 0.017339250161529297, 0.017339250161529297]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017339731680632846, 0.017339731680632846, 0.017339731680632846]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017345965770043704, 0.017345965770043704, 0.017345965770043704]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.01734666388232617, 0.01734666388232617, 0.01734666388232617]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017354128463686256, 0.017354128463686256, 0.017354128463686256]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017365394847794622, 0.017365394847794622, 0.017365394847794622]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017411264518056375, 0.017411264518056375, 0.017411264518056375]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017412755961567404, 0.017412755961567404, 0.017412755961567404]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017504391140044817, 0.017504391140044817, 0.017504391140044817]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017552728753986706, 0.017552728753986706, 0.017552728753986706]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017617786072942267, 0.017617786072942267, 0.017617786072942267]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017660357120335, 0.017660357120335, 0.017660357120335]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017660431615053526, 0.017660431615053526, 0.017660431615053526]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.0176608484329739, 0.0176608484329739, 0.0176608484329739]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017664397278173382, 0.017664397278173382, 0.017664397278173382]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017672243738607537, 0.017672243738607537, 0.017672243738607537]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.029708027872138172, 0.005941605574427635, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029708694068050115, 0.005941738813610023, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029714145338774752, 0.005942829067754951, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029724498574631997, 0.005944899714926399, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02972871532221432, 0.005945743064442864, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029759064483223865, 0.005951812896644774, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029793378414658126, 0.005958675682931625, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02980532039114124, 0.005961064078228249, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029805962674418058, 0.005961192534883612, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029806148682421825, 0.005961229736484365, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030051837515152818, 0.006010367503030563, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030076251876336692, 0.006015250375267339, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030240715171971855, 0.006048143034394372, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030262060372952822, 0.006052412074590565, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030263713812982446, 0.006052742762596489, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030287715655954485, 0.006057543131190897, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "push_direction_xy": {
+          "[0.23420879361258345, 0.9721863201025502]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.2346459136251086, 0.972080909811029]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24205484158903293, 0.970262569443606]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24502973747359505, 0.9695155634406398]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2451367274620584, 0.9694885171311688]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2462404358884542, 0.9692087740695831]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24701366475806197, 0.9690119965319272]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24736230705503742, 0.9689230563096378]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24858636433834366, 0.9686097353759379]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24864806301873113, 0.9685938987816479]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.24960803748664626, 0.9683469562207881]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24986388502793178, 0.9682809710816115]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25455718875929056, 0.9670577219850773]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25550024140549327, 0.9668089918084826]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25859346842940206, 0.9659862411471769]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2602008328456198, 0.9655545176666338]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.9994916235415945, -0.03188251041225477]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995165051583002, -0.03109269875931695]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995234150100549, 0.030869772377481522]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9998607085872127, 0.016690219395712375]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999107779426657, -0.013357999629187005]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999353885134066, 0.011367444679555111]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999364994870815, 0.011269294277886156]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999585959769747, 0.009099798445983116]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999631110091753, -0.008589331804718457]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999659707730444, -0.00824968459537009]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999743576921447, -0.007161281881239329]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999817033057055, 0.006049219273597516]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999895165842995, 0.004578943273194002]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999916745622148, 0.0040805399467811155]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.999995933568731, -0.002851814510526566]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999976015060319, -0.0021902014024678096]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "render_condition": {
+          "bounded_distractors": {
+            "count": 32,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 24,
+              "timeout": 8
+            }
+          },
+          "mild_illumination": {
+            "count": 32,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 24,
+              "timeout": 8
+            }
+          },
+          "nominal": {
+            "count": 32,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 24,
+              "timeout": 8
+            }
+          },
+          "partial_occlusion": {
+            "count": 32,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 24,
+              "timeout": 8
+            }
+          }
+        },
+        "session": {
+          "evaluation_only_push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "evaluation_only_push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 16,
+              "timeout": 16
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "source": {
+          "scripted": {
+            "count": 128,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 96,
+              "timeout": 32
+            }
+          }
+        },
+        "target_depth_m": {
+          "null": {
+            "count": 128,
+            "success_rate": 0.75,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 96,
+              "timeout": 32
+            }
+          }
+        },
+        "target_id": {
+          "inspection_pad": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          },
+          "setup_slot_b": {
+            "count": 64,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32,
+              "timeout": 32
+            }
+          }
+        }
+      },
+      "candidate_sha256": "359068fa6ec4cd7503be0aa743f6b1b14377659a740b605226c1bcf009f49f40",
+      "confirmation_report": "outputs/level5/push_55_v3/confirmation_5002/report.json",
+      "confirmation_report_sha256": "7166e63b4e7210c62ad2ca35d71b9ffb17b270e4ad3d3dabb52971ba36f34d13",
+      "entry_overlay_sha256": "443f75f699c8912cae0b2acab92f422f3ff89d5e2538448e2f3a98ae9d639e9a",
+      "epochs": 200,
+      "gates": {
+        "aggregate_success": false,
+        "explicit_terminal_results": true,
+        "invalid_actions": true,
+        "joint_limit_violations": true,
+        "mean_action_jerk": true,
+        "object_workspace_violations": true,
+        "physical_audit": true,
+        "workspace_violations": true,
+        "worst_family_success": false,
+        "wrong_button_activation": true,
+        "wrong_contact": true
+      },
+      "mean_action_jerk": 0.0004226573232454317,
+      "physical_audits_passed": 128,
+      "rollout_count": 128,
+      "safety_counters": {
+        "invalid_actions": 0,
+        "joint_limit_violations": 0,
+        "object_workspace_violations": 0,
+        "workspace_violations": 0
+      },
+      "seed": 5002,
+      "selected_checkpoint": "outputs/level5/push_55_v3/seed_5002/selected.pt",
+      "selected_checkpoint_sha256": "995e57a9c285bd5278eee347b7ae1ed0dd2750dad503c67de64429543c0a559b",
+      "selected_epoch": 80,
+      "successes": 96,
+      "unique_resets": 32,
+      "updates": 8400,
+      "validation_reports": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "426b1f5eb32ed3d09a589fcd46ca709a1a1c8d6e3cbc6f878d3ca9be93ed79d3",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "4892eadd811436f10595dd990a4582da5dbfd68a8f4fc3c49e81e2c268e60100",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "4d655240d284270b49df136b98a7dc3738788bd065a37fae770eee4b0e03bd06",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 88,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "2d677152b7328f6ef6be655b6be2170710ce4b30156da9878f52ffeff7385a7a",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        }
+      ],
+      "worst_family_success_rate": 0.5,
+      "wrong_contact_count": 0
+    },
+    {
+      "breakdowns": {
+        "boundary_class": {
+          "boundary": {
+            "count": 64,
+            "success_rate": 0.5625,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 36,
+              "timeout": 28
+            }
+          },
+          "nominal": {
+            "count": 64,
+            "success_rate": 0.5,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32,
+              "timeout": 32
+            }
+          }
+        },
+        "cell_id": {
+          "push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4,
+              "timeout": 28
+            }
+          },
+          "push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 32
+            }
+          },
+          "push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "object_family": {
+          "rigid_cuboid": {
+            "count": 64,
+            "success_rate": 0.0625,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4,
+              "timeout": 60
+            }
+          },
+          "rigid_flat_puck": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_friction": {
+          "[0.7768818596213314, 0.009711023245266643, 0.0009711023245266643]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7770320470984503, 0.009712900588730628, 0.0009712900588730629]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7786928746248073, 0.009733660932810091, 0.0009733660932810091]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7788864096943015, 0.009736080121178768, 0.0009736080121178767]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.779080136283774, 0.009738501703547175, 0.0009738501703547176]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.78027369630429, 0.009753421203803623, 0.0009753421203803624]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7885415332512862, 0.009856769165641077, 0.0009856769165641076]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7891225164120357, 0.009864031455150446, 0.0009864031455150445]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.7931758492453944, 0.00991469811556743, 0.000991469811556743]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8086883853062989, 0.010108604816328737, 0.0010108604816328737]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8115822285000119, 0.01014477785625015, 0.0010144777856250149]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8131515102256943, 0.01016439387782118, 0.0010164393877821179]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8135655676177029, 0.010169569595221287, 0.0010169569595221287]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8200295184217641, 0.010250368980272052, 0.0010250368980272051]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8227753084649962, 0.010284691355812453, 0.0010284691355812452]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.8228011597194449, 0.010285014496493062, 0.001028501449649306]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8285248545930295, 0.015064088265327808, 0.001506408826532781]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8479034526124417, 0.015416426411135303, 0.0015416426411135303]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8480958216970481, 0.015419924030855419, 0.001541992403085542]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.8486430759348415, 0.015429874107906208, 0.0015429874107906207]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9077568850525989, 0.016504670637319977, 0.0016504670637319978]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9080785921823731, 0.01651051985786133, 0.0016510519857861328]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.908855051108104, 0.01652463729287462, 0.0016524637292874619]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9105883279621898, 0.016556151417494357, 0.0016556151417494358]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9584913666522015, 0.017427115757312754, 0.0017427115757312752]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9597130037420017, 0.017449327340763668, 0.0017449327340763668]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9600842553557632, 0.017456077370104787, 0.0017456077370104786]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9613266822549245, 0.017478666950089535, 0.0017478666950089534]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9729790047032741, 0.017690527358241347, 0.0017690527358241346]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9820552470847127, 0.017855549946994776, 0.0017855549946994775]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9825008310224222, 0.01786365147313495, 0.001786365147313495]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9876120637207572, 0.017956582976741037, 0.0017956582976741038]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "object_instance": {
+          "block_small": {
+            "count": 64,
+            "success_rate": 0.0625,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4,
+              "timeout": 60
+            }
+          },
+          "puck_light": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          }
+        },
+        "object_mass_kg": {
+          "0.024257172887150947": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024315880626019186": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024323685926078156": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02432897319981664": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02435071195959201": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024352728387541357": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024390960048091638": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024449131510508815": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024718266245672974": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024780257539541283": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02479838148817145": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.024821484110509107": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025462540665891195": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025480168236169293": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.025611659609461962": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.02563086503304073": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.04366908780381757": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043683035880413": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04371267256037311": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.043761656013147625": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04380524511977332": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.0439899299104153": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.044315287713673435": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04452641655405854": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04528050657330213": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04562795430236187": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04619953888533833": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04620175046383321": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04627527270977185": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04627547120840891": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "0.04629511236497961": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "0.046317528207375454": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          }
+        },
+        "object_size_m": {
+          "[0.017339250161529297, 0.017339250161529297, 0.017339250161529297]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017339731680632846, 0.017339731680632846, 0.017339731680632846]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017345965770043704, 0.017345965770043704, 0.017345965770043704]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.01734666388232617, 0.01734666388232617, 0.01734666388232617]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.017354128463686256, 0.017354128463686256, 0.017354128463686256]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017365394847794622, 0.017365394847794622, 0.017365394847794622]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017411264518056375, 0.017411264518056375, 0.017411264518056375]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017412755961567404, 0.017412755961567404, 0.017412755961567404]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017504391140044817, 0.017504391140044817, 0.017504391140044817]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017552728753986706, 0.017552728753986706, 0.017552728753986706]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017617786072942267, 0.017617786072942267, 0.017617786072942267]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017660357120335, 0.017660357120335, 0.017660357120335]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017660431615053526, 0.017660431615053526, 0.017660431615053526]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.0176608484329739, 0.0176608484329739, 0.0176608484329739]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017664397278173382, 0.017664397278173382, 0.017664397278173382]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.017672243738607537, 0.017672243738607537, 0.017672243738607537]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.029708027872138172, 0.005941605574427635, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029708694068050115, 0.005941738813610023, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029714145338774752, 0.005942829067754951, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029724498574631997, 0.005944899714926399, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02972871532221432, 0.005945743064442864, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029759064483223865, 0.005951812896644774, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029793378414658126, 0.005958675682931625, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.02980532039114124, 0.005961064078228249, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029805962674418058, 0.005961192534883612, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.029806148682421825, 0.005961229736484365, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030051837515152818, 0.006010367503030563, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030076251876336692, 0.006015250375267339, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030240715171971855, 0.006048143034394372, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030262060372952822, 0.006052412074590565, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030263713812982446, 0.006052742762596489, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.030287715655954485, 0.006057543131190897, 0.0]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "push_direction_xy": {
+          "[0.23420879361258345, 0.9721863201025502]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.2346459136251086, 0.972080909811029]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24205484158903293, 0.970262569443606]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24502973747359505, 0.9695155634406398]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.2451367274620584, 0.9694885171311688]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.2462404358884542, 0.9692087740695831]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24701366475806197, 0.9690119965319272]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24736230705503742, 0.9689230563096378]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24858636433834366, 0.9686097353759379]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24864806301873113, 0.9685938987816479]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24960803748664626, 0.9683469562207881]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.24986388502793178, 0.9682809710816115]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25455718875929056, 0.9670577219850773]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25550024140549327, 0.9668089918084826]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.25859346842940206, 0.9659862411471769]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.2602008328456198, 0.9655545176666338]": {
+            "count": 4,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 4
+            }
+          },
+          "[0.9994916235415945, -0.03188251041225477]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995165051583002, -0.03109269875931695]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9995234150100549, 0.030869772377481522]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9998607085872127, 0.016690219395712375]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999107779426657, -0.013357999629187005]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999353885134066, 0.011367444679555111]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999364994870815, 0.011269294277886156]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999585959769747, 0.009099798445983116]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999631110091753, -0.008589331804718457]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999659707730444, -0.00824968459537009]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999743576921447, -0.007161281881239329]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999817033057055, 0.006049219273597516]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999895165842995, 0.004578943273194002]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999916745622148, 0.0040805399467811155]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.999995933568731, -0.002851814510526566]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          },
+          "[0.9999976015060319, -0.0021902014024678096]": {
+            "count": 4,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4
+            }
+          }
+        },
+        "render_condition": {
+          "bounded_distractors": {
+            "count": 32,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 17,
+              "timeout": 15
+            }
+          },
+          "mild_illumination": {
+            "count": 32,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 17,
+              "timeout": 15
+            }
+          },
+          "nominal": {
+            "count": 32,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 17,
+              "timeout": 15
+            }
+          },
+          "partial_occlusion": {
+            "count": 32,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 17,
+              "timeout": 15
+            }
+          }
+        },
+        "session": {
+          "evaluation_only_push_cuboid_setup_slot_b_boundary": {
+            "count": 32,
+            "success_rate": 0.125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4,
+              "timeout": 28
+            }
+          },
+          "evaluation_only_push_cuboid_setup_slot_b_interior": {
+            "count": 32,
+            "success_rate": 0.0,
+            "terminal_reasons": {
+              "timeout": 32
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_boundary": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          },
+          "evaluation_only_push_flat_puck_inspection_pad_interior": {
+            "count": 32,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 32
+            }
+          }
+        },
+        "source": {
+          "scripted": {
+            "count": 128,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 68,
+              "timeout": 60
+            }
+          }
+        },
+        "target_depth_m": {
+          "null": {
+            "count": 128,
+            "success_rate": 0.53125,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 68,
+              "timeout": 60
+            }
+          }
+        },
+        "target_id": {
+          "inspection_pad": {
+            "count": 64,
+            "success_rate": 1.0,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 64
+            }
+          },
+          "setup_slot_b": {
+            "count": 64,
+            "success_rate": 0.0625,
+            "terminal_reasons": {
+              "physical_contact_task_passed": 4,
+              "timeout": 60
+            }
+          }
+        }
+      },
+      "candidate_sha256": "e2ebb67b5c9cebdcad4490e1031102e8d904b61ff67dff58dd161be221e25eac",
+      "confirmation_report": "outputs/level5/push_55_v3/confirmation_5003/report.json",
+      "confirmation_report_sha256": "2ee35f833172b6abe2389c27e2de00aebc587933f547c85d631356863896dc0c",
+      "entry_overlay_sha256": "267a753692baeacf89703cd1527e6deacf3671b14a59830bd3d689c844523271",
+      "epochs": 200,
+      "gates": {
+        "aggregate_success": false,
+        "explicit_terminal_results": true,
+        "invalid_actions": true,
+        "joint_limit_violations": true,
+        "mean_action_jerk": true,
+        "object_workspace_violations": true,
+        "physical_audit": true,
+        "workspace_violations": true,
+        "worst_family_success": false,
+        "wrong_button_activation": true,
+        "wrong_contact": true
+      },
+      "mean_action_jerk": 0.00038615678501095736,
+      "physical_audits_passed": 128,
+      "rollout_count": 128,
+      "safety_counters": {
+        "invalid_actions": 0,
+        "joint_limit_violations": 0,
+        "object_workspace_violations": 0,
+        "workspace_violations": 0
+      },
+      "seed": 5003,
+      "selected_checkpoint": "outputs/level5/push_55_v3/seed_5003/selected.pt",
+      "selected_checkpoint_sha256": "e2ebb67b5c9cebdcad4490e1031102e8d904b61ff67dff58dd161be221e25eac",
+      "selected_epoch": 146,
+      "successes": 68,
+      "unique_resets": 32,
+      "updates": 8400,
+      "validation_reports": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "f0810a5973f4344aea6ea3fb616b883cbffa4d53c8f83686c0c31e827a56fa1b",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "fb7fba3544773d0d19c7ec2b511572b11cddbd9033e98211f7de4332806e04ec",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "11a3e895f34ae81b21836a0b9932a9b406a85145f6610d5a5205e2bf484add5c",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        },
+        {
+          "epoch": 146,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": true
+          },
+          "physical_audits_passed": 120,
+          "report_sha256": "5667950909ff97e8c91e3375070ac738b42f75fb359b68a5ee956f75bee82ecb",
+          "safety_violation_count": 0,
+          "success_rate": 1.0
+        }
+      ],
+      "worst_family_success_rate": 0.0625,
+      "wrong_contact_count": 0
+    }
+  ],
+  "setup_hold_samples": 120,
+  "setup_recipe_sha256": "d6c67f5fd1ab2ed0c30ce2cb478d5742f1596edb49eb091ee0df71c0e5e18636",
+  "source_exposure": "V1 consumed test families are exposed. V2 validation informs setup repair; V2 confirmation unused. V3 uses distinct fresh procedural confirmation.",
+  "source_input_digests": {
+    "archive_sha256": "05c7a9d58d8466049c2a34ea07ec34e5d8614eaead47b2b7f93fbc4ab7df758b",
+    "assets/mujoco/README.md": "c3459457ff346a2464655b242d0c2e3d7e34cc315606c7098c9802e66b72b0b7",
+    "assets/mujoco/hand_scene.xml": "5c322aeaf40838d9f4f1a25345bfdbffda04bf64cd75eaa646e75b146c6f4e25",
+    "assets/mujoco/menagerie/shadow_hand/LICENSE": "d42cae9a0f292b7a713597ba26e1e1e23d50df906c488f0d36fd3538af200bc1",
+    "assets/mujoco/menagerie/shadow_hand/README.md": "451943a22b2312a3152a55e9ec47fd449e89e3c674ccd8c763364e61cfe3f137",
+    "assets/mujoco/menagerie/shadow_hand/assets/f_distal_pst.obj": "350fcd33bc8ead915c0f646c8303d6b7554ad50ce546a128671d8d1fc75d5807",
+    "assets/mujoco/menagerie/shadow_hand/assets/f_knuckle.obj": "e997543c6c635fa80d152655869fe1d5bc1000a55f7fb648544a8755f068a075",
+    "assets/mujoco/menagerie/shadow_hand/assets/f_middle.obj": "8e78001a2ff735088cd71e009498ac73e4f966a6055d3bc864db049eacdbda11",
+    "assets/mujoco/menagerie/shadow_hand/assets/f_proximal.obj": "ec7741fb5a9ee379faec68091de1086ade627b46a73f0a32b3cc09fec72524e3",
+    "assets/mujoco/menagerie/shadow_hand/assets/forearm_0.obj": "4d175854bbd3c93627eb6b9f09296efd4e133cd72885b9bc57c82f902c8c94c4",
+    "assets/mujoco/menagerie/shadow_hand/assets/forearm_1.obj": "6ada902a47f61f000fb14cbb8245e2093ff32e3e6b43deea790fe5d034864774",
+    "assets/mujoco/menagerie/shadow_hand/assets/forearm_collision.obj": "38328466d52194888812a15da0dd3d5a1ef786a005121338f6a5a8ce3057602d",
+    "assets/mujoco/menagerie/shadow_hand/assets/lf_metacarpal.obj": "71d5317a6c0a5dcf6070791981f2a4720919d0419d0c17b400aef91343ce6baa",
+    "assets/mujoco/menagerie/shadow_hand/assets/mounting_plate.obj": "32897f8d46e463657a822943c31f440dc6bbac87b5c7939d10cdbf971291e8d9",
+    "assets/mujoco/menagerie/shadow_hand/assets/palm.obj": "614cf65374fafaceb713f4ee711692be6a3a0a7851ff2e720925f3a858cb3882",
+    "assets/mujoco/menagerie/shadow_hand/assets/th_distal_pst.obj": "ca87b937114face76a91810f2ee60ea4fc217b57ffa9a7a7f166169a3ebf7da1",
+    "assets/mujoco/menagerie/shadow_hand/assets/th_middle.obj": "a83bd4451f98d88c6c43ca0bbba30b6fd95b205da13adf9aff5a56c5aff3b4a8",
+    "assets/mujoco/menagerie/shadow_hand/assets/th_proximal.obj": "71ffd5329c80a0cef890da0ff490b8e04200ff53154e5b416ce0be24a6a1b256",
+    "assets/mujoco/menagerie/shadow_hand/assets/wrist.obj": "fc5620e4d9ea46d9526f0b40f8586bb5607e8ca763e5e23dab907a1baaf4890d",
+    "assets/mujoco/menagerie/shadow_hand/keyframes.xml": "041e25d45c9e5258df06634aa5b4f7979bbb4262edd38657425fda73fec84ab2",
+    "assets/mujoco/menagerie/shadow_hand/left_hand.xml": "f095444438615241361bcac3495f797cda81fdd30cab18dd3de905ef1ac28cf4",
+    "assets/mujoco/menagerie/shadow_hand/right_hand.xml": "ac14d09dd12b62c3ca62233d0ac646101cc718146dda76e26d0b993a91abf399",
+    "assets/mujoco/menagerie/shadow_hand/right_hand_dexvision.xml": "aaf398bbdcc2f534d45d550b12c2c90ca25e293062519029ddf8f65650aa4eb4",
+    "assets/mujoco/menagerie/shadow_hand/scene_left.xml": "9371cf27a9efea9335f40ccebd70d18ca0b16b297b22e8d84aba6f978f8cacff",
+    "assets/mujoco/menagerie/shadow_hand/scene_right.xml": "42908bd8df9b6a8b37eb230089db203b5260d8c5a477062b953bf64e8448913d",
+    "assets/mujoco/menagerie/shadow_hand/shadow_hand.png": "0cc1703b54308c4fb04b4ec0b777397a370f9a3d652f15c63bce69cebe11d836",
+    "assets/mujoco/workcell_scene.xml": "a2dbdf30e683d6a344beb34586c1e8582f64ba3c28f8130fe2ab5d2aa4d75315",
+    "config_sha256": "3535f619792697b717c91af2b00012eb7a11604a7b593d4f02d5b71abc2f5a54",
+    "configs/level4_dataset.yaml": "60097159160fd49061c02d47fd3ea204bb1acc410346606a6aca7ea9bfb26e9f",
+    "configs/level4_visual_dataset.yaml": "cfb222100c37cddbe35e89b5965371a01884917f6f5ad975ff4a496c60372736",
+    "configs/level5/evaluation_common.yaml": "158d74ad0b9307b12215a895a2a4954cbfc7ba0261cc20ab4b4e8629bd1173bb",
+    "configs/level5/learning.yaml": "3a11f9fb9d0f80c9bdb64f89ae743119990067e3417e24bc0dbf23045c191215",
+    "configs/level5/skills/pick_object.yaml": "d95e8444cdc628a18eac15109ee233c1fae9c729900feb62a1f74a457be613d0",
+    "configs/level5/skills/place_held_object.yaml": "41ae26f37fe1b7dc4c8bd36f5c5b59813e98cadfb7e159c86469a52dd7ce289f",
+    "configs/level5/skills/press_button.yaml": "8246605a85defd0429fca913847bbd0c83d4784a32902c96dd117a784c350018",
+    "configs/level5/skills/push_object_to_target.yaml": "33542a7dd167fd60ae0d405b19d2a82cbf70d7925ed83fead89b0eabbab14188",
+    "configs/level5/skills/reach_object.yaml": "5fb606d3b93514ceb87d567d8241c78c14fba0464673d962970ba1e4cedf4868",
+    "configs/workcell.yaml": "4f8c7abd78c008dd00738ddf900abcb19160b9a100aa418644477c8c274ba774",
+    "dataset_sha256": "5a9a96575914e1b7604c71e10edde8d50025b293d1dd22e0820b3f2c2920989b",
+    "datasets/level4-v1/audit_report.json": "47f4cb7df42db5f6a5b9907a16d3393c83e6cbf2f56a8b678cb5955cf3b6cfee",
+    "datasets/level4-v1/completion_receipt.json": "d5cba7cc55d916fcd2a5dbbfc81135d3eb7963032308440f95cb8cdb16e21c8d",
+    "datasets/level4-v1/manifest.json": "19335e7db3dc541f1f5d803f63a0851260df875dc1c6bf39ea215312b3e73e82",
+    "datasets/level4-v1/schemas.json": "7be894f3861eb103f79956eb79b9b54596d7f5c060436c2c2c0b53921b9428f7",
+    "datasets/level4-v1/splits/test.json": "06f9f1f354181b22e2a348c5c0be91f50059d3cea3c6b106fff730cfb861fa49",
+    "datasets/level4-v1/splits/train.json": "9d723821cd75bf5906c66f4c77e8db7b014b8713925f5e323719f95fa8579a42",
+    "datasets/level4-v1/splits/validation.json": "8651b31b9de969bd6acc758d34f8cadb61c49647bc8cc964e8376a6580b2e8e7",
+    "docs/level3_results.md": "235c7fc0e5f6a6cf3a54468e673a85c303c4818b9cb5bfb1a00705953b4510d3",
+    "docs/level5_learning_plan.md": "6f59db8a73a7eb549b9560c86b75b39b3dc8d66a2a4ae37e8c7b3a996baaf9d1",
+    "schema_sha256": "7be894f3861eb103f79956eb79b9b54596d7f5c060436c2c2c0b53921b9428f7",
+    "split_sha256": {
+      "test": "06f9f1f354181b22e2a348c5c0be91f50059d3cea3c6b106fff730cfb861fa49",
+      "train": "9d723821cd75bf5906c66f4c77e8db7b014b8713925f5e323719f95fa8579a42",
+      "validation": "8651b31b9de969bd6acc758d34f8cadb61c49647bc8cc964e8376a6580b2e8e7"
+    }
+  },
+  "status": "failed",
+  "training_frames": {
+    "train": 10545,
+    "validation": 2963
+  },
+  "unique_confirmation_resets": 32,
+  "v2_negative_result_sha256": "95454a51a8f96824fb9134a4e918d34448bac19e583ed5d1f6458fc2332fcd61",
+  "version": "level5/push-policy-v3"
+}

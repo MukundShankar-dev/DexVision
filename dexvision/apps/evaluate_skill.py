@@ -26,7 +26,35 @@ def main(argv=None):
         import yaml
 
         version = yaml.safe_load(args.config.read_text()).get("version")
-        if version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
+        if version == 'level5/push-policy-v8':
+            from dexvision.evaluation.push_guarded import run_distance_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for guarded push')
+        elif version == 'level5/push-policy-v7':
+            from dexvision.evaluation.push_predicates import run_distance_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for predicate push')
+        elif version == 'level5/push-policy-v6':
+            from dexvision.evaluation.push_latched import run_distance_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for latched push')
+        elif version == 'level5/push-policy-v5':
+            from dexvision.evaluation.push_canonical import run_distance_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for canonical push')
+        elif version == 'level5/push-policy-v4':
+            from dexvision.evaluation.push_distance import run_distance_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for push distance repair')
+        elif version == 'level5/push-policy-v3':
+            from dexvision.evaluation.push_settled import run_settled_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for settled push')
+        elif version == 'level5/push-policy-v2':
+            from dexvision.evaluation.push_repair import run_push_evaluation as run_evaluation_command
+            if args.compare_runs:
+                raise ValueError('Reach comparison is not supported for push repair')
+        elif version in {'level5/push-policy-v1', 'level5/press-policy-v1'}:
             from dexvision.evaluation.contact_policy import run_contact_evaluation as run_evaluation_command
             if args.compare_runs:
                 raise ValueError('Reach comparison is not supported for contact recipes')

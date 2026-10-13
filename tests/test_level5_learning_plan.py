@@ -131,6 +131,8 @@ def test_input_digests_and_config_lock(plan):
     amendments = set()
     recipe_paths = [*(ROOT / "configs/level5").glob("reach_repair_v*.yaml"),
                     *(ROOT / "configs/level5").glob("push_policy_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("push_setup_v*.yaml"),
+                    *(ROOT / "configs/level5").glob("push_selection_v*.yaml"),
                     *(ROOT / "configs/level5").glob("press_policy_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_policy_v*.yaml"),
                     *(ROOT / "configs/level5").glob("place_policy_v*.yaml"),

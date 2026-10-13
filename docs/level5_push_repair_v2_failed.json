@@ -1,0 +1,282 @@
+{
+  "checkpoint": "5.5",
+  "failure_diagnosis": "Parked non-target puck has transient 11.772mm vertical displacement; identical wrong_contact failure occurs with zero policy output. No gate relaxation. V3 uses a fixed ordinary-physics entry hold and exact V2 learned candidates.",
+  "owner_manual_acceptance": false,
+  "recipe_file_sha256": "c04d176679cf8c986660c91aebe0cb9f208a0e61bd588e8f801dbb3eccc70140",
+  "recipe_sha256": "27d1fa57fc1313cabad1bc04233ecd14b72df6d05267eca7307b09edf62f26ba",
+  "runs": [
+    {
+      "candidates": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5001/epoch_0020/report.json",
+          "report_sha256": "c93dc8ecd6f079aad86102cc233147a3e3ea1e4a38aeb308eeb9cf0a9a846575",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5001/epoch_0080/report.json",
+          "report_sha256": "770868f18faf1100b755947c297625c5bf3ac6f79419895ab999e9f18b5eca39",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5001/epoch_0200/report.json",
+          "report_sha256": "5684c6f6a368936a911b727fb348e9eb8ca674d9661802b9e1db4fd208f0f063",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        }
+      ],
+      "confirmation_consumed": false,
+      "epochs": 200,
+      "seed": 5001,
+      "selected_checkpoint_sha256": "d45b590f67b7d2dd95c55be906485a2f3bd55e68c1b6e8376e834af3bc544702",
+      "selected_epoch": 80,
+      "updates": 8400
+    },
+    {
+      "candidates": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5002/epoch_0020/report.json",
+          "report_sha256": "4f1eb4a76c41f201ac67396b39746768834c804f8f4afe22059d7b23a5d25cd7",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5002/epoch_0080/report.json",
+          "report_sha256": "2dbd1312177f406e74d7fcd537bdb06a236bf3eff39c0747c732bdc6aab3fbeb",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5002/epoch_0200/report.json",
+          "report_sha256": "27ab063a14967757639c965238ae7b0c2245f8386af93c4ab803c68e15f2baf5",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 88,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5002/epoch_0088/report.json",
+          "report_sha256": "1f5ded0fa4e8120946f173becabd520936a074995c0db5ecc314a0058b04d1a4",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        }
+      ],
+      "confirmation_consumed": false,
+      "epochs": 200,
+      "seed": 5002,
+      "selected_checkpoint_sha256": "995e57a9c285bd5278eee347b7ae1ed0dd2750dad503c67de64429543c0a559b",
+      "selected_epoch": 80,
+      "updates": 8400
+    },
+    {
+      "candidates": [
+        {
+          "epoch": 20,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5003/epoch_0020/report.json",
+          "report_sha256": "ea9504392d87a33cf4b892e15e6c692ae33996dfd454768d41f31881d73abb26",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 80,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5003/epoch_0080/report.json",
+          "report_sha256": "ed0aa1d61374cdbc6524c34cf168e94e4e9e959668bab0c63de9d3b8242c6b7e",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 200,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5003/epoch_0200/report.json",
+          "report_sha256": "53661bdbdb11849dffe5282df61d51a4f6372ed0214ac60592c1fef11c2153e4",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        },
+        {
+          "epoch": 146,
+          "gates": {
+            "aggregate_success": true,
+            "explicit_terminal_results": true,
+            "invalid_actions": true,
+            "joint_limit_violations": true,
+            "mean_action_jerk": true,
+            "object_workspace_violations": true,
+            "physical_audit": true,
+            "workspace_violations": true,
+            "worst_family_success": true,
+            "wrong_button_activation": true,
+            "wrong_contact": false
+          },
+          "physical_audits_passed": 120,
+          "report": "outputs/level5/push_55_v2/validation_5003/epoch_0146/report.json",
+          "report_sha256": "8fe51cc553d907f963f57dd3996807408b92786001095a706e98b162cdbff061",
+          "rollout_count": 120,
+          "safety_violation_count": 16,
+          "success_rate": 0.8666666666666667
+        }
+      ],
+      "confirmation_consumed": false,
+      "epochs": 200,
+      "seed": 5003,
+      "selected_checkpoint_sha256": "e2ebb67b5c9cebdcad4490e1031102e8d904b61ff67dff58dd161be221e25eac",
+      "selected_epoch": 146,
+      "updates": 8400
+    }
+  ],
+  "status": "failed"
+}

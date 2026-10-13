@@ -2714,3 +2714,129 @@ retained. Original jerk/qualification gates remain unchanged. Conditional
 owner saved-state viewer acceptance is still required for numerical passes;
 no perception, registry, executor or deployment admission is implemented.
 Method and exact commands are in `docs/level5_contact_results.md`.
+
+The independent 5.5 V2 push repair lives in
+`dexvision/learning/push_repair.py` and `dexvision/evaluation/push_repair.py`.
+Its frozen initial-object-to-static-goal XY basis rotates task-relative geometry,
+calibrated tracking lag, linear velocity and learned signed along/lateral deltas.
+The unchanged 5 mm world-component cap scales the rotated vector uniformly;
+zero holds and negative/lateral outputs remain valid. No positive-only progress
+or online expert action is imposed. The unchanged V1 physical evaluator owns
+safety, terminal dwell and all-attempt independent saved-state audits. Accepted
+press execution code is immutable. V2 uses the original train/validation splits
+and complete candidate selection, then a separately frozen, disjoint procedural
+confirmation of all original test cells. Failed setup and policy attempts cannot
+be filtered; each seed has one exclusive confirmation reservation. Fresh resets
+of V1-exposed families do not establish unseen-family or perception qualification.
+See `docs/level5_push_repair.md` for the source audit, exact recipe, commands and
+remaining owner acceptance gate. This amendment stays within checkpoint 5.5.
+
+The separate V3 overlay (`dexvision/evaluation/push_settled.py`) binds the exact
+V2 full-budget candidates to a fixed 120-sample ordinary-physics hold of the
+last source-prefix command before every learned entry. This addresses a parked
+non-target puck disturbance reproduced with zero policy output; it does not
+relax disturbance thresholds or alter post-entry learned features/actions.
+The engineered setup interval is disclosed and excluded from learned control
+and jerk/task metrics. V3 repeats complete candidate validation and reserves a
+new disjoint confirmation matrix. Its bundle includes `entry_overlay.json`,
+parent weights/transforms and both original-reset and actual-prefix hashes.
+The viewer requires all three fresh confirmations to pass before owner review.
+A passing automated report alone cannot complete checkpoint 5.5.
+
+V4 is a separately trained 5.5 distance representation repair in
+`dexvision/learning/push_distance.py` and `dexvision/evaluation/push_distance.py`.
+It caps only positive task-along goal distance at 0.05 m in the observation,
+licensed by the source-only invariant far-distance action audit. Negative,
+lateral and near-goal errors remain exact; the signed action head/decoder is
+unchanged. Physical success/error metrics use uncapped measured distance.
+Every candidate evaluates all 30 original validation resets plus eight fresh
+all-cell selection resets, frozen before training and bound to the expanded
+manifest's matrix/digest/count. These fresh selection families are already
+exposed by V3's failed consumed confirmation; they do not supervise the model.
+The separate 32-reset confirmation is disjoint and reserved once. The original
+supervised split and archive remain immutable. The inherited source first-
+contact rule defines the source/supervised boundary; actual execution entry
+also includes the explicitly frozen 120-sample hold, with prefix lengths/hashes
+in the matrix and saved setup. No failed V3 reset is retried or filtered.
+
+V5 (`dexvision/learning/push_canonical.py`,
+`dexvision/evaluation/push_canonical.py`) uses first-observation-relative measured
+hand/object geometry and tracking changes, planar goal errors, object motion,
+height change, contact/support and causal phase. No constant family/height/
+contact-offset cue enters the model. Reset the reference for each independent
+request/rollout; it is causal entry calibration, not future state or recurrent
+history. Fixed physical scales are 0.1 m, 0.1 m/s, 5 rad/s and 0.01 m. Source
+whole-interval task-lateral invariance plus independent long-cuboid source
+feasibility license the one learned signed along-rate mask. Decoder sets lateral
+zero, rotates the signed rate into world XY and holds other channels; zero holds
+and negative retraction remain valid. This is independently grounded push scope,
+not generic reuse of reach. V5 freezes new all-cell selection and confirmation
+before three full training budgets and complete candidate validation. Uncapped
+physical gates and owner acceptance still govern 5.5 completion.
+
+V6 (`dexvision/learning/push_latched.py`, `dexvision/evaluation/push_latched.py`)
+adds one causal completion-state bit to V5: maximum of current/past physical
+push `phase.retract` indicators. That existing producer sets retract only on
+current `TaskMetricResult.success`; it is not the saved expert stage or the
+retrospective episode annotation. Reset entry reference and completion latch
+for every independent rollout. Offline construction uses only observations up
+to each action; no target action backdates the latch. Source post-success
+retraction labels remain intact and separate from nominal progress before the
+standalone physical endpoint. V6 retains the signed one-rate decoder and all
+physical/safety gates, then binds new disjoint selection/confirmation to full
+training budgets. Owner acceptance remains mandatory after numerical passes.
+
+
+V7 (`dexvision/learning/push_predicates.py`,
+`dexvision/evaluation/push_predicates.py`) has 12 causal inputs: signed along
+and radial goal distance capped at 0.05 m, entry-relative lateral alignment
+within 0.035 m, current object speed within the original 0.02 m/s physical
+limit, entry-relative tracking change within 0.01 m, physical contact/support,
+four current physical phases and the completion latch. Position scale is
+0.1 m. Signed/near-goal distances remain exact; the physical goal metric is
+uncapped. Predicates remove continuous lag/motion proxies that correlate with
+the source's command magnitude without replacing the learned action with a
+minimum progress rule. The MLP still predicts signed along displacement;
+geometry determines only the audited direction/held channels and safety bounds.
+Freeze 46 unique selection resets (30 original plus 16 fresh, four per cell)
+and 32 disjoint confirmation resets before training. Failed setup is counted
+as rejection, never filtered or replaced. Full budgets, complete candidate
+selection, one-time confirmation and owner acceptance remain mandatory.
+
+
+V8 (`dexvision/learning/push_guarded.py`,
+`dexvision/evaluation/push_guarded.py`) preserves exact fully trained V7
+candidate weights, schema, normalization and training manifest. Its separate
+`entry_overlay.json` binds execution source, recipes, parent artifacts and
+new validation/confirmation matrices. The training manifest retains the
+original V7 selection metadata; the overlay owns its separately frozen
+62-reset/248-attempt execution selection. No new fit or modified source labels
+is implied. Every original candidate is reselected by the complete new matrix.
+
+V8 has three explicit engineered operations. Before completion, physical
+approach is encoded as nominal contact progress: source audit contains
+48 training and nine validation advancing samples before true contact, while
+source `phase.approach` never varies. Hold only currently physically qualifying
+settle states until the original five-sample dwell completes. This prevents
+a learned transient negative action from invalidating qualification; a
+separate saved-state physical check verifies every hold. Uniformly scale signed
+XY steps to the unchanged original command workspace; negative steps and zero
+hold remain possible. All 13,508 perfect source commands are unchanged by
+that bound. Log unbounded learned proposals, alias/hold flags and workspace
+fractions, and independently reconstruct every executed decoder action.
+These engineered operations are disclosed separately from learned signed
+progress; boundary-limited attempts still count as failures when goals fail.
+No unsafe motion, object pose write, online expert or success-gate relaxation
+is permitted. Three passing one-time confirmations and owner acceptance are
+still required; no subsequent checkpoint is authorized.
+
+
+V8 automated qualification completes: all 12 full248-attempt candidate
+matrices pass; selected epochs 200/61/20. One-time fresh confirmation passes
+116/128, 116/128, 120/128 with worst-family 81.25%, 81.25%, 87.5%, zero executed
+safety/wrong contact, and 384/384 independent physical/decoder/phase audits.
+Confirmation retains12/12/8 timeouts and discloses348/532/876 workspace-bound
+samples plus 468/476/480 settling holds. Exact artifacts/source/reset/code
+bindings and successful actual contact pass verification. This is the complete
+engineered/learned state bundle, not learned safety or vision. Accepted press
+is unchanged. Owner push review is pending; checkpoint 5.5 stays incomplete.
