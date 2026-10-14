@@ -1,7 +1,8 @@
 # Progress Level 5 — Workcell Skill Learning and Qualification
 
-Current status (October 13, 2026): Last Completed **5.5**; Next Target **5.6**,
-unstarted. Push V8 and press V1 have owner manual acceptance; dial is absent.
+Current status (October 14, 2026): Last Completed **5.5**; Next Target **5.6**,
+V8 validation visual gates pass; owner review and qualification remain open.
+Push V8 and press V1 have owner manual acceptance; dial is absent.
 See [CURRENT_STATUS.md](CURRENT_STATUS.md) for checkpoint selection and
 [level5_push_acceptance.json](level5_push_acceptance.json) for the final receipt.
 Earlier checkpoint notes retain the status at the time of their results.
@@ -1372,10 +1373,29 @@ Checkpoint 5.5 is complete; 5.6 remains unstarted.
 
 ## Level 5.6 — Detector, Tracker, and Metric Pose Baseline
 
-**Unstarted; specification amended October 13, 2026 after the 5.5 audit.**
-Apply `docs/level5_training_guidance.md` and the Level 5.6 contract in
-`docs/module_contracts.md`. This amendment defines future acceptance work;
-it implements no perception module or policy rollout and completes no checkpoint.
+**In progress; V8 passes validation visual metrics; owner review is pending.**
+Only checkpoint 5.6 is selected. Last Completed remains 5.5 and Next Target 5.6.
+The original aggregate gates and supplemental primary-target gates pass on all
+531 validation frames: 99.61%/97.60% recall and 0.83/7.10 mm p95 respectively,
+zero identity switches and 100% synthetic rejection. The selected deterministic
+three-neighbour RGB regressor uses frozen causal/scaled component features and
+a calibrated ray decoder, with no current simulator inputs or actuator outputs.
+
+The failed V1–V7 evidence, consumed V2 held-out result, candidate matrices and
+source snapshots remain preserved. No held-out images/labels are decoded for
+repair and test evaluation is explicitly blocked. All accepted policies/data
+remain unchanged. The 940 false positives and unavailable full pose, semantic
+identity, contact/phase and cadence remain disclosed. The checkpoint completion
+box stays open; no 5.7 work is implemented. Apply `docs/level5_training_guidance.md`
+and the 5.6 contract in `docs/module_contracts.md`.
+
+Final V8 full regression: 963 passed, one skipped; focused: 59 passed. Ruff,
+whitespace and complete artifact readback pass.
+
+Current repair commands/results/manual criteria are in
+`docs/level5_perception_repair.md`, with bindings in
+`docs/level5_perception_repair_verification_v8.json`. Historical V1/V2 results
+and verification remain intact in their original files.
 
 ### Goal
 
@@ -1531,39 +1551,47 @@ ambiguous identities and reset/gap handling without a webcam, GPU or visible GUI
 
 ### Commands
 
-These are implementation targets, not currently available CLI functionality.
-The implementation must document exact frozen artifact paths and manual review
-commands. Use new output directories for intentional reproductions; do not
-overwrite evidence or rerun consumed held-out evaluations.
+These CLIs are implemented. Historical negative V1/V2 commands are retained
+in `docs/level5_perception_results.md`; do not rerun the consumed held-out set.
+The current V8 fitting/evaluation evidence already exists; use a new independently
+frozen recipe/output directory for intentional reproduction.
 
 ```bash
 conda activate dexvision
-python -m dexvision.apps.train_perception --config configs/level5/perception.yaml
-python -m dexvision.apps.evaluate_perception --config configs/level5/perception.yaml --output-dir outputs/level5/perception
-conda run -n dexvision pytest -q tests/test_object_perception.py tests/test_perception_metrics.py
-conda run -n dexvision ruff check dexvision tests
-conda run -n dexvision pytest -q
+python -m dexvision.apps.train_perception --config configs/level5/perception_repair_v8.yaml
+python -m dexvision.apps.evaluate_perception --config configs/level5/perception_repair_v8.yaml --split validation --output-dir outputs/level5/perception_repair/v8_validation
+conda run -n dexvision pytest -q tests/test_object_perception.py tests/test_perception_metrics.py tests/test_perception_repair.py tests/test_level5_learning_plan.py
+conda run -n dexvision ruff check .
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run -n dexvision pytest -q
 ```
 
 ### Pass criteria
 
 ```text
-[ ] Train/validation/test visual splits match Level 4 episode ownership
-[ ] Versioned recipe, budget, selection, thresholds and data/code/artifact digests are frozen
-[ ] All five accepted bundles have a field-source inventory and explicit compatibility disposition
-[ ] Truth labels/evaluation are isolated from inferred observations, derived phases and action selection
-[ ] Detection, identity, position/orientation, motion, fixture depth and availability metrics are separate
-[ ] Timestamped sequence tests cover gaps, occlusion, reacquisition and identity continuity
+[x] Train/validation/test visual splits match Level 4 episode ownership
+[x] Versioned recipe, budget, selection, thresholds and data/code/artifact digests are frozen
+[x] All five accepted bundles have a field-source inventory and explicit compatibility disposition
+[x] Truth labels/evaluation are isolated from inferred observations, derived phases and action selection
+[x] Detection, identity, position/orientation, motion, fixture depth and availability metrics are separate
+[x] Timestamped sequence tests cover gaps, occlusion, reacquisition and identity continuity
 [ ] Ground-truth and inferred observations use the same typed world-state schema
 [ ] Frame/body-origin calibration and exact accepted feature transforms have offline parity checks
-[ ] Original visual gates pass; task-specific sensitivity and unsupported fields remain disclosed
-[ ] Ambiguous, low-confidence, and stale results fail closed
-[ ] Model size, license, latency, cadence and measured hardware/memory use are documented; unavailable RTX 5070 Ti testing is explicitly untested
-[ ] No visual model emits actuator commands
+[x] Original and supplemental primary visual gates pass on validation; sensitivity/unsupported fields disclosed
+[ ] Fresh independently frozen confirmation passes; consumed V2 held-out set never reused
+[x] Ambiguous, low-confidence, and stale results fail closed
+[x] Model size, license, CPU latency, cadence and Python memory documented; native peak unmeasured and RTX 5070 Ti explicitly untested
+[x] No visual model emits actuator commands
 [ ] Manual held-out contact-sheet and temporal-video review is owner accepted
 ```
 
-Manual verification requires both a held-out contact sheet and temporal video,
+The owner reported "I think mostly good" and authorized commit/push. This
+positive preliminary feedback is bound in `docs/level5_perception_review_feedback.json`;
+a full manual pass is not yet claimed. Command/pass/fail criteria are
+in `docs/level5_perception_repair.md`. It does not fulfill the remaining
+independent confirmation or full typed-schema requirements.
+
+Manual verification for full qualification requires both a fresh held-out
+contact sheet and temporal video,
 with source episode/frame/timestamp and inferred id, confidence/age, mask/box,
 pose axes and rejection reason. Include supported skill/fixture strata and
 occlusion/reacquisition cases, and label unsupported strata explicitly.

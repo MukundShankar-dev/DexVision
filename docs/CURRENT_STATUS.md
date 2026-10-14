@@ -42,14 +42,30 @@ default registry admission or deployment qualification is claimed.
 
 Level 5.6 — Detector, Tracker, and Metric Pose Baseline
 
-Unstarted. The October 13, 2026 documentation-only amendment updates the 5.6
-specification for accepted reach V5, pick V7, place V25/V19, push V8/V7 and
-press V1 bundles. Its first required work is a field-source/observability audit
-and independently frozen perception recipe. Temporal metrics, task-specific
-error diagnostics and the privileged place-preview compatibility gap are now
-explicit in `docs/progress_level_5.md`, `docs/module_contracts.md` and
-`docs/level5_training_guidance.md`. Original numerical gates remain unchanged.
-No 5.6 implementation, training, held-out evaluation or 5.7 work has started.
+In progress; V8 passes the original aggregate and supplemental primary-target
+visual gates on TRAIN/validation-only repair. On 531 validation frames, recall
+is 99.61%, median 0.051 mm and p95 0.83 mm. Primary-target recall is 97.60%,
+median 0.44 mm and p95 7.10 mm, with zero identity switches and 100% synthetic
+stale/ambiguity rejection. All four primary-class recall gates pass.
+
+V1 through V7 failed/insufficient attempts, the consumed V2 held-out result,
+source snapshots and all candidate matrices remain preserved. Repair recipes
+reject test evaluation before loading models/images; no held-out rerun or tuning
+occurred. V8 freezes RGB component grouping, causal feature/scaling, all 21 pose
+candidates and the selected three-neighbour TRAIN regressor with its exact
+calibrated ray decoder. The 940 false positives and uncertified/unavailable
+fields remain disclosed; no typed-schema, skill or deployment qualification
+is claimed. Accepted policies and datasets remain unchanged.
+
+Final V8 full regression: 963 passed, one skipped; focused: 59 passed. Ruff,
+whitespace and complete artifact readback pass.
+
+Owner validation diagnostic review, fresh independent confirmation and full
+schema availability remain pending. Details/commands are in
+`docs/level5_perception_repair.md`; artifact bindings and software verification
+are in `docs/level5_perception_repair_verification_v8.json`. Historical V2
+reports/receipt remain unchanged. Last Completed remains 5.5; Next Target
+remains 5.6. No 5.7 work has started.
 
 ---
 
@@ -550,6 +566,16 @@ unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 ---
 
 ## Manual Verification Status
+
+Level 5.6 is not owner accepted. V8 passes numerical TRAIN/validation gates;
+review of its 16 validation videos/contact-sheet panels is pending. The exact
+command and explicit pass/fail criteria are in `docs/level5_perception_repair.md`.
+This diagnostic review cannot substitute for fresh independent confirmation or
+full typed-schema qualification. The consumed held-out set remains blocked.
+The owner said "I think mostly good" and authorized commit/push on October 14,
+2026. `docs/level5_perception_review_feedback.json` binds this positive preliminary
+feedback to the exact V8 media/model. A full manual pass and checkpoint completion
+are not claimed.
 
 Level 5.5 manual verification is complete. The owner confirmed "Press passes"
 and then "Passed" for the prescribed V8 push seed-5001 saved-state viewer

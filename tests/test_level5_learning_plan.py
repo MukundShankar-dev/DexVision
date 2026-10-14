@@ -163,7 +163,9 @@ def test_input_digests_and_config_lock(plan):
                         *(ROOT / "configs/level5").glob("place_data_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_setup_v*.yaml"),
                     *(ROOT / "configs/level5").glob("pick_teacher_v*.yaml"),
-                    *(ROOT / "configs/level5").glob("pick_data_v*.yaml")]
+                    *(ROOT / "configs/level5").glob("pick_data_v*.yaml"),
+                    ROOT / "configs/level5/perception.yaml",
+                    *(ROOT / "configs/level5").glob("perception_repair_v*.yaml")]
     for path in recipe_paths:
         digest, name = path.with_suffix(".sha256").read_text().strip().split("  ", 1)
         assert name == path.name

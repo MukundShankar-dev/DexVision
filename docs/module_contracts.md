@@ -3,8 +3,9 @@
 This file defines expected inputs/outputs between modules. Keep it updated as the repo evolves.
 
 Current staging: Level 5.5 is complete with owner acceptance of state-based
-push V8 and press V1. Level 5.6 is next and unstarted; perception and default
-registry qualification remain outstanding. [CURRENT_STATUS.md](CURRENT_STATUS.md)
+push V8 and press V1. Level 5.6 is next and in progress; V8 numerical validation
+gates pass, while manual/full perception and default registry qualification
+remain outstanding. [CURRENT_STATUS.md](CURRENT_STATUS.md)
 governs selection; [level5_push_acceptance.json](level5_push_acceptance.json)
 binds final acceptance. Versioned contracts below preserve earlier methods
 and their historical gates; the accepted V8 status is recorded at the end.
@@ -2856,7 +2857,22 @@ unstarted; perception and default registry admission remain unqualified.
 
 ## Level 5.6 Perception Baseline and Accepted-Bundle Compatibility
 
-Planning contract amended October 13, 2026; implementation remains unstarted.
+Contract amended October 14, 2026. V8 RGB component detection/grouping,
+episode-local tracking and TRAIN-only local body-centre regression pass the
+original aggregate and supplemental primary numerical gates on complete
+validation. Failed V1–V7 evidence and the consumed negative V2 held-out result
+remain intact; repair never reruns or tunes against that set. Frozen repair
+recipes reject test evaluation before model/image loading. The selected model
+contains its TRAIN feature statistics/exemplars, UV/height scales, temporal
+feature precision and exact calibrated ray decoder. No full orientation,
+semantic identity, physical contact/phase or fresh confirmation is claimed.
+
+Checkpoint 5.6 remains open pending owner diagnostic review, fresh independent
+confirmation and typed-schema availability. Current commands/limits are in
+`docs/level5_perception_repair.md`, with bindings in
+`docs/level5_perception_repair_verification_v8.json`. Historical negative results
+and the original receipt remain unchanged. Accepted runtimes/object schemas
+and datasets are unchanged; no 5.7 rollout is implemented.
 The authoritative build/checklist/manual criteria are in the Level 5.6 section
 of `docs/progress_level_5.md`. Accepted recipes and selected artifacts come from
 the reach V5, pick V7, place V25 (V19 weights), push V8 (V7 weights) and press V1
