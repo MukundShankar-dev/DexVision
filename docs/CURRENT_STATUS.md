@@ -20,6 +20,29 @@ Level 5 — Workcell Skill Learning and Qualification
 
 ## Last Completed Checkpoint
 
+Level 5.6 — Detector, Tracker, and Metric Pose Baseline
+
+Completed October 16, 2026 after the owner confirmed the V29/fresh V8 manual
+review passed. All automated gates pass (full regression: 1,177 passed,
+one skipped). Owner-reported acceptance of the 16 panels and 36 temporal clips
+is bound to exact artifacts in `docs/level5_perception_acceptance.json`.
+All five accepted inferred-control tracks remain unsupported; this completion
+qualifies the documented visual baseline only. No default registry admission
+or closed-loop control qualification is claimed.
+
+---
+
+## Next Target Checkpoint
+
+Level 5.7 — Perception-Grounded Skill Rollouts
+
+**Unstarted.** The owner requested completion of 5.6 only and explicitly said
+not to start 5.7. Stop here; implementation requires a new user request.
+
+---
+
+### Historical 5.5 completion
+
 Level 5.5 — State-Grounded Push, Press, and Optional Dial Policies
 
 Completed October 13, 2026 after the owner accepted press ("Press passes") and
@@ -38,11 +61,86 @@ default registry admission or deployment qualification is claimed.
 
 ---
 
-## Next Target Checkpoint
+## Completed 5.6 outcome and qualification history
 
-Level 5.6 — Detector, Tracker, and Metric Pose Baseline
+Owner-authorized publication: push code, compact V25/V29 model bundles,
+manifests, checksums, protocols, acceptance and status docs. Keep the large
+5.6 dataset payloads and multipart data local because the full upload exceeds
+the owner's reported 10 GiB LFS allowance. A clone alone does not include
+these new datasets. See `datasets/README.md` and
+`docs/level5_perception_publication.json` for exact scope and local restoration.
+Acceptance and scientific bindings are unchanged; 5.7 remains unstarted.
 
-In progress; V8 passes the original aggregate and supplemental primary-target
+**Current outcome: 5.6 complete; V29/fresh V8 automated gates and owner manual acceptance pass.**
+The owner confirmed the held-out review passed on October 16, 2026.
+Last Completed is **5.6**; Next Target is **5.7 (unstarted)**, on branch `main`.
+`docs/level5_perception_acceptance.json` binds this owner-reported acceptance to
+the exact frozen artifacts; no agent visual observation is claimed. Historical
+automated receipts retain their then-pending manual status. No 5.7 work is
+authorized by this completion request. The earlier V8 validation diagnostic
+review remains separately accepted.
+
+V29 retains exact V25 selected seed 11/source epoch 3,000 current-RGB MLP weights,
+TRAIN transforms, fixed 8 px / 8 px / 10 mm output scales and calibrated ray decoder,
+with zero new optimizer updates. All three original current candidates and all
+six source fits remain preserved. Cuboid association uses the calibrated
+projection of the current learned body center, with a cuboid-only uncertain
+replacement-ID guard and history rollback. Other classes keep original birth/
+visible-box association. Published masks, boxes and positions are unchanged.
+Original tracker limits and all original visual gates remain unchanged.
+Added identity coverage requires 99% unambiguous primary matches overall and 95%
+in every supported primary class/phase; V29 passes both.
+
+Validation: 5,923/5,923 primary matches and positions, zero identity switches, median
+0.904 mm/p95 3.414 mm;
+all 545 six-phase queries pass (worst phase p95 14.082 mm).
+Fresh V8: 512 ordinary-physics source resets/26,687 RGB frames,
+primary recall 100.0000%, median 0.954 mm,
+p95 3.675 mm, 14,244 positions and
+0 primary ID switches. All original/global/core/primary, supported phase,
+position coverage, added identity coverage, and mandatory release/settle gates
+pass independently. Release: 46 visible from
+13 physical sources;
+settle: 24 visible from
+13 physical sources.
+
+Full software: 1,177 passed/1 skipped; focused 64, Ruff and
+whitespace pass. Actual 64 validation truth-isolation queries and 48 cached/uncached runtime
+paths, exact accepted-transform oracles, portable RGB relocation, archive/member
+readbacks, source/body-origin/schema audit, all 512 video decodes, typed/raw
+parity and actual consumed-protocol retry rejection pass. The review has 16
+panels and 36 fixed-plus-worst temporal clips.
+Evidence: `docs/level5_perception_verification_v29.json`.
+
+Model semantic SHA: `3a25ea7b49cc05ce7d67e89226a7e8c231a7feaea945d4863e7ed56a5cf5cadd`.
+Active current-weight SHA: `0ba58825982fbfd714f028c3b8a9c4195e9f4ec5befe678e5273025863bbdb85`.
+The baseline V2 and fresh V2–V7 consumed tests stay permanently closed, with all
+archives, data, failed/positive candidates, reports and reservations preserved.
+V7 failed one primary cuboid/release ID switch; V26/V27 failed independent identity
+coverage. V28 positive validation and the independently frozen V29 guard plan
+are preserved. Fresh V8 is now consumed too and cannot be retried or used for
+training/selection. All source outcomes were retained; no test tuning or reuse.
+
+The availability-aware schema is shared by truth and inference. Physical
+linear/angular motion, full orientation, semantic identity, robot/fixture
+telemetry and contacts remain explicitly unavailable and fail closed. All five
+accepted inferred-control tracks remain unsupported. Qualification scope is
+calibrated simulator pixel-center images on exposed task families/cells;
+no real-camera, unseen-family, hardware, full-feature or closed-loop control
+qualification is claimed. Python traced peak: 32,454,158 bytes for
+model construction and 64 queries after imports; native/full-media peak remains
+unmeasured and RTX 5070 Ti is untested.
+
+Manual command (dexvision Conda environment, repository root):
+`python -m dexvision.apps.repair_perception review --evaluation-dir outputs/level5/perception_confirmation_v8/evaluation`.
+The owner confirmed all prescribed review criteria passed on October 16, 2026;
+`docs/level5_perception_acceptance.json` records acceptance of the 16 panels and
+36 scheduled clips. The command above is retained for saved-media reproduction;
+no manual check remains for 5.6. Stop before 5.7.
+
+### Earlier V8 validation and typed-boundary work
+
+Previously V8 passed the original aggregate and supplemental primary-target
 visual gates on TRAIN/validation-only repair. On 531 validation frames, recall
 is 99.61%, median 0.051 mm and p95 0.83 mm. Primary-target recall is 97.60%,
 median 0.44 mm and p95 7.10 mm, with zero identity switches and 100% synthetic
@@ -60,12 +158,26 @@ is claimed. Accepted policies and datasets remain unchanged.
 Final V8 full regression: 963 passed, one skipped; focused: 59 passed. Ruff,
 whitespace and complete artifact readback pass.
 
-Owner validation diagnostic review, fresh independent confirmation and full
-schema availability remain pending. Details/commands are in
+Owner validation diagnostic review is confirmed complete in
+`docs/level5_perception_validation_acceptance.json`. Fresh independent
+confirmation and full schema availability were then pending. Details/commands are in
 `docs/level5_perception_repair.md`; artifact bindings and software verification
 are in `docs/level5_perception_repair_verification_v8.json`. Historical V2
 reports/receipt remain unchanged. Last Completed remains 5.5; Next Target
 remains 5.6. No 5.7 work has started.
+
+October 14 continuation: `dexvision/perception/observation_boundary.py` adds
+an offline field-evidence sidecar and guarded conversion to the unchanged
+`ObjectObservation`/`WorldState` types. Each required field has its own producer,
+units, frame/body origin, confidence, validity and acquisition time. Synthetic
+schema parity is tested; V8 RGB output stays uncertified and rejects because
+semantic identity/full orientation are unavailable. Frozen V8 implementations,
+recipes, artifacts and datasets are unchanged. Fresh independently frozen
+confirmation data/protocol was not then present locally; full inferred parity and
+held-out owner acceptance remained pending. Continuation checks: 1,040 passed, one skipped
+in the full suite (733.00 s), 136 focused, original focused 59; Ruff, whitespace,
+V8/accepted artifact pins and saved-estimate boundary readback pass.
+Checkpoint 5.6 is not complete.
 
 ---
 
@@ -567,15 +679,33 @@ unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 
 ## Manual Verification Status
 
-Level 5.6 is not owner accepted. V8 passes numerical TRAIN/validation gates;
-review of its 16 validation videos/contact-sheet panels is pending. The exact
-command and explicit pass/fail criteria are in `docs/level5_perception_repair.md`.
+Level 5.6 manual verification is complete. On October 16, 2026, the owner
+confirmed the prescribed V29/fresh V8 held-out review passed: 16 panels and
+36 fixed-plus-worst temporal clips. All automated gates also pass.
+`docs/level5_perception_acceptance.json` binds the owner statement to the exact
+model, protocol, report, media manifest and automated verification receipt.
+This is owner-reported acceptance; no agent visual observation or local
+viewer-log completion is claimed. No manual check remains for 5.6.
+Last Completed is 5.6; Next Target is 5.7, unstarted.
+
+### Historical manual-verification records
+
+The following paragraphs preserve each earlier handoff's then-current status;
+they do not override the 5.6 completion and acceptance above.
+
+
+Level 5.6 is not qualified. The owner confirmed the existing V8 validation
+diagnostic review complete with "Okay done. I thought this was already done"
+on October 14, 2026. `docs/level5_perception_validation_acceptance.json` binds
+that statement to the model/report and 16-video/contact-sheet review manifest.
+No repeat of that validation review is required. The exact reproduction
+command and pass/fail criteria remain in `docs/level5_perception_repair.md`.
 This diagnostic review cannot substitute for fresh independent confirmation or
 full typed-schema qualification. The consumed held-out set remains blocked.
 The owner said "I think mostly good" and authorized commit/push on October 14,
 2026. `docs/level5_perception_review_feedback.json` binds this positive preliminary
-feedback to the exact V8 media/model. A full manual pass and checkpoint completion
-are not claimed.
+feedback to the exact V8 media/model and remains historical evidence. Fresh
+held-out manual acceptance and checkpoint completion are not claimed.
 
 Level 5.5 manual verification is complete. The owner confirmed "Press passes"
 and then "Passed" for the prescribed V8 push seed-5001 saved-state viewer

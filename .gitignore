@@ -33,6 +33,11 @@ data/visual/
 data/skill_metadata/
 tmp/
 
+# Owner-authorized 5.6 publication: bulk datasets stay local; publish compact models.
+datasets/level5-perception-*.tar.gz
+datasets/level5-perception-*.tar.gz.part-*
+!datasets/level5-perception-model-*.tar.gz
+
 # Keep generated run directories local, but version the compact Level 3.8
 # feasibility evidence needed to reproduce the roadmap decision.
 outputs/*

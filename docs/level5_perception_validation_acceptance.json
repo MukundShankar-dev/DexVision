@@ -1,0 +1,23 @@
+{
+  "checkpoint": "5.6",
+  "date": "2026-10-14",
+  "owner_statement": "Okay done. I thought this was already done",
+  "status": "owner_confirmed_validation_diagnostic_review_complete",
+  "scope": "Existing V8 validation contact sheet and 16 episode videos only",
+  "interpretation": "Owner confirmation in response to the prescribed validation diagnostic review; no fresh held-out review or checkpoint completion",
+  "recipe": "configs/level5/perception_repair_v8.yaml",
+  "recipe_sha256": "11a668e392991838241ae27eb54bb10015d7810f97047aba0b0da40cb3d08de1",
+  "model_sha256": "d0e8b13a2c239decbb16ae1ac0063ba3527bd94fc16fe162b3dc3125e22912b2",
+  "report": "outputs/level5/perception_repair/v8_validation/report.json",
+  "report_sha256": "f9b4358c8c514ab5c2725f240d2e7c9ae49bde88c5aea2a548376a80cc891ed7",
+  "manual_review": "outputs/level5/perception_repair/v8_validation/manual_review.json",
+  "manual_review_sha256": "55e18ccb9089addbd0f98c19f351195325c9c834838eb62d8cb3e345329de16d",
+  "media_index_sha256": "e7dd52ac3ea9d8924b60c2b07a8419dce04de81ab0e6c05b6d5c699276704097",
+  "prior_feedback": "docs/level5_perception_review_feedback.json",
+  "agent_observed_review": false,
+  "fresh_confirmation": "not_performed_no_existing_dataset_or_protocol",
+  "heldout_manual_review": "not_performed",
+  "full_inferred_schema_qualified": false,
+  "baseline_qualified": false,
+  "checkpoint_complete": false
+}

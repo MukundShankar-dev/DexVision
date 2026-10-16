@@ -1,0 +1,60 @@
+{
+  "checkpoint": "5.6",
+  "strict_validation_pass": false,
+  "new_confirmation_opened": false,
+  "all_consumed_tests_closed": true,
+  "full_epoch_budget_per_seed": 3000,
+  "candidates": [
+    {
+      "seed": 3,
+      "strict_pass": false,
+      "full_epochs": 3000,
+      "lift_p95_m": 0.027651314441353644,
+      "additional_phase_validation": {
+        "matches": 20,
+        "median_m": 0.0028197692619008124,
+        "p95_m": 0.007441241835408499,
+        "passed": true,
+        "poses": 20,
+        "scope": "additional cuboid stabilization query-only validation; whole physical sources remain split-owned; no test input; original full-sequence identity/other gates remain mandatory",
+        "visible_physical_source_episodes": 6,
+        "visible_queries": 20
+      },
+      "candidate_sha256": "c2acd1c6217fb90eaec4988a4355588cda48730cb4871a39eb14aa2c2a380c2a"
+    },
+    {
+      "seed": 7,
+      "strict_pass": false,
+      "full_epochs": 3000,
+      "lift_p95_m": 0.03002489000621739,
+      "additional_phase_validation": {
+        "matches": 20,
+        "median_m": 0.002927614232359939,
+        "p95_m": 0.006579737907817109,
+        "passed": true,
+        "poses": 20,
+        "scope": "additional cuboid stabilization query-only validation; whole physical sources remain split-owned; no test input; original full-sequence identity/other gates remain mandatory",
+        "visible_physical_source_episodes": 6,
+        "visible_queries": 20
+      },
+      "candidate_sha256": "d1a3c7cdf6d1e65759e6d6dfc68d8ad91b0331b3db637a7a789a34de5877c46f"
+    },
+    {
+      "seed": 11,
+      "strict_pass": false,
+      "full_epochs": 3000,
+      "lift_p95_m": 0.032693879980113846,
+      "additional_phase_validation": {
+        "matches": 20,
+        "median_m": 0.0027077532868031657,
+        "p95_m": 0.007302276699856622,
+        "passed": true,
+        "poses": 20,
+        "scope": "additional cuboid stabilization query-only validation; whole physical sources remain split-owned; no test input; original full-sequence identity/other gates remain mandatory",
+        "visible_physical_source_episodes": 6,
+        "visible_queries": 20
+      },
+      "candidate_sha256": "d454785396f7c35476fd2dd8c4412c43350064129605521e0c8fd33a8184a506"
+    }
+  ]
+}

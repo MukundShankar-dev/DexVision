@@ -1,11 +1,122 @@
 # Checkpoint 5.6 perception repair
 
-Last Completed remains **5.5** and Next Target remains **5.6**. This is a
-training/validation repair after a consumed negative held-out experiment.
-No held-out images or labels are decoded for repair, no held-out inference is
-rerun, and no fresh confirmation or owner acceptance is claimed. The historical
-`level5_perception_results.md` and `level5_perception_verification.json` retain
-the original negative V1/V2 evidence. No 5.7 work is included.
+**Current outcome: 5.6 complete; V29/fresh V8 automated gates and owner manual acceptance pass.**
+The owner confirmed the held-out review passed on October 16, 2026.
+Last Completed is **5.6**; Next Target is **5.7 (unstarted)**, on branch `main`.
+`docs/level5_perception_acceptance.json` binds this owner-reported acceptance to
+the exact frozen artifacts; no agent visual observation is claimed. Historical
+automated receipts retain their then-pending manual status. No 5.7 work is
+authorized by this completion request. The earlier V8 validation diagnostic
+review remains separately accepted.
+
+V29 retains exact V25 selected seed 11/source epoch 3,000 current-RGB MLP weights,
+TRAIN transforms, fixed 8 px / 8 px / 10 mm output scales and calibrated ray decoder,
+with zero new optimizer updates. All three original current candidates and all
+six source fits remain preserved. Cuboid association uses the calibrated
+projection of the current learned body center, with a cuboid-only uncertain
+replacement-ID guard and history rollback. Other classes keep original birth/
+visible-box association. Published masks, boxes and positions are unchanged.
+Original tracker limits and all original visual gates remain unchanged.
+Added identity coverage requires 99% unambiguous primary matches overall and 95%
+in every supported primary class/phase; V29 passes both.
+
+Validation: 5,923/5,923 primary matches and positions, zero identity switches, median
+0.904 mm/p95 3.414 mm;
+all 545 six-phase queries pass (worst phase p95 14.082 mm).
+Fresh V8: 512 ordinary-physics source resets/26,687 RGB frames,
+primary recall 100.0000%, median 0.954 mm,
+p95 3.675 mm, 14,244 positions and
+0 primary ID switches. All original/global/core/primary, supported phase,
+position coverage, added identity coverage, and mandatory release/settle gates
+pass independently. Release: 46 visible from
+13 physical sources;
+settle: 24 visible from
+13 physical sources.
+
+Full software: 1,177 passed/1 skipped; focused 64, Ruff and
+whitespace pass. Actual 64 validation truth-isolation queries and 48 cached/uncached runtime
+paths, exact accepted-transform oracles, portable RGB relocation, archive/member
+readbacks, source/body-origin/schema audit, all 512 video decodes, typed/raw
+parity and actual consumed-protocol retry rejection pass. The review has 16
+panels and 36 fixed-plus-worst temporal clips.
+Evidence: `docs/level5_perception_verification_v29.json`.
+
+Model semantic SHA: `3a25ea7b49cc05ce7d67e89226a7e8c231a7feaea945d4863e7ed56a5cf5cadd`.
+Active current-weight SHA: `0ba58825982fbfd714f028c3b8a9c4195e9f4ec5befe678e5273025863bbdb85`.
+The baseline V2 and fresh V2–V7 consumed tests stay permanently closed, with all
+archives, data, failed/positive candidates, reports and reservations preserved.
+V7 failed one primary cuboid/release ID switch; V26/V27 failed independent identity
+coverage. V28 positive validation and the independently frozen V29 guard plan
+are preserved. Fresh V8 is now consumed too and cannot be retried or used for
+training/selection. All source outcomes were retained; no test tuning or reuse.
+
+The availability-aware schema is shared by truth and inference. Physical
+linear/angular motion, full orientation, semantic identity, robot/fixture
+telemetry and contacts remain explicitly unavailable and fail closed. All five
+accepted inferred-control tracks remain unsupported. Qualification scope is
+calibrated simulator pixel-center images on exposed task families/cells;
+no real-camera, unseen-family, hardware, full-feature or closed-loop control
+qualification is claimed. Python traced peak: 32,454,158 bytes for
+model construction and 64 queries after imports; native/full-media peak remains
+unmeasured and RTX 5070 Ti is untested.
+
+Manual command (dexvision Conda environment, repository root):
+`python -m dexvision.apps.repair_perception review --evaluation-dir outputs/level5/perception_confirmation_v8/evaluation`.
+The owner confirmed all prescribed review criteria passed on October 16, 2026;
+`docs/level5_perception_acceptance.json` records acceptance of the 16 panels and
+36 scheduled clips. The command above is retained for saved-media reproduction;
+no manual check remains for 5.6. Stop before 5.7.
+
+
+## Owner verification — accepted October 16, 2026
+
+Completed saved-media review command (repository root; no repeat required):
+
+```bash
+conda activate dexvision
+python -m dexvision.apps.repair_perception review --evaluation-dir outputs/level5/perception_confirmation_v8/evaluation
+```
+
+SPACE starts after the contact sheet, pauses/resumes a clip, and advances after
+its end. Q, ESC or closing the window means incomplete review, not acceptance.
+Pass only after all 16 scheduled panels and all 36 fixed-plus-worst clips are
+present, readable and reviewed; visible original masks/boxes and current body
+positions align with geometry; certified visual IDs stay with their objects;
+gaps, resets and reacquisition are declared; uncertain replacement IDs and
+ambiguous/stale/low-confidence evidence visibly reject. Unsupported full pose,
+semantic identity, motion and sensor fields must stay unavailable, with no
+control admission. Diagnostic position hypotheses may remain visible while
+identity is explicitly invalid. Source expert manipulation failure alone is
+not a perception failure. Fail for missing/corrupt media, unexplained valid-ID
+swaps, unexplained pose jumps, misaligned overlays, hidden truth filling, or
+accepting invalid/stale/ambiguous evidence. Report pass/fail and any failing
+clip/panel. The owner has confirmed this review passed; acceptance is recorded
+in `docs/level5_perception_acceptance.json`.
+The earlier V8 validation diagnostic review is accepted and need not be repeated.
+
+## Commands already run
+
+These commands were run once in previously unused frozen output directories.
+Do not rerun consumed inference, overwrite releases or refit existing outputs.
+Intentional reproduction requires new independently versioned recipes, cases
+and output directories. Full audit sources/receipts are bound in verification.
+
+```bash
+conda activate dexvision
+python -m dexvision.apps.guarded_body_perception select --config configs/level5/perception_repair_v29.yaml
+python -m dexvision.apps.guarded_body_perception freeze --config configs/level5/perception_confirmation_v8.yaml --output-dir outputs/level5/perception_confirmation_v8/protocol
+python -m dexvision.apps.render_perception_amendment collect --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --output-dir outputs/level5/perception_confirmation_v8/dataset
+python -m dexvision.apps.repair_perception package --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --dataset-dir outputs/level5/perception_confirmation_v8/dataset --release datasets/level5-perception-confirmation-v8.tar.gz
+python -m dexvision.apps.guarded_body_confirmation_perception --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --dataset-dir outputs/level5/perception_confirmation_v8/dataset --output-dir outputs/level5/perception_confirmation_v8/evaluation
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 conda run --no-capture-output -n dexvision pytest -q
+conda run --no-capture-output -n dexvision pytest -q tests/test_perception_guarded_body.py tests/test_perception_body_tracking.py tests/test_perception_continuity.py tests/test_perception_identity.py tests/test_perception_dual.py tests/test_level5_learning_plan.py
+conda run --no-capture-output -n dexvision ruff check .
+git diff --check
+```
+
+## Historical repair account
+
+The following sections preserve earlier attempts and their then-current status.
 
 ## Diagnosis and preserved attempts
 
@@ -154,7 +265,8 @@ not held-out, unseen-family or runtime qualification.
 Artifact readback verifies all 16 panels, 16 complete decoded videos, 531 source
 frame records, exact timestamps/validation ownership, source/model/data hashes,
 all accepted receipts and historical evidence indices. No held-out inference
-or annotation decoding occurred. Owner validation review is pending.
+or annotation decoding occurred. The later owner confirmation below closes
+validation diagnostic review only.
 
 ## Commands and pending verification
 
@@ -204,8 +316,9 @@ sequence, including occlusion/reacquisition, fixture and distractor conditions.
 Fail: swapped IDs, unexplained large position jumps, misaligned overlays,
 missing episodes/conditions, hidden truth-filled estimates, stale data presented
 as a new observation, silent acceptance of an invalid result, or unreadable
-review media. This review is pending owner confirmation and does not substitute
-for held-out confirmation or full typed-schema qualification.
+review media. The owner subsequently confirmed this validation diagnostic
+review complete; its command is retained for reproduction. It does not
+substitute for held-out confirmation or full typed-schema qualification.
 
 ## Qualification limits
 
@@ -224,12 +337,89 @@ dependencies retain their licenses. CPU latency/model size/Python allocation
 measurements are in the validation report. Native-library peak process memory
 is unmeasured and RTX 5070 Ti testing is unavailable/untested.
 
+## October 14 typed-boundary continuation
+
+The initial checkout was clean on `main`; CURRENT_STATUS and the active
+progress file agree on Last Completed 5.5 and Next Target 5.6. Reviewed the
+previous two stages' place V25 and push V8/press V1 repairs/results. Their
+body-origin calibration, causal history, physical audits, preserved failures
+and separate confirmation lessons still apply. The privileged place preview
+and missing contact/fixture producers remain unsupported.
+
+`dexvision/perception/observation_boundary.py` adds an offline evidence sidecar
+without editing any frozen V8 implementation, accepted schema, recipe, runtime
+or artifact. `FieldEvidence` records producer, availability, value, timestamp,
+confidence, validity, frame, units and body origin. Required fields must be
+available and independently fresh/confident; truth producers and uncertified
+hypotheses reject. The default limits remain 0.8 confidence and 0.1 s age.
+The adapter checks world telemetry as well as object fields and requires a
+relation record for every object. Measured empty sets need explicit available
+evidence. Optional unknown/hypothesis motion remains `None`; a consumer that
+requires it rejects. Non-unit orientations reject without normalization.
+
+Complete synthetic evidence uses the same frozen `ObjectObservation` and
+`WorldState` types. The RGB adapter accepts only a pose estimate, retains its
+position/motion hypotheses, and never maps visual ids or upright yaw into
+semantic identity/full orientation. V8 therefore still cannot produce a full
+qualified observation. Metadata declarations are not proof of sensor accuracy
+or deployed hardware. The module has no history, interpolation, actuator output
+or connection to an accepted policy. Full inferred-schema/feature parity is
+still pending; the new synthetic checks do not close those checklist items.
+
+The owner confirmed that no fresh independently frozen confirmation
+dataset/protocol exists. The current recipe only permits train/validation;
+fresh confirmation needs a separately versioned data/protocol amendment.
+The consumed V2 test remains unavailable for retest or selection.
+
+Commands for this continuation:
+
+```bash
+conda activate dexvision
+python -m dexvision.apps.train_perception --help
+python -m dexvision.apps.evaluate_perception --help
+pytest -q tests/test_observation_boundary.py tests/test_object_perception.py tests/test_perception_metrics.py tests/test_perception_repair.py tests/test_level5_learning_plan.py
+ruff check .
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 pytest -q
+git diff --check
+```
+
+Focused tests pass **136 tests**, including **77** new boundary cases. The
+original focused command without the additive test file passes **59 tests**.
+Full regression passes **1,040 tests, one skipped in 733.00 s**. Repository
+Ruff and whitespace checks pass. Completed and future progress sections,
+historical status sections and pre-5.6 contracts are byte-for-byte unchanged.
+Both CLI help commands and Ruff pass. Frozen recipe/input/implementation pins,
+selected-model digest, validation/manual-review digests and all **29 model**
+and **24 validation** artifact hashes pass readback. Exact accepted transform
+scalar/batch maximum error is zero for reach/place/push/press and
+8.67e-19 for pick; inferred parity remains explicitly blocked. No training,
+image decoding, held-out inference, data mutation or evidence overwrite occurs.
+Readback through the new adapter of all **2,225 saved RGB estimates** across
+**531 validation frames** rejects every estimate, retaining hypotheses without
+fabricated semantic identity/orientation. No saved estimate is promoted.
+Historical train/evaluate commands above name write-once runs; they are not
+rerun into occupied evidence paths.
+
+Owner validation diagnostic review is now confirmed complete; the exact
+`open` command and pass/fail criteria above are reproduction references.
+Full qualification still needs independent confirmation and its held-out
+panel/video review. No held-out acceptance, checkpoint completion or 5.7
+work is claimed.
+
 ## Owner feedback and Git scope
 
 On October 14, 2026 the owner reported "I think mostly good" and explicitly
 authorized commit/push. `level5_perception_review_feedback.json` binds this
 positive preliminary feedback to the exact V8 model/report/media index. It does
 not assert that every manual pass criterion was confirmed, or complete 5.6.
+
+The later owner statement "Okay done. I thought this was already done" confirms
+the prescribed existing V8 validation diagnostic review complete.
+`level5_perception_validation_acceptance.json` binds that statement to the exact
+model/report and media review manifest. This is owner-reported completion,
+not an agent observation. Historical feedback/automated receipts remain
+unchanged. No repeat validation review is required; fresh held-out acceptance
+and full inferred-schema qualification remain outstanding.
 
 Source, frozen recipes, tests and documentation are versioned. Generated models,
 failed runs, source snapshots and review media remain preserved locally under

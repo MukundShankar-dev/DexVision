@@ -1,0 +1,702 @@
+{
+  "all_archive_schema_media_typed_retry_checks_pass": true,
+  "all_five_accepted_inferred_control_tracks": "unsupported",
+  "artifact_file_sha256": {
+    "configs/level5/perception_confirmation_v8.sha256": "02a979b01755fed2875436463f0b7c41bdb4aa6bd3428cc3ad91176701bb9d2a",
+    "configs/level5/perception_confirmation_v8.yaml": "e23e7c6d5fa3059719dea67f0d91d0fa6907037e56150a6fc6377e534b366801",
+    "configs/level5/perception_repair_v29.sha256": "1a71c8831509169187baa0124a5c4f8cec1e419f3afdbd361de5d36ed8b66c80",
+    "configs/level5/perception_repair_v29.yaml": "c272d1adeddcd2a1c627e06623efcb7efd9d0b7b885e0bdb8d694227edc898ad",
+    "datasets/level5-perception-cadence-windows-v8.tar.gz.sha256": "c2ed305a3713bc33b4ae067ca13a882905460dd1094e9b8f5c99c6eba62e0e51",
+    "datasets/level5-perception-cadence-windows-v8_manifest.json": "51c31569fc466b101f72633d50e6fb300b1b0d09bd3b667c9ea01be335d0984b",
+    "datasets/level5-perception-confirmation-v7.tar.gz.sha256": "f168473ae7ac8dc2a5e74274ebe5785ae8b825fa8d87c1d7c19fffdd5af5f978",
+    "datasets/level5-perception-confirmation-v7_manifest.json": "ffc1b8b20e3ff0482349fd9df37e3ef6948e5c70add43400c6db3576245b1d6a",
+    "datasets/level5-perception-confirmation-v8.tar.gz.sha256": "1ab3dfa57fbe9ca3a2639004fc706358aad7c78af0a141762155a1aa14961a05",
+    "datasets/level5-perception-confirmation-v8_manifest.json": "57ac2c6a7062498f4504b38e099dfcaf7e79427931a5b9f01a1403ffd8cdb69a",
+    "datasets/level5-perception-model-v29.tar.gz.sha256": "974f65fc68fa7acb0b904ebf38128c5765f8a981e7f81946833075be78b59f9d",
+    "datasets/level5-perception-model-v29_manifest.json": "298fa50a2f690e65b58e83f578a86d8d8c6f8e0bb984af85b742ba2704105a10",
+    "docs/level5_perception_body_tracking_v29_guard_plan.json": "c69483ba6a54c532ef1871a12aab1791c889129748c7a322c112bbce0b8c51dc",
+    "docs/level5_perception_cadence_metadata_errata.json": "0c5fd60f8696aef96fcdec8f844ad89c90b5f23f8227708a013b917937b28f81",
+    "docs/level5_perception_confirmation_v7_failed.json": "2db2c5b7422765b46d78ce5ed2d3728e12c742ea9863c9909443c8652f7ae15b",
+    "docs/level5_perception_dual_v24_source_results.json": "a9a6b62a1441b03350160b1e038867737486cd5514030436ae2bb7d6e13b5bd2",
+    "docs/level5_perception_identity_v26_failed.json": "a18bdbb8612ddd32bbbad059baa252728c11dc37a3da5ec10c76f472f5331b71",
+    "docs/level5_perception_identity_v27_failed.json": "510f5acc6c21373e2001437051a8422adb4a74beca566057c5ffd8da4646c959",
+    "docs/level5_perception_identity_v29_validation.json": "d0493613caf4752729d6daec9106e8905e1211a038683f0732ba1dd361be64c1",
+    "outputs/level5/perception_confirmation_v8/archive_readback.json": "56f5ff3ba1c6fd433742c54169d8e8ecbd81e81a153843c394384c7004866f8e",
+    "outputs/level5/perception_confirmation_v8/dataset/SHA256SUMS": "be926ab0c0400eedb7948d1e034f1650476466f0fc5c77ed5fef6189c44904e5",
+    "outputs/level5/perception_confirmation_v8/dataset/manifest.json": "1432123507f684123785a688e3a8ccd72ea51cb8241b22be33dbc68dba821f38",
+    "outputs/level5/perception_confirmation_v8/evaluation/SHA256SUMS": "285961b0875ba05ea0169d2c16d5b3a4c06b5c54cf5c4b411e2ac9e747e5d95e",
+    "outputs/level5/perception_confirmation_v8/evaluation/manual_review.json": "41998c6cfc5bd55085d2f6ab0d38913f737b4c60b402b2b19624256215c61f8d",
+    "outputs/level5/perception_confirmation_v8/evaluation/report.json": "5e8bcd4f471f03f8d8da8f3d48708d1240a25d4a8e97a9c842db0172dff12c7d",
+    "outputs/level5/perception_confirmation_v8/media_readback/receipt.json": "3fc6ead85634331cb6695edf7b72b6b8d51b4bea26b3e8a662b4601340a652f9",
+    "outputs/level5/perception_confirmation_v8/protocol/confirmation_attempt.json": "2fbecb40f97fc8530cc34bf03bd4eb12df26a184d19911a49633b1634e990417",
+    "outputs/level5/perception_confirmation_v8/protocol/protocol.json": "082b2e91c68874d34dbd5fcc1c9ea36d1189e7a3b875e9f695802d8f5ee0335b",
+    "outputs/level5/perception_confirmation_v8/protocol/protocol.sha256": "67e978168d20f79d4216798eadec4ae4e52c6f35454892057c9a4913c21a2894",
+    "outputs/level5/perception_confirmation_v8/retry_guard_audit.json": "e10b0887a5fbd7812af0b3c0dfdd44559e9999baf62ccd0b6866034249c5e405",
+    "outputs/level5/perception_confirmation_v8/schema_audit/receipt.json": "5d8c3ed4e061cebaddb9916ad0081ad7f3f9f893909ae8bc92a0582988c44edc",
+    "outputs/level5/perception_model_v29/SHA256SUMS": "c678be150d33cbd0ca81076c9d900b69a4720f39d96c659cacb280c348af29b1",
+    "outputs/level5/perception_model_v29/selected.json": "d095d103510ad0b5d1d199befc65046b222edfb03715c108411afbae1fd85581",
+    "outputs/level5/perception_model_v29/selection.json": "cb5f26bdb49112f877228dd40502ca728dd838876a375c648596671d6392a5c4",
+    "outputs/level5/perception_model_v29/validation.json": "af7014a6312aff6e8a05efb495a88260dacb736339a3f86dbec8aa655d0269a2",
+    "outputs/level5/perception_training_union_v18/selected_method_audit_v29/SHA256SUMS": "72e5573b34bf6896382be5802742f6e5eb4bef7f55a26ca740d5ca3e57543de9",
+    "outputs/level5/perception_training_union_v18/selected_method_audit_v29/resources.json": "83a1f7f931a7ca9034214f7d2a96846e8895b95fa9462cc6fd6d10611998bbc3",
+    "outputs/level5/perception_training_union_v18/selected_method_audit_v29/truth_isolation.json": "2f799b7d57b8f1794d9acd7fcd66bf99dca55cb524a45d0a7fbbf78856b84dd8",
+    "outputs/level5/perception_training_union_v18/selected_method_inventory_v29/SHA256SUMS": "48fe1c6d5a3de9d83514c28fae0135341ff2f78cce671144caba31219b8332e4",
+    "outputs/level5/perception_training_union_v18/selected_method_inventory_v29/accepted_bundles.json": "3afa6a391e865dec56be310e1f89bed0818a4fd897475dd8485cd47e21ab41b2",
+    "outputs/level5/perception_training_union_v18/selected_method_inventory_v29/feature_diagnostics.json": "dfc991363623c7ff6183f7646023473f1b39939f73717ff07900ead2c906d302",
+    "outputs/level5/perception_training_union_v18/selected_query_runtime_audit_v29/SHA256SUMS": "16316e953aad758175e31d7d14e02206cf110046a2b3f5d98b16caafa7d337cc",
+    "outputs/level5/perception_training_union_v18/selected_query_runtime_audit_v29/receipt.json": "93eec378410d9ed69d891d014172fbea6d15f7fff48dfef394cbd609bf14e8ba",
+    "outputs/level5/perception_training_union_v18/software_v29/SHA256SUMS": "d44e66c25bc2da77807201046747eb18072ad3b340acf085bc439b3ea7e04098",
+    "outputs/level5/perception_training_union_v18/software_v29/focused.log": "dd89577f63aecd88fe13c8f3bfa697f550183a318d032a5494c2032a9e3a34ee",
+    "outputs/level5/perception_training_union_v18/software_v29/pytest.log": "da926c9f78087e16a5590c66328320cd8dac4028c4cd4969dffe0a4695ddcd17",
+    "outputs/level5/perception_training_union_v18/software_v29/receipt.json": "c4d6427f8e0d3dd82d7b66fcac4fcafe5f8e1dec1c401e26bd89738d216d1e11",
+    "outputs/level5/perception_training_union_v18/software_v29/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  "baseline_qualified": false,
+  "branch": "main",
+  "checkpoint": "5.6",
+  "checkpoint_complete": false,
+  "confirmation_archive_readback": {
+    "archive_bytes": 4537883231,
+    "archive_sha256": "515f9e93b2c98eefb11ae2a0fb7e21072040a7903c011360b9d82ac619a27700",
+    "complete": true,
+    "verified_payload_members": 54915
+  },
+  "confirmation_full_gates_pass": true,
+  "confirmation_identity_coverage": {
+    "additional_gate_original_gates_unchanged": true,
+    "passed": true,
+    "primary": {
+      "fraction_of_matches": 1.0,
+      "matched": 14244,
+      "minimum_fraction": 0.99,
+      "passed": true,
+      "unambiguous": 14244,
+      "visible": 14244
+    },
+    "supported_primary_class_phase": {
+      "button/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 1152,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 1152,
+        "visible": 1152
+      },
+      "button/fixture_contact": {
+        "fraction_of_matches": 1.0,
+        "matched": 91,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 91,
+        "visible": 91
+      },
+      "button/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 384,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 384,
+        "visible": 384
+      },
+      "rigid_cuboid/acquire": {
+        "fraction_of_matches": 1.0,
+        "matched": 240,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 240,
+        "visible": 240
+      },
+      "rigid_cuboid/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 1954,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 1954,
+        "visible": 1954
+      },
+      "rigid_cuboid/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 35,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 35,
+        "visible": 35
+      },
+      "rigid_cuboid/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 64,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 64,
+        "visible": 64
+      },
+      "rigid_cuboid/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 46,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 46,
+        "visible": 46
+      },
+      "rigid_cuboid/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 19,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 19,
+        "visible": 19
+      },
+      "rigid_cuboid/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 24,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 24,
+        "visible": 24
+      },
+      "rigid_cuboid/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 78,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 78,
+        "visible": 78
+      },
+      "rigid_cuboid/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 66,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 66,
+        "visible": 66
+      },
+      "rigid_cylinder/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 2049,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 2049,
+        "visible": 2049
+      },
+      "rigid_cylinder/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 1801,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 1801,
+        "visible": 1801
+      },
+      "rigid_cylinder/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 1267,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 1267,
+        "visible": 1267
+      },
+      "rigid_cylinder/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 420,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 420,
+        "visible": 420
+      },
+      "rigid_cylinder/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 236,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 236,
+        "visible": 236
+      },
+      "rigid_cylinder/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 237,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 237,
+        "visible": 237
+      },
+      "rigid_cylinder/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 216,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 216,
+        "visible": 216
+      },
+      "rigid_cylinder/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 977,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 977,
+        "visible": 977
+      },
+      "rigid_flat_puck/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 1920,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 1920,
+        "visible": 1920
+      },
+      "rigid_flat_puck/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 500,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 500,
+        "visible": 500
+      },
+      "rigid_flat_puck/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 341,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 341,
+        "visible": 341
+      },
+      "rigid_flat_puck/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 124,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 124,
+        "visible": 124
+      }
+    }
+  },
+  "confirmation_media": {
+    "all_full_control_states_blocked": true,
+    "all_video_count": 512,
+    "ambiguous_position_hypotheses_stay_invalid": 208,
+    "ambiguous_track_count": 208,
+    "decoded_video_frames": 26687,
+    "fixed_plus_worst_review_video_count": 36,
+    "manual_acceptance": "pending_not_claimed",
+    "no_new_inference": true,
+    "passed": true,
+    "present_panels": 16,
+    "raw_to_typed_evidence_parity": true,
+    "report_sha256": "5e8bcd4f471f03f8d8da8f3d48708d1240a25d4a8e97a9c842db0172dff12c7d",
+    "typed_frames": 26687
+  },
+  "confirmation_primary": {
+    "all_numerical_gates_pass": true,
+    "angular_velocity_available_count": 0,
+    "certified_typed_pose_count": 0,
+    "detections_matched_iou_0_5": 14244,
+    "full_orientation_available_count": 0,
+    "identity_matched_coverage": 1.0,
+    "identity_switches": 0,
+    "identity_switches_per_1000_visible_instances": 0.0,
+    "linear_velocity_diagnostic_count": 0,
+    "linear_velocity_error_p95_mps": null,
+    "missing_detections": 0,
+    "numerical_gates": {
+      "identity": true,
+      "median_position": true,
+      "p95_position": true,
+      "recall": true,
+      "stale_ambiguous_rejection": true
+    },
+    "position_bias_xyz_m": [
+      6.5433702928097e-05,
+      2.2841076375435233e-05,
+      4.57269331652021e-05
+    ],
+    "position_error_median_m": 0.0009544679361402687,
+    "position_error_p95_m": 0.0036751580881482456,
+    "position_hypothesis_count": 14244,
+    "reacquisitions": 225,
+    "recall": 1.0,
+    "reject_count": 14244,
+    "symmetry_yaw_diagnostic_count": 0,
+    "symmetry_yaw_p95_rad": null,
+    "synthetic_rejection_fraction": 1.0,
+    "visible_eligible_instances": 14244
+  },
+  "confirmation_required_late_evidence": {
+    "groups": {
+      "release": {
+        "matches": 46,
+        "median_m": 0.002486954827963679,
+        "p95_m": 0.016154743423142597,
+        "passed": true,
+        "poses": 46,
+        "visible_physical_source_episodes": 13,
+        "visible_queries": 46
+      },
+      "settle": {
+        "matches": 24,
+        "median_m": 0.0013919777013813388,
+        "p95_m": 0.012573900600585084,
+        "passed": true,
+        "poses": 24,
+        "visible_physical_source_episodes": 13,
+        "visible_queries": 24
+      }
+    },
+    "minimum_physical_sources_per_phase": 4,
+    "minimum_visible_per_phase": 8,
+    "no_pooled_or_unsupported_late_phase_acceptance": true,
+    "passed": true
+  },
+  "confirmation_schema": {
+    "body_origins": 213496,
+    "evaluation_only": true,
+    "maximum_camera_world_roundtrip_m": 2.2929868617541516e-16,
+    "maximum_rotation_matrix_delta": 2.4424906541753444e-15,
+    "maximum_source_render_position_delta_m": 0.0,
+    "no_new_inference": true,
+    "passed": true,
+    "render_frames": 26687,
+    "source_index_sha256": "612c686fa8eb8e1b118e900db61247e79c9c09c5dbe123d0db8d500d35160531",
+    "source_typed_snapshots": 132239
+  },
+  "created_utc": "2026-10-16T03:17:21.745935+00:00",
+  "exact_active_current_weights_sha256": "0ba58825982fbfd714f028c3b8a9c4195e9f4ec5befe678e5273025863bbdb85",
+  "full_orientation_semantic_contact_robot_fixture_fields": "unavailable, never truth-filled",
+  "future_checkpoint_started": false,
+  "identity_scope": "cuboids use current learned body-origin projection and reject uncertain replacement IDs while prior cube history fresh; original other-class birth/box association; published masks/boxes/positions unchanged; visual IDs nonsemantic; no motion/control qualification",
+  "inference": "current RGB only; pure optional VAL preprocessing cache verified against uncached RGB; fresh inference uncached; visual tracking causal",
+  "last_completed_checkpoint": "5.5",
+  "manual_acceptance": "pending_owner_confirmation",
+  "manual_command": "python -m dexvision.apps.repair_perception review --evaluation-dir outputs/level5/perception_confirmation_v8/evaluation",
+  "new_optimizer_updates": 0,
+  "next_target_checkpoint": "5.6",
+  "physical_motion_available": false,
+  "scope_limits": [
+    "pixel-center simulator images, same calibrated camera and exposed families/cells/conditions",
+    "not unseen-family, real-camera, hardware or closed-loop control qualification",
+    "native/full-media memory peak unmeasured; RTX5070Tiuntested",
+    "all five accepted inferred-control tracks remain blocked; no5.7work"
+  ],
+  "selected_model_sha256": "3a25ea7b49cc05ce7d67e89226a7e8c231a7feaea945d4863e7ed56a5cf5cadd",
+  "selected_seed": 11,
+  "selected_source_epoch": 3000,
+  "software": {
+    "RTX5070Ti": "untested",
+    "focused_passed": 64,
+    "full_passed": 1177,
+    "full_skipped": 1,
+    "full_summary": "1177 passed, 1 skipped in 793.96s (0:13:13)",
+    "native_peak": "unmeasured",
+    "non_vacuous_primary_and_phase_identity_coverage": true,
+    "original_scoring_ast_preserved": true,
+    "passed": true,
+    "source_digests": {
+      "dexvision/apps/guarded_body_confirmation_perception.py": "8cb6133b739bd336715b371e6f9d7e8f46a9f2eaee97157d2481c775ac2b1075",
+      "dexvision/apps/guarded_body_perception.py": "3de28dc510cb465981470f070e388379de23c69c4d43c52dd5761b9fadae986b",
+      "dexvision/evaluation/perception_guarded_body.py": "8167dcd3a1a0017057387e60f0d5af06acb6a47a44e5e9e269afcac58bb37341",
+      "dexvision/evaluation/perception_guarded_body_confirmation.py": "dd90e893676ab96b1a4278c63f5da1576bb1ccd6bfc30831925d3c5555cf5b9a",
+      "dexvision/evaluation/perception_identity_coverage.py": "63649d4fd5d70055842fc8520e9d872c06b3fef35487240a0101a4d0c1aff48d",
+      "dexvision/learning/perception_guarded_body.py": "d1a95bbaa56bd937938ca440aee169a74978d5f51a7a60a1e67870352344d52d",
+      "dexvision/perception/guarded_body_localization.py": "8f94994ad2230b366acc6f76fad470cf4966341cf917ac12225cafa3e78365e4",
+      "tests/test_perception_body_tracking.py": "104297f3f328af099947b7955ea0a8a509bc38e1e0af968c89eaed364aefdb00",
+      "tests/test_perception_continuity.py": "72fce375f6de1f6508444c8efb9164b7b562d44ab127ddea6fc6c305274aaa74",
+      "tests/test_perception_guarded_body.py": "6101bb936126cfd46b4682600d1d3e8ab7b45c7d0a4e37f3a118335c9a148836",
+      "tests/test_perception_identity.py": "d423ef96b1ac1f67e4494726da6d05e82c269503b24dde1e4d4e4fd33745aa82"
+    }
+  },
+  "source_test_rule": "prior baselineV2 and freshV2\u2013V7 permanently consumed/closed; freshV8 evaluated once then closed too; no fitting/selection/retest on any consumed set",
+  "source_training_budget": "all3seeds x2heads x3000epochs completed; source failures preserved",
+  "source_training_recipe": "configs/level5/perception_repair_v24.yaml",
+  "validation_current_phase_queries": {
+    "force_current_frame": true,
+    "groups": {
+      "lift": {
+        "matches": 23,
+        "median_m": 0.0019889614083038834,
+        "p95_m": 0.0140815796285132,
+        "passed": true,
+        "poses": 23,
+        "visible_physical_source_episodes": 18,
+        "visible_queries": 23
+      },
+      "place": {
+        "matches": 108,
+        "median_m": 0.0031534167902975844,
+        "p95_m": 0.007003737103585187,
+        "passed": true,
+        "poses": 108,
+        "visible_physical_source_episodes": 19,
+        "visible_queries": 108
+      },
+      "release": {
+        "matches": 195,
+        "median_m": 0.001969576110514065,
+        "p95_m": 0.005493448857224459,
+        "passed": true,
+        "poses": 195,
+        "visible_physical_source_episodes": 11,
+        "visible_queries": 195
+      },
+      "settle": {
+        "matches": 99,
+        "median_m": 0.0013983867874353137,
+        "p95_m": 0.003661270665591569,
+        "passed": true,
+        "poses": 99,
+        "visible_physical_source_episodes": 11,
+        "visible_queries": 99
+      },
+      "stabilize": {
+        "matches": 20,
+        "median_m": 0.0034872076670173996,
+        "p95_m": 0.005833998751067924,
+        "passed": true,
+        "poses": 20,
+        "visible_physical_source_episodes": 6,
+        "visible_queries": 20
+      },
+      "transport": {
+        "matches": 100,
+        "median_m": 0.0031489613103621657,
+        "p95_m": 0.008135311773664496,
+        "passed": true,
+        "poses": 100,
+        "visible_physical_source_episodes": 19,
+        "visible_queries": 100
+      }
+    },
+    "no_model_dependent_cache": true,
+    "passed": true,
+    "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+  },
+  "validation_identity_coverage": {
+    "additional_gate_original_gates_unchanged": true,
+    "passed": true,
+    "primary": {
+      "fraction_of_matches": 1.0,
+      "matched": 5923,
+      "minimum_fraction": 0.99,
+      "passed": true,
+      "unambiguous": 5923,
+      "visible": 5923
+    },
+    "supported_primary_class_phase": {
+      "button/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 288,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 288,
+        "visible": 288
+      },
+      "button/fixture_contact": {
+        "fraction_of_matches": 1.0,
+        "matched": 18,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 18,
+        "visible": 18
+      },
+      "button/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 96,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 96,
+        "visible": 96
+      },
+      "rigid_cuboid/acquire": {
+        "fraction_of_matches": 1.0,
+        "matched": 238,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 238,
+        "visible": 238
+      },
+      "rigid_cuboid/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 2422,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 2422,
+        "visible": 2422
+      },
+      "rigid_cuboid/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 23,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 23,
+        "visible": 23
+      },
+      "rigid_cuboid/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 108,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 108,
+        "visible": 108
+      },
+      "rigid_cuboid/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 39,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 39,
+        "visible": 39
+      },
+      "rigid_cuboid/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 17,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 17,
+        "visible": 17
+      },
+      "rigid_cuboid/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 20,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 20,
+        "visible": 20
+      },
+      "rigid_cuboid/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 100,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 100,
+        "visible": 100
+      },
+      "rigid_cylinder/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 512,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 512,
+        "visible": 512
+      },
+      "rigid_cylinder/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 459,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 459,
+        "visible": 459
+      },
+      "rigid_cylinder/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 318,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 318,
+        "visible": 318
+      },
+      "rigid_cylinder/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 105,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 105,
+        "visible": 105
+      },
+      "rigid_cylinder/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 57,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 57,
+        "visible": 57
+      },
+      "rigid_cylinder/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 61,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 61,
+        "visible": 61
+      },
+      "rigid_cylinder/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 53,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 53,
+        "visible": 53
+      },
+      "rigid_cylinder/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 247,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 247,
+        "visible": 247
+      },
+      "rigid_flat_puck/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 480,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 480,
+        "visible": 480
+      },
+      "rigid_flat_puck/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 151,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 151,
+        "visible": 151
+      },
+      "rigid_flat_puck/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 61,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 61,
+        "visible": 61
+      },
+      "rigid_flat_puck/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 46,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 46,
+        "visible": 46
+      }
+    }
+  },
+  "validation_primary": {
+    "all_numerical_gates_pass": true,
+    "angular_velocity_available_count": 0,
+    "certified_typed_pose_count": 0,
+    "detections_matched_iou_0_5": 5923,
+    "full_orientation_available_count": 0,
+    "identity_matched_coverage": 1.0,
+    "identity_switches": 0,
+    "identity_switches_per_1000_visible_instances": 0.0,
+    "linear_velocity_diagnostic_count": 0,
+    "linear_velocity_error_p95_mps": null,
+    "missing_detections": 0,
+    "numerical_gates": {
+      "identity": true,
+      "median_position": true,
+      "p95_position": true,
+      "recall": true,
+      "stale_ambiguous_rejection": true
+    },
+    "position_bias_xyz_m": [
+      7.492120927040582e-05,
+      6.466164968779451e-06,
+      -4.618173122955575e-06
+    ],
+    "position_error_median_m": 0.0009035389620505656,
+    "position_error_p95_m": 0.0034138994850672734,
+    "position_hypothesis_count": 5923,
+    "reacquisitions": 198,
+    "recall": 1.0,
+    "reject_count": 5923,
+    "symmetry_yaw_diagnostic_count": 0,
+    "symmetry_yaw_p95_rad": null,
+    "synthetic_rejection_fraction": 1.0,
+    "visible_eligible_instances": 5923
+  }
+}

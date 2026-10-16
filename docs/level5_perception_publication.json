@@ -1,0 +1,78 @@
+{
+  "checkpoint": "5.6",
+  "checkpoint_complete": true,
+  "next_checkpoint_started": false,
+  "owner_authorization": "Yes push the code.",
+  "annotated_scope_accepted_by_owner": "Keep large archives local; push code, small model bundles, manifests, acceptance receipt and status updates. Preserve datasets locally; leave 5.7 unstarted.",
+  "base_commit": "03ec2acac05d080d6162c5d9cf7fdd5173864ae3",
+  "included_categories": [
+    "source",
+    "tests",
+    "configs",
+    "protocols",
+    "manifests_and_checksums",
+    "acceptance_and_verification_receipts",
+    "progress_and_status",
+    "compact_model_bundles"
+  ],
+  "included_lfs_payloads": [
+    {
+      "path": "datasets/level5-perception-model-v25.tar.gz",
+      "size_bytes": 4104713,
+      "sha256": "f457f30ab9fba132ca5ceec3db575c6f71e724273b92c0779d3b16ca334cc347",
+      "storage": "git_lfs"
+    },
+    {
+      "path": "datasets/level5-perception-model-v29.tar.gz",
+      "size_bytes": 4125900,
+      "sha256": "ee030bd0846bb0a71c0cacae6c72ed331848e05c2e2d845b383375a5ffb66610",
+      "storage": "git_lfs"
+    }
+  ],
+  "new_lfs_payload_bytes": 8230613,
+  "bulk_payload_policy": "Local only. Do not force-add or upload. A clone alone cannot reproduce the new 5.6 datasets; exact operator-provided payloads are required.",
+  "local_only_payload_paths": [
+    "datasets/level5-perception-cadence-windows-v8.tar.gz.part-001",
+    "datasets/level5-perception-cadence-windows-v8.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v2.tar.gz",
+    "datasets/level5-perception-confirmation-v3.tar.gz",
+    "datasets/level5-perception-confirmation-v4.tar.gz.part-001",
+    "datasets/level5-perception-confirmation-v4.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v5.tar.gz.part-001",
+    "datasets/level5-perception-confirmation-v5.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v6.tar.gz.part-001",
+    "datasets/level5-perception-confirmation-v6.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v6.tar.gz.part-003",
+    "datasets/level5-perception-confirmation-v7.tar.gz.part-001",
+    "datasets/level5-perception-confirmation-v7.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v7.tar.gz.part-003",
+    "datasets/level5-perception-confirmation-v8.tar.gz.part-001",
+    "datasets/level5-perception-confirmation-v8.tar.gz.part-002",
+    "datasets/level5-perception-confirmation-v8.tar.gz.part-003",
+    "datasets/level5-perception-development-v1.tar.gz",
+    "datasets/level5-perception-development-v2.tar.gz",
+    "datasets/level5-perception-development-v3.tar.gz.part-001",
+    "datasets/level5-perception-development-v3.tar.gz.part-002",
+    "datasets/level5-perception-development-v4.tar.gz.part-001",
+    "datasets/level5-perception-development-v4.tar.gz.part-002",
+    "datasets/level5-perception-development-v4.tar.gz.part-003",
+    "datasets/level5-perception-late-windows-v6.tar.gz",
+    "datasets/level5-perception-phase-windows-v5.tar.gz"
+  ],
+  "original_large_archives_reconstructable_from_local_parts": [
+    "level5-perception-cadence-windows-v8.tar.gz",
+    "level5-perception-confirmation-v4.tar.gz",
+    "level5-perception-confirmation-v5.tar.gz",
+    "level5-perception-confirmation-v6.tar.gz",
+    "level5-perception-confirmation-v7.tar.gz",
+    "level5-perception-confirmation-v8.tar.gz",
+    "level5-perception-development-v3.tar.gz",
+    "level5-perception-development-v4.tar.gz"
+  ],
+  "restore_local_archives_command": "conda run -n dexvision python -m dexvision.apps.restore_multipart_releases",
+  "dataset_content_preserved": true,
+  "scientific_and_acceptance_bindings_unchanged": true,
+  "historical_receipt_policy": "Prior automated, manual and multipart transport receipts preserve their then-current state; this document supersedes only publication/storage scope.",
+  "local_cleanup_audit": "outputs/maintenance/disk_cleanup_20261016/",
+  "local_lfs_cache_policy": "Remove unreferenced LFS cache objects and redundant copies; preserve dataset payloads and compact model bundles independently of the cache."
+}

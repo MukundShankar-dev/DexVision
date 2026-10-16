@@ -1,0 +1,209 @@
+{
+  "checkpoint": "5.6",
+  "failure": "singleton-class rule rejects legitimate multiple existing puck tracks; non-vacuous identity coverage failed",
+  "identity_coverage": {
+    "additional_gate_original_gates_unchanged": true,
+    "passed": false,
+    "primary": {
+      "fraction_of_matches": 0.9061286510214418,
+      "matched": 5923,
+      "minimum_fraction": 0.99,
+      "passed": false,
+      "unambiguous": 5367,
+      "visible": 5923
+    },
+    "supported_primary_class_phase": {
+      "button/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 288,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 288,
+        "visible": 288
+      },
+      "button/fixture_contact": {
+        "fraction_of_matches": 1.0,
+        "matched": 18,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 18,
+        "visible": 18
+      },
+      "button/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 96,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 96,
+        "visible": 96
+      },
+      "rigid_cuboid/acquire": {
+        "fraction_of_matches": 1.0,
+        "matched": 238,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 238,
+        "visible": 238
+      },
+      "rigid_cuboid/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 2422,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 2422,
+        "visible": 2422
+      },
+      "rigid_cuboid/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 23,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 23,
+        "visible": 23
+      },
+      "rigid_cuboid/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 108,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 108,
+        "visible": 108
+      },
+      "rigid_cuboid/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 39,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 39,
+        "visible": 39
+      },
+      "rigid_cuboid/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 17,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 17,
+        "visible": 17
+      },
+      "rigid_cuboid/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 20,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 20,
+        "visible": 20
+      },
+      "rigid_cuboid/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 100,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 100,
+        "visible": 100
+      },
+      "rigid_cylinder/approach": {
+        "fraction_of_matches": 1.0,
+        "matched": 512,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 512,
+        "visible": 512
+      },
+      "rigid_cylinder/lift": {
+        "fraction_of_matches": 1.0,
+        "matched": 459,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 459,
+        "visible": 459
+      },
+      "rigid_cylinder/place": {
+        "fraction_of_matches": 1.0,
+        "matched": 318,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 318,
+        "visible": 318
+      },
+      "rigid_cylinder/release": {
+        "fraction_of_matches": 1.0,
+        "matched": 105,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 105,
+        "visible": 105
+      },
+      "rigid_cylinder/retract": {
+        "fraction_of_matches": 1.0,
+        "matched": 57,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 57,
+        "visible": 57
+      },
+      "rigid_cylinder/settle": {
+        "fraction_of_matches": 1.0,
+        "matched": 61,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 61,
+        "visible": 61
+      },
+      "rigid_cylinder/stabilize": {
+        "fraction_of_matches": 1.0,
+        "matched": 53,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 53,
+        "visible": 53
+      },
+      "rigid_cylinder/transport": {
+        "fraction_of_matches": 1.0,
+        "matched": 247,
+        "minimum_fraction": 0.95,
+        "passed": true,
+        "unambiguous": 247,
+        "visible": 247
+      },
+      "rigid_flat_puck/approach": {
+        "fraction_of_matches": 0.25,
+        "matched": 480,
+        "minimum_fraction": 0.95,
+        "passed": false,
+        "unambiguous": 120,
+        "visible": 480
+      },
+      "rigid_flat_puck/place": {
+        "fraction_of_matches": 0.2185430463576159,
+        "matched": 151,
+        "minimum_fraction": 0.95,
+        "passed": false,
+        "unambiguous": 33,
+        "visible": 151
+      },
+      "rigid_flat_puck/stabilize": {
+        "fraction_of_matches": 0.29508196721311475,
+        "matched": 61,
+        "minimum_fraction": 0.95,
+        "passed": false,
+        "unambiguous": 18,
+        "visible": 61
+      },
+      "rigid_flat_puck/transport": {
+        "fraction_of_matches": 0.2391304347826087,
+        "matched": 46,
+        "minimum_fraction": 0.95,
+        "passed": false,
+        "unambiguous": 11,
+        "visible": 46
+      }
+    }
+  },
+  "new_optimizer_updates": 0,
+  "no_fresh8_generated": true,
+  "no_future_checkpoint": true,
+  "position_weights_unchanged": true,
+  "report_sha256": "bdbc16299e6ca6f8690c7b46461869502c6e2790b1534d06a8e77755c8e5e385",
+  "strict_pass": false,
+  "validation_only": true
+}

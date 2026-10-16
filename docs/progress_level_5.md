@@ -1,11 +1,16 @@
 # Progress Level 5 — Workcell Skill Learning and Qualification
 
-Current status (October 14, 2026): Last Completed **5.5**; Next Target **5.6**,
-V8 validation visual gates pass; owner review and qualification remain open.
-Push V8 and press V1 have owner manual acceptance; dial is absent.
+Current status: Last Completed **5.6**; Next Target **5.7 (unstarted)**.
+V29 and fresh confirmation V8 pass every automated numerical and artifact check.
+The owner confirmed the 16-panel/36-clip manual review passed on October 16,
+2026; [level5_perception_acceptance.json](level5_perception_acceptance.json)
+binds this acceptance to the frozen artifacts. All consumed test sets, datasets,
+source, failed attempts and results remain preserved. All five inferred-control
+tracks remain unsupported. Stop before 5.7; it requires a new user request.
+Previous completed stages retain their original results and owner acceptance.
 See [CURRENT_STATUS.md](CURRENT_STATUS.md) for checkpoint selection and
-[level5_push_acceptance.json](level5_push_acceptance.json) for the final receipt.
-Earlier checkpoint notes retain the status at the time of their results.
+[level5_perception_verification_v29.json](level5_perception_verification_v29.json)
+for the final automated evidence.
 
 Level 5 goal:
 
@@ -1373,37 +1378,91 @@ Checkpoint 5.5 is complete; 5.6 remains unstarted.
 
 ## Level 5.6 — Detector, Tracker, and Metric Pose Baseline
 
-**In progress; V8 passes validation visual metrics; owner review is pending.**
-Only checkpoint 5.6 is selected. Last Completed remains 5.5 and Next Target 5.6.
-The original aggregate gates and supplemental primary-target gates pass on all
-531 validation frames: 99.61%/97.60% recall and 0.83/7.10 mm p95 respectively,
-zero identity switches and 100% synthetic rejection. The selected deterministic
-three-neighbour RGB regressor uses frozen causal/scaled component features and
-a calibrated ray decoder, with no current simulator inputs or actuator outputs.
+Owner-authorized publication: code, compact V25/V29 model bundles, manifests,
+checksums, protocols, acceptance receipt and status docs. The large dataset
+archives/parts remain local to respect the reported 10 GiB LFS allowance.
+Their complete contents are preserved; a clone alone lacks these new payloads.
+See `datasets/README.md` for local restoration. Original scientific bindings
+and acceptance remain valid. This publication does not start 5.7.
 
-The failed V1–V7 evidence, consumed V2 held-out result, candidate matrices and
-source snapshots remain preserved. No held-out images/labels are decoded for
-repair and test evaluation is explicitly blocked. All accepted policies/data
-remain unchanged. The 940 false positives and unavailable full pose, semantic
-identity, contact/phase and cadence remain disclosed. The checkpoint completion
-box stays open; no 5.7 work is implemented. Apply `docs/level5_training_guidance.md`
-and the 5.6 contract in `docs/module_contracts.md`.
+**Current outcome: 5.6 complete; V29/fresh V8 automated gates and owner manual acceptance pass.**
+The owner confirmed the held-out review passed on October 16, 2026.
+Last Completed is **5.6**; Next Target is **5.7 (unstarted)**, on branch `main`.
+`docs/level5_perception_acceptance.json` binds this owner-reported acceptance to
+the exact frozen artifacts; no agent visual observation is claimed. Historical
+automated receipts retain their then-pending manual status. No 5.7 work is
+authorized by this completion request. The earlier V8 validation diagnostic
+review remains separately accepted.
 
-Final V8 full regression: 963 passed, one skipped; focused: 59 passed. Ruff,
-whitespace and complete artifact readback pass.
+V29 retains exact V25 selected seed 11/source epoch 3,000 current-RGB MLP weights,
+TRAIN transforms, fixed 8 px / 8 px / 10 mm output scales and calibrated ray decoder,
+with zero new optimizer updates. All three original current candidates and all
+six source fits remain preserved. Cuboid association uses the calibrated
+projection of the current learned body center, with a cuboid-only uncertain
+replacement-ID guard and history rollback. Other classes keep original birth/
+visible-box association. Published masks, boxes and positions are unchanged.
+Original tracker limits and all original visual gates remain unchanged.
+Added identity coverage requires 99% unambiguous primary matches overall and 95%
+in every supported primary class/phase; V29 passes both.
 
-Current repair commands/results/manual criteria are in
-`docs/level5_perception_repair.md`, with bindings in
-`docs/level5_perception_repair_verification_v8.json`. Historical V1/V2 results
-and verification remain intact in their original files.
+Validation: 5,923/5,923 primary matches and positions, zero identity switches, median
+0.904 mm/p95 3.414 mm;
+all 545 six-phase queries pass (worst phase p95 14.082 mm).
+Fresh V8: 512 ordinary-physics source resets/26,687 RGB frames,
+primary recall 100.0000%, median 0.954 mm,
+p95 3.675 mm, 14,244 positions and
+0 primary ID switches. All original/global/core/primary, supported phase,
+position coverage, added identity coverage, and mandatory release/settle gates
+pass independently. Release: 46 visible from
+13 physical sources;
+settle: 24 visible from
+13 physical sources.
+
+Full software: 1,177 passed/1 skipped; focused 64, Ruff and
+whitespace pass. Actual 64 validation truth-isolation queries and 48 cached/uncached runtime
+paths, exact accepted-transform oracles, portable RGB relocation, archive/member
+readbacks, source/body-origin/schema audit, all 512 video decodes, typed/raw
+parity and actual consumed-protocol retry rejection pass. The review has 16
+panels and 36 fixed-plus-worst temporal clips.
+Evidence: `docs/level5_perception_verification_v29.json`.
+
+Model semantic SHA: `3a25ea7b49cc05ce7d67e89226a7e8c231a7feaea945d4863e7ed56a5cf5cadd`.
+Active current-weight SHA: `0ba58825982fbfd714f028c3b8a9c4195e9f4ec5befe678e5273025863bbdb85`.
+The baseline V2 and fresh V2–V7 consumed tests stay permanently closed, with all
+archives, data, failed/positive candidates, reports and reservations preserved.
+V7 failed one primary cuboid/release ID switch; V26/V27 failed independent identity
+coverage. V28 positive validation and the independently frozen V29 guard plan
+are preserved. Fresh V8 is now consumed too and cannot be retried or used for
+training/selection. All source outcomes were retained; no test tuning or reuse.
+
+The availability-aware schema is shared by truth and inference. Physical
+linear/angular motion, full orientation, semantic identity, robot/fixture
+telemetry and contacts remain explicitly unavailable and fail closed. All five
+accepted inferred-control tracks remain unsupported. Qualification scope is
+calibrated simulator pixel-center images on exposed task families/cells;
+no real-camera, unseen-family, hardware, full-feature or closed-loop control
+qualification is claimed. Python traced peak: 32,454,158 bytes for
+model construction and 64 queries after imports; native/full-media peak remains
+unmeasured and RTX 5070 Ti is untested.
+
+Manual command (dexvision Conda environment, repository root):
+`python -m dexvision.apps.repair_perception review --evaluation-dir outputs/level5/perception_confirmation_v8/evaluation`.
+The owner confirmed all prescribed review criteria passed on October 16, 2026;
+`docs/level5_perception_acceptance.json` records acceptance of the 16 panels and
+36 scheduled clips. The command above is retained for saved-media reproduction;
+no manual check remains for 5.6. Stop before 5.7.
 
 ### Goal
 
 Train or integrate a lightweight visual pipeline that converts the Level 4
-single-camera images into the shared typed object observations, with explicit
+single-camera images into shared typed estimates, with explicit
 field provenance and compatibility with the actual accepted state bundles.
 Preserve the selected policies, transforms, scales, decoders, cadence and
 historical receipts. Closed-loop perception qualification belongs to 5.7.
+The additive availability-aware `WorldEstimate` is shared by truth/inference;
+conversion to unchanged accepted `WorldState` requires all consumer fields to
+pass the full boundary. Unobservable fields may be explicitly unsupported,
+but must never be padded into a valid control state.
 
 ### Accepted-bundle input and observability audit
 
@@ -1551,18 +1610,22 @@ ambiguous identities and reset/gap handling without a webcam, GPU or visible GUI
 
 ### Commands
 
-These CLIs are implemented. Historical negative V1/V2 commands are retained
-in `docs/level5_perception_results.md`; do not rerun the consumed held-out set.
-The current V8 fitting/evaluation evidence already exists; use a new independently
-frozen recipe/output directory for intentional reproduction.
+The following are the completed V29/freshV8 runs. Do not rerun a consumed
+confirmation or overwrite immutable outputs. New reproduction needs a separate
+frozen recipe, fresh case allocation and new output paths. Manual command and
+explicit pass/fail criteria are in docs/level5_perception_repair.md.
 
 ```bash
 conda activate dexvision
-python -m dexvision.apps.train_perception --config configs/level5/perception_repair_v8.yaml
-python -m dexvision.apps.evaluate_perception --config configs/level5/perception_repair_v8.yaml --split validation --output-dir outputs/level5/perception_repair/v8_validation
-conda run -n dexvision pytest -q tests/test_object_perception.py tests/test_perception_metrics.py tests/test_perception_repair.py tests/test_level5_learning_plan.py
-conda run -n dexvision ruff check .
-OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run -n dexvision pytest -q
+python -m dexvision.apps.guarded_body_perception select --config configs/level5/perception_repair_v29.yaml
+python -m dexvision.apps.guarded_body_perception freeze --config configs/level5/perception_confirmation_v8.yaml --output-dir outputs/level5/perception_confirmation_v8/protocol
+python -m dexvision.apps.render_perception_amendment collect --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --output-dir outputs/level5/perception_confirmation_v8/dataset
+python -m dexvision.apps.repair_perception package --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --dataset-dir outputs/level5/perception_confirmation_v8/dataset --release datasets/level5-perception-confirmation-v8.tar.gz
+python -m dexvision.apps.guarded_body_confirmation_perception --protocol outputs/level5/perception_confirmation_v8/protocol/protocol.json --dataset-dir outputs/level5/perception_confirmation_v8/dataset --output-dir outputs/level5/perception_confirmation_v8/evaluation
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 conda run --no-capture-output -n dexvision pytest -q
+conda run --no-capture-output -n dexvision pytest -q tests/test_perception_guarded_body.py tests/test_perception_body_tracking.py tests/test_perception_continuity.py tests/test_perception_identity.py tests/test_perception_dual.py tests/test_level5_learning_plan.py
+conda run --no-capture-output -n dexvision ruff check .
+git diff --check
 ```
 
 ### Pass criteria
@@ -1574,19 +1637,33 @@ OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run -n dexvision pytest -q
 [x] Truth labels/evaluation are isolated from inferred observations, derived phases and action selection
 [x] Detection, identity, position/orientation, motion, fixture depth and availability metrics are separate
 [x] Timestamped sequence tests cover gaps, occlusion, reacquisition and identity continuity
-[ ] Ground-truth and inferred observations use the same typed world-state schema
-[ ] Frame/body-origin calibration and exact accepted feature transforms have offline parity checks
+[x] Offline field-evidence sidecar tests shared types, per-field timing/provenance and unsupported-field rejection
+[x] Ground-truth and inferred observations use the same availability-aware typed estimate schema; accepted full control schema remains guarded
+[x] Frame/body-origin calibration and exact-transform oracles are checked; unavailable full inferred-feature parity explicitly rejects
 [x] Original and supplemental primary visual gates pass on validation; sensitivity/unsupported fields disclosed
-[ ] Fresh independently frozen confirmation passes; consumed V2 held-out set never reused
+[x] Fresh independently frozen V8 confirmation passes; all earlier consumed sets remain closed
 [x] Ambiguous, low-confidence, and stale results fail closed
 [x] Model size, license, CPU latency, cadence and Python memory documented; native peak unmeasured and RTX 5070 Ti explicitly untested
 [x] No visual model emits actuator commands
-[ ] Manual held-out contact-sheet and temporal-video review is owner accepted
+[x] Existing V8 validation diagnostic review is owner confirmed complete (separate from held-out acceptance)
+[x] Manual held-out contact-sheet and temporal-video review is owner accepted (October 16, 2026; level5_perception_acceptance.json)
 ```
 
+Fresh V8 confirmation was performed once and passes all automated gates and
+audits. Its held-out manual review is now owner accepted, completing 5.6.
+All consumed sets remain closed. Do not repeat inference or proceed to 5.7.
+
+### Historical review feedback and prescribed acceptance criteria
+
+The following feedback records the earlier, then-incomplete handoffs. The
+October 16 held-out acceptance above closes the remaining manual gate.
+
 The owner reported "I think mostly good" and authorized commit/push. This
-positive preliminary feedback is bound in `docs/level5_perception_review_feedback.json`;
-a full manual pass is not yet claimed. Command/pass/fail criteria are
+positive preliminary feedback is bound in `docs/level5_perception_review_feedback.json`.
+The later "Okay done. I thought this was already done" confirms the validation
+diagnostic review complete, separately bound in
+`docs/level5_perception_validation_acceptance.json`. Held-out manual acceptance
+is not claimed. Reproduction command/pass/fail criteria are
 in `docs/level5_perception_repair.md`. It does not fulfill the remaining
 independent confirmation or full typed-schema requirements.
 
@@ -1600,7 +1677,8 @@ objects, pose/box/mask overlays align with visible geometry, timestamps and
 units agree, and missing/stale/ambiguous observations visibly reject. Fail for
 identity swaps, unexplained pose jumps, misaligned overlays, hidden truth-filled
 estimates, missing strata, silent stale acceptance or review errors. Stop for
-owner confirmation after automated checks; do not complete 5.6 or start 5.7.
+owner confirmation after automated checks; that confirmation is now recorded
+above for 5.6. Do not start 5.7.
 
 ---
 

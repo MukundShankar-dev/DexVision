@@ -1,0 +1,16 @@
+{
+  "basis": "Body-point association alone still permits a new certain ID after a sufficiently large current predicted-position jump. Independent synthetic guard audit rejects this uncertain cube replacement without history poisoning; other-class later births remain allowed. No consumed input or V28 validation outcomes used for this guard choice.",
+  "checkpoint": "5.6",
+  "future_checkpoint_started": false,
+  "guard_class": "rigid_cuboid",
+  "no_fresh8_generated": true,
+  "optimizer_updates": 0,
+  "pose_weights_unchanged": true,
+  "same_added_identity_coverage_gates": true,
+  "scope": "pre-confirmation synthetic identity audit",
+  "source_sha256": {
+    "configs/level5/perception_repair_v28.yaml": "1bd7f2b9f5ff96fa355c40e525d64b465731eeb01e7d72b28e5a1f50ed5d04ed",
+    "dexvision/perception/guarded_body_localization.py": "8f94994ad2230b366acc6f76fad470cf4966341cf917ac12225cafa3e78365e4",
+    "tests/test_perception_guarded_body.py": "6101bb936126cfd46b4682600d1d3e8ab7b45c7d0a4e37f3a118335c9a148836"
+  }
+}

@@ -1,0 +1,514 @@
+{
+  "all_source_weights_and_reports_preserved": true,
+  "all_three_two_head_budgets_complete": true,
+  "any_strict_dual_candidate": false,
+  "checkpoint": "5.6",
+  "checkpoint_complete": false,
+  "fresh_confirmation_performed": false,
+  "next_comparison": "V25frozen current-only exact current-head reuse, zero updates; complete sequence and six phase validation before fresh",
+  "no5_7": true,
+  "no_consumed_test_fit_selection_or_retest": true,
+  "records": [
+    {
+      "candidate_sha256": "2a01817d15dcafecb0bc773bdb88c1915bf10e05591b667ad3dcef0de4ac6e1f",
+      "current_epochs": 3000,
+      "current_frame_stress": {
+        "force_current_frame": true,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0016964290858789103,
+            "p95_m": 0.019589237937957058,
+            "passed": true,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.0026451307418998682,
+            "p95_m": 0.006497724241026929,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.001928020048257442,
+            "p95_m": 0.005097296986244048,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0012599507527707536,
+            "p95_m": 0.003737149137124569,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.00254706369670265,
+            "p95_m": 0.005952922091085287,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.0030739146088899975,
+            "p95_m": 0.008450512694371838,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": true,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "exact_current_weights_sha256": "ff55acc02817df2759c172244ce6355ddf0c44308e2901f9451d747bd0e48006",
+      "motion_queries": {
+        "force_current_frame": false,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0015264542684247837,
+            "p95_m": 0.03473616587106179,
+            "passed": false,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.0026159234712464824,
+            "p95_m": 0.010779390714796238,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.0019151501991725895,
+            "p95_m": 0.0071230267018308905,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0012173857894254246,
+            "p95_m": 0.004209696775508571,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.003116049621249335,
+            "p95_m": 0.0245802752409374,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.004356531652072173,
+            "p95_m": 0.013663193169249629,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": false,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "primary": {
+        "all_numerical_gates_pass": true,
+        "angular_velocity_available_count": 0,
+        "certified_typed_pose_count": 0,
+        "detections_matched_iou_0_5": 5923,
+        "full_orientation_available_count": 0,
+        "identity_matched_coverage": 1.0,
+        "identity_switches": 0,
+        "identity_switches_per_1000_visible_instances": 0.0,
+        "linear_velocity_diagnostic_count": 5146,
+        "linear_velocity_error_p95_mps": 0.02091189890804157,
+        "missing_detections": 0,
+        "numerical_gates": {
+          "identity": true,
+          "median_position": true,
+          "p95_position": true,
+          "recall": true,
+          "stale_ambiguous_rejection": true
+        },
+        "position_bias_xyz_m": [
+          8.951780341163776e-05,
+          5.096857305469238e-05,
+          -1.1772150191087642e-05
+        ],
+        "position_error_median_m": 0.0008949052800095762,
+        "position_error_p95_m": 0.003413713669828102,
+        "position_hypothesis_count": 5923,
+        "reacquisitions": 122,
+        "recall": 1.0,
+        "reject_count": 5923,
+        "symmetry_yaw_diagnostic_count": 0,
+        "symmetry_yaw_p95_rad": null,
+        "synthetic_rejection_fraction": 1.0,
+        "visible_eligible_instances": 5923
+      },
+      "seed": 3,
+      "strict_dual_pass": false,
+      "temporal_epochs": 3000
+    },
+    {
+      "candidate_sha256": "3812628a669b18320dbfacba8f4499d35c23eec1465165c11ab6696a3959c044",
+      "current_epochs": 3000,
+      "current_frame_stress": {
+        "force_current_frame": true,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0016566685388688853,
+            "p95_m": 0.02532027176067722,
+            "passed": false,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.0031204304771250257,
+            "p95_m": 0.007339485708931188,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.001858270846560275,
+            "p95_m": 0.004752899413918766,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0011442116934870354,
+            "p95_m": 0.0031729527685035934,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.002527235269162562,
+            "p95_m": 0.005171612922228417,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.0029731009644513337,
+            "p95_m": 0.007691841427823657,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": false,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "exact_current_weights_sha256": "e11a73da6aa4c0d33ae991b76169428c3bd16ecfc16317c4e0c0b516a48ee3f7",
+      "motion_queries": {
+        "force_current_frame": false,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0013612135455906892,
+            "p95_m": 0.04462267189979985,
+            "passed": false,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.0027497400708856685,
+            "p95_m": 0.010178056106293423,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.002121843372163501,
+            "p95_m": 0.007265008600638092,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0010115164466461724,
+            "p95_m": 0.003875252256741141,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.003308345331546934,
+            "p95_m": 0.022460147294966298,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.0040041291638905265,
+            "p95_m": 0.013328779111366434,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": false,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "primary": {
+        "all_numerical_gates_pass": true,
+        "angular_velocity_available_count": 0,
+        "certified_typed_pose_count": 0,
+        "detections_matched_iou_0_5": 5923,
+        "full_orientation_available_count": 0,
+        "identity_matched_coverage": 1.0,
+        "identity_switches": 0,
+        "identity_switches_per_1000_visible_instances": 0.0,
+        "linear_velocity_diagnostic_count": 5146,
+        "linear_velocity_error_p95_mps": 0.020318611067669964,
+        "missing_detections": 0,
+        "numerical_gates": {
+          "identity": true,
+          "median_position": true,
+          "p95_position": true,
+          "recall": true,
+          "stale_ambiguous_rejection": true
+        },
+        "position_bias_xyz_m": [
+          0.00011415695832878949,
+          6.759241199042122e-05,
+          -2.2719283505264736e-05
+        ],
+        "position_error_median_m": 0.0009069074415109016,
+        "position_error_p95_m": 0.0034149646165085403,
+        "position_hypothesis_count": 5923,
+        "reacquisitions": 122,
+        "recall": 1.0,
+        "reject_count": 5923,
+        "symmetry_yaw_diagnostic_count": 0,
+        "symmetry_yaw_p95_rad": null,
+        "synthetic_rejection_fraction": 1.0,
+        "visible_eligible_instances": 5923
+      },
+      "seed": 7,
+      "strict_dual_pass": false,
+      "temporal_epochs": 3000
+    },
+    {
+      "candidate_sha256": "0842ba063bc27aded72f91e7d1a216ad26303d06de2cf445f560366d8fd62e7b",
+      "current_epochs": 3000,
+      "current_frame_stress": {
+        "force_current_frame": true,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0019889614083038834,
+            "p95_m": 0.0140815796285132,
+            "passed": true,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.0031534167902975844,
+            "p95_m": 0.007003737103585187,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.001969576110514065,
+            "p95_m": 0.005493448857224459,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0013983867874353137,
+            "p95_m": 0.003661270665591569,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.0034872076670173996,
+            "p95_m": 0.005833998751067924,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.0031489613103621657,
+            "p95_m": 0.008135311773664496,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": true,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "exact_current_weights_sha256": "0ba58825982fbfd714f028c3b8a9c4195e9f4ec5befe678e5273025863bbdb85",
+      "motion_queries": {
+        "force_current_frame": false,
+        "groups": {
+          "lift": {
+            "matches": 23,
+            "median_m": 0.0011042002985900156,
+            "p95_m": 0.03503983744921262,
+            "passed": false,
+            "poses": 23,
+            "visible_physical_source_episodes": 18,
+            "visible_queries": 23
+          },
+          "place": {
+            "matches": 108,
+            "median_m": 0.002584345362748224,
+            "p95_m": 0.008890040503150837,
+            "passed": true,
+            "poses": 108,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 108
+          },
+          "release": {
+            "matches": 195,
+            "median_m": 0.0021322765708401796,
+            "p95_m": 0.007459251878261267,
+            "passed": true,
+            "poses": 195,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 195
+          },
+          "settle": {
+            "matches": 99,
+            "median_m": 0.0011114393059560054,
+            "p95_m": 0.004842853882964716,
+            "passed": true,
+            "poses": 99,
+            "visible_physical_source_episodes": 11,
+            "visible_queries": 99
+          },
+          "stabilize": {
+            "matches": 20,
+            "median_m": 0.0041232900993487046,
+            "p95_m": 0.01949047492584354,
+            "passed": true,
+            "poses": 20,
+            "visible_physical_source_episodes": 6,
+            "visible_queries": 20
+          },
+          "transport": {
+            "matches": 100,
+            "median_m": 0.003590275809044038,
+            "p95_m": 0.012982607144837722,
+            "passed": true,
+            "poses": 100,
+            "visible_physical_source_episodes": 19,
+            "visible_queries": 100
+          }
+        },
+        "no_model_dependent_cache": true,
+        "passed": false,
+        "scope": "Fixed exact-runtime RGB features/routing and association computed before candidate fitting; independent per-phase gates; forced-current stress never changes identity/control invalidity."
+      },
+      "primary": {
+        "all_numerical_gates_pass": true,
+        "angular_velocity_available_count": 0,
+        "certified_typed_pose_count": 0,
+        "detections_matched_iou_0_5": 5923,
+        "full_orientation_available_count": 0,
+        "identity_matched_coverage": 1.0,
+        "identity_switches": 0,
+        "identity_switches_per_1000_visible_instances": 0.0,
+        "linear_velocity_diagnostic_count": 5146,
+        "linear_velocity_error_p95_mps": 0.02154018684498139,
+        "missing_detections": 0,
+        "numerical_gates": {
+          "identity": true,
+          "median_position": true,
+          "p95_position": true,
+          "recall": true,
+          "stale_ambiguous_rejection": true
+        },
+        "position_bias_xyz_m": [
+          9.681694796598696e-05,
+          4.2728032398776724e-05,
+          5.760703281025115e-06
+        ],
+        "position_error_median_m": 0.0008527047415514893,
+        "position_error_p95_m": 0.0032923289289742684,
+        "position_hypothesis_count": 5923,
+        "reacquisitions": 122,
+        "recall": 1.0,
+        "reject_count": 5923,
+        "symmetry_yaw_diagnostic_count": 0,
+        "symmetry_yaw_p95_rad": null,
+        "synthetic_rejection_fraction": 1.0,
+        "visible_eligible_instances": 5923
+      },
+      "seed": 11,
+      "strict_dual_pass": false,
+      "temporal_epochs": 3000
+    }
+  ]
+}

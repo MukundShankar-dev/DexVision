@@ -1,0 +1,32 @@
+version: level5/perception-development-v1
+checkpoint: '5.6'
+derivation: phase-query-windows-v1
+release_version: level5-perception-phase-windows-v5
+phase: stabilize
+context_stride: 5
+context_frames: 3
+parents:
+- - outputs/level5/perception_development_v3/protocol/protocol.json
+  - outputs/level5/perception_development_v3/dataset
+- - outputs/level5/perception_development_v4/protocol/protocol.json
+  - outputs/level5/perception_development_v4/dataset
+visual_config: configs/level4_visual_dataset.yaml
+camera_calibration: data/visual/level4/calibration.json
+consumed_indices:
+- data/visual/level4/frames.jsonl
+- outputs/level5/perception_confirmation_v2/dataset/frames.jsonl
+- outputs/level5/perception_confirmation_v3/dataset/frames.jsonl
+- outputs/level5/perception_confirmation_v4/dataset/frames.jsonl
+implementation_files:
+- dexvision/logging/perception_phase_windows.py
+- dexvision/apps/phase_window_perception.py
+- dexvision/perception/render_annotations.py
+- dexvision/logging/visual_stream.py
+selection_rule: Every recorded cuboid stabilization control frame in allowed parents
+  is a query, regardless of outcome/visibility; preceding15/10/5 control frames supply
+  causal0.17s context. No new physical sessions; original whole-source train/validation
+  ownership retained. All zero-query source parents remain listed in coverage.
+reason: TRAIN/validation-only coverage audit found stabilization sampled sparsely
+  at stride5:8visible TRAIN samples,4VAL. Phase-duration audit finds3408TRAIN/1723VAL
+  recorded stabilization control frames. Close this sampling gap before another fresh
+  test; no consumed test image/label used.
