@@ -1,57 +1,20 @@
-# MuJoCo Assets
+# MuJoCo assets
 
-DexVision keeps two hand models separated:
+`workcell.xml` is the only scene. Its physics choices are documented in its header comment.
+Changing them invalidates every recorded result (AGENTS.md rule 5).
 
-```text
-assets/mujoco/debug_hand_scene.xml
-assets/mujoco/hand_scene.xml
-```
+## Shadow Hand
 
-`debug_hand_scene.xml` is the original simple two-joint-per-finger smoke-test
-hand. It remains useful for fast loading, actuator, and viewer checks, but it is
-not the final Level 2/3 data-collection hand.
+Vendored from
+[MuJoCo Menagerie `shadow_hand`](https://github.com/google-deepmind/mujoco_menagerie/tree/main/shadow_hand)
+under Apache-2.0 (Copyright 2022 Shadow Robot Company Ltd). Keep `LICENSE` with the files.
 
-`hand_scene.xml` is the final hand scene for Level 1.8B and loads the right
-Shadow Hand E3M5 model from:
+`right_hand.xml` and `scene_right.xml` are unmodified upstream files.
+`right_hand_dexvision.xml` is a copy of `right_hand.xml` with exactly these changes:
 
-```text
-assets/mujoco/menagerie/shadow_hand/
-```
+- `meshdir` points at `menagerie/shadow_hand/assets` so `workcell.xml` can include it.
+- `rh_forearm` has a free joint, so the forearm can float on the mocap weld that stands in for an arm.
+- `rh_forearm` is gravity-compensated (`gravcomp="1"`), as an arm controller would do. The wrist,
+  palm and fingers are not compensated: their own actuators carry them.
 
-## Shadow Hand Source
-
-Source:
-
-```text
-https://github.com/google-deepmind/mujoco_menagerie/tree/main/shadow_hand
-```
-
-The vendored upstream files include:
-
-```text
-CHANGELOG.md
-LICENSE
-README.md
-keyframes.xml
-left_hand.xml
-right_hand.xml
-scene_left.xml
-scene_right.xml
-shadow_hand.png
-assets/*.obj
-```
-
-`right_hand_dexvision.xml` is a local adapter copied from upstream
-`right_hand.xml` with only the `meshdir` adjusted so that
-`assets/mujoco/hand_scene.xml` can include it from the DexVision asset root.
-
-## License
-
-The upstream Shadow Hand directory is licensed under Apache-2.0. Its `LICENSE`
-file includes:
-
-```text
-Copyright 2022 Shadow Robot Company Ltd
-```
-
-Keep `assets/mujoco/menagerie/shadow_hand/LICENSE` with the vendored assets.
+Actuator gains and force limits are the upstream values.

@@ -1,0 +1,28 @@
+# Workcell controller and reset settings. Physics lives in assets/mujoco/workcell.xml.
+model: ../assets/mujoco/workcell.xml
+
+control:
+  control_dt_s: 0.05            # 20 Hz policy rate; MuJoCo timestep is 0.002 s
+  max_translation_m: 0.01       # per control step (0.2 m/s)
+  max_rotation_rad: 0.05        # per control step (1 rad/s)
+  # The hand target may not lead the measured hand by more than this. It plays the role of
+  # an arm controller's force limit, so a blocked hand cannot wind up the weld.
+  # The weld pushes back at roughly 7.6 N per mm of lead, so 1 cm caps contact force near 75 N.
+  max_command_lead_m: 0.01
+  max_command_lead_rad: 0.2
+  # The z floor sits below the table top on purpose: the table, not a clamp, stops the hand.
+  workspace_min_m: [-0.30, -0.25, -0.05]
+  workspace_max_m: [0.20, 0.25, 0.35]
+
+hand:
+  neutral_position_m: [-0.16, 0.0, 0.20]
+  neutral_orientation_wxyz: [1.0, 0.0, 0.0, 0.0]
+
+reset:
+  settle_s: 0.3                 # physical settling with the hand holding still
+  object_clearance_m: 0.01      # minimum gap between sampled object footprints
+  max_placement_tries: 200
+  # Objects left out of a task layout rest on the floor, out of reach and out of camera view.
+  parking_x_m: 1.5
+  parking_y_start_m: -0.30
+  parking_spacing_m: 0.12

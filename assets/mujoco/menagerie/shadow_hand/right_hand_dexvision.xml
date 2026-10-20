@@ -94,7 +94,10 @@
   </asset>
 
   <worldbody>
-    <body name="rh_forearm" childclass="right_hand" pos="0 0 0.14" quat="1 0 0 0">
+    <!-- DexVision: the forearm floats on a mocap weld that stands in for a robot arm.
+         A real arm controller compensates the weight it carries, so the forearm is
+         gravity-compensated. Wrist, palm and fingers are not: their joints carry their own load. -->
+    <body name="rh_forearm" childclass="right_hand" pos="0 0 0.14" quat="1 0 0 0" gravcomp="1">
       <freejoint name="rh_base_freejoint"/>
       <inertial mass="3" pos="0 0 0.09" diaginertia="0.0138 0.0138 0.00744"/>
       <geom class="plastic_visual" mesh="forearm_0" material="gray"/>

@@ -1,0 +1,162 @@
+<!--
+DexVision tabletop workcell: a floating Shadow Hand (mocap weld standing in for an arm),
+six rigid objects, two collidable trays, flat target markings and a wall button.
+
+Physics parameters are set here once, before any controller exists (AGENTS.md rule 5).
+Changing any of them invalidates every recorded baseline and result.
+
+Contact model choices:
+- MuJoCo combines sliding friction with max(geom1, geom2). Fingers use rubber-like 1.0, so
+  finger-object friction is 1.0. The table uses 0.5 (laminate), so object-table friction is
+  each object's own value.
+- Objects use condim=4. Torsional friction 0.003 m approximates the few-millimetre contact
+  patch of a soft fingertip (about mu * r * 2/3 with r ~ 5 mm). Without it, point contacts
+  let a pinched object spin freely, which real fingertips do not allow.
+-->
+<mujoco model="dexvision_workcell">
+  <include file="menagerie/shadow_hand/right_hand_dexvision.xml"/>
+
+  <statistic extent="0.55" center="0 0 0.18"/>
+
+  <visual>
+    <rgba haze="0.12 0.18 0.24 1"/>
+    <quality shadowsize="4096"/>
+    <global azimuth="225" elevation="-32" offwidth="640" offheight="480"/>
+  </visual>
+
+  <default>
+    <default class="object">
+      <geom condim="4" friction="0.7 0.003 0.0001"/>
+    </default>
+    <default class="tray">
+      <geom type="box" material="tray_material" friction="0.5 0.003 0.0001"/>
+    </default>
+    <default class="marking">
+      <geom contype="0" conaffinity="0" group="1"/>
+    </default>
+  </default>
+
+  <asset>
+    <texture name="skybox" type="skybox" builtin="gradient"
+      rgb1="0.42 0.55 0.68" rgb2="0.04 0.05 0.07" width="512" height="3072"/>
+    <texture name="floor_texture" type="2d" builtin="checker" mark="edge"
+      rgb1="0.20 0.24 0.28" rgb2="0.13 0.16 0.19" markrgb="0.7 0.7 0.7"
+      width="300" height="300"/>
+    <material name="floor_material" texture="floor_texture"
+      texuniform="true" texrepeat="5 5" reflectance="0.15"/>
+    <material name="table_material" rgba="0.38 0.40 0.42 1"/>
+    <material name="tray_material" rgba="0.62 0.20 0.60 1"/>
+    <material name="block_small_material" rgba="0.95 0.42 0.12 1"/>
+    <material name="block_large_material" rgba="0.72 0.22 0.08 1"/>
+    <material name="cylinder_short_material" rgba="0.20 0.72 0.34 1"/>
+    <material name="cylinder_tall_material" rgba="0.08 0.46 0.20 1"/>
+    <material name="puck_light_material" rgba="0.25 0.55 0.95 1"/>
+    <material name="puck_heavy_material" rgba="0.10 0.25 0.62 1"/>
+    <material name="inspection_material" rgba="0.96 0.80 0.10 0.65"/>
+    <material name="slot_material" rgba="0.12 0.88 0.88 0.55"/>
+    <material name="button_material" rgba="0.12 0.95 0.22 1"/>
+  </asset>
+
+  <worldbody>
+    <light name="fill_light" pos="-0.2 -0.2 0.9"/>
+    <light name="key_light" pos="0.4 -0.4 1.2" dir="-0.2 0.2 -1" directional="true"/>
+    <geom name="floor" pos="0 0 -0.10" size="0 0 0.05" type="plane" material="floor_material"/>
+
+    <!-- Table top surface is z = 0. -->
+    <body name="table" pos="0 0 -0.025">
+      <geom name="table_geom" type="box" size="0.19 0.17 0.025" material="table_material"
+        friction="0.5 0.003 0.0001"/>
+    </body>
+
+    <!-- Flat target markings (place / push goals). Painted on the table: no collision. -->
+    <body name="inspection_pad" pos="0.02 0 0">
+      <geom name="inspection_pad_geom" class="marking" type="cylinder" size="0.025 0.0005"
+        pos="0 0 0.0005" material="inspection_material"/>
+    </body>
+    <body name="slot_a" pos="-0.07 -0.06 0">
+      <geom name="slot_a_geom" class="marking" type="box" size="0.02 0.02 0.0005"
+        pos="0 0 0.0005" material="slot_material"/>
+    </body>
+    <body name="slot_b" pos="-0.07 0.06 0">
+      <geom name="slot_b_geom" class="marking" type="box" size="0.02 0.02 0.0005"
+        pos="0 0 0.0005" material="slot_material"/>
+    </body>
+
+    <!-- Trays: 7 cm square interior, 2 cm walls, all collidable. -->
+    <body name="tray_left" pos="0.10 0.11 0">
+      <geom name="tray_left_floor" class="tray" size="0.038 0.038 0.0015" pos="0 0 0.0015"/>
+      <geom name="tray_left_wall_xn" class="tray" size="0.0015 0.038 0.010" pos="-0.0365 0 0.010"/>
+      <geom name="tray_left_wall_xp" class="tray" size="0.0015 0.038 0.010" pos="0.0365 0 0.010"/>
+      <geom name="tray_left_wall_yn" class="tray" size="0.035 0.0015 0.010" pos="0 -0.0365 0.010"/>
+      <geom name="tray_left_wall_yp" class="tray" size="0.035 0.0015 0.010" pos="0 0.0365 0.010"/>
+    </body>
+    <body name="tray_right" pos="0.10 -0.11 0">
+      <geom name="tray_right_floor" class="tray" size="0.038 0.038 0.0015" pos="0 0 0.0015"/>
+      <geom name="tray_right_wall_xn" class="tray" size="0.0015 0.038 0.010" pos="-0.0365 0 0.010"/>
+      <geom name="tray_right_wall_xp" class="tray" size="0.0015 0.038 0.010" pos="0.0365 0 0.010"/>
+      <geom name="tray_right_wall_yn" class="tray" size="0.035 0.0015 0.010" pos="0 -0.0365 0.010"/>
+      <geom name="tray_right_wall_yp" class="tray" size="0.035 0.0015 0.010" pos="0 0.0365 0.010"/>
+    </body>
+
+    <!-- Objects. Masses are those of small plastic/wood parts. Initial poses are overwritten
+         at reset; the values here only need to be non-overlapping. -->
+    <body name="block_small" pos="-0.10 -0.12 0.0175">
+      <freejoint name="block_small_joint"/>
+      <geom name="block_small_geom" class="object" type="box" size="0.0175 0.0175 0.0175"
+        mass="0.045" friction="0.8 0.003 0.0001" material="block_small_material"/>
+    </body>
+    <body name="block_large" pos="-0.10 -0.04 0.020">
+      <freejoint name="block_large_joint"/>
+      <geom name="block_large_geom" class="object" type="box" size="0.025 0.015 0.020"
+        mass="0.070" friction="0.65 0.003 0.0001" material="block_large_material"/>
+    </body>
+    <body name="cylinder_short" pos="-0.10 0.04 0.0175">
+      <freejoint name="cylinder_short_joint"/>
+      <geom name="cylinder_short_geom" class="object" type="cylinder" size="0.022 0.0175"
+        mass="0.050" friction="0.75 0.003 0.0001" material="cylinder_short_material"/>
+    </body>
+    <body name="cylinder_tall" pos="-0.10 0.12 0.030">
+      <freejoint name="cylinder_tall_joint"/>
+      <geom name="cylinder_tall_geom" class="object" type="cylinder" size="0.018 0.030"
+        mass="0.060" friction="0.70 0.003 0.0001" material="cylinder_tall_material"/>
+    </body>
+    <body name="puck_light" pos="-0.02 -0.08 0.006">
+      <freejoint name="puck_light_joint"/>
+      <geom name="puck_light_geom" class="object" type="cylinder" size="0.030 0.006"
+        mass="0.025" friction="0.55 0.003 0.0001" material="puck_light_material"/>
+    </body>
+    <body name="puck_heavy" pos="-0.02 0.08 0.008">
+      <freejoint name="puck_heavy_joint"/>
+      <geom name="puck_heavy_geom" class="object" type="cylinder" size="0.026 0.008"
+        mass="0.080" friction="0.90 0.003 0.0001" material="puck_heavy_material"/>
+    </body>
+
+    <!-- Wall-mounted spring button, pressed along +x. -->
+    <body name="fixture_wall" pos="0.158 0 0.22">
+      <geom name="fixture_wall_geom" type="box" size="0.010 0.15 0.22" material="table_material"/>
+    </body>
+    <body name="button" pos="0.110 -0.110 0.200">
+      <joint name="button_joint" type="slide" axis="1 0 0" range="0 0.022"
+        damping="2" stiffness="40" springref="0"/>
+      <geom name="button_geom" type="cylinder" size="0.018 0.008"
+        euler="0 1.57079632679 0" mass="0.04" material="button_material"/>
+    </body>
+
+    <!-- Visual-only goal marker for videos. -->
+    <body name="goal_marker" mocap="true" pos="0 0 -1">
+      <geom name="goal_marker_geom" type="sphere" size="0.006" rgba="0.05 0.95 1 0.8"
+        contype="0" conaffinity="0" group="1"/>
+    </body>
+
+    <!-- Arm stand-in: the policy moves this target; the forearm follows through the weld. -->
+    <body name="hand_target" mocap="true" pos="-0.16 0 0.20" quat="1 0 0 0"/>
+
+    <camera name="fixed" pos="-0.35 -0.55 0.45" mode="targetbody" target="table" fovy="45"/>
+  </worldbody>
+
+  <equality>
+    <weld name="hand_weld" body1="hand_target" body2="rh_forearm"
+      relpose="-0.33701 0 0.045 0.7071067811865476 0 0.7071067811865476 0"
+      solref="0.02 1" solimp="0.9 0.95 0.001"/>
+  </equality>
+</mujoco>
