@@ -12,6 +12,9 @@ Action layout, shape [26]:
     [0:3]   hand translation this control step, world frame, metres
     [3:6]   hand rotation this control step, world-frame rotation vector, radians
     [6:26]  absolute targets for the 20 position actuators, in actuator ctrl units
+
+Each step clips the hand motion, the hand's lead over its measured pose, and the change in
+each actuator target to the limits in ``configs/workcell.yaml``.
 """
 
 from __future__ import annotations
@@ -97,6 +100,7 @@ class ActionSpace:
     max_rotation_rad: float
     target_low: np.ndarray  # [20]
     target_high: np.ndarray  # [20]
+    max_target_step: np.ndarray  # [20] largest target change per control step
     neutral_targets: np.ndarray  # [20]
 
     def hold(self) -> np.ndarray:
@@ -163,11 +167,16 @@ class Workcell:
         self.ctrl_low = m.actuator_ctrlrange[:, 0].copy()
         self.ctrl_high = m.actuator_ctrlrange[:, 1].copy()
         self.neutral_actuator_targets = np.clip(0.0, self.ctrl_low, self.ctrl_high)
+        coupled = m.actuator_trntype == mujoco.mjtTrn.mjTRN_TENDON
+        self._max_target_step = (
+            self._control["max_target_rate_radps"] * self.control_dt * np.where(coupled, 2.0, 1.0)
+        )
         self.action_space = ActionSpace(
             max_translation_m=float(self._control["max_translation_m"]),
             max_rotation_rad=float(self._control["max_rotation_rad"]),
             target_low=self.ctrl_low.copy(),
             target_high=self.ctrl_high.copy(),
+            max_target_step=self._max_target_step.copy(),
             neutral_targets=self.neutral_actuator_targets.copy(),
         )
         self._command_position = np.zeros(3)
@@ -220,7 +229,12 @@ class Workcell:
             raise WorkcellError(f"Action must be finite with shape ({ACTION_DIM},).")
         translation = _clip_norm(action[TRANSLATION], self._control["max_translation_m"])
         rotation = _clip_norm(action[ROTATION], self._control["max_rotation_rad"])
-        targets = np.clip(action[ACTUATOR_TARGETS], self.ctrl_low, self.ctrl_high)
+        previous = self.data.ctrl
+        targets = np.clip(
+            action[ACTUATOR_TARGETS],
+            np.maximum(self.ctrl_low, previous - self._max_target_step),
+            np.minimum(self.ctrl_high, previous + self._max_target_step),
+        )
 
         lo = np.asarray(self._control["workspace_min_m"])
         hi = np.asarray(self._control["workspace_max_m"])

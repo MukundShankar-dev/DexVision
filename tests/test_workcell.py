@@ -113,6 +113,18 @@ def test_blocked_hand_is_measured_not_commanded(workcell):
     assert "table" in touching
 
 
+def test_actuator_targets_change_at_bounded_rate(workcell):
+    workcell.reset(0, LAYOUT)
+    limit = workcell.action_space.max_target_step
+    previous = workcell.observe().actuator_targets
+    for action in random_actions(workcell, np.random.default_rng(2), 30):
+        current = workcell.step(action).actuator_targets
+        assert np.all(np.abs(current - previous) <= limit + 1e-12)
+        previous = current
+    # 3 rad/s at 20 Hz; tendon actuators drive two joints, so twice that.
+    assert sorted(set(np.round(limit, 6))) == [0.15, 0.3]
+
+
 def test_objects_rest_stably_after_reset(workcell):
     start = workcell.reset(5, LAYOUT)
     for _ in range(20):

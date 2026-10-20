@@ -5,6 +5,10 @@ control:
   control_dt_s: 0.05            # 20 Hz policy rate; MuJoCo timestep is 0.002 s
   max_translation_m: 0.01       # per control step (0.2 m/s)
   max_rotation_rad: 0.05        # per control step (1 rad/s)
+  # Actuator targets may change by at most this rate. 3 rad/s is roughly a brisk human finger
+  # motion. Without it the light menagerie fingers can snap objects away at over 1 m/s.
+  # Tendon actuators drive two coupled joints (their target is the sum), so they get twice this.
+  max_target_rate_radps: 3.0
   # The hand target may not lead the measured hand by more than this. It plays the role of
   # an arm controller's force limit, so a blocked hand cannot wind up the weld.
   # The weld pushes back at roughly 7.6 N per mm of lead, so 1 cm caps contact force near 75 N.
