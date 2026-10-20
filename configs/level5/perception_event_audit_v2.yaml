@@ -1,0 +1,15 @@
+version: level5/perception-event-audit-v2
+checkpoint: '5.7'
+scope: Read-only missing-event reconstruction; original thresholds and recorded trajectories
+  unchanged.
+input_digests:
+  dexvision/evaluation/instrumented_events.py: 0b9e75a53963184662f4f5b13889457991ae282edb816494e17c7416525a065c
+  dexvision/apps/audit_instrumented_events.py: 7914f0fb36979171e02051267e1c8d5b799600f9e5a73457ae7b7201ff5592a2
+  dexvision/evaluation/pick_policy.py: 551e441702c65254c144a7efb13a2b0ae75bae4484924c7ae0072d75ad5eb8d7
+  dexvision/evaluation/place_policy.py: 76edf3d65c37610dc5f565d96a4a4b98e96ca7d4dba1b1173c4d5706b8866df3
+  dexvision/logging/level4_collection.py: 2c6d9196f73a32ae9c0c51c1e3b2abbd254bb9e719fd89603d42b50da6e07417
+  dexvision/sim/workcell.py: 12f738faea423052b97c502bb468ed8883234f9f48da23a554f1260510790858
+  configs/level5/evaluation_perception.yaml: bd9e0bdc24fda75b3c63c0655252962a5805cf2d77dd34abb4f419cc4ff7149d
+  configs/level5/evaluation_perception.sha256: f78ab3b21dc6111d02d48ec9fe268d0f48625607ce8672c8aea11cdcb93aa29c
+  configs/level5/skills/pick_object.yaml: d95e8444cdc628a18eac15109ee233c1fae9c729900feb62a1f74a457be613d0
+  configs/level5/skills/place_held_object.yaml: 41ae26f37fe1b7dc4c8bd36f5c5b59813e98cadfb7e159c86469a52dd7ce289f

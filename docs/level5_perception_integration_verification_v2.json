@@ -1,0 +1,1733 @@
+{
+  "active_protocol_sha256": "bd9e0bdc24fda75b3c63c0655252962a5805cf2d77dd34abb4f419cc4ff7149d",
+  "bindings": {
+    "/Users/mukunds/Desktop/DexVision/outputs/level5/perception_instrumented_checks/summarize_final.py": "174b9aab0f01feb66be82b7915e739196847266942e8b4b0d99ed48def8f84e2",
+    "configs/level5/evaluation_perception.yaml": "bd9e0bdc24fda75b3c63c0655252962a5805cf2d77dd34abb4f419cc4ff7149d",
+    "configs/level5/perception_event_audit_v2.yaml": "f29922808abaeb720636354fc46fa8100f17c909fbb4a8658d462456f64a9204",
+    "configs/level5/perception_rollout_recovery_v1.yaml": "b052b5832f37d92cc61ce00e611507cc08e494895edf01bf1e71481632b41ea5",
+    "dexvision/apps/review_instrumented_results.py": "7aea45679610358ec7a2c2c021817eb54dd4c84f9f07ba32a08658bb439b62fc",
+    "dexvision/evaluation/instrumented_groups.py": "c4ba234f32f4c58bd89b781d06b2f0f58919c44361bb60ec05ddc21bdb5af0a3",
+    "dexvision/evaluation/instrumented_recovery.py": "8b6bf9a489ec33f8cbc914530e030be3ef7838108e5b5cf2e16a8a08a708ed66",
+    "dexvision/evaluation/instrumented_review_overlay.py": "4a7f53a1c00698a04e168802ca5c5a3b2a03904c8012fc4bc1adba81ad38ef56",
+    "outputs/level5/perception_instrumented_checks/canonical_groups.json": "6a5732981a09c7f676d45eb11b8478ac23d74b433e96eb19e0b9eff39d50038f",
+    "outputs/level5/perception_instrumented_checks/control_latency.json": "bc59fb60e8c25052017469cc2291e4689b299ab79543c5f91d54cb62d8956a94",
+    "outputs/level5/perception_instrumented_checks/interrupted_test_v1.SHA256SUMS": "b792833879a81c1b5c0f8ddde1e42ac6bf5a98eeb3eba8b1eeec757cc82d60a4",
+    "outputs/level5/perception_instrumented_checks/review_presentation_audit.json": "9847b926ecff2461b40cabd7075fa0377b5e6ae192dcc7daf718cc50356c3649",
+    "outputs/level5/perception_instrumented_checks/test.log": "918fcf7ba79bf5da112fd4da71bc7c1e506152f217bbe87cca3e335d321525b2",
+    "outputs/level5/perception_instrumented_checks/test_events/SHA256SUMS": "ba794aaa233f3e1ed11b0332137c0353af48a0aa36eb4c9bb450deee85e6b044",
+    "outputs/level5/perception_instrumented_checks/test_events/report.json": "99859b81bebbb40aefa06b14b709f1da79453dcaee1518a0b4edb05a5f95b881",
+    "outputs/level5/perception_instrumented_checks/test_readback.json": "75432b535fc4f190dad33e2adbda9954f12dbe3417a95fec67e57517db921441",
+    "outputs/level5/perception_instrumented_checks/validation_events/report.json": "1bb012d723074fbbf9eadca7644fafc1cb34c2445547952274fc25f2b0e8fc43",
+    "outputs/level5/perception_instrumented_checks/validation_readback.json": "ef99629a6109ac9494c7b1e6a0958fb19656d081773dc9d4c2fe78614db9b1b6",
+    "outputs/level5/perception_instrumented_v2/frozen_cases/freeze_receipt.json": "9e6313af4e5be850304df369fbb1f22de7f778b9591bf051bb1f32cfd6b53801",
+    "outputs/level5/perception_instrumented_v2/storage_amendment.json": "c339f0ebe7e9e0005d0908159c050ef9eaec08a79e424dafd11d5c6f5a4934fa",
+    "outputs/level5/perception_instrumented_v2/test/SHA256SUMS": "fc66a6f25b0a47302aeda87e0bae786dd53f6cfc19d0a7b24d01b42e05011b53",
+    "outputs/level5/perception_instrumented_v2/test/report.json": "8ed0178f8cdb03471843faa0817217d11e485975edd3b3473dcd9dcf48596b02",
+    "outputs/level5/perception_instrumented_v2/test/review_schedule.json": "6fd40a2fe8f792e8dfade574ba7f65bbc65b8b3ab8db1ffd587e643b181f93f5",
+    "outputs/level5/perception_instrumented_v2/validation/SHA256SUMS": "35148396a0ec32726ec8a87ef54b7cac67b9d23fb00128a244b6687a8d344499",
+    "outputs/level5/perception_instrumented_v2/validation/report.json": "7f038c76eaa1de10bc79f796d065b4affbe5c00cadb2fa58e5ba01d7c15db7dd"
+  },
+  "branch": "main",
+  "changed_files": [
+    "configs/level5/evaluation_perception.sha256",
+    "configs/level5/evaluation_perception.yaml",
+    "configs/level5/perception_event_audit_v1.sha256",
+    "configs/level5/perception_event_audit_v1.yaml",
+    "configs/level5/perception_event_audit_v2.sha256",
+    "configs/level5/perception_event_audit_v2.yaml",
+    "configs/level5/perception_rollout_recovery_v1.sha256",
+    "configs/level5/perception_rollout_recovery_v1.yaml",
+    "dexvision/apps/audit_instrumented_events.py",
+    "dexvision/apps/evaluate_skill.py",
+    "dexvision/apps/recover_instrumented_rollouts.py",
+    "dexvision/apps/review_instrumented_results.py",
+    "dexvision/evaluation/instrumented_events.py",
+    "dexvision/evaluation/instrumented_groups.py",
+    "dexvision/evaluation/instrumented_observer.py",
+    "dexvision/evaluation/instrumented_recovery.py",
+    "dexvision/evaluation/instrumented_review.py",
+    "dexvision/evaluation/instrumented_review_overlay.py",
+    "dexvision/evaluation/instrumented_rollouts.py",
+    "dexvision/evaluation/perception_rollouts.py",
+    "dexvision/learning/perception_policy.py",
+    "dexvision/perception/fiducial_pose.py",
+    "dexvision/perception/instrumented_state.py",
+    "dexvision/sim/optical_markers.py",
+    "dexvision/sim/workcell_sensors.py",
+    "docs/CURRENT_STATUS.md",
+    "docs/level5_perception_integration.md",
+    "docs/level5_perception_integration_verification_v2.json",
+    "docs/level5_perception_rollouts.md",
+    "docs/level5_perception_rollouts_verification_v1.json",
+    "docs/module_contracts.md",
+    "docs/progress_level_5.md",
+    "tests/test_instrumented_events.py",
+    "tests/test_instrumented_groups.py",
+    "tests/test_instrumented_perception.py",
+    "tests/test_instrumented_recovery.py",
+    "tests/test_instrumented_review_overlay.py",
+    "tests/test_level5_learning_plan.py",
+    "tests/test_perception_grounded_rollout.py",
+    "tests/test_perception_policy_integration.py",
+    "tests/test_perception_storage_amendment.py"
+  ],
+  "checkpoint": "5.7",
+  "checkpoint_complete": false,
+  "default_registry_admission": false,
+  "entry_validation_parent_sha256": "a28e9ae502085e2431259dee52134b9b2eb57bc246caaf61712459ccac684b2d",
+  "focused_tests": 54,
+  "full_regression": {
+    "log": "outputs/level5/perception_instrumented_checks/full_pytest_final.log",
+    "passed": 1235,
+    "seconds": 765.05,
+    "skipped": 1
+  },
+  "last_completed": "5.6",
+  "manual_acceptance": "pending_owner_confirmation",
+  "manual_command": "conda activate dexvision; python -m dexvision.apps.review_instrumented_results --evaluation-dir outputs/level5/perception_instrumented_v2/test",
+  "maximum_saved_bytes": 671088640,
+  "method": "instrumented_simulator_visible_fiducials_and_declared_ideal_simulated_sensors",
+  "natural_rgb_v29_control_status": "unchanged_unsupported_all_five",
+  "next_target": "5.7",
+  "review_clips": 20,
+  "ruff": "passed",
+  "saved_experiment_bytes": 446890767,
+  "summary": {
+    "pick": {
+      "5001": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 72,
+                "success_rate": 0.3194444444444444,
+                "successes": 23
+              },
+              "goal/planar_zone": {
+                "attempts": 36,
+                "success_rate": 0.3611111111111111,
+                "successes": 13
+              },
+              "goal/receptacle": {
+                "attempts": 108,
+                "success_rate": 0.5,
+                "successes": 54
+              },
+              "object/cuboid": {
+                "attempts": 72,
+                "success_rate": 0.3055555555555556,
+                "successes": 22
+              },
+              "object/cylinder": {
+                "attempts": 72,
+                "success_rate": 0.6111111111111112,
+                "successes": 44
+              },
+              "object/flat_puck": {
+                "attempts": 72,
+                "success_rate": 0.3333333333333333,
+                "successes": 24
+              }
+            },
+            "worst_family_success_rate": 0.3055555555555556
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "goal/planar_zone": {
+                "attempts": 9,
+                "success_rate": 1.0,
+                "successes": 9
+              },
+              "goal/receptacle": {
+                "attempts": 27,
+                "success_rate": 1.0,
+                "successes": 27
+              },
+              "object/cuboid": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/cylinder": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/flat_puck": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": -0.5833333333333333,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 216,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          },
+          "state": {
+            "attempts": 54,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          }
+        },
+        "perception_gates": {
+          "action_jerk": false,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.4166666666666667,
+        "selected_checkpoint_sha256": [
+          "5cc841619c7bef1ac3fb108aee4dacee7c2bea5f77b79bb32a94e9b7195272a4"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/action_jerk, perception/aggregate_success, perception/cadence, perception/degradation, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.3055555555555556
+      },
+      "5002": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 72,
+                "success_rate": 0.3333333333333333,
+                "successes": 24
+              },
+              "goal/planar_zone": {
+                "attempts": 36,
+                "success_rate": 0.4166666666666667,
+                "successes": 15
+              },
+              "goal/receptacle": {
+                "attempts": 108,
+                "success_rate": 0.5555555555555556,
+                "successes": 60
+              },
+              "object/cuboid": {
+                "attempts": 72,
+                "success_rate": 0.4305555555555556,
+                "successes": 31
+              },
+              "object/cylinder": {
+                "attempts": 72,
+                "success_rate": 0.6111111111111112,
+                "successes": 44
+              },
+              "object/flat_puck": {
+                "attempts": 72,
+                "success_rate": 0.3333333333333333,
+                "successes": 24
+              }
+            },
+            "worst_family_success_rate": 0.3333333333333333
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "goal/planar_zone": {
+                "attempts": 9,
+                "success_rate": 1.0,
+                "successes": 9
+              },
+              "goal/receptacle": {
+                "attempts": 27,
+                "success_rate": 1.0,
+                "successes": 27
+              },
+              "object/cuboid": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/cylinder": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/flat_puck": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": -0.5416666666666667,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 216,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          },
+          "state": {
+            "attempts": 54,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          }
+        },
+        "perception_gates": {
+          "action_jerk": false,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.4583333333333333,
+        "selected_checkpoint_sha256": [
+          "46546c65e606b058286b9e9c182bac3dc08b6226d82a026abd5d2ac8e21ea9d5"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/action_jerk, perception/aggregate_success, perception/cadence, perception/degradation, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.3333333333333333
+      },
+      "5003": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 72,
+                "success_rate": 0.3333333333333333,
+                "successes": 24
+              },
+              "goal/planar_zone": {
+                "attempts": 36,
+                "success_rate": 0.4166666666666667,
+                "successes": 15
+              },
+              "goal/receptacle": {
+                "attempts": 108,
+                "success_rate": 0.5092592592592593,
+                "successes": 55
+              },
+              "object/cuboid": {
+                "attempts": 72,
+                "success_rate": 0.375,
+                "successes": 27
+              },
+              "object/cylinder": {
+                "attempts": 72,
+                "success_rate": 0.6111111111111112,
+                "successes": 44
+              },
+              "object/flat_puck": {
+                "attempts": 72,
+                "success_rate": 0.3194444444444444,
+                "successes": 23
+              }
+            },
+            "worst_family_success_rate": 0.3194444444444444
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "goal/planar_zone": {
+                "attempts": 9,
+                "success_rate": 1.0,
+                "successes": 9
+              },
+              "goal/receptacle": {
+                "attempts": 27,
+                "success_rate": 1.0,
+                "successes": 27
+              },
+              "object/cuboid": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/cylinder": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              },
+              "object/flat_puck": {
+                "attempts": 18,
+                "success_rate": 1.0,
+                "successes": 18
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": -0.5648148148148149,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 216,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          },
+          "state": {
+            "attempts": 54,
+            "drop_rate": 0.0,
+            "gates": {
+              "drop_rate": true,
+              "event_coverage": true
+            }
+          }
+        },
+        "perception_gates": {
+          "action_jerk": false,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": false,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 2,
+        "perception_success_rate": 0.4351851851851852,
+        "selected_checkpoint_sha256": [
+          "9a9d82380443ca7d19cce469e7dc41d485e8e093c060375b12662c3967a6b28a"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "drop_rate": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "failed",
+        "status_reason": "failed gates: perception/action_jerk, perception/aggregate_success, perception/cadence, perception/degradation, perception/safety, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.3194444444444444
+      }
+    },
+    "place": {
+      "5001": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 144,
+                "success_rate": 0.4930555555555556,
+                "successes": 71
+              },
+              "goal/planar_zone": {
+                "attempts": 72,
+                "success_rate": 0.5138888888888888,
+                "successes": 37
+              },
+              "goal/receptacle": {
+                "attempts": 144,
+                "success_rate": 0.375,
+                "successes": 54
+              },
+              "object/cuboid": {
+                "attempts": 120,
+                "success_rate": 0.35833333333333334,
+                "successes": 43
+              },
+              "object/cylinder": {
+                "attempts": 120,
+                "success_rate": 0.49166666666666664,
+                "successes": 59
+              },
+              "object/flat_puck": {
+                "attempts": 120,
+                "success_rate": 0.5,
+                "successes": 60
+              }
+            },
+            "worst_family_success_rate": 0.35833333333333334
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 36,
+                "success_rate": 0.8333333333333334,
+                "successes": 30
+              },
+              "goal/planar_zone": {
+                "attempts": 18,
+                "success_rate": 0.8333333333333334,
+                "successes": 15
+              },
+              "goal/receptacle": {
+                "attempts": 36,
+                "success_rate": 0.8888888888888888,
+                "successes": 32
+              },
+              "object/cuboid": {
+                "attempts": 30,
+                "success_rate": 0.7333333333333333,
+                "successes": 22
+              },
+              "object/cylinder": {
+                "attempts": 30,
+                "success_rate": 0.9666666666666667,
+                "successes": 29
+              },
+              "object/flat_puck": {
+                "attempts": 30,
+                "success_rate": 0.8666666666666667,
+                "successes": 26
+              }
+            },
+            "worst_family_success_rate": 0.7333333333333333
+          }
+        },
+        "delta": -0.4055555555555555,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 360,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": false
+            },
+            "nominally_placed": 188,
+            "premature_release_rate": 0.011111111111111112,
+            "settled_among_nominally_placed": 0.8617021276595744
+          },
+          "state": {
+            "attempts": 90,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": true
+            },
+            "nominally_placed": 81,
+            "premature_release_rate": 0.044444444444444446,
+            "settled_among_nominally_placed": 0.9506172839506173
+          }
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": false,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.45,
+        "selected_checkpoint_sha256": [
+          "20743a2d1cf51b201132d28fdff1812c380a255e154a304fea4b519b91a58664"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.8555555555555555,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/aggregate_success, perception/cadence, perception/degradation, perception/settled_placement, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.35833333333333334
+      },
+      "5002": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 144,
+                "success_rate": 0.4930555555555556,
+                "successes": 71
+              },
+              "goal/planar_zone": {
+                "attempts": 72,
+                "success_rate": 0.5138888888888888,
+                "successes": 37
+              },
+              "goal/receptacle": {
+                "attempts": 144,
+                "success_rate": 0.3541666666666667,
+                "successes": 51
+              },
+              "object/cuboid": {
+                "attempts": 120,
+                "success_rate": 0.3333333333333333,
+                "successes": 40
+              },
+              "object/cylinder": {
+                "attempts": 120,
+                "success_rate": 0.49166666666666664,
+                "successes": 59
+              },
+              "object/flat_puck": {
+                "attempts": 120,
+                "success_rate": 0.5,
+                "successes": 60
+              }
+            },
+            "worst_family_success_rate": 0.3333333333333333
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 36,
+                "success_rate": 0.8333333333333334,
+                "successes": 30
+              },
+              "goal/planar_zone": {
+                "attempts": 18,
+                "success_rate": 0.8333333333333334,
+                "successes": 15
+              },
+              "goal/receptacle": {
+                "attempts": 36,
+                "success_rate": 0.8888888888888888,
+                "successes": 32
+              },
+              "object/cuboid": {
+                "attempts": 30,
+                "success_rate": 0.7,
+                "successes": 21
+              },
+              "object/cylinder": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              },
+              "object/flat_puck": {
+                "attempts": 30,
+                "success_rate": 0.8666666666666667,
+                "successes": 26
+              }
+            },
+            "worst_family_success_rate": 0.7
+          }
+        },
+        "delta": -0.41388888888888886,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 360,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": false
+            },
+            "nominally_placed": 184,
+            "premature_release_rate": 0.011111111111111112,
+            "settled_among_nominally_placed": 0.8641304347826086
+          },
+          "state": {
+            "attempts": 90,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": true
+            },
+            "nominally_placed": 81,
+            "premature_release_rate": 0.044444444444444446,
+            "settled_among_nominally_placed": 0.9506172839506173
+          }
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": false,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.44166666666666665,
+        "selected_checkpoint_sha256": [
+          "f238234340c80717aa109c61b80a4b034c4c57d8a7431508796654a3c880c747"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.8555555555555555,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/aggregate_success, perception/cadence, perception/degradation, perception/settled_placement, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.3333333333333333
+      },
+      "5003": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 144,
+                "success_rate": 0.4722222222222222,
+                "successes": 68
+              },
+              "goal/planar_zone": {
+                "attempts": 72,
+                "success_rate": 0.5,
+                "successes": 36
+              },
+              "goal/receptacle": {
+                "attempts": 144,
+                "success_rate": 0.3263888888888889,
+                "successes": 47
+              },
+              "object/cuboid": {
+                "attempts": 120,
+                "success_rate": 0.275,
+                "successes": 33
+              },
+              "object/cylinder": {
+                "attempts": 120,
+                "success_rate": 0.49166666666666664,
+                "successes": 59
+              },
+              "object/flat_puck": {
+                "attempts": 120,
+                "success_rate": 0.49166666666666664,
+                "successes": 59
+              }
+            },
+            "worst_family_success_rate": 0.275
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 36,
+                "success_rate": 0.7777777777777778,
+                "successes": 28
+              },
+              "goal/planar_zone": {
+                "attempts": 18,
+                "success_rate": 0.8333333333333334,
+                "successes": 15
+              },
+              "goal/receptacle": {
+                "attempts": 36,
+                "success_rate": 0.8611111111111112,
+                "successes": 31
+              },
+              "object/cuboid": {
+                "attempts": 30,
+                "success_rate": 0.6666666666666666,
+                "successes": 20
+              },
+              "object/cylinder": {
+                "attempts": 30,
+                "success_rate": 0.9666666666666667,
+                "successes": 29
+              },
+              "object/flat_puck": {
+                "attempts": 30,
+                "success_rate": 0.8333333333333334,
+                "successes": 25
+              }
+            },
+            "worst_family_success_rate": 0.6666666666666666
+          }
+        },
+        "delta": -0.40277777777777773,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": {
+            "attempts": 360,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": false
+            },
+            "nominally_placed": 185,
+            "premature_release_rate": 0.011111111111111112,
+            "settled_among_nominally_placed": 0.8162162162162162
+          },
+          "state": {
+            "attempts": 90,
+            "gates": {
+              "event_coverage": true,
+              "premature_release": true,
+              "settled_placement": true
+            },
+            "nominally_placed": 79,
+            "premature_release_rate": 0.06666666666666667,
+            "settled_among_nominally_placed": 0.9367088607594937
+          }
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": false,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.41944444444444445,
+        "selected_checkpoint_sha256": [
+          "6a41ff08cb158c03dea2a695c0a09e78012a778938d4b7408842cd6947b22ca1"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "event_coverage": true,
+          "physical_audits": true,
+          "premature_release": true,
+          "safety": true,
+          "settled_placement": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.8222222222222222,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/aggregate_success, perception/cadence, perception/degradation, perception/settled_placement, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.275
+      }
+    },
+    "press": {
+      "5001": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/button": {
+                "attempts": 120,
+                "success_rate": 1.0,
+                "successes": 120
+              },
+              "object/button": {
+                "attempts": 120,
+                "success_rate": 1.0,
+                "successes": 120
+              }
+            },
+            "worst_family_success_rate": 1.0
+          },
+          "state": {
+            "groups": {
+              "goal/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              },
+              "object/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": 0.0,
+        "engine_worst_family_success_rate": 1.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 1.0,
+        "selected_checkpoint_sha256": [
+          "e20adf4af3289ff88378ec457b1d0e08626b00aafcf08fa80a4a87177b062877"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 1.0,
+        "worst_family_success_rate": 1.0
+      },
+      "5002": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/button": {
+                "attempts": 120,
+                "success_rate": 1.0,
+                "successes": 120
+              },
+              "object/button": {
+                "attempts": 120,
+                "success_rate": 1.0,
+                "successes": 120
+              }
+            },
+            "worst_family_success_rate": 1.0
+          },
+          "state": {
+            "groups": {
+              "goal/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              },
+              "object/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": 0.0,
+        "engine_worst_family_success_rate": 1.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": false,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 1.0,
+        "selected_checkpoint_sha256": [
+          "351a28c0e76633376a4df2902912369ad243554039774f800e81faa0028d3a13"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/action_jerk, perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 1.0,
+        "worst_family_success_rate": 1.0
+      },
+      "5003": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/button": {
+                "attempts": 120,
+                "success_rate": 0.9916666666666667,
+                "successes": 119
+              },
+              "object/button": {
+                "attempts": 120,
+                "success_rate": 0.9916666666666667,
+                "successes": 119
+              }
+            },
+            "worst_family_success_rate": 0.9916666666666667
+          },
+          "state": {
+            "groups": {
+              "goal/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              },
+              "object/button": {
+                "attempts": 30,
+                "success_rate": 1.0,
+                "successes": 30
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": -0.008333333333333304,
+        "engine_worst_family_success_rate": 0.9916666666666667,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": false,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.9916666666666667,
+        "selected_checkpoint_sha256": [
+          "58739f3562fc291889e6a694dc6df4af0664c93e510147f7782bb78f3998e6d3"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/action_jerk, perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.9833333333333333,
+        "worst_family_success_rate": 0.9916666666666667
+      }
+    },
+    "push": {
+      "5001": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/cuboid": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              }
+            },
+            "worst_family_success_rate": 0.0
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              },
+              "object/cuboid": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              }
+            },
+            "worst_family_success_rate": 0.0
+          }
+        },
+        "delta": -0.5,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.0,
+        "selected_checkpoint_sha256": [
+          "32c7b57441953e4fa1012cd3fc257e236c90152589cc33b968e556d34768de35"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.5,
+        "status": "failed",
+        "status_reason": "failed gates: state/aggregate_success, state/worst_family_success, perception/aggregate_success, perception/cadence, perception/degradation, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.0
+      },
+      "5002": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/cuboid": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              }
+            },
+            "worst_family_success_rate": 0.0
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              },
+              "object/cuboid": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              }
+            },
+            "worst_family_success_rate": 0.0
+          }
+        },
+        "delta": -0.5,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.0,
+        "selected_checkpoint_sha256": [
+          "2f47dc0273f1f8956a17bc79eaa5ffb8a24c40a61a4c0368bf122defa27a5c7b"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.5,
+        "status": "failed",
+        "status_reason": "failed gates: state/aggregate_success, state/worst_family_success, perception/aggregate_success, perception/cadence, perception/degradation, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.0
+      },
+      "5003": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/cuboid": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 64,
+                "success_rate": 0.0,
+                "successes": 0
+              }
+            },
+            "worst_family_success_rate": 0.0
+          },
+          "state": {
+            "groups": {
+              "goal/placement_slot": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "goal/planar_zone": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              },
+              "object/cuboid": {
+                "attempts": 16,
+                "success_rate": 0.0,
+                "successes": 0
+              },
+              "object/flat_puck": {
+                "attempts": 16,
+                "success_rate": 1.0,
+                "successes": 16
+              }
+            },
+            "worst_family_success_rate": 0.0
+          }
+        },
+        "delta": -0.5,
+        "engine_worst_family_success_rate": 0.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "cadence": false,
+          "degradation": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 0.0,
+        "selected_checkpoint_sha256": [
+          "f9d586ad6f022f417c6d3211c5d92975e597e95ad852ca044887a224b4c227d6"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": false,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": false
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 0.5,
+        "status": "failed",
+        "status_reason": "failed gates: state/aggregate_success, state/worst_family_success, perception/aggregate_success, perception/cadence, perception/degradation, perception/worst_family_success",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 0.0,
+        "worst_family_success_rate": 0.0
+      }
+    },
+    "reach": {
+      "5001": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              }
+            },
+            "worst_family_success_rate": 1.0
+          },
+          "state": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": 0.0,
+        "engine_worst_family_success_rate": 1.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 1.0,
+        "selected_checkpoint_sha256": [
+          "19afdb40a3614e8d890b102aceb9300ee5e9edcb6c1d5be3c877acee40d43653"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 1.0,
+        "worst_family_success_rate": 1.0
+      },
+      "5002": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              }
+            },
+            "worst_family_success_rate": 1.0
+          },
+          "state": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": 0.0,
+        "engine_worst_family_success_rate": 1.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 1.0,
+        "selected_checkpoint_sha256": [
+          "b23224280a6554b5ec29b281fa68f197a338f942b4d540da1debfe51f051c342"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 1.0,
+        "worst_family_success_rate": 1.0
+      },
+      "5003": {
+        "canonical_family_metrics": {
+          "perception": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "goal/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cuboid": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/cylinder": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              },
+              "object/flat_puck": {
+                "attempts": 40,
+                "success_rate": 1.0,
+                "successes": 40
+              }
+            },
+            "worst_family_success_rate": 1.0
+          },
+          "state": {
+            "groups": {
+              "goal/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "goal/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cuboid": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/cylinder": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              },
+              "object/flat_puck": {
+                "attempts": 10,
+                "success_rate": 1.0,
+                "successes": 10
+              }
+            },
+            "worst_family_success_rate": 1.0
+          }
+        },
+        "delta": 0.0,
+        "engine_worst_family_success_rate": 1.0,
+        "event_metrics": {
+          "perception": null,
+          "state": null
+        },
+        "perception_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "cadence": false,
+          "degradation": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "perception_safety_count": 0,
+        "perception_success_rate": 1.0,
+        "selected_checkpoint_sha256": [
+          "61de27d5b23f4a6c27d92ae2969b5f9fc72223ab0c4083f90d65557069bafaff"
+        ],
+        "state_gates": {
+          "action_jerk": true,
+          "aggregate_success": true,
+          "physical_audits": true,
+          "safety": true,
+          "worst_family_success": true
+        },
+        "state_safety_count": 0,
+        "state_success_rate": 1.0,
+        "status": "experimental",
+        "status_reason": "failed gates: perception/cadence",
+        "strict_numerical_pass": false,
+        "worst_cell_success_rate": 1.0,
+        "worst_family_success_rate": 1.0
+      }
+    }
+  },
+  "test": {
+    "applied_actions": {
+      "pick/perception": 54059,
+      "pick/state": 20703,
+      "place/perception": 96937,
+      "place/state": 40999,
+      "press/perception": 3805,
+      "press/state": 1035,
+      "push/perception": 0,
+      "push/state": 3395,
+      "reach/perception": 6383,
+      "reach/state": 1583
+    },
+    "artifacts_verified": 13017,
+    "attempts": {
+      "pick/perception": 648,
+      "pick/state": 162,
+      "place/perception": 1080,
+      "place/state": 270,
+      "press/perception": 360,
+      "press/state": 90,
+      "push/perception": 384,
+      "push/state": 96,
+      "reach/perception": 360,
+      "reach/state": 90
+    },
+    "feature_rows_verified": 161301,
+    "paired_comparisons": 2832,
+    "protocol_sha256": "bd9e0bdc24fda75b3c63c0655252962a5805cf2d77dd34abb4f419cc4ff7149d",
+    "report_sha256": "8ed0178f8cdb03471843faa0817217d11e485975edd3b3473dcd9dcf48596b02",
+    "split": "test",
+    "terminal_reasons": {
+      "bounce": 50,
+      "object_workspace_violation": 2,
+      "perception_unavailable: Frame became stale before action application": 117,
+      "perception_unavailable: Inferred frame exceeds 0.1-second delivery age": 2,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: block_large": 179,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: block_small": 56,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: cylinder_short": 144,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: cylinder_tall": 120,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: puck_heavy": 177,
+      "perception_unavailable: Missing fresh two-marker identity/pose/motion: puck_light": 294,
+      "perception_unavailable: Stale/future instrumented sensor packet": 2,
+      "physical_contact_task_passed": 497,
+      "physical_lift_and_stable_dwell_passed": 445,
+      "physical_settled_placement_passed": 700,
+      "place_setup_failed": 15,
+      "pose_and_dwell_passed": 450,
+      "premature_release": 26,
+      "scripted_entry_failed": 240,
+      "unsettled": 24
+    }
+  },
+  "whitespace": "passed"
+}

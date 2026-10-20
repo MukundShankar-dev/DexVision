@@ -3067,3 +3067,99 @@ types without editing them. V8 RGB hypotheses keep semantic identity and full
 orientation unavailable and reject; neither provenance declarations nor this
 adapter certify a deployed producer or qualify any accepted skill. There is no
 policy/action integration or change to the frozen V8 implementation pins.
+
+---
+
+## Historical Level 5.7 v1 Inferred-Control Rejection Boundary
+
+Modules: `dexvision/learning/perception_policy.py` and
+`dexvision/evaluation/perception_rollouts.py`, dispatched through
+`dexvision.apps.evaluate_skill` with the separately checksum-locked
+`configs/level5/evaluation_perception.yaml` protocol.
+
+The accepted 5.6 visual baseline still cannot supply a full accepted control
+state for any required skill. `PerceptionPolicy` is rejection-only; it accepts
+RGB/acquisition/delivery times, resets episode history and returns the shared
+typed estimate, explicit unavailable/uncertified/stale/low-confidence fields,
+and `rejected_before_execution` with no action. Inference elapsed time contributes
+to delivery age. A schema-shaped estimate does not certify a measured producer.
+No simulator, task-derived goal, privileged preview, semantic-id oracle,
+default-state filling or truth callback enters this interface. Place V25 remains
+blocked by its unchanged live-state collision preview as well as missing fields.
+
+The evaluator verifies accepted selected-weight/receipt/recipe/runtime-sidecar
+bindings for all three seeds of all five skills. It saves/reserves its new
+validation preflight matrix before inference. Fresh neutral-scene reset RGB/time
+are the only inferred inputs. These are not task entry states or qualifying
+closed-loop rollouts. All rejections stay counted, with no action or simulator
+mutation. Paired state execution, physical success/safety, worst-family rates
+and degradation remain absent/null rather than substituted from historical
+confirmation. Actual inference latency and cadence misses are reported.
+
+Saved five-panel rejection review checks hashes, visual-hypothesis labelling,
+explicit missing fields and report/terminal consistency. It never records owner
+acceptance and cannot replace the required held-out action/terminal rollout
+review. Completion remains blocked on observable accepted inputs, a supported
+versioned integration and all original numerical/manual gates. No 5.8 work or
+default registry admission is authorized by this implementation.
+
+## Level 5.7 instrumented observation amendment
+
+The owner delegated a low-storage source amendment after the v1 rejection
+preflight. The v2 `evaluation_perception.yaml` protocol is separate from V29.
+Its sources and limits are specified in `docs/level5_perception_integration.md`.
+V29's natural RGB control dispositions remain unsupported.
+
+`OpticalMarkerRenderer` uses privileged body transforms only to render visible
+rigid marker plates. `FiducialPoseEstimator.infer(rgb, timestamp)` accepts pixels
+and acquisition time only; two tag faces, calibrated geometry and distinct-time
+pose history produce body-center identity, full wxyz pose and world motion.
+Missing/duplicate/poorly reprojected tags reject. No motion is fabricated at
+birth, and a held camera sample retains its original age. The original 0.8
+confidence and 0.1-second age limits remain; the deterministic 0.99 geometry
+confidence is not a calibrated probability.
+
+`WorkcellSensorPacket` declares ideal simulated robot/base encoders/pose,
+mocap command feedback, actuator commands, fixture slide encoders and named
+contact switches. No movable object pose/motion is exported. This is privileged
+instrumented simulation, not unmarked RGB or real hardware qualification.
+`InstrumentedStateEstimator` owns fresh MjData and reconstructs robot/fixture
+measurements and observed optical object state. Static targets use calibrated
+geometry. An unexpected interaction with an unobserved movable body rejects.
+Place's unchanged preview logic consumes only this partial estimated copy;
+unknown parked objects are excluded rather than filled from truth/default poses.
+The independent state reference retains its original live-data preview.
+
+Private rollout function globals substitute only declared observation,
+precondition and preview inputs. Original accepted policy weights/transforms,
+decoder classes and evaluator bytecode are preserved; the checksum-pinned
+`dexvision/evaluation/evaluate_skill.py` is unchanged. Policy-visible phases,
+press latches and reach derived approach poses use measured inputs only.
+Evaluation truth scores physical terminals/safety and post-proposal errors; it
+cannot supply features, an action preview or a missing field. This evaluator
+is not qualification of an observation-only deployed supervisor.
+
+Freeze both entry matrices and all source/input hashes before evaluation. Use
+three exact receipt-bound models, all required cells, >=30 unique held-out resets
+per skill and >=3 per required cell, each crossed with four original conditions.
+One independent state execution is reused for four visual comparisons without
+inflating unique-state counts. Identical three-tick prior-command holds and
+entry hashes establish paired starts. Validation-only bias/dropout/latency/port
+probes precede one-time disjoint test evaluation. Failed setups/rollouts stay in
+the denominator. No new training, large image dataset or registry admission.
+
+Saved compact float64 traces, per-condition/family/cell summaries, physical
+reconstruction audits and fixed first-initialized-attempt review clips remain under a 640 MiB
+experiment cap. Hashed saved-media playback never records owner acceptance.
+5.7 completion remains pending owner manual confirmation. No 5.8 work follows.
+
+The completed 5.7 automated experiment and manual-review handoff are bound in
+`docs/level5_perception_integration_verification_v2.json`. The original one-time
+test is consumed. A separately locked recovery runner preserves all completed
+requests and rejects a measured failed paired place setup before observation;
+no consumed control is retried. Read-only event and canonical-group audits fill
+missing event evidence and preserve request-defined groups without changing
+thresholds or raw reports. The corrected saved-media player derives its header
+from recorded actions/pose, preserving all original clips and hashes. No track
+passes every numerical gate; owner review is still pending. Last Completed is
+5.6, Next Target is 5.7, and no 5.8/default registry work is authorized here.

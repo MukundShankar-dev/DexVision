@@ -1,0 +1,178 @@
+{
+  "artifact_file_sha256": {
+    "outputs/level5/perception_rollouts/SHA256SUMS": "04f0373c718f99b3e730083bf3ae072f7ff1d093af0fbb6904ded23bdd0f3d08",
+    "outputs/level5/perception_rollouts/accepted_bundles.json": "50ea2ba0ff12cfa09f62a4a68192c52b719c5621b5c90e6e4c49581a57de336b",
+    "outputs/level5/perception_rollouts/matrix.json": "86eb6593aeaaa6599919b3cad5e7891c8efefde12f99b8ad1a66ccac0be91f9f",
+    "outputs/level5/perception_rollouts/protocol.json": "47da794995e0c00f4825c3d1337b1184b011d1779c9e9b9719ba459e42d4e327",
+    "outputs/level5/perception_rollouts/report.json": "74b0a3802f02fd3357232342d36f6da65df7c5be750e11a5ef3672e86c5602df",
+    "outputs/level5/perception_rollouts/review.json": "537833f459cf88a7525574922030a010122895bea9dfc61a6ae61b891adf02c6",
+    "outputs/level5/perception_rollouts/review_pick.png": "19a026b7200e4016a9386dcaac0fbe35ac3802feedea2781e74ac5145043f3cb",
+    "outputs/level5/perception_rollouts/review_place.png": "b99b394d229553341ebf4ba53afe79dd290b4d395be9c0167e2feb6d7e3c5386",
+    "outputs/level5/perception_rollouts/review_press.png": "3ed4391800d007d6fb37678a6c76fedecbeede049ca916fa950f1c95d8dc4733",
+    "outputs/level5/perception_rollouts/review_push.png": "2ff77e39b00b2acdf12330fd0e27a3d20e7d356f3ff56a67bf41660847372cd7",
+    "outputs/level5/perception_rollouts/review_reach.png": "a7564484c13a5dba85fea963f111ec1c45f543c7cfa2e2e4527f1974c3a78904",
+    "outputs/level5/perception_rollouts_checks/full_pytest_final.log": "17e5194d0bd494666247411b323740712b68f2f55d1099dcbfe750f61ea25345",
+    "outputs/level5/perception_rollouts_checks/startup_and_dispatch_repairs.json": "3d161a3c8b8b0bdd5fe0de0aae84272b0b605631dfda463a389e84797ae719a2",
+    "outputs/level5/perception_rollouts_protocol_v1/attempt.json": "f273b95bd99630a30b32187e203ce93fa9d81dfdd6ba9da804c48bad4f926c24",
+    "outputs/level5/perception_rollouts_protocol_v2/attempt.json": "75d9693f19b4446d7886c4054616917e412b152e336dfeac23e8204fd1309b88",
+    "outputs/level5/perception_rollouts_protocol_v3/attempt.json": "45a747131be743c729154b54aef9b113d1a840da407a9109ccc114c6c667778a",
+    "outputs/level5/perception_rollouts_startup_failure_v1/accepted_bundles.json": "50ea2ba0ff12cfa09f62a4a68192c52b719c5621b5c90e6e4c49581a57de336b",
+    "outputs/level5/perception_rollouts_startup_failure_v1/evaluation_perception.sha256": "466dc92b07116bb241e675bddb7b17affcaa98e45dbb23ce1c6b50708b67e674",
+    "outputs/level5/perception_rollouts_startup_failure_v1/evaluation_perception.yaml": "b547bd1eb855af76fd562e524598747df26465a7b1c5c7be4468c72015f6c4a9",
+    "outputs/level5/perception_rollouts_startup_failure_v1/failure.json": "d1566383161049153e29bfc8b43518efa4c7d296962fe94125784b37c5364c80",
+    "outputs/level5/perception_rollouts_startup_failure_v1/matrix.json": "86eb6593aeaaa6599919b3cad5e7891c8efefde12f99b8ad1a66ccac0be91f9f",
+    "outputs/level5/perception_rollouts_startup_failure_v1/protocol.json": "434133ecf4d9e3e53c124fad64f6fc6200f118ae7c790c5713cd543fc07024c6",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/configs/level5/evaluation_perception.sha256": "7578a43cb2b29dc04e070247ba0c6f125e6c1696f9f901b967b6237c96de1c8e",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/configs/level5/evaluation_perception.yaml": "1a3e567999c42f057ccb68fae0a6e658dddd39ab7f43b4d6ce83db96f9f4f3f8",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/dexvision/apps/evaluate_skill.py": "ea823f64a1c68b4b3c82408cbaa8b1d24f95b082498b9ea989a3a89872b666c4",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/dexvision/evaluation/evaluate_skill.py": "530a47d6b85e18887503947685459f8bc835d745ef57b774730bde8f964a961f",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/dexvision/evaluation/perception_rollouts.py": "5edcd22deb743dbf0fbba54bbcaa3bc89110a4c007e3648ef0e58d9fe661f471",
+    "outputs/level5/perception_rollouts_v2_source_snapshot/dexvision/learning/perception_policy.py": "c3125fe35af471b520a3270814838b54e1f312a05ed4380b4df4790e823e2749",
+    "outputs/level5/perception_rollouts_validation_v2/SHA256SUMS": "980cc8976a4bb13d925a8c08b5dfb237d7c6a9003143edc1200f90553b3b067b",
+    "outputs/level5/perception_rollouts_validation_v2/protocol.json": "4b891d9382384f57c96c6de2a8c924cc78a70f72ce0c39599fa385da9e225425",
+    "outputs/level5/perception_rollouts_validation_v2/report.json": "15a8e1bde6306fec3c8b6e872e35022e6a8c063b28d776dd072c70df9e487993"
+  },
+  "base_commit": "8dd467a",
+  "branch": "main",
+  "checkpoint": "5.7",
+  "checkpoint_complete": false,
+  "checks": {
+    "accepted_state_checkpoint_bindings": "15/15 passed; receipts, exact checkpoint schemas, recipes and runtime sidecars audited",
+    "actual_retry_rejection": {
+      "exit_code": 2,
+      "new_output_created": false,
+      "reason": "fixed protocol reservation rejects a different output path"
+    },
+    "distinct_rgb_scenes": "30/30 unique PNG payloads",
+    "final_source_protocol_pins": "passed; final revision3 protocol matches unchanged final execution sources",
+    "focused_pytest": {
+      "failed": 0,
+      "passed": 19
+    },
+    "focused_with_original_and_independent_locks": {
+      "failed": 0,
+      "passed": 29
+    },
+    "full_pytest": {
+      "elapsed_s": 786.62,
+      "exit_code": 0,
+      "failed": 0,
+      "log": "outputs/level5/perception_rollouts_checks/full_pytest_final.log",
+      "passed": 1210,
+      "skipped": 1
+    },
+    "matrix_request_typed_boundary_readback": "450/450 passed",
+    "ruff": "passed",
+    "saved_artifact_hash_readback": "passed",
+    "saved_review_readback": "Five artifact-verified panels decode through actual review path with display mocked; no manual acceptance claimed",
+    "whitespace": "passed"
+  },
+  "commands_run": [
+    "conda run --no-capture-output -n dexvision python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --output-dir outputs/level5/perception_rollouts",
+    "conda run --no-capture-output -n dexvision pytest -q tests/test_perception_policy_integration.py tests/test_perception_grounded_rollout.py",
+    "conda run --no-capture-output -n dexvision ruff check dexvision tests",
+    "conda run --no-capture-output -n dexvision pytest -q",
+    "git diff --check",
+    "conda run --no-capture-output -n dexvision python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --output-dir outputs/level5/perception_rollouts_retry_rejection",
+    "conda run --no-capture-output -n dexvision python -m dexvision.apps.evaluate_skill --help",
+    "conda run --no-capture-output -n dexvision pytest -q tests/test_perception_policy_integration.py tests/test_perception_grounded_rollout.py tests/test_level5_learning_plan.py"
+  ],
+  "default_registry_admission": false,
+  "held_out_inference_or_training_performed": false,
+  "historical_datasets_receipts_and_consumed_tests_modified": false,
+  "implementation_input_digests": {
+    "configs/level4_visual_dataset.yaml": "cfb222100c37cddbe35e89b5965371a01884917f6f5ad975ff4a496c60372736",
+    "configs/level5/perception_repair_v29.sha256": "1a71c8831509169187baa0124a5c4f8cec1e419f3afdbd361de5d36ed8b66c80",
+    "configs/level5/perception_repair_v29.yaml": "c272d1adeddcd2a1c627e06623efcb7efd9d0b7b885e0bdb8d694227edc898ad",
+    "configs/workcell.yaml": "4f8c7abd78c008dd00738ddf900abcb19160b9a100aa418644477c8c274ba774",
+    "data/visual/level4/calibration.json": "bbdf1447657d4670cd0bdde48481882bbba15ddef363f85c85805f50749793a2",
+    "dexvision/apps/evaluate_skill.py": "c07277b44cb56a92ef3b16a12a760ad7b4448b9df7399da38184d3e2cdbd2a5c",
+    "dexvision/evaluation/evaluate_skill.py": "530a47d6b85e18887503947685459f8bc835d745ef57b774730bde8f964a961f",
+    "dexvision/evaluation/perception_rollouts.py": "642b2c89a724d604ba9e6b8e74b8cf4a4ffa9179b3b9dd98e247fb4d0158e4f9",
+    "dexvision/learning/perception_policy.py": "c3125fe35af471b520a3270814838b54e1f312a05ed4380b4df4790e823e2749",
+    "docs/level5_perception_acceptance.json": "adfc9f352bdd6212f3e4fcbc166fecb3159faa72370c0abaaade39b1a1884248",
+    "docs/level5_pick_acceptance.json": "3cb87b17bc6ad41417fba35a30018e0a4e6f44b4c653c67735aff7cf268eedb3",
+    "docs/level5_place_acceptance.json": "c381e444acf337af1fbffece77d6da82d87c5e670ba6abd6a9f3de454587ca1b",
+    "docs/level5_press_acceptance.json": "2b4598145a75dfbf4be81fa5f01a03356f56e6189f87db07ca9d36ef6f049366",
+    "docs/level5_push_acceptance.json": "f82b6e2532e97b7d2cc9130a0ab67b0e808bbe229b7aced54c4a8d47db155640",
+    "docs/level5_reach_acceptance.json": "ec315f07dc29d57d0ace870bc2b9278344e8e678abe929335245b99c4fc876bd"
+  },
+  "implementation_scope": "Rejection-only adapter and validation observability preflight; full control/paired evaluation not implemented because all five accepted inputs remain unsupported.",
+  "latency": {
+    "pick": {
+      "cadence_deadline_misses": 90,
+      "cadence_s": 0.034,
+      "latency_median_s": 0.10571074951440096,
+      "latency_p95_s": 0.14875234825012737,
+      "latency_scope": "RGB inference plus typed boundary only; rendering, setup and I/O excluded"
+    },
+    "place": {
+      "cadence_deadline_misses": 90,
+      "cadence_s": 0.034,
+      "latency_median_s": 0.11204618751071393,
+      "latency_p95_s": 0.1559190751664573,
+      "latency_scope": "RGB inference plus typed boundary only; rendering, setup and I/O excluded"
+    },
+    "press": {
+      "cadence_deadline_misses": 90,
+      "cadence_s": 0.034,
+      "latency_median_s": 0.1079735835082829,
+      "latency_p95_s": 0.14101147053006569,
+      "latency_scope": "RGB inference plus typed boundary only; rendering, setup and I/O excluded"
+    },
+    "push": {
+      "cadence_deadline_misses": 90,
+      "cadence_s": 0.034,
+      "latency_median_s": 0.1051344380248338,
+      "latency_p95_s": 0.16043771453842054,
+      "latency_scope": "RGB inference plus typed boundary only; rendering, setup and I/O excluded"
+    },
+    "reach": {
+      "cadence_deadline_misses": 90,
+      "cadence_s": 0.034,
+      "latency_median_s": 0.11137554148444906,
+      "latency_p95_s": 0.15897195641300638,
+      "latency_scope": "RGB inference plus typed boundary only; rendering, setup and I/O excluded"
+    }
+  },
+  "manual_acceptance": "pending_owner_rejection_evidence_review_only",
+  "manual_command": "python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --viewer --review-dir outputs/level5/perception_rollouts",
+  "matrix": {
+    "accepted_training_seeds": [
+      5001,
+      5002,
+      5003
+    ],
+    "applied_actions": 0,
+    "paired_state_rollouts": 0,
+    "policy_calls": 0,
+    "qualified_rollouts": 0,
+    "rejected_before_execution": 450,
+    "requests": 450,
+    "requests_per_skill": 90,
+    "role": "validation_observability_preflight",
+    "shared_unique_scene_resets": 30,
+    "simulator_unchanged": 450,
+    "skills": 5
+  },
+  "previous_successful_source_snapshot": "outputs/level5/perception_rollouts_v2_source_snapshot",
+  "previous_successful_validation": "outputs/level5/perception_rollouts_validation_v2",
+  "qualification_pass": false,
+  "remaining_gates": [
+    "Observable semantic/pose/robot/contact/fixture inputs with certified producers",
+    "Versioned estimated-state alternative to accepted place privileged preview",
+    "Unchanged whole selected bundle execution on paired frozen reset matrices",
+    "Required qualifying held-out rollouts, family/degradation/latency/safety metrics and validation robustness diagnostics",
+    "Owner held-out overlay/action/terminal review"
+  ],
+  "required_held_out_rollout_review": "blocked_no_compatible_accepted_inferred_control_track",
+  "run_revision": 3,
+  "startup_failure": {
+    "path": "outputs/level5/perception_rollouts_startup_failure_v1",
+    "reason": "sandbox invalid CoreGraphics connection",
+    "repair": "outside-sandbox headless renderer smoke passed; separately frozen validation run revision 2",
+    "requests_executed": 0
+  },
+  "validation_repetition_disclosure": "V2 successful preflight is preserved; V3 repeats the same30validationseeds after legacy CLI dispatch/review integrity fixes; not new independent resets or held-out evidence.",
+  "version": "level5/perception-rollouts-verification-v1"
+}

@@ -1,12 +1,14 @@
 # Progress Level 5 — Workcell Skill Learning and Qualification
 
-Current status: Last Completed **5.6**; Next Target **5.7 (unstarted)**.
+Current status: Last Completed **5.6**; Next Target **5.7 (in progress, incomplete)**.
 V29 and fresh confirmation V8 pass every automated numerical and artifact check.
 The owner confirmed the 16-panel/36-clip manual review passed on October 16,
 2026; [level5_perception_acceptance.json](level5_perception_acceptance.json)
 binds this acceptance to the frozen artifacts. All consumed test sets, datasets,
 source, failed attempts and results remain preserved. All five inferred-control
-tracks remain unsupported. Stop before 5.7; it requires a new user request.
+tracks remain unsupported. The owner authorized 5.7 on October 16, 2026;
+its rejection-only preflight is implemented, with control qualification blocked.
+Stop for rejection-evidence review; do not start 5.8.
 Previous completed stages retain their original results and owner acceptance.
 See [CURRENT_STATUS.md](CURRENT_STATUS.md) for checkpoint selection and
 [level5_perception_verification_v29.json](level5_perception_verification_v29.json)
@@ -1684,6 +1686,38 @@ above for 5.6. Do not start 5.7.
 
 ## Level 5.7 — Perception-Grounded Skill Rollouts
 
+**Implementation and automated evidence finished; checkpoint incomplete pending
+owner manual review.** The owner authorized a compact instrumented observation
+amendment: visible fiducials plus declared ideal simulated robot/base, fixture
+and contact ports feed the exact accepted policies. V29 natural RGB control
+remains unsupported; no new model training, dataset archive or default registry
+admission occurs.
+
+The frozen test accounts for all 3,540 requests (708 state references, 2,832
+perception attempts), all three selected seeds and every required cell/condition.
+All 13,017 indexed artifacts, 161,301 consumed feature rows, paired entries and
+admitted observation ages pass readback. Twenty held-out review clips contain
+218 decoded/annotated frames. The interrupted zero-action place request was
+recorded after preserving 1,291 completed outcomes/4,917 files; continuation
+executed only unstarted requests, with zero consumed-control retries.
+
+Software checks: **1,235 passed/one skipped** full regression (765.05 s), **54
+focused passed**, Ruff and whitespace pass. These software passes do not imply
+skill qualification. Perception success: reach 100%; pick 41.7–45.8%; place
+41.9–45.0%; press 99.2–100%; push 0% with zero applied perception actions.
+All tracks fail at least one original numerical gate; pick seed 5003 also has
+two object-workspace violations. Independent event/group audits retain all
+negative outcomes and original thresholds. No test tuning or control rerun.
+
+A before-test storage-only amendment raised the initial 320 MiB ceiling to
+640 MiB, with unchanged controls/seeds/gates and AST-bound validation inheritance.
+The experiment occupies about 469 MiB on disk; frozen releases and existing
+operator data are unchanged. The original protocols, validation and failed
+attempts remain preserved. See `docs/level5_perception_integration.md` and
+`docs/level5_perception_integration_verification_v2.json` for exact bindings,
+commands, limits and review criteria. Last Completed stays **5.6**; Next Target
+stays **5.7**. Do not mark it complete before owner confirmation or start 5.8.
+
 The paired baseline must load the whole selected state-policy bundle: feature
 transform, scales, phase rules, active outputs, decoder and cadence as well as
 weights. Audit derived goals/features/phases for hidden simulator truth.
@@ -1700,10 +1734,40 @@ poses through the world-state API.
 
 ```text
 dexvision/learning/perception_policy.py
-dexvision/evaluation/evaluate_skill.py
+dexvision/evaluation/perception_rollouts.py (historical preflight)
+dexvision/evaluation/instrumented_rollouts.py
+dexvision/evaluation/instrumented_observer.py
+dexvision/evaluation/instrumented_review.py
+dexvision/evaluation/instrumented_review_overlay.py
+dexvision/apps/review_instrumented_results.py
+dexvision/evaluation/instrumented_events.py
+dexvision/evaluation/instrumented_groups.py
+dexvision/evaluation/instrumented_recovery.py
+dexvision/apps/recover_instrumented_rollouts.py
+dexvision/apps/audit_instrumented_events.py
+dexvision/perception/fiducial_pose.py
+dexvision/perception/instrumented_state.py
+dexvision/sim/optical_markers.py
+dexvision/sim/workcell_sensors.py
+dexvision/apps/evaluate_skill.py
 configs/level5/evaluation_perception.yaml
+configs/level5/evaluation_perception.sha256
+configs/level5/perception_event_audit_v1.yaml + .sha256
+configs/level5/perception_event_audit_v2.yaml + .sha256
+configs/level5/perception_rollout_recovery_v1.yaml + .sha256
+tests/test_instrumented_perception.py
+tests/test_instrumented_events.py
+tests/test_instrumented_groups.py
+tests/test_instrumented_recovery.py
+tests/test_instrumented_review_overlay.py
+tests/test_perception_storage_amendment.py
 tests/test_perception_policy_integration.py
 tests/test_perception_grounded_rollout.py
+tests/test_level5_learning_plan.py (register separate 5.7 recipe lock only)
+docs/level5_perception_integration.md
+docs/level5_perception_rollouts.md (historical preflight)
+docs/level5_perception_rollouts_verification_v1.json (historical preflight)
+docs/level5_perception_integration_verification_v2.json
 ```
 
 ### Required comparisons
@@ -1718,24 +1782,37 @@ latency and control-frequency impact
 
 ### Commands
 
+Executed from the repository root in dexvision. The test is consumed; do not
+rerun freeze/evaluation/recovery. Use the saved-media command below for review.
+
 ```bash
-python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --output-dir outputs/level5/perception_rollouts
-conda run -n dexvision pytest -q tests/test_perception_policy_integration.py tests/test_perception_grounded_rollout.py
+python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --freeze-only
+python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --split validation --output-dir outputs/level5/perception_instrumented_v2/validation
+python -m dexvision.apps.evaluate_skill --config configs/level5/evaluation_perception.yaml --all-required-skills --track perception --output-dir outputs/level5/perception_instrumented_v2/test
+python -m dexvision.apps.recover_instrumented_rollouts --config configs/level5/perception_rollout_recovery_v1.yaml
+python -m dexvision.apps.audit_instrumented_events --config configs/level5/perception_event_audit_v2.yaml --evaluation-dir outputs/level5/perception_instrumented_v2/test --output-dir outputs/level5/perception_instrumented_checks/test_events
+conda run -n dexvision pytest -q
+conda run -n dexvision ruff check .
+git diff --check
 ```
 
 ### Pass criteria
 
 ```text
-[ ] At least 30 frozen perception-grounded rollouts exist per required skill
-[ ] The policy checkpoint and reset seeds match the state comparison
-[ ] Perception errors cannot silently fall back to simulator truth
-[ ] Success, worst-family, degradation, latency, and safety gates are reported
-[ ] Each skill passes or receives an explicit experimental/failed reason
+[x] At least 30 frozen rollout attempts exist per required skill (including rejections under the original denominator rule)
+[x] The policy checkpoint and reset seeds match the state comparison
+[x] Perception errors cannot silently fall back to simulator truth (fail-closed instrumented boundary; optical and declared sensors only)
+[x] Success, worst-family, degradation, latency, and safety gates are reported
+[x] Each skill passes or receives an explicit experimental/failed reason (no track passes every gate; experimental/failed reasons and zero-action push remain explicit)
 ```
 
-Manual verification: view one held-out rollout per required skill with
-perception overlays. Pass when the overlay, selected id/pose, action, and
-terminal result remain consistent. Stop for user confirmation.
+Manual verification is pending. Run:
+`python -m dexvision.apps.review_instrumented_results --evaluation-dir outputs/level5/perception_instrumented_v2/test`.
+Pass/fail criteria and source limitations are in the integration notes. Review
+all 20 clips, including one nominal attempt per required skill; unavailable/stale
+fields must stop control, and identity/pose/action/phase/terminal must agree.
+The overall 5.7 completion checkbox remains unchecked until owner confirmation.
+No numerical failure becomes a qualified skill through viewer acceptance.
 
 ---
 
@@ -2077,7 +2154,7 @@ user confirmation before completing Level 5.
     state qualification is negative and no manual review is triggered
 [x] 5.4A place repair passes frozen state gates, physical audits and owner manual acceptance
 [x] 5.5 push and press are evaluated; optional dial status is explicit
-[ ] 5.6 detector/tracker/pose pipeline meets frozen visual gates
+[x] 5.6 detector/tracker/pose pipeline meets frozen visual gates
 [ ] 5.7 perception-grounded rollouts have no simulator-truth fallback
 [ ] 5.8 corrections/model escalation are evidence-gated
 [ ] 5.9 every skill is qualified, experimental, or failed

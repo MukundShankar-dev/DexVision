@@ -36,8 +36,37 @@ or closed-loop control qualification is claimed.
 
 Level 5.7 — Perception-Grounded Skill Rollouts
 
-**Unstarted.** The owner requested completion of 5.6 only and explicitly said
-not to start 5.7. Stop here; implementation requires a new user request.
+**Implementation and automated evidence finished; checkpoint incomplete pending
+owner manual review.** The owner authorized a compact instrumented observation
+amendment: visible fiducials plus declared ideal simulated robot/base, fixture
+and contact ports feed the exact accepted policies. V29 natural RGB control
+remains unsupported; no new model training, dataset archive or default registry
+admission occurs.
+
+The frozen test accounts for all 3,540 requests (708 state references, 2,832
+perception attempts), all three selected seeds and every required cell/condition.
+All 13,017 indexed artifacts, 161,301 consumed feature rows, paired entries and
+admitted observation ages pass readback. Twenty held-out review clips contain
+218 decoded/annotated frames. The interrupted zero-action place request was
+recorded after preserving 1,291 completed outcomes/4,917 files; continuation
+executed only unstarted requests, with zero consumed-control retries.
+
+Software checks: **1,235 passed/one skipped** full regression (765.05 s), **54
+focused passed**, Ruff and whitespace pass. These software passes do not imply
+skill qualification. Perception success: reach 100%; pick 41.7–45.8%; place
+41.9–45.0%; press 99.2–100%; push 0% with zero applied perception actions.
+All tracks fail at least one original numerical gate; pick seed 5003 also has
+two object-workspace violations. Independent event/group audits retain all
+negative outcomes and original thresholds. No test tuning or control rerun.
+
+A before-test storage-only amendment raised the initial 320 MiB ceiling to
+640 MiB, with unchanged controls/seeds/gates and AST-bound validation inheritance.
+The experiment occupies about 469 MiB on disk; frozen releases and existing
+operator data are unchanged. The original protocols, validation and failed
+attempts remain preserved. See `docs/level5_perception_integration.md` and
+`docs/level5_perception_integration_verification_v2.json` for exact bindings,
+commands, limits and review criteria. Last Completed stays **5.6**; Next Target
+stays **5.7**. Do not mark it complete before owner confirmation or start 5.8.
 
 ---
 
@@ -678,6 +707,16 @@ unchanged. Checkpoint 5.4A is complete; 5.5 has not started.
 ---
 
 ## Manual Verification Status
+
+Level 5.7 owner manual review is pending. From the repository root in dexvision:
+`python -m dexvision.apps.review_instrumented_results --evaluation-dir outputs/level5/perception_instrumented_v2/test`.
+Review all 20 prescribed clips (including one nominal attempt per required skill).
+Pass when selected identity/body XYZ and orientation, acquisition age, applied
+action/phase and terminal result agree; unavailable/stale observations must stop
+control. Fail on unreadable/missing media, swapped or inconsistent poses, stale
+admitted actions, or a physical/terminal mismatch. No owner acceptance is recorded.
+A manual evidence pass cannot qualify failed numerical skill gates. Last Completed
+remains 5.6; Next Target remains 5.7. Do not advance to 5.8.
 
 Level 5.6 manual verification is complete. On October 16, 2026, the owner
 confirmed the prescribed V29/fresh V8 held-out review passed: 16 panels and

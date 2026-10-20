@@ -1,0 +1,20 @@
+version: level5/perception-rollout-recovery-v1
+checkpoint: '5.7'
+evaluation_config: configs/level5/evaluation_perception.yaml
+evaluation_dir: outputs/level5/perception_instrumented_v2/test
+interrupted_index: outputs/level5/perception_instrumented_checks/interrupted_test_v1.SHA256SUMS
+empty_interrupted_requests:
+- place/5001/006/nominal
+completed_requests_before_recovery: 1291
+reason: Place scripted grip setup failed before observer initialization; original
+  error handler dereferenced None. No learned policy action occurred. Preserve all
+  completed outcomes, record the interrupted zero-action request as failed pre-entry,
+  and run only unstarted requests with original controller/observer functions.
+input_digests:
+  dexvision/evaluation/instrumented_recovery.py: 8b6bf9a489ec33f8cbc914530e030be3ef7838108e5b5cf2e16a8a08a708ed66
+  dexvision/apps/recover_instrumented_rollouts.py: 08d60e158b97b412ba81dcf8a46798b38856ea3a0ead8d4f6ff0114d8f6773ae
+  configs/level5/evaluation_perception.yaml: bd9e0bdc24fda75b3c63c0655252962a5805cf2d77dd34abb4f419cc4ff7149d
+  configs/level5/evaluation_perception.sha256: f78ab3b21dc6111d02d48ec9fe268d0f48625607ce8672c8aea11cdcb93aa29c
+  outputs/level5/perception_instrumented_checks/interrupted_test_v1.SHA256SUMS: b792833879a81c1b5c0f8ddde1e42ac6bf5a98eeb3eba8b1eeec757cc82d60a4
+  outputs/level5/perception_instrumented_checks/test.log: 918fcf7ba79bf5da112fd4da71bc7c1e506152f217bbe87cca3e335d321525b2
+  outputs/level5/perception_instrumented_v2/test/place/5001/006/state/result.json: c529d33ace77e76dd8c7498615347749bea9f882d4b16076a6643df575ac0f8d
