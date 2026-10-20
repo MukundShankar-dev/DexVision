@@ -102,6 +102,7 @@ class ActionSpace:
     target_high: np.ndarray  # [20]
     max_target_step: np.ndarray  # [20] largest target change per control step
     neutral_targets: np.ndarray  # [20]
+    actuator_names: tuple[str, ...]  # [20], e.g. "THJ5", "FFJ0" (menagerie names without "rh_A_")
 
     def hold(self) -> np.ndarray:
         """Keep the hand where it is with fingers at their neutral targets."""
@@ -177,6 +178,9 @@ class Workcell:
             target_low=self.ctrl_low.copy(),
             target_high=self.ctrl_high.copy(),
             max_target_step=self._max_target_step.copy(),
+            actuator_names=tuple(
+                self._name("actuator", a).removeprefix("rh_A_") for a in range(m.nu)
+            ),
             neutral_targets=self.neutral_actuator_targets.copy(),
         )
         self._command_position = np.zeros(3)

@@ -61,8 +61,8 @@
   }
  },
  "failures": {
-  "timeout": 95,
-  "object_fell_off_table": 5
+  "timeout": 99,
+  "object_fell_off_table": 1
  },
  "episodes": [
   {
@@ -73,7 +73,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 46.0
+    "max_hand_table_force_n": 34.4
    }
   },
   {
@@ -84,7 +84,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 38.7
+    "max_hand_table_force_n": 23.9
    }
   },
   {
@@ -105,8 +105,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0001,
-    "max_hand_table_force_n": 40.5
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 10.7
    }
   },
   {
@@ -116,8 +116,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0042,
-    "max_hand_table_force_n": 38.5
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 10.4
    }
   },
   {
@@ -128,7 +128,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 42.2
+    "max_hand_table_force_n": 14.0
    }
   },
   {
@@ -138,8 +138,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.021,
-    "max_hand_table_force_n": 33.3
+    "max_lift_m": 0.0024,
+    "max_hand_table_force_n": 10.1
    }
   },
   {
@@ -150,7 +150,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 31.9
+    "max_hand_table_force_n": 50.7
    }
   },
   {
@@ -161,7 +161,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 29.3
+    "max_hand_table_force_n": 12.9
    }
   },
   {
@@ -183,7 +183,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 40.5
+    "max_hand_table_force_n": 16.3
    }
   },
   {
@@ -193,8 +193,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0017,
-    "max_hand_table_force_n": 36.0
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 7.5
    }
   },
   {
@@ -205,7 +205,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 42.2
+    "max_hand_table_force_n": 8.5
    }
   },
   {
@@ -216,7 +216,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 29.3
+    "max_hand_table_force_n": 19.1
    }
   },
   {
@@ -226,8 +226,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0089,
-    "max_hand_table_force_n": 42.1
+    "max_lift_m": 0.0048,
+    "max_hand_table_force_n": 23.7
    }
   },
   {
@@ -238,7 +238,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 48.6
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -249,7 +249,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 25.2
+    "max_hand_table_force_n": 13.3
    }
   },
   {
@@ -260,7 +260,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 56.7
+    "max_hand_table_force_n": 14.2
    }
   },
   {
@@ -270,8 +270,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0109,
-    "max_hand_table_force_n": 40.5
+    "max_lift_m": 0.0019,
+    "max_hand_table_force_n": 28.3
    }
   },
   {
@@ -281,8 +281,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0143,
-    "max_hand_table_force_n": 45.5
+    "max_lift_m": 0.0096,
+    "max_hand_table_force_n": 18.1
    }
   },
   {
@@ -304,7 +304,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 20.7
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -315,7 +315,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 33.8
+    "max_hand_table_force_n": 20.9
    }
   },
   {
@@ -326,7 +326,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 25.6
+    "max_hand_table_force_n": 2.2
    }
   },
   {
@@ -336,8 +336,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0009,
-    "max_hand_table_force_n": 46.1
+    "max_lift_m": 0.0001,
+    "max_hand_table_force_n": 24.2
    }
   },
   {
@@ -347,8 +347,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0102,
-    "max_hand_table_force_n": 109.3
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 34.1
    }
   },
   {
@@ -359,7 +359,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 29.0
+    "max_hand_table_force_n": 14.9
    }
   },
   {
@@ -369,19 +369,19 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.005,
-    "max_hand_table_force_n": 38.4
+    "max_lift_m": 0.0091,
+    "max_hand_table_force_n": 14.7
    }
   },
   {
    "seed": 100028,
    "target_object": "cylinder_tall",
    "success": false,
-   "steps": 88,
-   "failure": "object_fell_off_table",
+   "steps": 160,
+   "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0048,
-    "max_hand_table_force_n": 8.0
+    "max_lift_m": 0.0063,
+    "max_hand_table_force_n": 16.7
    }
   },
   {
@@ -392,7 +392,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 40.1
+    "max_hand_table_force_n": 10.0
    }
   },
   {
@@ -403,7 +403,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 28.4
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -414,7 +414,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 50.8
+    "max_hand_table_force_n": 26.6
    }
   },
   {
@@ -425,7 +425,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 48.4
+    "max_hand_table_force_n": 15.5
    }
   },
   {
@@ -435,8 +435,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0064,
-    "max_hand_table_force_n": 41.6
+    "max_lift_m": 0.0049,
+    "max_hand_table_force_n": 19.8
    }
   },
   {
@@ -447,7 +447,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 63.5
+    "max_hand_table_force_n": 55.3
    }
   },
   {
@@ -457,8 +457,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.011,
-    "max_hand_table_force_n": 39.4
+    "max_lift_m": 0.0035,
+    "max_hand_table_force_n": 20.6
    }
   },
   {
@@ -468,8 +468,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0085,
-    "max_hand_table_force_n": 37.9
+    "max_lift_m": 0.0048,
+    "max_hand_table_force_n": 24.2
    }
   },
   {
@@ -480,7 +480,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 11.3
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -491,7 +491,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 24.1
+    "max_hand_table_force_n": 9.7
    }
   },
   {
@@ -502,7 +502,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 25.8
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -512,8 +512,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0,
-    "max_hand_table_force_n": 31.9
+    "max_lift_m": 0.0004,
+    "max_hand_table_force_n": 15.7
    }
   },
   {
@@ -523,8 +523,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.005,
-    "max_hand_table_force_n": 29.1
+    "max_lift_m": 0.0048,
+    "max_hand_table_force_n": 17.4
    }
   },
   {
@@ -535,7 +535,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 32.7
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -546,7 +546,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 19.5
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -557,7 +557,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 101.5
+    "max_hand_table_force_n": 32.0
    }
   },
   {
@@ -567,8 +567,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0009,
-    "max_hand_table_force_n": 36.3
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 11.6
    }
   },
   {
@@ -579,7 +579,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 32.4
+    "max_hand_table_force_n": 12.7
    }
   },
   {
@@ -590,7 +590,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 15.5
+    "max_hand_table_force_n": 2.2
    }
   },
   {
@@ -601,7 +601,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 33.3
+    "max_hand_table_force_n": 18.1
    }
   },
   {
@@ -612,7 +612,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 30.4
+    "max_hand_table_force_n": 11.4
    }
   },
   {
@@ -623,7 +623,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 42.7
+    "max_hand_table_force_n": 20.2
    }
   },
   {
@@ -633,8 +633,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0075,
-    "max_hand_table_force_n": 33.4
+    "max_lift_m": 0.0005,
+    "max_hand_table_force_n": 19.2
    }
   },
   {
@@ -667,7 +667,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 43.5
+    "max_hand_table_force_n": 21.7
    }
   },
   {
@@ -678,7 +678,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 4.9
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -688,8 +688,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0047,
-    "max_hand_table_force_n": 31.3
+    "max_lift_m": 0.0239,
+    "max_hand_table_force_n": 9.7
    }
   },
   {
@@ -700,7 +700,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 10.4
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -710,8 +710,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0011,
-    "max_hand_table_force_n": 31.3
+    "max_lift_m": 0.0062,
+    "max_hand_table_force_n": 10.5
    }
   },
   {
@@ -721,8 +721,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.003,
-    "max_hand_table_force_n": 1795.4
+    "max_lift_m": 0.0004,
+    "max_hand_table_force_n": 203.3
    }
   },
   {
@@ -733,7 +733,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 17.3
+    "max_hand_table_force_n": 10.3
    }
   },
   {
@@ -744,7 +744,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 22.9
+    "max_hand_table_force_n": 1.9
    }
   },
   {
@@ -755,7 +755,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 53.7
+    "max_hand_table_force_n": 2.5
    }
   },
   {
@@ -766,7 +766,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 28.8
+    "max_hand_table_force_n": 13.7
    }
   },
   {
@@ -777,7 +777,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 32.0
+    "max_hand_table_force_n": 11.5
    }
   },
   {
@@ -788,18 +788,18 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 80.4
+    "max_hand_table_force_n": 23.1
    }
   },
   {
    "seed": 100066,
    "target_object": "cylinder_tall",
    "success": false,
-   "steps": 155,
-   "failure": "object_fell_off_table",
+   "steps": 160,
+   "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.005,
-    "max_hand_table_force_n": 40.6
+    "max_lift_m": 0.0047,
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -809,8 +809,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0097,
-    "max_hand_table_force_n": 24.2
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 20.3
    }
   },
   {
@@ -820,8 +820,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0002,
-    "max_hand_table_force_n": 32.8
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 21.0
    }
   },
   {
@@ -831,8 +831,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0003,
-    "max_hand_table_force_n": 50.5
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 15.0
    }
   },
   {
@@ -843,7 +843,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 8.7
+    "max_hand_table_force_n": 2.3
    }
   },
   {
@@ -854,7 +854,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 14.0
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -865,18 +865,18 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 51.4
+    "max_hand_table_force_n": 14.4
    }
   },
   {
    "seed": 100073,
    "target_object": "cylinder_short",
    "success": false,
-   "steps": 109,
-   "failure": "object_fell_off_table",
+   "steps": 160,
+   "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0234,
-    "max_hand_table_force_n": 21.9
+    "max_lift_m": 0.0041,
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -887,7 +887,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 36.6
+    "max_hand_table_force_n": 19.9
    }
   },
   {
@@ -897,8 +897,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0008,
-    "max_hand_table_force_n": 54.5
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 21.1
    }
   },
   {
@@ -909,7 +909,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 27.8
+    "max_hand_table_force_n": 11.4
    }
   },
   {
@@ -920,7 +920,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 25.9
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -931,7 +931,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 67.6
+    "max_hand_table_force_n": 39.4
    }
   },
   {
@@ -942,7 +942,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 36.5
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -953,7 +953,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 28.1
+    "max_hand_table_force_n": 10.7
    }
   },
   {
@@ -964,7 +964,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 30.4
+    "max_hand_table_force_n": 21.8
    }
   },
   {
@@ -975,7 +975,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 89.0
+    "max_hand_table_force_n": 0.0
    }
   },
   {
@@ -986,7 +986,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.005,
-    "max_hand_table_force_n": 24.3
+    "max_hand_table_force_n": 12.0
    }
   },
   {
@@ -997,18 +997,18 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 7.7
+    "max_hand_table_force_n": 0.0
    }
   },
   {
    "seed": 100085,
    "target_object": "cylinder_tall",
    "success": false,
-   "steps": 147,
+   "steps": 154,
    "failure": "object_fell_off_table",
    "metrics": {
-    "max_lift_m": 0.0119,
-    "max_hand_table_force_n": 20.7
+    "max_lift_m": 0.0045,
+    "max_hand_table_force_n": 10.3
    }
   },
   {
@@ -1019,7 +1019,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 44.2
+    "max_hand_table_force_n": 3.8
    }
   },
   {
@@ -1030,18 +1030,18 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 61.7
+    "max_hand_table_force_n": 24.3
    }
   },
   {
    "seed": 100088,
    "target_object": "block_small",
    "success": false,
-   "steps": 70,
-   "failure": "object_fell_off_table",
+   "steps": 160,
+   "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0142,
-    "max_hand_table_force_n": 0.0
+    "max_lift_m": 0.038,
+    "max_hand_table_force_n": 647.8
    }
   },
   {
@@ -1052,7 +1052,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 33.9
+    "max_hand_table_force_n": 18.0
    }
   },
   {
@@ -1062,8 +1062,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0051,
-    "max_hand_table_force_n": 155.5
+    "max_lift_m": 0.0002,
+    "max_hand_table_force_n": 30.5
    }
   },
   {
@@ -1073,8 +1073,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0112,
-    "max_hand_table_force_n": 31.9
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 20.8
    }
   },
   {
@@ -1084,8 +1084,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0235,
-    "max_hand_table_force_n": 34.3
+    "max_lift_m": 0.0068,
+    "max_hand_table_force_n": 17.8
    }
   },
   {
@@ -1096,7 +1096,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 57.2
+    "max_hand_table_force_n": 32.9
    }
   },
   {
@@ -1107,7 +1107,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 40.8
+    "max_hand_table_force_n": 14.9
    }
   },
   {
@@ -1118,7 +1118,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 49.5
+    "max_hand_table_force_n": 21.4
    }
   },
   {
@@ -1129,7 +1129,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 50.5
+    "max_hand_table_force_n": 15.0
    }
   },
   {
@@ -1140,7 +1140,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 34.1
+    "max_hand_table_force_n": 13.5
    }
   },
   {
@@ -1151,7 +1151,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 23.3
+    "max_hand_table_force_n": 3.8
    }
   },
   {
@@ -1161,13 +1161,13 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0001,
-    "max_hand_table_force_n": 51.2
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 16.1
    }
   }
  ],
  "code": {
-  "commit": "f85e820f9681d2273714d5d203c61e3a26896059",
-  "dirty": false
+  "commit": "46f3a180837453f5301525399e484470384784b4",
+  "dirty": true
  }
 }

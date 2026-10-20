@@ -1,0 +1,32 @@
+# Scripted pick expert. It sees only the observation fields a learned policy sees
+# (configs/tasks/pick.yaml), and its parameters may depend only on object shape and size
+# (AGENTS.md rule 4). These values use no per-object settings at all. Tuned on train seeds
+# only; see STATUS.md for the procedure.
+
+gains:
+  position: 0.6            # fraction of the position error commanded per step
+  yaw: 0.5                 # fraction of the yaw error commanded per step
+  level: 0.5               # fraction of the palm tilt error commanded per step
+
+approach_clearance_m: 0.06   # grasp point this far above its grasp target before descending
+position_tolerance_m: 0.008
+yaw_tolerance_rad: 0.08
+descend_timeout_steps: 30    # the table may stop the hand short of its target
+close_steps: 14              # time for the rate-limited fingers to close
+lift_m: 0.10
+lift_check_m: 0.04           # after the hand rises this much, the object must have risen half as much
+max_attempts: 2
+
+# Grasp point target relative to the object centre, in the hand's yaw frame: x along the
+# fingers, y toward the thumb, z up. The thumb tucks behind the object and the index and
+# middle fingertips close in front, about 45 mm below the grasp point, so the object is
+# pinched near its mid-height.
+grasp_offset_m: [-0.015, -0.022, 0.042]
+
+# Actuator targets (menagerie names without the rh_A_ prefix). Unlisted actuators stay at 0.
+# open: fingers straight, thumb rotated under the palm and hanging behind the grasp point.
+# close: index, middle and ring curl down in front of the object; the thumb swings forward.
+postures:
+  open: {THJ5: 0.5, THJ4: 1.2, THJ2: -0.4}
+  close: {THJ5: 1.0, THJ4: 1.2, THJ2: 0.0, THJ1: 0.4,
+          FFJ3: 1.0, FFJ0: 0.8, MFJ3: 1.0, MFJ0: 0.8, RFJ3: 1.0, RFJ0: 0.8}
