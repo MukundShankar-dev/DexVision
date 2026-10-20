@@ -3,18 +3,16 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dexvision-hand2bot"
-version = "0.1.0"
-description = "Vision-based dexterous teleoperation and imitation-learning pipeline"
+name = "dexvision"
+version = "0.2.0"
+description = "Shadow Hand manipulation skills in MuJoCo learned with one Diffusion Policy from scripted experts"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "mediapipe>=0.10.21,<0.11",
     "mujoco>=3.2,<4",
     "numpy>=1.26,<2",
-    "opencv-contrib-python>=4.10,<5",
     "PyYAML>=6,<7",
-    "scipy>=1.11,<2",
+    "torch>=2.7,<3",
 ]
 
 [project.optional-dependencies]
@@ -22,15 +20,19 @@ dev = [
     "pytest>=8,<10",
     "ruff>=0.12,<1",
 ]
-learning = [
-    "torch>=2.7",
-]
 
 [tool.setuptools.packages.find]
 include = ["dexvision*"]
 
 [tool.ruff]
 target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

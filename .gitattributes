@@ -1,14 +1,8 @@
-datasets/*.tar.gz filter=lfs diff=lfs merge=lfs -text
-datasets/*.tar.gz.part-* filter=lfs diff=lfs merge=lfs -text
+# Normalize text to LF on every platform so hashes and diffs match on macOS and Windows.
+* text=auto eol=lf
 *.pdf binary
-# Preserve the official CC BY 4.0 license's terminal blank line verbatim.
-docs/licenses/level4-v1/CC-BY-4.0.txt whitespace=-blank-at-eof
-datasets/level4-v1/licenses/CC-BY-4.0.txt whitespace=-blank-at-eof
-# Preserve checksum-bound pick confirmation code byte-for-byte.
-dexvision/sim/scripted_expert_settings.py whitespace=-blank-at-eof
-# Preserve checksum-bound place qualification rollouts byte-for-byte.
-dexvision/evaluation/place_shadow_rollout.py whitespace=-blank-at-eof
-dexvision/evaluation/place_collision_rollout.py whitespace=-blank-at-eof
-dexvision/evaluation/place_wrist_hold_rollout.py whitespace=-blank-at-eof
-# Preserve checksum-bound perception rendering code byte-for-byte.
-dexvision/logging/perception_raster.py whitespace=-blank-at-eof
+*.png binary
+*.stl binary
+*.obj -text
+*.npz binary
+*.pt binary

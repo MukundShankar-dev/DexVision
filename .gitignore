@@ -1,13 +1,9 @@
-# Local project notes and source material
+# Local agent guide (owner preference: not versioned)
 AGENTS.md
-README_REPO_BOOTSTRAP.md
-SETUP_NEXT_STEPS.md
-output/pdf/DexVision_End_to_End_Interview_Guide.pdf
 
 # Python caches and build artifacts
 __pycache__/
 *.py[cod]
-*$py.class
 .pytest_cache/
 .ruff_cache/
 .coverage
@@ -27,23 +23,11 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Operator-owned datasets and generated outputs
-data/demos/
-data/visual/
-data/skill_metadata/
+# Generated data, runs and weights stay local. Only results/ (small JSON) is versioned.
+data/
+datasets/
+outputs/
+output/
+runs/
 tmp/
-
-# Owner-authorized 5.6 publication: bulk datasets stay local; publish compact models.
-datasets/level5-perception-*.tar.gz
-datasets/level5-perception-*.tar.gz.part-*
-!datasets/level5-perception-model-*.tar.gz
-
-# Keep generated run directories local, but version the compact Level 3.8
-# feasibility evidence needed to reproduce the roadmap decision.
-outputs/*
-!outputs/level3/
-outputs/level3/*
-!outputs/level3/feasibility_v1/
-!outputs/level3/feasibility_v1/summary.json
-!outputs/level3/feasibility_v1/rollout_success.svg
-!outputs/level3/feasibility_v1/safety_violations.svg
+*.pt
