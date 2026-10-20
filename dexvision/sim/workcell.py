@@ -90,6 +90,23 @@ class Observation:
 
 
 @dataclass(frozen=True)
+class ActionSpace:
+    """Bounds of the 26-D action. Values outside are clipped by ``Workcell.step``."""
+
+    max_translation_m: float
+    max_rotation_rad: float
+    target_low: np.ndarray  # [20]
+    target_high: np.ndarray  # [20]
+    neutral_targets: np.ndarray  # [20]
+
+    def hold(self) -> np.ndarray:
+        """Keep the hand where it is with fingers at their neutral targets."""
+        action = np.zeros(ACTION_DIM)
+        action[ACTUATOR_TARGETS] = self.neutral_targets
+        return action
+
+
+@dataclass(frozen=True)
 class Contact:
     """One active contact between two named bodies, with its normal force in newtons."""
 
@@ -146,16 +163,29 @@ class Workcell:
         self.ctrl_low = m.actuator_ctrlrange[:, 0].copy()
         self.ctrl_high = m.actuator_ctrlrange[:, 1].copy()
         self.neutral_actuator_targets = np.clip(0.0, self.ctrl_low, self.ctrl_high)
+        self.action_space = ActionSpace(
+            max_translation_m=float(self._control["max_translation_m"]),
+            max_rotation_rad=float(self._control["max_rotation_rad"]),
+            target_low=self.ctrl_low.copy(),
+            target_high=self.ctrl_high.copy(),
+            neutral_targets=self.neutral_actuator_targets.copy(),
+        )
         self._command_position = np.zeros(3)
         self._command_orientation = np.array([1.0, 0.0, 0.0, 0.0])
         self._ready = False
 
     # ------------------------------------------------------------------ public API
 
-    def reset(self, seed: int, layout: Mapping[str, Placement]) -> Observation:
-        """Place the hand at neutral, sample object poses for ``seed``, settle physically.
+    def reset(
+        self,
+        seed: int,
+        layout: Mapping[str, Placement],
+        hand_offset: np.ndarray | None = None,
+    ) -> Observation:
+        """Place the hand, sample object poses for ``seed``, and settle physically.
 
-        Objects missing from ``layout`` rest on the floor out of reach.
+        ``hand_offset`` [3] shifts the hand from its neutral position. Objects missing from
+        ``layout`` rest on the floor out of reach.
         """
         unknown = set(layout) - set(OBJECT_IDS)
         if unknown:
@@ -164,6 +194,8 @@ class Workcell:
         mujoco.mj_resetData(self.model, self.data)
 
         position = np.asarray(self._hand["neutral_position_m"], dtype=float)
+        if hand_offset is not None:
+            position = position + np.asarray(hand_offset, dtype=float)
         orientation = _normalized(self._hand["neutral_orientation_wxyz"])
         self._place_forearm_on_weld(position, orientation)
         self.data.mocap_pos[self._target_mocap] = position
@@ -269,6 +301,11 @@ class Workcell:
     def object_half_height(self, name: str) -> float:
         return self._objects[name].half_height
 
+    def object_geometry(self, name: str) -> tuple[str, np.ndarray]:
+        """(shape, size [3]): box half-extents, or cylinder [radius, half_height, 0]."""
+        info = self._objects[name]
+        return info.shape, info.size.copy()
+
     # ------------------------------------------------------------------ internals
 
     def _apply_inputs(
@@ -361,20 +398,24 @@ class _ObjectInfo:
     qpos: int
     half_height: float
     footprint_radius: float  # yaw-independent radius of the object's table footprint
+    shape: str
+    size: np.ndarray  # [3] box half-extents, or [radius, half_height, 0] for a cylinder
 
     @classmethod
     def from_model(cls, workcell: Workcell, name: str) -> _ObjectInfo:
         m = workcell.model
         geom = workcell._id("geom", f"{name}_geom")
-        size = m.geom_size[geom]
+        size = m.geom_size[geom].copy()
         if m.geom_type[geom] == mujoco.mjtGeom.mjGEOM_BOX:
-            half_height, radius = size[2], math.hypot(size[0], size[1])
+            shape, half_height, radius = "box", size[2], math.hypot(size[0], size[1])
         elif m.geom_type[geom] == mujoco.mjtGeom.mjGEOM_CYLINDER:
-            half_height, radius = size[1], size[0]
+            shape, half_height, radius = "cylinder", size[1], size[0]
+            size[2] = 0.0
         else:
             raise WorkcellError(f"Unsupported object geom type for '{name}'.")
         qpos = int(m.jnt_qposadr[workcell._id("joint", f"{name}_joint")])
-        return cls(workcell._id("body", name), qpos, float(half_height), float(radius))
+        body = workcell._id("body", name)
+        return cls(body, qpos, float(half_height), float(radius), shape, size)
 
     def set_pose(self, data: mujoco.MjData, position: np.ndarray, yaw: float) -> None:
         data.qpos[self.qpos : self.qpos + 3] = position

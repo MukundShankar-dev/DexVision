@@ -1,0 +1,57 @@
+"""Evaluate a policy on a task split and write the report.
+
+    python -m dexvision.apps.evaluate --task pick --policy zero --episodes 100 --videos 2
+
+Reports go to results/<task>/<policy>_<split>.json and videos to runs/videos/. Test-split runs
+count against the task's test budget and are logged in results/test_ledger.jsonl.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import time
+from pathlib import Path
+
+from dexvision import REPO_ROOT
+from dexvision.eval.evaluator import evaluate
+from dexvision.policies import POLICIES, make_policy
+from dexvision.sim.workcell import Workcell
+from dexvision.tasks import TASKS, make_task
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--task", choices=sorted(TASKS), required=True)
+    parser.add_argument("--policy", choices=sorted(POLICIES), required=True)
+    parser.add_argument("--split", choices=("val", "test"), default="val")
+    parser.add_argument("--episodes", type=int, default=100)
+    parser.add_argument("--videos", type=int, default=0, help="record the first N episodes")
+    parser.add_argument("--video-dir", type=Path, default=REPO_ROOT / "runs" / "videos")
+    parser.add_argument("--out", type=Path, default=None)
+    args = parser.parse_args()
+
+    workcell = Workcell()
+    task = make_task(args.task)
+    policy = make_policy(args.policy, workcell.action_space)
+    print(f"Evaluating {args.policy} on {args.task}/{args.split}: {args.episodes} episodes")
+    started = time.perf_counter()
+    report = evaluate(workcell, task, policy, args.split, args.episodes,
+                      video_dir=args.video_dir, n_videos=args.videos)
+    elapsed = time.perf_counter() - started
+
+    out = args.out or REPO_ROOT / "results" / args.task / f"{args.policy}_{args.split}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report.to_dict(), indent=1) + "\n", encoding="utf-8")
+    o = report.overall
+    print(f"Success {o.successes}/{o.n} = {o.successes / o.n:.1%}, "
+          f"95% CI [{o.ci95[0]:.1%}, {o.ci95[1]:.1%}]  ({elapsed:.0f} s)")
+    for name, rate in report.by_object.items():
+        lo, hi = rate.ci95
+        print(f"  {name:15s} {rate.successes:3d}/{rate.n:<3d} CI [{lo:.0%}, {hi:.0%}]")
+    print(f"  failures: {report.failures}")
+    print(f"Wrote {out}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,47 @@
+# Pick: lift one object off the table and hold it.
+# Written before any controller or policy exists (AGENTS.md section 2).
+skill: pick
+
+# One object is on the table per episode, chosen uniformly from this list by the episode seed.
+objects: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]
+
+reset:
+  object_center_xy_m: [-0.06, 0.0]
+  object_half_extent_xy_m: [0.04, 0.06]   # an 8 cm x 12 cm region
+  object_yaw_range_rad: [-3.141592653589793, 3.141592653589793]
+  hand_jitter_m: [0.02, 0.02, 0.02]       # uniform offset from the neutral hand position
+
+horizon_steps: 160                        # 8 s at 20 Hz
+
+success:
+  # All conditions are measured on physical bodies and must hold for dwell_steps in a row.
+  min_lift_m: 0.05                        # object centre above its starting height
+  dwell_steps: 10                         # 0.5 s
+  # The object touches the thumb and at least one other finger, and touches nothing
+  # except the hand.
+
+failure:
+  min_object_z_m: -0.02                   # the object fell off the table
+
+# What a policy may observe. The evaluator passes only these fields.
+# object_* fields are simulator ground truth: privileged in the state track.
+observation:
+  - palm_position
+  - palm_rotation6d
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - object_position
+  - object_rotation6d
+  - object_linear_velocity
+  - object_angular_velocity
+  - object_shape
+  - object_size
+
+# Disjoint episode seed ranges, [start, stop).
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [200000, 210000]
+
+test_budget: 3                            # test-split runs allowed per (skill, policy)
