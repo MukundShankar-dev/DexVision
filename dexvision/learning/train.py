@@ -143,7 +143,7 @@ def train(
             for e, b in zip(ema.buffers(), model.buffers(), strict=True):
                 e.copy_(b)
         if log:
-            log(step, float(loss))
+            log(step, loss.item())
         if checkpoint and (step % cfg["checkpoint_every"] == 0 or step == steps):
             trained.step = step
             checkpoint(trained)

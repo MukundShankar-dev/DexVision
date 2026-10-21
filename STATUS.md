@@ -1,7 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — push (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** gate approved (2026-10-21). Generating data and training.
+**State:** push trained and tested; both methods pass. Awaiting owner
+sign-off before press.
 **Last completed:** R7 reach — both methods pass (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
@@ -59,9 +60,17 @@ The random policy's successes are real pushes (checked). Chance is higher
 here because the hand starts behind the object and every goal lies away from
 it.
 
-**Push gate (approved by owner 2026-10-21, before any push training).** A learned push policy passes only if its single 200-episode test
-run has a Wilson 95% lower bound ≥ 80% (≥ 170/200) and every object ≥ 60%.
-Checkpoints are selected on val only.
+**Gate** (approved before training): test Wilson lower bound ≥ 80% and every
+object ≥ 60%.
+
+- Data: 981/1000 kept (19 timeouts); 200/200 replays exact.
+- Val selection: MLP-BC step 50k 200/200; Diffusion step 60k 200/200.
+- **Test:** MLP-BC **198/200** [96.4%, 99.7%], Diffusion **199/200**
+  [97.2%, 99.9%]; every object ≥ 46/48 (gate passed).
+- Goal hidden (training mean): MLP 65/200, Diffusion 70/200. The expert
+  given that same fake goal scores 69/200, and just pushing 5.8 cm forward
+  scores 84/200. That is the floor without knowing the goal; this task has a
+  strong "push forward" prior.
 
 ## Caveats
 
