@@ -1,0 +1,113 @@
+{
+ "code": {
+  "commit": "a3fbcf13d9c76d032f6661ff4915cefb28b5e5bb",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "config": {
+  "task": "reach",
+  "policy": "expert",
+  "split": "train",
+  "episodes": 1000,
+  "noise_std": {
+   "translation_m": 0.002,
+   "rotation_rad": 0.01,
+   "targets_rad": 0.05
+  }
+ },
+ "task_spec": {
+  "skill": "reach",
+  "reset": {
+   "goal_center_m": [
+    -0.11,
+    0.0,
+    0.13
+   ],
+   "goal_half_extent_m": [
+    0.09,
+    0.1,
+    0.07
+   ],
+   "min_goal_distance_m": 0.05,
+   "hand_jitter_m": [
+    0.02,
+    0.02,
+    0.02
+   ]
+  },
+  "horizon_steps": 100,
+  "success": {
+   "tolerance_m": 0.015,
+   "dwell_steps": 10
+  },
+  "failure": {
+   "hand_collision": true
+  },
+  "observation": [
+   "palm_position",
+   "palm_rotation6d",
+   "grasp_position",
+   "hand_qpos",
+   "hand_qvel",
+   "fingertip_positions",
+   "goal_position"
+  ],
+  "splits": {
+   "train": [
+    0,
+    100000
+   ],
+   "val": [
+    100000,
+    110000
+   ],
+   "test": [
+    200000,
+    210000
+   ]
+  },
+  "test_budget": 3
+ },
+ "expert_config": {
+  "gains": {
+   "position": 0.6,
+   "orientation": 0.5
+  }
+ },
+ "seeds": [
+  0,
+  1000
+ ],
+ "attempted": 1000,
+ "kept": {
+  "successes": 1000,
+  "n": 1000,
+  "ci95": [
+   0.9962,
+   1.0
+  ]
+ },
+ "kept_by_object": {
+  "none": {
+   "successes": 1000,
+   "n": 1000,
+   "ci95": [
+    0.9962,
+    1.0
+   ]
+  }
+ },
+ "dropped": {},
+ "transitions": 28462,
+ "steps_per_episode": {
+  "min": 15,
+  "median": 28.0,
+  "max": 55
+ },
+ "files_sha256": "29a1e802ee5941ef07de239e859c1e953344fb45cc8a268525a0cb6c74bcd2a1",
+ "replay_check": {
+  "episodes": 200,
+  "matched": 200
+ }
+}
