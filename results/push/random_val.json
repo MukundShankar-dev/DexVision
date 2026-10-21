@@ -1,0 +1,1160 @@
+{
+ "skill": "push",
+ "policy": "random",
+ "split": "val",
+ "overall": {
+  "successes": 6,
+  "n": 100,
+  "ci95": [
+   0.0278,
+   0.1248
+  ]
+ },
+ "by_object": {
+  "block_large": {
+   "successes": 2,
+   "n": 19,
+   "ci95": [
+    0.0294,
+    0.3139
+   ]
+  },
+  "block_small": {
+   "successes": 2,
+   "n": 23,
+   "ci95": [
+    0.0242,
+    0.268
+   ]
+  },
+  "cylinder_short": {
+   "successes": 2,
+   "n": 28,
+   "ci95": [
+    0.0198,
+    0.2265
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 0,
+   "n": 30,
+   "ci95": [
+    0.0,
+    0.1135
+   ]
+  }
+ },
+ "failures": {
+  "timeout": 90,
+  "object_fell_off_table": 4
+ },
+ "episodes": [
+  {
+   "seed": 100000,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0558,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100001,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0565,
+    "max_height_change_m": 0.0008
+   }
+  },
+  {
+   "seed": 100002,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0631,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100003,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 191,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0427,
+    "max_height_change_m": 0.0967
+   }
+  },
+  {
+   "seed": 100004,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0561,
+    "max_height_change_m": 0.018
+   }
+  },
+  {
+   "seed": 100005,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0713,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100006,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0502,
+    "max_height_change_m": 0.0183
+   }
+  },
+  {
+   "seed": 100007,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0667,
+    "max_height_change_m": 0.0073
+   }
+  },
+  {
+   "seed": 100008,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0687,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100009,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0615,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100010,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0572,
+    "max_height_change_m": 0.007
+   }
+  },
+  {
+   "seed": 100011,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0628,
+    "max_height_change_m": 0.0163
+   }
+  },
+  {
+   "seed": 100012,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0658,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100013,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0294,
+    "max_height_change_m": 0.0081
+   }
+  },
+  {
+   "seed": 100014,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 109,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0013,
+    "max_height_change_m": 0.0123
+   }
+  },
+  {
+   "seed": 100015,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.06,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100016,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0645,
+    "max_height_change_m": 0.0005
+   }
+  },
+  {
+   "seed": 100017,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.051,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100018,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 133,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0134,
+    "max_height_change_m": 0.0017
+   }
+  },
+  {
+   "seed": 100019,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0348,
+    "max_height_change_m": 0.0068
+   }
+  },
+  {
+   "seed": 100020,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0783,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100021,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0617,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100022,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 196,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0102,
+    "max_height_change_m": 0.0045
+   }
+  },
+  {
+   "seed": 100023,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0305,
+    "max_height_change_m": 0.0107
+   }
+  },
+  {
+   "seed": 100024,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0559,
+    "max_height_change_m": 0.008
+   }
+  },
+  {
+   "seed": 100025,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0743,
+    "max_height_change_m": 0.001
+   }
+  },
+  {
+   "seed": 100026,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.055,
+    "max_height_change_m": 0.0038
+   }
+  },
+  {
+   "seed": 100027,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0336,
+    "max_height_change_m": 0.0102
+   }
+  },
+  {
+   "seed": 100028,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 145,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0294,
+    "max_height_change_m": 0.0471
+   }
+  },
+  {
+   "seed": 100029,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0079,
+    "max_height_change_m": 0.0173
+   }
+  },
+  {
+   "seed": 100030,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0629,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100031,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0595,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100032,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.053,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100033,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0573,
+    "max_height_change_m": 0.0095
+   }
+  },
+  {
+   "seed": 100034,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0545,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100035,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0532,
+    "max_height_change_m": 0.0067
+   }
+  },
+  {
+   "seed": 100036,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0046,
+    "max_height_change_m": 0.0112
+   }
+  },
+  {
+   "seed": 100037,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0612,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100038,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0692,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100039,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0116,
+    "max_height_change_m": 0.0178
+   }
+  },
+  {
+   "seed": 100040,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 89,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0642,
+    "max_height_change_m": 0.0809
+   }
+  },
+  {
+   "seed": 100041,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 178,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0045,
+    "max_height_change_m": 0.0101
+   }
+  },
+  {
+   "seed": 100042,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0751,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100043,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0507,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100044,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0489,
+    "max_height_change_m": 0.0032
+   }
+  },
+  {
+   "seed": 100045,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0403,
+    "max_height_change_m": 0.0088
+   }
+  },
+  {
+   "seed": 100046,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 190,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0643,
+    "max_height_change_m": 0.0943
+   }
+  },
+  {
+   "seed": 100047,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0661,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100048,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0326,
+    "max_height_change_m": 0.0206
+   }
+  },
+  {
+   "seed": 100049,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.073,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100050,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0561,
+    "max_height_change_m": 0.0055
+   }
+  },
+  {
+   "seed": 100051,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0072,
+    "max_height_change_m": 0.0079
+   }
+  },
+  {
+   "seed": 100052,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0742,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100053,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0728,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100054,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0433,
+    "max_height_change_m": 0.0185
+   }
+  },
+  {
+   "seed": 100055,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0094,
+    "max_height_change_m": 0.0179
+   }
+  },
+  {
+   "seed": 100056,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0752,
+    "max_height_change_m": 0.0077
+   }
+  },
+  {
+   "seed": 100057,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0522,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100058,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0594,
+    "max_height_change_m": 0.0029
+   }
+  },
+  {
+   "seed": 100059,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0391,
+    "max_height_change_m": 0.0098
+   }
+  },
+  {
+   "seed": 100060,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0655,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100061,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0771,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100062,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.038,
+    "max_height_change_m": 0.0176
+   }
+  },
+  {
+   "seed": 100063,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0068,
+    "max_height_change_m": 0.0175
+   }
+  },
+  {
+   "seed": 100064,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0575,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100065,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0746,
+    "max_height_change_m": 0.0027
+   }
+  },
+  {
+   "seed": 100066,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.034,
+    "max_height_change_m": 0.0106
+   }
+  },
+  {
+   "seed": 100067,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0547,
+    "max_height_change_m": 0.0172
+   }
+  },
+  {
+   "seed": 100068,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0321,
+    "max_height_change_m": 0.0087
+   }
+  },
+  {
+   "seed": 100069,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0252,
+    "max_height_change_m": 0.007
+   }
+  },
+  {
+   "seed": 100070,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0294,
+    "max_height_change_m": 0.0174
+   }
+  },
+  {
+   "seed": 100071,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0131,
+    "max_height_change_m": 0.0187
+   }
+  },
+  {
+   "seed": 100072,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0648,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100073,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 163,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0107,
+    "max_height_change_m": 0.0062
+   }
+  },
+  {
+   "seed": 100074,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0341,
+    "max_height_change_m": 0.0018
+   }
+  },
+  {
+   "seed": 100075,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0472,
+    "max_height_change_m": 0.0035
+   }
+  },
+  {
+   "seed": 100076,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0626,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100077,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0722,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100078,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0679,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100079,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0755,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100080,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0456,
+    "max_height_change_m": 0.0033
+   }
+  },
+  {
+   "seed": 100081,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 199,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0149,
+    "max_height_change_m": 0.0064
+   }
+  },
+  {
+   "seed": 100082,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0531,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100083,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0446,
+    "max_height_change_m": 0.0107
+   }
+  },
+  {
+   "seed": 100084,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.078,
+    "max_height_change_m": 0.0001
+   }
+  },
+  {
+   "seed": 100085,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0356,
+    "max_height_change_m": 0.0078
+   }
+  },
+  {
+   "seed": 100086,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0713,
+    "max_height_change_m": 0.0013
+   }
+  },
+  {
+   "seed": 100087,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0605,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100088,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0331,
+    "max_height_change_m": 0.0082
+   }
+  },
+  {
+   "seed": 100089,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0624,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100090,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0322,
+    "max_height_change_m": 0.0102
+   }
+  },
+  {
+   "seed": 100091,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0604,
+    "max_height_change_m": 0.0073
+   }
+  },
+  {
+   "seed": 100092,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0654,
+    "max_height_change_m": 0.0088
+   }
+  },
+  {
+   "seed": 100093,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0356,
+    "max_height_change_m": 0.0074
+   }
+  },
+  {
+   "seed": 100094,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0716,
+    "max_height_change_m": 0.0026
+   }
+  },
+  {
+   "seed": 100095,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0666,
+    "max_height_change_m": 0.0
+   }
+  },
+  {
+   "seed": 100096,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0379,
+    "max_height_change_m": 0.0009
+   }
+  },
+  {
+   "seed": 100097,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0439,
+    "max_height_change_m": 0.018
+   }
+  },
+  {
+   "seed": 100098,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0708,
+    "max_height_change_m": 0.0172
+   }
+  },
+  {
+   "seed": 100099,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0524,
+    "max_height_change_m": 0.0105
+   }
+  }
+ ],
+ "code": {
+  "commit": "238af08d3a63a46252c030cb77448dcebd88e5b9",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {}
+}

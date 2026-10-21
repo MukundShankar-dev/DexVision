@@ -1,7 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — push (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** designing the push task spec and expert.
+**State:** task spec, expert and val baselines done. Awaiting owner sign-off
+on the push gate before data generation and training.
 **Last completed:** R7 reach — both methods pass (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
@@ -25,38 +26,44 @@
 - Ledger: the pick MLP entry says `dirty` only because of uncommitted
   `results/` files; that flag now ignores `results/`.
 
-## Reach (done; `configs/tasks/reach.yaml`, `dexvision/policies/reach_expert.py`)
+## Reach (done)
 
-- **Task:** a goal uniform in a 18 × 20 × 14 cm box above the table, ≥ 5 cm
-  from the start, with no objects. Success: the **measured** grasp site
-  within 1.5 cm of the goal for 0.5 s, within 5 s. Any hand contact with the
-  scene fails the episode.
-- **Observation:** palm pose, grasp position, hand joints and velocities,
-  fingertips, and the goal (an instruction, not privileged state).
-- **Expert:** proportional control of the grasp point toward the goal; holds
-  the starting palm orientation. One parameter set, no tuning needed.
-  - Train seeds 0–299: 300/300 clean and 300/300 with DART noise (median 26
-    steps).
-- **Data and training** (commit a3fbcf1): 1000/1000 noisy expert episodes kept,
-  28,462 transitions, 200/200 replay exactly. Diffusion trained in 33 min,
-  MLP in 2 min.
-- **Diagnostic on val (not committed):** with the goal hidden (replaced by its
-  training mean), success drops to 1/200 (MLP) and 2/200 (diffusion).
+- Bring the measured grasp point within 1.5 cm of a goal for 0.5 s; any hand
+  collision fails. Val: zero 0/100, random 0/100, expert 200/200.
+- **Test:** MLP-BC **200/200**, Diffusion **200/200** (gate passed). With a
+  fake goal (the training mean), success drops to 1 and 2 of 200.
+
+## Push (`configs/tasks/push.yaml`, `dexvision/policies/push_expert.py`)
+
+- **Task:** slide one of four objects (both blocks, both cylinders; no
+  pucks) 5–8 cm toward a goal within ±45° of +x. Success (measured on the
+  object): within 2 cm of the goal and still upright on the table for 0.5 s,
+  within 10 s. Hand contact with the trays, wall fixture or button fails the
+  episode.
+- **Fan narrowed during design** from ±90° to ±60° to ±45°. The forearm
+  trails about 30 cm behind the hand and hit the wall fixture and button past
+  about 105° of hand yaw. Pushes also need steering room.
+- **Expert:** fingers bent 90° at the knuckle form a wall. It approaches high
+  behind the object, descends, and pushes along object → goal, re-aimed every
+  step. It slides back before rising to re-approach (rising while touching
+  toppled tall cylinders) and never turns the hand past 90°. Train seeds
+  0–299: 300/300 clean, 293/300 with DART noise.
 
 | Split | Policy | Successes / n | Wilson 95% CI | Notes |
 |---|---|---|---|---|
 | val | zero | 0 / 100 | [0.0%, 3.7%] | 100 timeouts |
-| val | random | 0 / 100 | [0.0%, 3.7%] | 26 hand collisions, 74 timeouts |
-| val | expert | 200 / 200 | [98.1%, 100%] | oracle ceiling |
-| val | expert + DART noise | 200 / 200 | [98.1%, 100%] | robustness, not a policy |
-| val | MLP-BC, step 60k | 200 / 200 | [98.1%, 100%] | every checkpoint 200/200 |
-| val | Diffusion, step 60k | 200 / 200 | [98.1%, 100%] | every checkpoint 200/200 |
-| **test** | **MLP-BC, step 60k** | **200 / 200** | **[98.1%, 100%]** | Gate: **pass** |
-| **test** | **Diffusion, step 60k** | **200 / 200** | **[98.1%, 100%]** | Gate: **pass** |
+| val | random | 6 / 100 | [2.8%, 12.5%] | genuine: objects moved 5–7 cm (see note) |
+| val | expert | 200 / 200 | [98.1%, 100%] | every object 100% |
+| val | expert + DART noise | 196 / 200 | [95.0%, 99.2%] | robustness, not a policy |
 
-**Reach gate (owner approved 2026-10-21, written before any reach training).** A learned reach policy passes only if its single 200-episode
-test run has a Wilson 95% lower bound ≥ 80% (≥ 170/200). Hand collisions
-count as failures. Checkpoints are selected on val only.
+The random policy's successes are real pushes (checked). Chance is higher
+here because the hand starts behind the object and every goal lies away from
+it.
+
+**Push gate (proposed, written before any push training; needs owner
+sign-off).** A learned push policy passes only if its single 200-episode test
+run has a Wilson 95% lower bound ≥ 80% (≥ 170/200) and every object ≥ 60%.
+Checkpoints are selected on val only.
 
 ## Caveats
 
