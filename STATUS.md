@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — reach (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** task spec, expert and val baselines done. Awaiting owner sign-off
-on the reach gate before data generation and training.
+**State:** reach gate approved. Data generation, training, selection and test
+runs are in progress on the desktop.
 **Last completed:** R6 — pick trained and tested; both methods pass (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
@@ -55,8 +55,7 @@ on the reach gate before data generation and training.
 | val | expert | 200 / 200 | [98.1%, 100%] | oracle ceiling |
 | val | expert + DART noise | 200 / 200 | [98.1%, 100%] | robustness, not a policy |
 
-**Reach gate (proposed, written before any reach training; needs owner
-sign-off).** A learned reach policy passes only if its single 200-episode
+**Reach gate (owner approved 2026-10-21, written before any reach training).** A learned reach policy passes only if its single 200-episode
 test run has a Wilson 95% lower bound ≥ 80% (≥ 170/200). Hand collisions
 count as failures. Checkpoints are selected on val only.
 
