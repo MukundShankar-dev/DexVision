@@ -24,10 +24,11 @@ venv/
 Thumbs.db
 
 # Generated data, runs and weights stay local. Only results/ (small JSON) is versioned.
-data/
-datasets/
-outputs/
-output/
-runs/
-tmp/
+# Patterns are anchored to the repo root so packages such as dexvision/data/ are not ignored.
+/data/
+/datasets/
+/outputs/
+/output/
+/runs/
+/tmp/
 *.pt

@@ -104,6 +104,19 @@ class ActionSpace:
     neutral_targets: np.ndarray  # [20]
     actuator_names: tuple[str, ...]  # [20], e.g. "THJ5", "FFJ0" (menagerie names without "rh_A_")
 
+    def clip(self, action: np.ndarray) -> np.ndarray:
+        """[26] -> [26]: the stateless limits of ``Workcell.step`` (motion norms, target range).
+
+        The per-step target rate and the command lead also depend on the current state, so only
+        ``Workcell.step`` applies them.
+        """
+        action = np.asarray(action, dtype=float)
+        out = np.empty(ACTION_DIM)
+        out[TRANSLATION] = _clip_norm(action[TRANSLATION], self.max_translation_m)
+        out[ROTATION] = _clip_norm(action[ROTATION], self.max_rotation_rad)
+        out[ACTUATOR_TARGETS] = np.clip(action[ACTUATOR_TARGETS], self.target_low, self.target_high)
+        return out
+
     def hold(self) -> np.ndarray:
         """Keep the hand where it is with fingers at their neutral targets."""
         action = np.zeros(ACTION_DIM)
@@ -231,13 +244,13 @@ class Workcell:
         action = np.asarray(action, dtype=float)
         if action.shape != (ACTION_DIM,) or not np.all(np.isfinite(action)):
             raise WorkcellError(f"Action must be finite with shape ({ACTION_DIM},).")
-        translation = _clip_norm(action[TRANSLATION], self._control["max_translation_m"])
-        rotation = _clip_norm(action[ROTATION], self._control["max_rotation_rad"])
+        action = self.action_space.clip(action)
+        translation, rotation = action[TRANSLATION], action[ROTATION]
         previous = self.data.ctrl
         targets = np.clip(
             action[ACTUATOR_TARGETS],
-            np.maximum(self.ctrl_low, previous - self._max_target_step),
-            np.minimum(self.ctrl_high, previous + self._max_target_step),
+            previous - self._max_target_step,
+            previous + self._max_target_step,
         )
 
         lo = np.asarray(self._control["workspace_min_m"])
