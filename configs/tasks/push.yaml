@@ -10,13 +10,11 @@ reset:
   object_center_xy_m: [-0.10, 0.0]
   object_half_extent_xy_m: [0.02, 0.03]
   object_yaw_range_rad: [-3.141592653589793, 3.141592653589793]
-  # The goal is the start position moved by a distance in this range, in a direction within
-  # +-45 degrees of +x (away from the arm). The forearm trails about 30 cm behind the hand, so
-  # the hand cannot turn much past 90 degrees without swinging it into the button and wall
-  # fixture; +-45 leaves 45 degrees for the steering corrections a push needs when the object
-  # drifts sideways.
+  # The goal is the start position moved by a distance in this range, in any direction that is not
+  # toward the arm: within +-90 degrees of +x. Forward pushes suit a wall of bent fingers; sideways
+  # pushes suit the palm or the back of the hand with the thumb up. Between them both work.
   push_distance_m: [0.05, 0.08]
-  push_angle_rad: [-0.7853981633974483, 0.7853981633974483]
+  push_angle_rad: [-1.5707963267948966, 1.5707963267948966]
   hand_jitter_m: [0.02, 0.02, 0.02]
 
 horizon_steps: 200                        # 10 s at 20 Hz
@@ -48,9 +46,10 @@ observation:
   - object_size
   - goal_position                         # where the object should end up (an instruction)
 
+# Test seeds 200000-210000 were used by the +-45 degree version of this spec (git tag push-45).
 splits:
   train: [0, 100000]
   val: [100000, 110000]
-  test: [200000, 210000]
+  test: [210000, 220000]
 
 test_budget: 3

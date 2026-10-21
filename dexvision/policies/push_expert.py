@@ -1,9 +1,12 @@
 """Closed-loop scripted push expert.
 
-The four fingers bend 90 degrees at the knuckle into a wall facing along the fingers. The hand
-turns so the wall faces the goal, comes down behind the object and pushes it, recomputing the
-push direction from the measured object position every step. If the object slides off the wall
-or the hand ends up beside or ahead of it, the expert lifts and approaches again.
+The hand pushes with one of three flat faces (configs/experts/push.yaml): a wall of fingers bent
+90 degrees at the knuckle that pushes along the fingers, or, with the thumb up, the palm (pushes
+left of the fingers) or the back of the hand (pushes right). Each approach picks the face that
+needs the least hand turn to face the object -> goal direction. The hand comes down behind the
+object and pushes it, re-aiming every step from the measured object position. If the object
+slides off the face or the hand ends up beside or ahead of it, the expert backs off, lifts and
+approaches again.
 
 It reads only the declared observation fields. No simulator access, no lookahead.
 """
@@ -27,9 +30,15 @@ from dexvision.tasks.features import TaskContext, rotation_from_6d
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "experts" / "push.yaml"
 
 
-def yaw_rotation(yaw: float) -> np.ndarray:
-    c, s = math.cos(yaw), math.sin(yaw)
-    return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
+def axis_rotation(axis: np.ndarray, angle: float) -> np.ndarray:
+    """[3] axis, angle (rad) -> [3, 3] rotation about the axis (Rodrigues)."""
+    x, y, z = np.asarray(axis, dtype=float) / np.linalg.norm(axis)
+    k = np.array([[0.0, -z, y], [z, 0.0, -x], [-y, x, 0.0]])
+    return np.eye(3) + math.sin(angle) * k + (1 - math.cos(angle)) * k @ k
+
+
+def horizontal(yaw: float) -> np.ndarray:
+    return np.array([math.cos(yaw), math.sin(yaw), 0.0])
 
 
 def support_distance(shape: str, size: np.ndarray, object_rotation: np.ndarray,
@@ -42,20 +51,39 @@ def support_distance(shape: str, size: np.ndarray, object_rotation: np.ndarray,
 
 
 @dataclass(frozen=True)
+class Pusher:
+    """A hand posture with a flat pushing face. See ``pushers`` in the expert config."""
+
+    name: str
+    fingers: np.ndarray  # [20] actuator targets
+    roll_rad: float
+    pitch_rad: float
+    face_yaw_rad: float
+    face_offset_m: float
+    along_fingers_m: float
+    drop_m: float
+
+    def finger_yaw(self, push_yaw: float) -> float:
+        """Hand yaw (finger direction) that makes the face push along ``push_yaw``."""
+        return wrap(push_yaw - self.face_yaw_rad)
+
+
+@dataclass(frozen=True)
 class _Measured:
-    """What one observation implies for the push (world frame, m)."""
+    """What one observation implies for the push with the current pusher (world frame, m)."""
 
     grasp: np.ndarray  # [3]
     palm: np.ndarray  # [3, 3]
     direction: np.ndarray  # [3] horizontal unit vector, object -> goal
+    finger_yaw: float  # hand yaw that faces ``direction``, within the limit
     distance: float  # object to goal, horizontal
     push_z: float  # grasp height while pushing
     high_z: float  # grasp height that clears the object
-    behind: np.ndarray  # [3] start of the push, behind the object
-    contact: np.ndarray  # [3] push target for this step
-    along: float  # object ahead of the grasp point along the push direction
-    lateral: float  # object off the push line
-    unreachable: bool
+    behind: np.ndarray  # [3] grasp position at the start of the push
+    contact: np.ndarray  # [3] grasp target for this push step
+    along: float  # object ahead of the face centre along the push direction
+    lateral: float  # object off the push line through the face centre
+    unreachable: bool  # this pusher cannot face the push direction within the yaw limit
 
 
 class PushExpert:
@@ -65,10 +93,14 @@ class PushExpert:
         self.config = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
         self._space = action_space
         names = action_space.actuator_names
-        self._fingers = action_space.neutral_targets.copy()
-        for name, value in self.config["wall_posture"].items():
-            self._fingers[names.index(name)] = value
-        self._fingers = np.clip(self._fingers, action_space.target_low, action_space.target_high)
+        self.pushers = {}
+        for name, spec in self.config["pushers"].items():
+            fingers = action_space.neutral_targets.copy()
+            for joint, value in spec["posture"].items():
+                fingers[names.index(joint)] = value
+            fingers = np.clip(fingers, action_space.target_low, action_space.target_high)
+            self.pushers[name] = Pusher(name, fingers, **{k: float(v) for k, v in spec.items()
+                                                          if k != "posture"})
 
     def reset(self, context: TaskContext, seed: int) -> None:
         self._context = context
@@ -76,7 +108,8 @@ class PushExpert:
         self._height = 2 * (size[2] if context.object_shape == "box" else size[1])
         self._goal = np.asarray(context.goal_position, dtype=float)
         self._phase, self._phase_steps = "approach", 0
-        self._initial_palm = None
+        self._pusher = None
+        self._bases = None
         self._hold_at = None
 
     def _enter(self, phase: str) -> None:
@@ -84,66 +117,100 @@ class PushExpert:
 
     def act(self, observation: Mapping[str, np.ndarray]) -> np.ndarray:
         palm = rotation_from_6d(observation["palm_rotation6d"])
-        if self._initial_palm is None:
-            self._initial_palm = palm
+        if self._bases is None:
+            self._bases = self._pusher_bases(palm)
+        if self._phase == "approach" and self._phase_steps == 0:  # each approach chooses again
+            self._pusher = self._choose(observation)
         m = self._measure(observation, palm)
+        if m.unreachable and self._phase == "approach":  # e.g. the object overshot: switch faces
+            self._pusher = self._choose(observation)
+            m = self._measure(observation, palm)
+        elif m.unreachable and self._phase in ("descend", "push"):
+            self._enter("back_off")  # and approach again, which chooses again
         self._phase_steps += 1
-        if m.unreachable and self._phase not in ("hold", "wait"):
-            self._enter("wait")
         phase = self._phase
         target = getattr(self, f"_{phase}")(m)
 
         translation = self.config["gains"]["position"] * (target - m.grasp)
-        if phase == "push":  # slow, so the object follows the wall
+        if phase == "push":  # slow, so the object follows the face
             norm = float(np.linalg.norm(translation))
             if norm > self.config["max_push_step_m"]:
                 translation *= self.config["max_push_step_m"] / norm
         action = self._space.hold()
         action[TRANSLATION] = translation
-        # while waiting, hold the current heading; otherwise face the push direction
-        action[ROTATION] = self._rotation(palm, None if phase == "wait" else m.direction)
-        action[ACTUATOR_TARGETS] = self._fingers
+        # keep the heading while backing away; otherwise face the push direction
+        yaw = _hand_yaw(palm) if phase in ("back_off", "retreat") else m.finger_yaw
+        error = self._orientation(yaw) @ palm.T
+        action[ROTATION] = self.config["gains"]["orientation"] * rotation_vector(error)
+        action[ACTUATOR_TARGETS] = self._pusher.fingers
         return action
 
+    def _pusher_bases(self, palm: np.ndarray) -> dict[str, np.ndarray]:
+        """Each pusher's palm orientation at the initial hand yaw: the initial palm rolled about
+        the fingers, then pitched about the horizontal axis across them."""
+        fingers = palm[:, 2]
+        across = np.cross([0.0, 0.0, 1.0], fingers)
+        return {name: axis_rotation(across, p.pitch_rad) @ axis_rotation(fingers, p.roll_rad) @ palm
+                for name, p in self.pushers.items()}
+
+    def _orientation(self, finger_yaw: float) -> np.ndarray:
+        """[3, 3] palm orientation of the current pusher with the fingers at ``finger_yaw``."""
+        base = self._bases[self._pusher.name]
+        limit = self.config["max_yaw_rad"]
+        yaw = min(max(finger_yaw, -limit), limit)
+        return axis_rotation([0.0, 0.0, 1.0], yaw - _hand_yaw(base)) @ base
+
+    def _choose(self, observation: Mapping[str, np.ndarray]) -> Pusher:
+        """The pusher that needs the least hand turn for the current object -> goal direction."""
+        to_goal = self._goal[:2] - observation["object_position"][:2]
+        push_yaw = math.atan2(to_goal[1], to_goal[0])
+        return min(self.pushers.values(), key=lambda p: abs(p.finger_yaw(push_yaw)))
+
     def _measure(self, observation: Mapping[str, np.ndarray], palm: np.ndarray) -> _Measured:
-        c = self.config
+        c, p = self.config, self._pusher
         grasp, obj = observation["grasp_position"], observation["object_position"]
         to_goal = self._goal[:2] - obj[:2]
         distance = float(np.linalg.norm(to_goal))
-        direction = np.append(to_goal / max(distance, 1e-9), 0.0)
+        push_yaw = math.atan2(to_goal[1], to_goal[0])
+        direction = horizontal(push_yaw)
+        finger_yaw = p.finger_yaw(push_yaw)
+        along_fingers = p.along_fingers_m * horizontal(finger_yaw)
         reach = support_distance(self._context.object_shape, self._context.object_size,
                                  rotation_from_6d(observation["object_rotation6d"]), direction)
+
+        def grasp_for(centre: np.ndarray, gap: float) -> np.ndarray:
+            """Grasp position that puts the face ``gap`` behind the edge of an object at centre."""
+            return centre - direction * (reach + p.face_offset_m + gap) - along_fingers
+
         bottom = obj[2] - self._height / 2
-        contact = obj - direction * (reach + c["wall_offset_m"] - c["push_depth_m"])
-        # Where the wall must be for the object to sit on the goal. The hand never goes past it,
+        contact = grasp_for(obj, -c["push_depth_m"])
+        # Where the face must be for the object to sit on the goal. The hand never goes past it,
         # so it decelerates into the goal instead of shoving the object through it.
-        finish = self._goal - direction * (reach + c["wall_offset_m"])
+        finish = grasp_for(self._goal, 0.0)
         if float((contact - finish)[:2] @ direction[:2]) > 0:
             contact = finish
-        relative = obj - grasp
+        # the object relative to the centre of the face, along and across the push direction
+        relative = obj - (grasp + along_fingers + direction * p.face_offset_m)
         return _Measured(
-            grasp=grasp, palm=palm, direction=direction, distance=distance,
-            push_z=bottom + c["fingertip_drop_m"] + c["push_height_m"],
-            high_z=bottom + self._height + c["fingertip_drop_m"] + c["clearance_m"],
-            behind=obj - direction * (reach + c["wall_offset_m"] + c["standoff_m"]),
+            grasp=grasp, palm=palm, direction=direction, finger_yaw=finger_yaw, distance=distance,
+            push_z=bottom + p.drop_m + c["push_height_m"],
+            high_z=bottom + self._height + p.drop_m + c["clearance_m"],
+            behind=grasp_for(obj, c["standoff_m"]),
             contact=contact,
             along=float(relative[:2] @ direction[:2]),
             lateral=abs(float(relative[0] * direction[1] - relative[1] * direction[0])),
-            # the goal needs a push toward the arm (near the goal the direction is noise)
+            # near the goal the direction is noise
             unreachable=(distance > c["resume_tolerance_m"]
-                         and abs(math.atan2(direction[1], direction[0])) > c["max_yaw_rad"]),
+                         and abs(finger_yaw) > c["max_yaw_rad"]),
         )
 
     # Each phase returns the grasp-point target for this step and may change the phase.
 
-    def _wait(self, m: _Measured) -> np.ndarray:
-        if not m.unreachable:
-            self._enter("approach")
-        return np.array([m.grasp[0], m.grasp[1], m.high_z])
-
     def _approach(self, m: _Measured) -> np.ndarray:
         target = np.array([m.behind[0], m.behind[1], m.high_z])
-        if self._close(target, m.grasp, m.palm, m.direction):
+        turned = rotation_angle(self._orientation(m.finger_yaw) @ m.palm.T)
+        if (np.linalg.norm(target - m.grasp) < self.config["position_tolerance_m"]
+                and turned < self.config["rotation_tolerance_rad"]):
             self._enter("descend")
         return target
 
@@ -169,10 +236,11 @@ class PushExpert:
         return self._hold_at
 
     def _back_off(self, m: _Measured) -> np.ndarray:
-        # Slide the wall straight back, away from the object, before rising: rising while still
+        # Slide the face straight back, away from the object, before rising: rising while still
         # pressed against it drags it up by friction and can topple tall objects.
         if self._phase_steps == 1:
-            self._back_to = m.grasp - _finger_direction(m.palm) * self.config["back_off_m"]
+            face = horizontal(_hand_yaw(m.palm) + self._pusher.face_yaw_rad)
+            self._back_to = m.grasp - face * self.config["back_off_m"]
         if (np.linalg.norm(self._back_to - m.grasp) < self.config["position_tolerance_m"]
                 or self._phase_steps > 10):
             self._enter("retreat")
@@ -184,31 +252,17 @@ class PushExpert:
             self._enter("approach")
         return np.array([m.grasp[0], m.grasp[1], m.high_z])
 
-    def _close(self, target, grasp, palm, direction) -> bool:
-        c = self.config
-        yaw_error = wrap(math.atan2(direction[1], direction[0]) - _hand_yaw(palm))
-        return (np.linalg.norm(target - grasp) < c["position_tolerance_m"]
-                and abs(yaw_error) < c["yaw_tolerance_rad"])
-
-    def _rotation(self, palm: np.ndarray, direction: np.ndarray | None) -> np.ndarray:
-        """Turn about vertical so the fingers point along ``direction`` (None: keep the current
-        heading), within the yaw limit; keep the palm level."""
-        limit = self.config["max_yaw_rad"]
-        yaw = _hand_yaw(palm) if direction is None else math.atan2(direction[1], direction[0])
-        desired_yaw = min(max(yaw, -limit), limit)
-        initial_yaw = _hand_yaw(self._initial_palm)
-        target = yaw_rotation(desired_yaw - initial_yaw) @ self._initial_palm
-        return self.config["gains"]["orientation"] * rotation_vector(target @ palm.T)
-
     @property
     def phase(self) -> str:
         return self._phase
 
+    @property
+    def pusher(self) -> str | None:
+        return self._pusher.name if self._pusher else None
 
-def _finger_direction(palm: np.ndarray) -> np.ndarray:
-    """Horizontal unit vector along the fingers."""
-    yaw = _hand_yaw(palm)
-    return np.array([math.cos(yaw), math.sin(yaw), 0.0])
+
+def rotation_angle(matrix: np.ndarray) -> float:
+    return float(np.linalg.norm(rotation_vector(matrix)))
 
 
 def _hand_yaw(palm: np.ndarray) -> float:

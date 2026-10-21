@@ -36,14 +36,14 @@ def workcell():
     return Workcell()
 
 
-def test_goals_are_a_short_push_away_from_the_arm(workcell):
+def test_goals_are_a_short_push_not_toward_the_arm(workcell):
     task = make_task("push")
     for seed in range(20):
         context, observation = task.reset(workcell, seed)
         start = observation.objects[context.target_object].position
         offset = context.goal_position - start
         assert 0.05 <= np.linalg.norm(offset[:2]) <= 0.08
-        assert abs(math.atan2(offset[1], offset[0])) <= math.pi / 4 + 1e-9
+        assert abs(math.atan2(offset[1], offset[0])) <= math.pi / 2 + 1e-9
         assert offset[2] == 0 and context.target_object in task.objects
 
 
@@ -83,3 +83,17 @@ def test_push_expert_uses_only_declared_fields(workcell):
             return super().__getitem__(key)
 
     expert.act(Strict(observation_dict(task.spec.observation, observation, context)))
+
+
+@pytest.mark.parametrize(("push_yaw_deg", "pusher"), [(0, "wall"), (40, "wall"), (50, "palm"),
+                                                      (90, "palm"), (-50, "back"), (-90, "back")])
+def test_push_expert_faces_the_push_with_the_least_hand_turn(workcell, push_yaw_deg, pusher):
+    task = make_task("push")
+    expert = make_policy("expert", workcell.action_space, "push")
+    context, observation = task.reset(workcell, 0)
+    obs = observation_dict(task.spec.observation, observation, context)
+    goal = obs["object_position"] + 0.06 * np.array(
+        [math.cos(math.radians(push_yaw_deg)), math.sin(math.radians(push_yaw_deg)), 0.0])
+    expert.reset(replace(context, goal_position=goal), 0)
+    expert.act({**obs, "goal_position": goal})
+    assert expert.pusher == pusher
