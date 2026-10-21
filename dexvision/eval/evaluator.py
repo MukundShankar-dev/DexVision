@@ -99,7 +99,8 @@ def evaluate(
     skill = task.spec.skill
     seeds = task.spec.seeds(split, n_episodes)
     if split == "test":
-        check_test_budget(skill, policy.name, task.spec.test_budget, ledger_path)
+        check_test_budget(skill, policy.name, task.spec.test_budget, task.spec.splits["test"],
+                          ledger_path)
     recorder = VideoRecorder(workcell) if video_dir and n_videos else None
     episodes = []
     for index, seed in enumerate(seeds):

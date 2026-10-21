@@ -1,7 +1,8 @@
 """The test ledger: every test-split evaluation, appended automatically and committed.
 
 It does not stop anyone from iterating against the test set. It makes doing so visible, and
-enforces the per-(skill, policy) budget from the task spec.
+enforces the budget from the task spec per (skill, policy, test seed range): a skill whose spec
+changes gets a new test range, and with it a new budget.
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ DEFAULT_LEDGER = REPO_ROOT / "results" / "test_ledger.jsonl"
 
 
 class BudgetExceeded(RuntimeError):
-    """The (skill, policy) pair has used its test budget."""
+    """The (skill, policy) pair has used its test budget on this test seed range."""
 
 
 def read_ledger(path: Path = DEFAULT_LEDGER) -> list[dict]:
@@ -26,12 +27,17 @@ def read_ledger(path: Path = DEFAULT_LEDGER) -> list[dict]:
     return [json.loads(line) for line in lines if line.strip()]
 
 
-def check_test_budget(skill: str, policy: str, budget: int, path: Path = DEFAULT_LEDGER) -> int:
-    """Return how many test runs remain, or raise if none do. Call before running."""
-    used = sum(1 for e in read_ledger(path) if e["skill"] == skill and e["policy"] == policy)
+def check_test_budget(skill: str, policy: str, budget: int, test_range: tuple[int, int],
+                      path: Path = DEFAULT_LEDGER) -> int:
+    """Return how many test runs remain on ``test_range``, or raise if none do. Call before
+    running. A run counts against the range its first seed falls in."""
+    start, stop = test_range
+    used = sum(1 for e in read_ledger(path)
+               if e["skill"] == skill and e["policy"] == policy and start <= e["seeds"][0] < stop)
     if used >= budget:
         raise BudgetExceeded(
-            f"{skill}/{policy} has used {used} of {budget} test runs. A changed method is a new "
+            f"{skill}/{policy} has used {used} of {budget} test runs on seeds [{start}, {stop}). "
+            "A changed method is a new "
             "policy name, and it needs a new test seed range written down before you look."
         )
     return budget - used

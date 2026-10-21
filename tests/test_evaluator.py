@@ -50,7 +50,10 @@ def test_test_runs_are_ledgered_and_budgeted(workcell, tmp_path):
     assert "commit" in entries[0]["code"]
     with pytest.raises(BudgetExceeded):
         evaluate(workcell, task, policy, "test", 1, ledger_path=ledger)
-    assert check_test_budget("pick", "random", task.spec.test_budget, ledger) == 3
+    test_range = task.spec.splits["test"]
+    assert check_test_budget("pick", "random", task.spec.test_budget, test_range, ledger) == 3
+    # a new test range (a changed spec) starts a new budget; the old runs stay in the ledger
+    assert check_test_budget("pick", "zero", task.spec.test_budget, (300000, 310000), ledger) == 3
 
 
 def test_split_seed_ranges_are_validated(tmp_path):
