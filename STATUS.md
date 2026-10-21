@@ -14,10 +14,14 @@
   EMA weights.
 - **MLP-BC:** 3×512 MLP regressing the 16-step chunk from the same inputs,
   with the same data, normalization, training settings and policy wrapper.
-- **Speed (M1 Pro, batch 256):** diffusion 265 ms/step on MPS (about 4.4 h
-  for 60k steps); MLP 4 ms/step. Inference on CPU is about 120 ms per chunk,
-  about 2.5 s per episode. R6 training is planned on the owner's RTX 5070 Ti
-  over `ssh desktop`.
+- **Speed (batch 256), 60k diffusion steps:** RTX 5070 Ti (`ssh desktop`, WSL2)
+  34 ms/step, 0.6 h; M1 Pro MPS 265 ms/step, 4.4 h. MLP: 2–4 ms/step. CPU
+  inference is about 120 ms per chunk, about 2.5 s per episode.
+- **Desktop** (`~/DexVision`, Miniforge env `dexvision`): 66 tests pass, and
+  the dataset was copied with all 985 hashes verified. MuJoCo is not
+  bit-identical across arm64 and x86-64 (expert val 200/200 on both, but 48
+  episodes differ in detail), so all R6 evaluations run on one machine, and
+  provenance now records the platform.
 
 ## Pick task, expert and data
 
