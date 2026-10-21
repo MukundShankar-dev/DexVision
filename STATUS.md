@@ -19,21 +19,12 @@ before push (next skill in the plan).
 
 ## Pick (done, R6)
 
-- **Task:** one of six objects in an 8 × 12 cm region. Lift ≥ 5 cm, held by
-  thumb plus finger, for 0.5 s. Expert v3 (flat grasp for pucks). Data:
-  985/1000 noisy expert episodes kept.
-- **Results:**
-  - val: zero 0/100, random 0/100, expert 200/200, expert + noise 197/200;
-  - MLP-BC val 200/200, test **200/200**; Diffusion val 197/200, test
-    **200/200**. Both pass the gate.
-- **Diagnostics on val (not committed):**
-  - With the object pose hidden, success drops to 0/200 (MLP) and 12/200
-    (diffusion).
-  - Placements up to 8 cm outside the training region mostly still succeed.
-    Far forward, even the expert fails.
-- **Ledger:** 1 of 3 test runs used per method. The MLP entry says `dirty`
-  only because of uncommitted `results/` files; that flag now ignores
-  `results/`.
+- Six objects; lift ≥ 5 cm with a thumb-opposition hold for 0.5 s. Expert
+  v3. Data: 985/1000 kept. Val: zero 0/100, random 0/100, expert 200/200.
+- **Test:** MLP-BC **200/200**, Diffusion **200/200** (gate passed). Hiding
+  the object pose drops val success to 0 and 12 of 200.
+- Ledger: the pick MLP entry says `dirty` only because of uncommitted
+  `results/` files; that flag now ignores `results/`.
 
 ## Reach (`configs/tasks/reach.yaml`, `dexvision/policies/reach_expert.py`)
 
