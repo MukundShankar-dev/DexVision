@@ -1,9 +1,8 @@
 # Status
 
-**Active checkpoint:** R7 — reach (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** complete. Both methods pass the reach gate. Awaiting owner sign-off
-before push (next skill in the plan).
-**Last completed:** R6 — pick trained and tested; both methods pass (owner approved 2026-10-21)
+**Active checkpoint:** R7 — push (R2–R6 repeated; see `docs/PLAN.md`)
+**State:** designing the push task spec and expert.
+**Last completed:** R7 reach — both methods pass (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
 ## Shared protocol (every skill)
@@ -26,7 +25,7 @@ before push (next skill in the plan).
 - Ledger: the pick MLP entry says `dirty` only because of uncommitted
   `results/` files; that flag now ignores `results/`.
 
-## Reach (`configs/tasks/reach.yaml`, `dexvision/policies/reach_expert.py`)
+## Reach (done; `configs/tasks/reach.yaml`, `dexvision/policies/reach_expert.py`)
 
 - **Task:** a goal uniform in a 18 × 20 × 14 cm box above the table, ≥ 5 cm
   from the start, with no objects. Success: the **measured** grasp site
