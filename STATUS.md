@@ -1,8 +1,9 @@
 # Status
 
-**Active checkpoint:** R4 — Pick data generation (see `docs/PLAN.md`)
-**State:** implemented, tests pass. Awaiting owner decision on the light-puck
-finding below before R5.
+**Active checkpoint:** R4 — Pick data generation, after re-opening R3 to harden
+the expert (see `docs/PLAN.md`)
+**State:** implemented, tests pass. Awaiting owner sign-off on the hardened
+expert (videos) and the dataset before R5.
 **Last completed:** R3 — Pick scripted expert and gate (owner approved 2026-10-20)
 **Legacy pipeline:** git tag `legacy-v1`
 
@@ -11,26 +12,28 @@ finding below before R5.
 - **Task** (`configs/tasks/pick.yaml`): one of six objects in an 8 × 12 cm
   region, any yaw. Success (measured): lifted ≥ 5 cm and held by thumb plus
   finger, touching nothing else, for 0.5 s within 8 s.
-- **Expert** (`dexvision/policies/pick_expert.py`): sees only the declared
-  observation (test-enforced), with one parameter set for all objects, using
-  an opposition pinch. Tuned on train seeds only (v1 fist 8/60; v2 pinch
-  300/300).
+- **Expert** (`dexvision/policies/pick_expert.py`, `configs/experts/pick.yaml`):
+  sees only the declared observation (test-enforced). It chooses a grasp from
+  object height alone: the opposition pinch by default; for objects ≤ 2 cm
+  tall (pucks), a flat grasp anchored to the near edge and the table, with a
+  thumb fence, a finger rake and an overdriven squeeze.
+- **Why the flat grasp exists.** The first R4 dataset showed the R3 expert
+  was fragile on pucks under DART noise (light puck kept 73/177). The default
+  pinch cleared the rim by millimetres, and its squeeze was sensitive to
+  target noise.
+- **Tuning.** Train seeds only: v1 fist 8/60; v2 pinch 300/300 clean; v3
+  (flat grasp) 300/300 clean and 293/300 with noise on seeds 0–299. Val was
+  never used for tuning.
 
 ## Pick dataset (`configs/data/pick.yaml`, `datasets/pick/pick/`, untracked)
 
-- **Generation.** Expert on train seeds 0–999 with DART noise (σ: 2 mm and
-  0.01 rad per step on the hand, 0.05 rad on finger targets). Labels are the
-  clean expert actions. Commit 2771fca, clean tree.
-- **Kept.** 869/1000 successes, 95% CI [84.7%, 88.8%]: 75,721 transitions,
-  median 85 steps. Dropped: 129 timeouts, 2 objects knocked off the table.
-- **Replay.** 200/200 replayed episodes reproduce the outcome and every
-  observation bit for bit.
-- **Finding: the expert is fragile on pucks.** Kept rates: puck_light 73/177
-  [34%, 49%], puck_heavy 142/162 [82%, 92%], every other object ≥ 95% lower
-  bound. Noise leaves the first close badly seated, so the slip check backs
-  off, and the second attempt often runs out of horizon. The clean expert
-  hides this (val 199/200). puck_light is under-represented in the data, and
-  a learned policy's own errors act like this noise.
+- **Generation.** Expert v3 on train seeds 0–999 with DART noise (σ: 2 mm
+  and 0.01 rad per step on the hand, 0.05 rad on actuator targets). Labels
+  are the clean expert actions. Commit 308cf7c, clean tree.
+- **Kept.** 985/1000 [97.5%, 99.1%]: 83,698 transitions, median 82 steps.
+  Every object ≥ 92% lower bound (puck_light 175/177, puck_heavy 156/162).
+- **Replay.** 200/200 episodes reproduce the outcome and every observation
+  bit for bit.
 
 ## Baselines and gates
 
@@ -38,27 +41,19 @@ finding below before R5.
 |---|---|---|---|---|---|
 | pick | val | zero | 0 / 100 | [0.0%, 3.7%] | 100 timeouts |
 | pick | val | random | 0 / 100 | [0.0%, 3.7%] | 99 timeouts, 1 knocked off the table |
-| pick | val | expert | 199 / 200 | [97.2%, 99.9%] | Every object ≥ 86% lower bound. The 1 failure is a light puck that slipped after 3.5 cm (seed 100183) |
+| pick | val | expert v3 | 200 / 200 | [98.1%, 100%] | v2 (signed off in R3) was 199/200. Non-puck episodes are identical to v2 |
+| pick | val | expert v3 + DART noise | 197 / 200 | [95.7%, 99.5%] | Robustness measurement, not a policy result. 2 knocked off the table, 1 timeout |
 
-**Pick gate (owner approved 2026-10-20, written before any training).**
-A learned pick policy passes only if its single test run of 200 episodes
-meets both conditions:
-1. the Wilson 95% lower bound on overall success is at least 80%, which
-   needs at least 170/200;
-2. every object's success rate is at least 60%.
+**Pick gate (owner approved 2026-10-20, written before any training).** A
+learned pick policy passes only if its single 200-episode test run has a
+Wilson 95% lower bound ≥ 80% overall (≥ 170/200) and every object ≥ 60%.
+Checkpoints are selected on val only. MLP-BC is reported against the same gate.
 
-Checkpoint selection uses val success only. The MLP-BC baseline is reported
-against the same gate.
+## Test ledger and caveats
 
-## Test ledger
-
-`results/test_ledger.jsonl` does not exist yet: no test-split runs so far.
-
-## Open caveats
-
+- `results/test_ledger.jsonl` does not exist yet: no test-split runs so far.
 - The hand is a floating forearm on a mocap weld (an arm stand-in).
-- `object_*` observations are simulator ground truth: privileged, state
-  track only.
-- Pick v1 is easy for a privileged expert: one isolated object and a small
-  start region. Harder variants (clutter, a wider region) can come after a
-  learned policy passes.
+- `object_*` observations are simulator ground truth: privileged, state track
+  only.
+- Pick v1 is one isolated object in a small start region. Harder variants come
+  after a learned policy passes.

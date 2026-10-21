@@ -1,6 +1,6 @@
 {
  "code": {
-  "commit": "2771fca9367722f8af16da2953cca4444d1dcf98",
+  "commit": "308cf7c93f8d7867071d0c5daac74ec1863bcba0",
   "dirty": false
  },
  "config": {
@@ -90,32 +90,77 @@
   "position_tolerance_m": 0.008,
   "yaw_tolerance_rad": 0.08,
   "descend_timeout_steps": 30,
-  "close_steps": 14,
   "lift_m": 0.1,
   "lift_check_m": 0.04,
   "max_attempts": 2,
-  "grasp_offset_m": [
-   -0.015,
-   -0.022,
-   0.042
-  ],
-  "postures": {
-   "open": {
-    "THJ5": 0.5,
-    "THJ4": 1.2,
-    "THJ2": -0.4
+  "flat_max_height_m": 0.02,
+  "grasps": {
+   "default": {
+    "offset_m": [
+     -0.015,
+     -0.022,
+     0.042
+    ],
+    "open": {
+     "THJ5": 0.5,
+     "THJ4": 1.2,
+     "THJ2": -0.4
+    },
+    "close": [
+     {
+      "steps": 14,
+      "targets": {
+       "THJ5": 1.0,
+       "THJ4": 1.2,
+       "THJ2": 0.0,
+       "THJ1": 0.4,
+       "FFJ3": 1.0,
+       "FFJ0": 0.8,
+       "MFJ3": 1.0,
+       "MFJ0": 0.8,
+       "RFJ3": 1.0,
+       "RFJ0": 0.8
+      }
+     }
+    ]
    },
-   "close": {
-    "THJ5": 1.0,
-    "THJ4": 1.2,
-    "THJ2": 0.0,
-    "THJ1": 0.4,
-    "FFJ3": 1.0,
-    "FFJ0": 0.8,
-    "MFJ3": 1.0,
-    "MFJ0": 0.8,
-    "RFJ3": 1.0,
-    "RFJ0": 0.8
+   "flat": {
+    "anchor": "near_edge_bottom",
+    "offset_m": [
+     0.023,
+     -0.032,
+     0.056
+    ],
+    "open": {
+     "THJ5": -0.25,
+     "THJ4": 1.22,
+     "THJ3": 0.2,
+     "THJ2": 0.6,
+     "THJ1": 0.5
+    },
+    "close": [
+     {
+      "steps": 10,
+      "targets": {
+       "FFJ3": 1.0,
+       "MFJ3": 1.0,
+       "RFJ3": 1.0
+      }
+     },
+     {
+      "steps": 8,
+      "targets": {
+       "FFJ3": 1.3,
+       "FFJ0": 1.4,
+       "MFJ3": 1.3,
+       "MFJ0": 1.4,
+       "RFJ3": 1.3,
+       "RFJ0": 1.4,
+       "THJ4": 1.02,
+       "THJ5": -0.1
+      }
+     }
+    ]
    }
   }
  },
@@ -125,11 +170,11 @@
  ],
  "attempted": 1000,
  "kept": {
-  "successes": 869,
+  "successes": 985,
   "n": 1000,
   "ci95": [
-   0.8467,
-   0.8885
+   0.9754,
+   0.9909
   ]
  },
  "kept_by_object": {
@@ -166,33 +211,33 @@
    ]
   },
   "puck_heavy": {
-   "successes": 142,
+   "successes": 156,
    "n": 162,
    "ci95": [
-    0.817,
-    0.9186
+    0.9216,
+    0.9829
    ]
   },
   "puck_light": {
-   "successes": 73,
+   "successes": 175,
    "n": 177,
    "ci95": [
-    0.3425,
-    0.4861
+    0.9597,
+    0.9969
    ]
   }
  },
  "dropped": {
-  "timeout": 129,
-  "object_fell_off_table": 2
+  "object_fell_off_table": 4,
+  "timeout": 11
  },
- "transitions": 75721,
+ "transitions": 83698,
  "steps_per_episode": {
   "min": 64,
-  "median": 85.0,
-  "max": 160
+  "median": 82.0,
+  "max": 159
  },
- "files_sha256": "017c1ad55d641b5be587f9aa62d13920aaa040c54b2cc290d0c55af022ccf79a",
+ "files_sha256": "749936d73e97ea84e86fdc7ac7b3c2f408d64973394446f7a913262e08f88dee",
  "replay_check": {
   "episodes": 200,
   "matched": 200
