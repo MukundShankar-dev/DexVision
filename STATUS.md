@@ -1,9 +1,8 @@
 # Status
 
-**Active checkpoint:** R3 — Pick scripted expert (see `docs/PLAN.md`)
-**State:** implemented and tests pass. Awaiting owner sign-off on the expert
-videos and the gate below.
-**Last completed:** R2 — Pick task spec, evaluator and baselines (owner approved 2026-10-20)
+**Active checkpoint:** R4 — Pick data generation (see `docs/PLAN.md`)
+**State:** in progress.
+**Last completed:** R3 — Pick scripted expert and gate (owner approved 2026-10-20)
 **Legacy pipeline:** git tag `legacy-v1`
 
 ## Pick task (`configs/tasks/pick.yaml`)
@@ -40,7 +39,7 @@ videos and the gate below.
 | pick | val | random | 0 / 100 | [0.0%, 3.7%] | 99 timeouts, 1 knocked off the table |
 | pick | val | expert | 199 / 200 | [97.2%, 99.9%] | Every object ≥ 86% lower bound. The 1 failure is a light puck that slipped after 3.5 cm (seed 100183) |
 
-**Pick gate (proposed, written before any training; needs owner sign-off).**
+**Pick gate (owner approved 2026-10-20, written before any training).**
 A learned pick policy passes only if its single test run of 200 episodes
 meets both conditions:
 1. the Wilson 95% lower bound on overall success is at least 80%, which
