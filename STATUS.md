@@ -1,35 +1,36 @@
 # Status
 
 **Active checkpoint:** R4 — Pick data generation (see `docs/PLAN.md`)
-**State:** in progress.
+**State:** implemented, tests pass. Awaiting owner decision on the light-puck
+finding below before R5.
 **Last completed:** R3 — Pick scripted expert and gate (owner approved 2026-10-20)
 **Legacy pipeline:** git tag `legacy-v1`
 
-## Pick task (`configs/tasks/pick.yaml`)
+## Pick task and expert
 
-- **Scene.** One object per episode, chosen by the seed from all six, inside an
-  8 × 12 cm region with any yaw. The hand starts within ±2 cm of neutral.
-- **Success**, all measured:
-  - the object is at least 5 cm up;
-  - the thumb plus at least one other finger touch it;
-  - nothing but the hand touches it;
-  - this holds for 0.5 s within 8 s.
-- **Action limits.** Hand speed is capped at 0.2 m/s and 1 rad/s; actuator
-  targets change by at most 3 rad/s per joint.
+- **Task** (`configs/tasks/pick.yaml`): one of six objects in an 8 × 12 cm
+  region, any yaw. Success (measured): lifted ≥ 5 cm and held by thumb plus
+  finger, touching nothing else, for 0.5 s within 8 s.
+- **Expert** (`dexvision/policies/pick_expert.py`): sees only the declared
+  observation (test-enforced), with one parameter set for all objects, using
+  an opposition pinch. Tuned on train seeds only (v1 fist 8/60; v2 pinch
+  300/300).
 
-## Pick expert (`dexvision/policies/pick_expert.py`, `configs/experts/pick.yaml`)
+## Pick dataset (`configs/data/pick.yaml`, `datasets/pick/pick/`, untracked)
 
-- **Inputs.** It sees exactly the policy's declared observation, which a test
-  enforces, and nothing else: no contacts, no simulator access, no lookahead.
-- **Parameters.** One set for all six objects.
-- **Grasp.** Designed from measured fingertip kinematics: the thumb tucks
-  behind the object, and the index, middle and ring fingers curl down in
-  front.
-- **Tuning history.** All tuning used train seeds.
-  - v1, a fist-like closing posture: 8/60.
-  - v2, the opposition pinch: 60/60 on train seeds 0–59, then 300/300 on
-    train seeds 0–299.
-  - No val-based changes.
+- **Generation.** Expert on train seeds 0–999 with DART noise (σ: 2 mm and
+  0.01 rad per step on the hand, 0.05 rad on finger targets). Labels are the
+  clean expert actions. Commit 2771fca, clean tree.
+- **Kept.** 869/1000 successes, 95% CI [84.7%, 88.8%]: 75,721 transitions,
+  median 85 steps. Dropped: 129 timeouts, 2 objects knocked off the table.
+- **Replay.** 200/200 replayed episodes reproduce the outcome and every
+  observation bit for bit.
+- **Finding: the expert is fragile on pucks.** Kept rates: puck_light 73/177
+  [34%, 49%], puck_heavy 142/162 [82%, 92%], every other object ≥ 95% lower
+  bound. Noise leaves the first close badly seated, so the slip check backs
+  off, and the second attempt often runs out of horizon. The clean expert
+  hides this (val 199/200). puck_light is under-represented in the data, and
+  a learned policy's own errors act like this noise.
 
 ## Baselines and gates
 
@@ -51,8 +52,7 @@ against the same gate.
 
 ## Test ledger
 
-`results/test_ledger.jsonl`. It does not exist yet, so no test-split runs
-have happened.
+`results/test_ledger.jsonl` does not exist yet: no test-split runs so far.
 
 ## Open caveats
 
