@@ -3,11 +3,12 @@ import math
 import numpy as np
 import pytest
 
+from dexvision.data.demos import DemoRecorder, load_data_config, noise_std_vector
 from dexvision.eval.evaluator import run_episode
 from dexvision.policies.pick_expert import PickExpert, grasp_yaw, rotation_from_6d, wrap
-from dexvision.sim.workcell import Workcell
+from dexvision.sim.workcell import OBJECT_IDS, Workcell
 from dexvision.tasks import make_task
-from dexvision.tasks.features import rotation6d
+from dexvision.tasks.features import TaskContext, rotation6d
 
 
 def yaw_rotation(yaw):
@@ -52,6 +53,24 @@ def test_expert_picks_on_train_seeds(workcell, seed):
     task = make_task("pick")
     result = run_episode(workcell, task, PickExpert(workcell.action_space), seed)
     assert result.success, result
+
+
+def test_grasp_is_chosen_by_object_height_only(workcell):
+    expert = PickExpert(workcell.action_space)
+    for name in OBJECT_IDS:
+        shape, size = workcell.object_geometry(name)
+        expert.reset(TaskContext("pick", name, shape, size), 0)
+        expected = "flat" if name.startswith("puck") else "default"
+        assert expert._plan is expert._grasps[expected], name
+
+
+def test_flat_grasp_survives_dart_noise_on_a_light_puck(workcell):
+    task = make_task("pick")
+    seed = next(s for s in range(100)
+                if task.objects[int(np.random.default_rng([s, 1]).integers(6))] == "puck_light")
+    noise = noise_std_vector(load_data_config("pick")["noise_std"])
+    recorder = DemoRecorder(PickExpert(workcell.action_space), workcell.action_space, noise)
+    assert run_episode(workcell, task, recorder, seed).success
 
 
 def test_expert_uses_only_declared_observation_fields(workcell):

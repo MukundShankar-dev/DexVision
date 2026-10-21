@@ -7,6 +7,7 @@ quantities. Parameters live in ``configs/experts/pick.yaml``.
 
 Phases: approach (above the object, yaw aligned) -> descend -> close -> lift.
 If the object does not rise with the hand, the expert opens, backs off and tries again.
+The grasp (offset, open posture and staged close) is chosen from the object's height alone.
 """
 
 from __future__ import annotations
@@ -60,18 +61,29 @@ class PickExpert:
     def __init__(self, action_space: ActionSpace, config_path: Path = DEFAULT_CONFIG) -> None:
         self.config = yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
         self._space = action_space
-        names = action_space.actuator_names
-        self._postures = {
-            name: self._posture(values, names)
-            for name, values in self.config["postures"].items()
-        }
-        self._offset = np.asarray(self.config["grasp_offset_m"], dtype=float)
+        self._grasps = {name: self._grasp(g) for name, g in self.config["grasps"].items()}
 
-    def _posture(self, values: Mapping[str, float], names: tuple[str, ...]) -> np.ndarray:
+    def _grasp(self, config: Mapping) -> dict:
+        """Resolve one grasp: offset [3], open targets [20], close stages [(end_step, [20])]."""
+        targets = self._space.neutral_targets.copy()
+        open_targets = self._update(targets, config["open"])
+        stages, end, current = [], 0, open_targets
+        for stage in config["close"]:
+            current = self._update(current, stage["targets"])
+            end += int(stage["steps"])
+            stages.append((end, current))
+        anchor = config.get("anchor", "center")
+        if anchor not in ("center", "near_edge_bottom"):
+            raise ValueError(f"Unknown grasp anchor '{anchor}'")
+        return {"offset": np.asarray(config["offset_m"], dtype=float), "anchor": anchor,
+                "open": open_targets, "close": stages}
+
+    def _update(self, targets: np.ndarray, values: Mapping[str, float]) -> np.ndarray:
+        names = self._space.actuator_names
         unknown = set(values) - set(names)
         if unknown:
             raise KeyError(f"Unknown actuators in expert posture: {sorted(unknown)}")
-        targets = self._space.neutral_targets.copy()
+        targets = targets.copy()
         for name, value in values.items():
             targets[names.index(name)] = value
         return np.clip(targets, self._space.target_low, self._space.target_high)
@@ -79,7 +91,13 @@ class PickExpert:
     def reset(self, context: TaskContext, seed: int) -> None:
         self._context = context
         size = context.object_size
-        self._half_height = size[2] if context.object_shape == "box" else size[1]
+        if context.object_shape == "box":
+            # grasp_yaw puts the fingers along the shorter horizontal side
+            self._half_height, self._half_depth = size[2], min(size[0], size[1])
+        else:
+            self._half_height, self._half_depth = size[1], size[0]
+        flat = 2 * self._half_height <= self.config["flat_max_height_m"]
+        self._plan = self._grasps["flat" if flat else "default"]
         self._phase = "approach"
         self._phase_steps = 0
         self._attempt = 1
@@ -98,12 +116,16 @@ class PickExpert:
         obj = observation["object_position"]
         yaw = grasp_yaw(rotation_from_6d(observation["object_rotation6d"]),
                         self._context.object_shape, self._context.object_size)
-        offset = _yaw_matrix(yaw) @ self._offset
-        above = obj + offset + [0, 0, self._half_height + c["approach_clearance_m"]]
-        at_grasp = obj + offset
+        plan = self._plan
+        anchor = np.zeros(3)  # in the hand's yaw frame, relative to the object centre
+        if plan["anchor"] == "near_edge_bottom":
+            anchor = np.array([-self._half_depth, 0.0, -self._half_height])
+        at_grasp = obj + _yaw_matrix(yaw) @ (anchor + plan["offset"])
+        above = at_grasp + [0, 0, self._half_height + c["approach_clearance_m"]]
 
         self._phase_steps += 1
-        fingers = self._postures["open"]
+        fingers = plan["open"]
+        close_end, closed = plan["close"][-1]
         if self._phase == "approach":
             target = above
             close_enough = (np.linalg.norm(target - grasp) < c["position_tolerance_m"]
@@ -117,13 +139,14 @@ class PickExpert:
                 self._enter("close")
                 self._hold_at = grasp.copy()
         elif self._phase == "close":
-            target, fingers = self._hold_at, self._postures["close"]
-            if self._phase_steps > c["close_steps"]:
+            target = self._hold_at
+            fingers = next((t for end, t in plan["close"] if self._phase_steps <= end), closed)
+            if self._phase_steps > close_end:
                 self._enter("lift")
                 self._lift_start = (grasp[2], obj[2])
         elif self._phase == "lift":
             target = self._hold_at + [0, 0, c["lift_m"]]
-            fingers = self._postures["close"]
+            fingers = closed
             hand_rise, object_rise = grasp[2] - self._lift_start[0], obj[2] - self._lift_start[1]
             slipped = hand_rise > c["lift_check_m"] and object_rise < hand_rise / 2
             if slipped and self._attempt < c["max_attempts"]:

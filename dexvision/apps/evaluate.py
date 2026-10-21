@@ -4,6 +4,9 @@
 
 Reports go to results/<task>/<policy>_<split>.json and videos to runs/videos/. Test-split runs
 count against the task's test budget and are logged in results/test_ledger.jsonl.
+
+--dart-noise executes every action with the DART noise from configs/data/<task>.yaml, to measure
+how robust a policy (usually the expert) is to small execution errors. Val split only.
 """
 
 from __future__ import annotations
@@ -14,6 +17,7 @@ import time
 from pathlib import Path
 
 from dexvision import REPO_ROOT
+from dexvision.data.demos import DemoRecorder, load_data_config, noise_std_vector
 from dexvision.eval.evaluator import evaluate
 from dexvision.policies import POLICIES, make_policy
 from dexvision.sim.workcell import Workcell
@@ -29,18 +33,26 @@ def main() -> None:
     parser.add_argument("--videos", type=int, default=0, help="record the first N episodes")
     parser.add_argument("--video-dir", type=Path, default=REPO_ROOT / "runs" / "videos")
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument("--dart-noise", action="store_true",
+                        help="execute actions with the task's DART noise (val only)")
     args = parser.parse_args()
+    if args.dart_noise and args.split != "val":
+        parser.error("--dart-noise is a robustness measurement on val, not a test result")
 
     workcell = Workcell()
     task = make_task(args.task)
     policy = make_policy(args.policy, workcell.action_space)
-    print(f"Evaluating {args.policy} on {args.task}/{args.split}: {args.episodes} episodes")
+    if args.dart_noise:
+        noise = noise_std_vector(load_data_config(args.task)["noise_std"])
+        policy = DemoRecorder(policy, workcell.action_space, noise)
+        policy.name = f"{args.policy}_dart"
+    print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes")
     started = time.perf_counter()
     report = evaluate(workcell, task, policy, args.split, args.episodes,
                       video_dir=args.video_dir, n_videos=args.videos)
     elapsed = time.perf_counter() - started
 
-    out = args.out or REPO_ROOT / "results" / args.task / f"{args.policy}_{args.split}.json"
+    out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}_{args.split}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report.to_dict(), indent=1) + "\n", encoding="utf-8")
     o = report.overall

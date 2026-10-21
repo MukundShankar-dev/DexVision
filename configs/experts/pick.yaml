@@ -1,7 +1,7 @@
 # Scripted pick expert. It sees only the observation fields a learned policy sees
 # (configs/tasks/pick.yaml), and its parameters may depend only on object shape and size
-# (AGENTS.md rule 4). These values use no per-object settings at all. Tuned on train seeds
-# only; see STATUS.md for the procedure.
+# (AGENTS.md rule 4): the grasp is chosen by object height alone. Tuned on train seeds only,
+# with and without DART noise; see STATUS.md for the procedure.
 
 gains:
   position: 0.6            # fraction of the position error commanded per step
@@ -12,21 +12,49 @@ approach_clearance_m: 0.06   # grasp point this far above its grasp target befor
 position_tolerance_m: 0.008
 yaw_tolerance_rad: 0.08
 descend_timeout_steps: 30    # the table may stop the hand short of its target
-close_steps: 14              # time for the rate-limited fingers to close
 lift_m: 0.10
 lift_check_m: 0.04           # after the hand rises this much, the object must have risen half as much
 max_attempts: 2
 
-# Grasp point target relative to the object centre, in the hand's yaw frame: x along the
-# fingers, y toward the thumb, z up. The thumb tucks behind the object and the index and
-# middle fingertips close in front, about 45 mm below the grasp point, so the object is
-# pinched near its mid-height.
-grasp_offset_m: [-0.015, -0.022, 0.042]
+# Objects at most this tall use the flat grasp; all others use the default grasp.
+flat_max_height_m: 0.02
 
-# Actuator targets (menagerie names without the rh_A_ prefix). Unlisted actuators stay at 0.
-# open: fingers straight, thumb rotated under the palm and hanging behind the grasp point.
-# close: index, middle and ring curl down in front of the object; the thumb swings forward.
-postures:
-  open: {THJ5: 0.5, THJ4: 1.2, THJ2: -0.4}
-  close: {THJ5: 1.0, THJ4: 1.2, THJ2: 0.0, THJ1: 0.4,
-          FFJ3: 1.0, FFJ0: 0.8, MFJ3: 1.0, MFJ0: 0.8, RFJ3: 1.0, RFJ0: 0.8}
+# Each grasp has:
+#   anchor    center (default) or near_edge_bottom: the object's edge nearest the thumb along
+#             the fingers, at table height. Both come from the observed object size.
+#   offset_m  grasp point target relative to the anchor, in the hand's yaw frame:
+#             x along the fingers, y toward the thumb, z up.
+#   open      actuator targets (menagerie names without the rh_A_ prefix) while approaching.
+#             Unlisted actuators stay at 0.
+#   close     stages applied in order. Each stage updates the previous targets and holds for
+#             `steps` control steps. The last stage is held through the lift.
+grasps:
+  # Thumb tucked behind the object, index/middle/ring curling down in front, pinching near
+  # the object's mid-height. The hand descends until the table stops the thumb.
+  default:
+    offset_m: [-0.015, -0.022, 0.042]
+    open: {THJ5: 0.5, THJ4: 1.2, THJ2: -0.4}
+    close:
+      - steps: 14
+        targets: {THJ5: 1.0, THJ4: 1.2, THJ2: 0.0, THJ1: 0.4,
+                  FFJ3: 1.0, FFJ0: 0.8, MFJ3: 1.0, MFJ0: 0.8, RFJ3: 1.0, RFJ0: 0.8}
+
+  # Flat objects (pucks). The default grasp leaves only millimetres between its fingertips
+  # and the rim and fails under small disturbances (light puck: 41% kept under DART noise).
+  # Here the thumb hangs further back as a low fence just above the table, behind the near
+  # edge. The straight fingers curl at the knuckle first, so the tips come down beyond the far
+  # edge. The distal joints then rake the tips back along the table while the thumb abducts
+  # forward. Both are commanded well past contact, so the squeeze is large compared with small
+  # target errors (under target noise alone, overdriving raised puck success from 10/30 to 25/30).
+  # Postures come from the fingertip kinematics. The offset and the squeeze targets were then
+  # tuned on train seeds with DART noise; the offset is the centre of a plateau where pucks
+  # succeed 37-40 out of 40.
+  flat:
+    anchor: near_edge_bottom
+    offset_m: [0.023, -0.032, 0.056]
+    open: {THJ5: -0.25, THJ4: 1.22, THJ3: 0.2, THJ2: 0.6, THJ1: 0.5}
+    close:
+      - steps: 10
+        targets: {FFJ3: 1.0, MFJ3: 1.0, RFJ3: 1.0}
+      - steps: 8
+        targets: {FFJ3: 1.3, FFJ0: 1.4, MFJ3: 1.3, MFJ0: 1.4, RFJ3: 1.3, RFJ0: 1.4, THJ4: 1.02, THJ5: -0.1}
