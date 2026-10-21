@@ -1166,7 +1166,10 @@
   }
  ],
  "code": {
-  "commit": "46f3a180837453f5301525399e484470384784b4",
-  "dirty": false
- }
+  "commit": "1fe5fe467021fab8f25ddca134f726b49b2150df",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {}
 }

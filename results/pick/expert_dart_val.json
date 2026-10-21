@@ -28,19 +28,19 @@
    ]
   },
   "cylinder_short": {
-   "successes": 31,
+   "successes": 30,
    "n": 31,
    "ci95": [
-    0.8897,
-    1.0
+    0.8381,
+    0.9943
    ]
   },
   "cylinder_tall": {
-   "successes": 31,
+   "successes": 32,
    "n": 33,
    "ci95": [
-    0.8039,
-    0.9832
+    0.8468,
+    0.9946
    ]
   },
   "puck_heavy": {
@@ -72,7 +72,7 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0768,
+    "max_lift_m": 0.0767,
     "max_hand_table_force_n": 5.1
    }
   },
@@ -83,7 +83,7 @@
    "steps": 89,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0709,
+    "max_lift_m": 0.0707,
     "max_hand_table_force_n": 28.1
    }
   },
@@ -105,7 +105,7 @@
    "steps": 78,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0635,
+    "max_lift_m": 0.0634,
     "max_hand_table_force_n": 21.0
    }
   },
@@ -116,7 +116,7 @@
    "steps": 75,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.076,
+    "max_lift_m": 0.0761,
     "max_hand_table_force_n": 19.6
    }
   },
@@ -138,8 +138,8 @@
    "steps": 89,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0703,
-    "max_hand_table_force_n": 20.6
+    "max_lift_m": 0.0708,
+    "max_hand_table_force_n": 20.9
    }
   },
   {
@@ -160,7 +160,7 @@
    "steps": 93,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0768,
+    "max_lift_m": 0.0769,
     "max_hand_table_force_n": 16.3
    }
   },
@@ -193,7 +193,7 @@
    "steps": 76,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0744,
+    "max_lift_m": 0.0743,
     "max_hand_table_force_n": 15.6
    }
   },
@@ -204,7 +204,7 @@
    "steps": 85,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.068,
+    "max_lift_m": 0.0682,
     "max_hand_table_force_n": 16.7
    }
   },
@@ -248,7 +248,7 @@
    "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0772,
+    "max_lift_m": 0.0771,
     "max_hand_table_force_n": 27.7
    }
   },
@@ -259,7 +259,7 @@
    "steps": 92,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0723,
+    "max_lift_m": 0.0722,
     "max_hand_table_force_n": 31.1
    }
   },
@@ -292,7 +292,7 @@
    "steps": 86,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0748,
+    "max_lift_m": 0.0747,
     "max_hand_table_force_n": 16.9
    }
   },
@@ -322,11 +322,11 @@
    "seed": 100023,
    "target_object": "puck_light",
    "success": true,
-   "steps": 82,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0756,
-    "max_hand_table_force_n": 21.8
+    "max_lift_m": 0.0785,
+    "max_hand_table_force_n": 22.3
    }
   },
   {
@@ -413,7 +413,7 @@
    "steps": 82,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0771,
+    "max_lift_m": 0.077,
     "max_hand_table_force_n": 28.2
    }
   },
@@ -446,7 +446,7 @@
    "steps": 79,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0737,
+    "max_lift_m": 0.0738,
     "max_hand_table_force_n": 11.2
    }
   },
@@ -465,7 +465,7 @@
    "seed": 100036,
    "target_object": "cylinder_tall",
    "success": false,
-   "steps": 95,
+   "steps": 104,
    "failure": "object_fell_off_table",
    "metrics": {
     "max_lift_m": 0.0049,
@@ -491,18 +491,18 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0734,
-    "max_hand_table_force_n": 14.9
+    "max_hand_table_force_n": 15.5
    }
   },
   {
    "seed": 100039,
    "target_object": "puck_heavy",
-   "success": false,
-   "steps": 83,
-   "failure": "object_fell_off_table",
+   "success": true,
+   "steps": 140,
+   "failure": null,
    "metrics": {
-    "max_lift_m": 0.0328,
-    "max_hand_table_force_n": 14.7
+    "max_lift_m": 0.0682,
+    "max_hand_table_force_n": 16.4
    }
   },
   {
@@ -523,7 +523,7 @@
    "steps": 94,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0792,
+    "max_lift_m": 0.0791,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -545,7 +545,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0716,
+    "max_lift_m": 0.0712,
     "max_hand_table_force_n": 29.3
    }
   },
@@ -579,7 +579,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0706,
-    "max_hand_table_force_n": 17.0
+    "max_hand_table_force_n": 16.6
    }
   },
   {
@@ -600,7 +600,7 @@
    "steps": 79,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0769,
+    "max_lift_m": 0.077,
     "max_hand_table_force_n": 18.8
    }
   },
@@ -611,7 +611,7 @@
    "steps": 84,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0794,
+    "max_lift_m": 0.0791,
     "max_hand_table_force_n": 28.2
    }
   },
@@ -623,7 +623,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.073,
-    "max_hand_table_force_n": 36.9
+    "max_hand_table_force_n": 37.0
    }
   },
   {
@@ -655,7 +655,7 @@
    "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0763,
+    "max_lift_m": 0.0767,
     "max_hand_table_force_n": 31.5
    }
   },
@@ -666,7 +666,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0715,
+    "max_lift_m": 0.0714,
     "max_hand_table_force_n": 17.9
    }
   },
@@ -674,11 +674,11 @@
    "seed": 100055,
    "target_object": "puck_light",
    "success": true,
-   "steps": 86,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.077,
-    "max_hand_table_force_n": 23.5
+    "max_lift_m": 0.0777,
+    "max_hand_table_force_n": 23.6
    }
   },
   {
@@ -688,8 +688,8 @@
    "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0727,
-    "max_hand_table_force_n": 20.1
+    "max_lift_m": 0.0728,
+    "max_hand_table_force_n": 20.0
    }
   },
   {
@@ -710,7 +710,7 @@
    "steps": 84,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0775,
+    "max_lift_m": 0.0773,
     "max_hand_table_force_n": 29.8
    }
   },
@@ -732,7 +732,7 @@
    "steps": 82,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0755,
+    "max_lift_m": 0.0751,
     "max_hand_table_force_n": 31.0
    }
   },
@@ -743,8 +743,8 @@
    "steps": 76,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0782,
-    "max_hand_table_force_n": 12.4
+    "max_lift_m": 0.0783,
+    "max_hand_table_force_n": 12.5
    }
   },
   {
@@ -765,7 +765,7 @@
    "steps": 95,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0728,
+    "max_lift_m": 0.0733,
     "max_hand_table_force_n": 17.5
    }
   },
@@ -798,7 +798,7 @@
    "steps": 74,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0687,
+    "max_lift_m": 0.0686,
     "max_hand_table_force_n": 10.6
    }
   },
@@ -809,7 +809,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0783,
+    "max_lift_m": 0.0784,
     "max_hand_table_force_n": 15.3
    }
   },
@@ -820,7 +820,7 @@
    "steps": 96,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0738,
+    "max_lift_m": 0.0735,
     "max_hand_table_force_n": 9.2
    }
   },
@@ -839,10 +839,10 @@
    "seed": 100070,
    "target_object": "puck_light",
    "success": true,
-   "steps": 78,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.072,
+    "max_lift_m": 0.0785,
     "max_hand_table_force_n": 22.2
    }
   },
@@ -853,7 +853,7 @@
    "steps": 78,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0764,
+    "max_lift_m": 0.0763,
     "max_hand_table_force_n": 16.9
    }
   },
@@ -875,7 +875,7 @@
    "steps": 67,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0763,
+    "max_lift_m": 0.0767,
     "max_hand_table_force_n": 30.2
    }
   },
@@ -883,10 +883,10 @@
    "seed": 100074,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 72,
+   "steps": 74,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0723,
+    "max_lift_m": 0.0806,
     "max_hand_table_force_n": 30.4
    }
   },
@@ -908,8 +908,8 @@
    "steps": 88,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0726,
-    "max_hand_table_force_n": 14.7
+    "max_lift_m": 0.0725,
+    "max_hand_table_force_n": 14.6
    }
   },
   {
@@ -949,10 +949,10 @@
    "seed": 100080,
    "target_object": "puck_light",
    "success": true,
-   "steps": 79,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.073,
+    "max_lift_m": 0.0851,
     "max_hand_table_force_n": 15.8
    }
   },
@@ -985,18 +985,18 @@
    "steps": 82,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.075,
+    "max_lift_m": 0.0749,
     "max_hand_table_force_n": 0.0
    }
   },
   {
    "seed": 100084,
    "target_object": "cylinder_short",
-   "success": true,
-   "steps": 153,
-   "failure": null,
+   "success": false,
+   "steps": 112,
+   "failure": "object_fell_off_table",
    "metrics": {
-    "max_lift_m": 0.073,
+    "max_lift_m": 0.0395,
     "max_hand_table_force_n": 29.7
    }
   },
@@ -1018,7 +1018,7 @@
    "steps": 85,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0751,
+    "max_lift_m": 0.075,
     "max_hand_table_force_n": 15.8
    }
   },
@@ -1029,7 +1029,7 @@
    "steps": 88,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0772,
+    "max_lift_m": 0.0773,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -1052,7 +1052,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0797,
-    "max_hand_table_force_n": 14.9
+    "max_hand_table_force_n": 14.8
    }
   },
   {
@@ -1140,7 +1140,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0715,
-    "max_hand_table_force_n": 15.2
+    "max_hand_table_force_n": 15.0
    }
   },
   {
@@ -1158,11 +1158,11 @@
    "seed": 100099,
    "target_object": "puck_light",
    "success": true,
-   "steps": 79,
+   "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0754,
-    "max_hand_table_force_n": 18.7
+    "max_lift_m": 0.077,
+    "max_hand_table_force_n": 21.0
    }
   },
   {
@@ -1183,7 +1183,7 @@
    "steps": 87,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.081,
+    "max_lift_m": 0.0807,
     "max_hand_table_force_n": 27.6
    }
   },
@@ -1249,7 +1249,7 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0729,
+    "max_lift_m": 0.0731,
     "max_hand_table_force_n": 28.8
    }
   },
@@ -1304,7 +1304,7 @@
    "steps": 75,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.069,
+    "max_lift_m": 0.0692,
     "max_hand_table_force_n": 32.8
    }
   },
@@ -1337,7 +1337,7 @@
    "steps": 79,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0752,
+    "max_lift_m": 0.0755,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -1359,7 +1359,7 @@
    "steps": 89,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0764,
+    "max_lift_m": 0.0765,
     "max_hand_table_force_n": 26.2
    }
   },
@@ -1370,7 +1370,7 @@
    "steps": 84,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0696,
+    "max_lift_m": 0.0699,
     "max_hand_table_force_n": 18.0
    }
   },
@@ -1404,7 +1404,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0833,
-    "max_hand_table_force_n": 29.0
+    "max_hand_table_force_n": 28.2
    }
   },
   {
@@ -1444,10 +1444,10 @@
    "seed": 100125,
    "target_object": "block_large",
    "success": true,
-   "steps": 142,
+   "steps": 139,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.076,
+    "max_lift_m": 0.0652,
     "max_hand_table_force_n": 27.0
    }
   },
@@ -1491,7 +1491,7 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0756,
+    "max_lift_m": 0.0755,
     "max_hand_table_force_n": 2.6
    }
   },
@@ -1524,7 +1524,7 @@
    "steps": 72,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0676,
+    "max_lift_m": 0.0677,
     "max_hand_table_force_n": 31.4
    }
   },
@@ -1535,8 +1535,8 @@
    "steps": 91,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.072,
-    "max_hand_table_force_n": 19.7
+    "max_lift_m": 0.0719,
+    "max_hand_table_force_n": 20.9
    }
   },
   {
@@ -1557,18 +1557,18 @@
    "steps": 77,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0742,
+    "max_lift_m": 0.0746,
     "max_hand_table_force_n": 29.0
    }
   },
   {
    "seed": 100136,
    "target_object": "cylinder_tall",
-   "success": false,
-   "steps": 160,
-   "failure": "timeout",
+   "success": true,
+   "steps": 156,
+   "failure": null,
    "metrics": {
-    "max_lift_m": 0.0483,
+    "max_lift_m": 0.0742,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -1601,7 +1601,7 @@
    "steps": 78,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0747,
+    "max_lift_m": 0.0744,
     "max_hand_table_force_n": 32.0
    }
   },
@@ -1623,8 +1623,8 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.072,
-    "max_hand_table_force_n": 27.9
+    "max_lift_m": 0.0722,
+    "max_hand_table_force_n": 28.5
    }
   },
   {
@@ -1634,7 +1634,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0742,
+    "max_lift_m": 0.0741,
     "max_hand_table_force_n": 16.2
    }
   },
@@ -1711,7 +1711,7 @@
    "steps": 77,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0818,
+    "max_lift_m": 0.0817,
     "max_hand_table_force_n": 16.6
    }
   },
@@ -1744,7 +1744,7 @@
    "steps": 88,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0756,
+    "max_lift_m": 0.0755,
     "max_hand_table_force_n": 12.6
    }
   },
@@ -1755,8 +1755,8 @@
    "steps": 91,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0738,
-    "max_hand_table_force_n": 19.0
+    "max_lift_m": 0.0734,
+    "max_hand_table_force_n": 19.4
    }
   },
   {
@@ -1766,7 +1766,7 @@
    "steps": 88,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0758,
+    "max_lift_m": 0.0757,
     "max_hand_table_force_n": 16.7
    }
   },
@@ -1810,8 +1810,8 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0763,
-    "max_hand_table_force_n": 28.6
+    "max_lift_m": 0.0758,
+    "max_hand_table_force_n": 29.0
    }
   },
   {
@@ -1821,7 +1821,7 @@
    "steps": 84,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0769,
+    "max_lift_m": 0.077,
     "max_hand_table_force_n": 18.1
    }
   },
@@ -1840,21 +1840,21 @@
    "seed": 100161,
    "target_object": "puck_light",
    "success": true,
-   "steps": 140,
+   "steps": 147,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0722,
-    "max_hand_table_force_n": 15.2
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 17.6
    }
   },
   {
    "seed": 100162,
    "target_object": "puck_light",
    "success": true,
-   "steps": 79,
+   "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.078,
+    "max_lift_m": 0.0795,
     "max_hand_table_force_n": 19.0
    }
   },
@@ -1887,7 +1887,7 @@
    "steps": 88,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0721,
+    "max_lift_m": 0.0722,
     "max_hand_table_force_n": 26.2
    }
   },
@@ -1898,7 +1898,7 @@
    "steps": 82,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0703,
+    "max_lift_m": 0.0704,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -1942,7 +1942,7 @@
    "steps": 79,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0794,
+    "max_lift_m": 0.0793,
     "max_hand_table_force_n": 13.5
    }
   },
@@ -1975,7 +1975,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0734,
+    "max_lift_m": 0.0733,
     "max_hand_table_force_n": 14.7
    }
   },
@@ -2026,12 +2026,12 @@
   {
    "seed": 100178,
    "target_object": "puck_heavy",
-   "success": true,
-   "steps": 97,
-   "failure": null,
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0729,
-    "max_hand_table_force_n": 23.8
+    "max_lift_m": 0.0562,
+    "max_hand_table_force_n": 23.1
    }
   },
   {
@@ -2052,7 +2052,7 @@
    "steps": 77,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0792,
+    "max_lift_m": 0.079,
     "max_hand_table_force_n": 23.4
    }
   },
@@ -2063,8 +2063,8 @@
    "steps": 82,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0782,
-    "max_hand_table_force_n": 29.3
+    "max_lift_m": 0.0787,
+    "max_hand_table_force_n": 29.4
    }
   },
   {
@@ -2085,7 +2085,7 @@
    "steps": 81,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0732,
+    "max_lift_m": 0.0731,
     "max_hand_table_force_n": 11.1
    }
   },
@@ -2096,8 +2096,8 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0804,
-    "max_hand_table_force_n": 17.0
+    "max_lift_m": 0.0799,
+    "max_hand_table_force_n": 16.5
    }
   },
   {
@@ -2107,7 +2107,7 @@
    "steps": 80,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.073,
+    "max_lift_m": 0.0731,
     "max_hand_table_force_n": 14.5
    }
   },
@@ -2118,7 +2118,7 @@
    "steps": 90,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0776,
+    "max_lift_m": 0.0777,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -2129,7 +2129,7 @@
    "steps": 83,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0773,
+    "max_lift_m": 0.077,
     "max_hand_table_force_n": 30.9
    }
   },
@@ -2173,8 +2173,8 @@
    "steps": 84,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0743,
-    "max_hand_table_force_n": 30.8
+    "max_lift_m": 0.0742,
+    "max_hand_table_force_n": 31.7
    }
   },
   {
@@ -2196,7 +2196,7 @@
    "failure": null,
    "metrics": {
     "max_lift_m": 0.0815,
-    "max_hand_table_force_n": 36.4
+    "max_hand_table_force_n": 36.5
    }
   },
   {
@@ -2250,7 +2250,7 @@
    "steps": 94,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0743,
+    "max_lift_m": 0.074,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -2261,13 +2261,16 @@
    "steps": 91,
    "failure": null,
    "metrics": {
-    "max_lift_m": 0.0805,
-    "max_hand_table_force_n": 36.5
+    "max_lift_m": 0.0802,
+    "max_hand_table_force_n": 36.6
    }
   }
  ],
  "code": {
-  "commit": "246ce6a587bc490223e9bd3e2394622c0a30cdb6",
-  "dirty": true
- }
+  "commit": "1fe5fe467021fab8f25ddca134f726b49b2150df",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {}
 }

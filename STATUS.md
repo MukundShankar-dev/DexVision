@@ -1,30 +1,19 @@
 # Status
 
 **Active checkpoint:** R6 — train and evaluate pick (see `docs/PLAN.md`)
-**State:** in progress. Training runs on the desktop (RTX 5070 Ti).
+**State:** complete. Both methods pass the pick gate. Awaiting owner sign-off.
 **Last completed:** R5 — Diffusion Policy and MLP-BC, method only (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
-## R6 protocol (fixed before any pick training)
+## R6 protocol (fixed before training) and method
 
-1. Train diffusion and MLP-BC with seed 0 on `datasets/pick/pick`, using
-   `configs/learning/method.yaml` unchanged. Checkpoints every 10k steps.
-2. Selection: every checkpoint runs on val seeds 100000–100199. The most
-   successes wins; ties go to the later step
-   (`python -m dexvision.apps.select_checkpoint`).
-3. One test run per method on the selected checkpoint, 200 episodes,
-   ledgered. It is judged against the pick gate below.
-4. All evaluations (zero, random and expert baselines re-run too) are on the
-   desktop (Linux x86-64), so the table compares like with like.
-
-## Method (`dexvision/learning/`, `configs/learning/method.yaml`)
-
-- **Diffusion Policy:** conv UNet with FiLM, 17.7M params, DDPM/DDIM,
-  observations 2 / predict 16 / execute 8, 60k steps. MLP-BC uses the same
-  data, normalization, training settings and wrapper.
-- **Machines:** training on the desktop takes 34 ms/step, 0.6 h per run.
-  MuJoCo is not bit-identical across arm64 and x86-64, so provenance records
-  the platform.
+- Diffusion and MLP-BC trained with seed 0 on `datasets/pick/pick` with
+  `configs/learning/method.yaml` unchanged: 60k steps, checkpoints every 10k
+  (desktop RTX 5070 Ti: diffusion 31 min, MLP 3 min).
+- Selection: the most val successes on seeds 100000–100199, ties to the later
+  step. Then one ledgered 200-episode test run per method.
+- Everything was evaluated on the desktop, because MuJoCo is not bit-identical
+  across arm64 and x86-64.
 
 ## Pick task, expert and data
 
@@ -41,25 +30,32 @@
   99.1%], 83,698 transitions, every object ≥ 92% lower bound. 200/200
   episodes replay bit for bit.
 
-## Baselines and gates
+## Pick results (desktop, Linux x86-64; all val runs reproduce episode for episode)
 
-| Skill | Split | Policy | Successes / n | Wilson 95% CI | Notes |
-|---|---|---|---|---|---|
-| pick | val | zero | 0 / 100 | [0.0%, 3.7%] | 100 timeouts |
-| pick | val | random | 0 / 100 | [0.0%, 3.7%] | 99 timeouts, 1 knocked off the table |
-| pick | val | expert v3 | 200 / 200 | [98.1%, 100%] | v2 (signed off in R3) was 199/200. Non-puck episodes are identical to v2 |
-| pick | val | expert v3 + DART noise | 197 / 200 | [95.7%, 99.5%] | Robustness measurement, not a policy result. 2 knocked off the table, 1 timeout |
+| Split | Policy | Successes / n | Wilson 95% CI | Notes |
+|---|---|---|---|---|
+| val | zero | 0 / 100 | [0.0%, 3.7%] | |
+| val | random | 0 / 100 | [0.0%, 3.7%] | |
+| val | expert v3 | 200 / 200 | [98.1%, 100%] | oracle ceiling |
+| val | expert v3 + DART noise | 197 / 200 | [95.7%, 99.5%] | robustness, not a policy |
+| val | MLP-BC, step 60k | 200 / 200 | [98.1%, 100%] | every checkpoint 10k–60k: 200/200 |
+| val | Diffusion, step 60k | 197 / 200 | [95.7%, 99.5%] | 186→195→194→197→197→197; 3 puck timeouts |
+| **test** | **MLP-BC, step 60k** | **200 / 200** | **[98.1%, 100%]** | every object 100%. Gate: **pass** |
+| **test** | **Diffusion, step 60k** | **200 / 200** | **[98.1%, 100%]** | every object 100%. Gate: **pass** |
 
 **Pick gate (owner approved 2026-10-20, written before any training).** A
-learned pick policy passes only if its single 200-episode test run has a
-Wilson 95% lower bound ≥ 80% overall (≥ 170/200) and every object ≥ 60%.
-Checkpoints are selected on val only. MLP-BC is reported against the same gate.
+single 200-episode test run needs a Wilson lower bound ≥ 80% (≥ 170/200) and
+every object ≥ 60%. Checkpoints are selected on val only.
 
 ## Test ledger and caveats
 
-- `results/test_ledger.jsonl` does not exist yet: no test-split runs so far.
-- The hand is a floating forearm on a mocap weld (an arm stand-in).
-- `object_*` observations are simulator ground truth: privileged, state track
-  only.
-- Pick v1 is one isolated object in a small start region. Harder variants come
-  after a learned policy passes.
+- `results/test_ledger.jsonl`: 1 of 3 runs used for each of `mlp` and
+  `diffusion`. The MLP entry says `dirty: true` because re-run reports in
+  `results/` were uncommitted; the code was commit 9ac82a6. The flag now
+  ignores `results/`.
+- Pick v1 does not separate the methods: both saturate the test. It is one
+  isolated object, the policy gets the true object state, and the expert has
+  a single strategy, so there are no competing ways to act for diffusion to
+  capture.
+- The hand is a floating forearm on a mocap weld. `object_*` observations are
+  privileged simulator state.

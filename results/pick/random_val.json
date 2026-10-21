@@ -138,7 +138,7 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0024,
+    "max_lift_m": 0.0023,
     "max_hand_table_force_n": 10.1
    }
   },
@@ -194,7 +194,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 7.5
+    "max_hand_table_force_n": 7.6
    }
   },
   {
@@ -314,8 +314,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0,
-    "max_hand_table_force_n": 20.9
+    "max_lift_m": 0.0009,
+    "max_hand_table_force_n": 26.5
    }
   },
   {
@@ -369,8 +369,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0091,
-    "max_hand_table_force_n": 14.7
+    "max_lift_m": 0.0088,
+    "max_hand_table_force_n": 14.4
    }
   },
   {
@@ -381,7 +381,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0063,
-    "max_hand_table_force_n": 16.7
+    "max_hand_table_force_n": 16.5
    }
   },
   {
@@ -512,8 +512,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0004,
-    "max_hand_table_force_n": 15.7
+    "max_lift_m": 0.0005,
+    "max_hand_table_force_n": 15.5
    }
   },
   {
@@ -557,7 +557,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 32.0
+    "max_hand_table_force_n": 31.5
    }
   },
   {
@@ -579,7 +579,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 12.7
+    "max_hand_table_force_n": 13.5
    }
   },
   {
@@ -688,8 +688,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0239,
-    "max_hand_table_force_n": 9.7
+    "max_lift_m": 0.0002,
+    "max_hand_table_force_n": 7.6
    }
   },
   {
@@ -755,7 +755,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 2.5
+    "max_hand_table_force_n": 3.8
    }
   },
   {
@@ -788,7 +788,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 23.1
+    "max_hand_table_force_n": 23.3
    }
   },
   {
@@ -798,7 +798,7 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0047,
+    "max_lift_m": 0.0049,
     "max_hand_table_force_n": 0.0
    }
   },
@@ -1004,11 +1004,11 @@
    "seed": 100085,
    "target_object": "cylinder_tall",
    "success": false,
-   "steps": 154,
+   "steps": 149,
    "failure": "object_fell_off_table",
    "metrics": {
     "max_lift_m": 0.0045,
-    "max_hand_table_force_n": 10.3
+    "max_hand_table_force_n": 10.2
    }
   },
   {
@@ -1041,7 +1041,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.038,
-    "max_hand_table_force_n": 647.8
+    "max_hand_table_force_n": 669.6
    }
   },
   {
@@ -1063,7 +1063,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0002,
-    "max_hand_table_force_n": 30.5
+    "max_hand_table_force_n": 31.7
    }
   },
   {
@@ -1074,7 +1074,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 20.8
+    "max_hand_table_force_n": 20.7
    }
   },
   {
@@ -1084,8 +1084,8 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0068,
-    "max_hand_table_force_n": 17.8
+    "max_lift_m": 0.0054,
+    "max_hand_table_force_n": 16.8
    }
   },
   {
@@ -1096,7 +1096,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 32.9
+    "max_hand_table_force_n": 33.0
    }
   },
   {
@@ -1151,7 +1151,7 @@
    "failure": "timeout",
    "metrics": {
     "max_lift_m": 0.0,
-    "max_hand_table_force_n": 3.8
+    "max_hand_table_force_n": 3.9
    }
   },
   {
@@ -1161,13 +1161,16 @@
    "steps": 160,
    "failure": "timeout",
    "metrics": {
-    "max_lift_m": 0.0,
+    "max_lift_m": 0.0001,
     "max_hand_table_force_n": 16.1
    }
   }
  ],
  "code": {
-  "commit": "46f3a180837453f5301525399e484470384784b4",
-  "dirty": true
- }
+  "commit": "1fe5fe467021fab8f25ddca134f726b49b2150df",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {}
 }
