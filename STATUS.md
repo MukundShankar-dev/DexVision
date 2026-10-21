@@ -1,8 +1,7 @@
 # Status
 
 **Active checkpoint:** R7 — push (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** task spec, expert and val baselines done. Awaiting owner sign-off
-on the push gate before data generation and training.
+**State:** gate approved (2026-10-21). Generating data and training.
 **Last completed:** R7 reach — both methods pass (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
@@ -60,8 +59,7 @@ The random policy's successes are real pushes (checked). Chance is higher
 here because the hand starts behind the object and every goal lies away from
 it.
 
-**Push gate (proposed, written before any push training; needs owner
-sign-off).** A learned push policy passes only if its single 200-episode test
+**Push gate (approved by owner 2026-10-21, before any push training).** A learned push policy passes only if its single 200-episode test
 run has a Wilson 95% lower bound ≥ 80% (≥ 170/200) and every object ≥ 60%.
 Checkpoints are selected on val only.
 
