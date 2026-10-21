@@ -1,0 +1,37 @@
+# Scripted push expert. It sees only the observation fields of configs/tasks/push.yaml, and its
+# parameters may depend only on object shape and size (AGENTS.md rule 4): here they do not depend
+# on the object at all. Tuned on train seeds only.
+
+gains:
+  position: 0.6            # fraction of the position error commanded per step
+  orientation: 0.5         # fraction of the palm orientation error commanded per step
+
+max_push_step_m: 0.004     # hand speed while pushing: 8 cm/s, slow enough that the object follows
+position_tolerance_m: 0.01
+yaw_tolerance_rad: 0.1
+descend_timeout_steps: 30
+
+# Hand geometry with the wall posture below (from fingertip kinematics): the fingertips hang
+# 68 mm below the grasp point and the front of the finger wall is about 20 mm ahead of it.
+fingertip_drop_m: 0.068
+wall_offset_m: 0.020
+push_height_m: 0.006       # fingertips this far above the table while pushing
+standoff_m: 0.03           # gap between the wall and the object before the push starts
+clearance_m: 0.02          # fingertips this far above the object top while moving over it
+push_depth_m: 0.01         # how far the push target sits inside the object (keeps contact)
+
+# The wall only pushes away from the arm. The hand never turns more than this from +x: in
+# train rollouts the trailing forearm hit the button and wall fixture at 109-131 degrees. If the
+# goal would need a push direction outside this limit (the object overshot), the expert rises
+# and waits.
+max_yaw_rad: 1.5708        # 90 degrees
+
+# Replanning: back off and re-approach when the object leaves the wall.
+back_off_m: 0.03           # slide the wall back this far before rising
+max_lateral_error_m: 0.025 # object centre this far off the wall's centre line
+stop_tolerance_m: 0.008    # stop pushing when the object is this close to the goal
+resume_tolerance_m: 0.015  # push again if it drifts this far away while holding
+
+# The wall: index, middle, ring and little fingers bent 90 degrees at the knuckle, distal joints
+# straight; the thumb stays at neutral, 80 mm above the fingertips and out of the way.
+wall_posture: {FFJ3: 1.57, MFJ3: 1.57, RFJ3: 1.57, LFJ3: 1.57}

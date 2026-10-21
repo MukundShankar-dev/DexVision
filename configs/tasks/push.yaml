@@ -1,0 +1,56 @@
+# Push: slide an object across the table to a goal spot without lifting or toppling it.
+# Written before any controller or policy exists (AGENTS.md section 2).
+skill: push
+
+# Pucks are excluded: they are 12-16 mm tall, so pushing them means scraping the hand along the
+# table rather than pushing with the fingers.
+objects: [block_small, block_large, cylinder_short, cylinder_tall]
+
+reset:
+  object_center_xy_m: [-0.10, 0.0]
+  object_half_extent_xy_m: [0.02, 0.03]
+  object_yaw_range_rad: [-3.141592653589793, 3.141592653589793]
+  # The goal is the start position moved by a distance in this range, in a direction within
+  # +-45 degrees of +x (away from the arm). The forearm trails about 30 cm behind the hand, so
+  # the hand cannot turn much past 90 degrees without swinging it into the button and wall
+  # fixture; +-45 leaves 45 degrees for the steering corrections a push needs when the object
+  # drifts sideways.
+  push_distance_m: [0.05, 0.08]
+  push_angle_rad: [-0.7853981633974483, 0.7853981633974483]
+  hand_jitter_m: [0.02, 0.02, 0.02]
+
+horizon_steps: 200                        # 10 s at 20 Hz
+
+success:
+  # Measured on the object body. All conditions must hold for dwell_steps in a row.
+  tolerance_xy_m: 0.02                    # object centre within 2 cm of the goal, horizontally
+  max_height_change_m: 0.01               # still resting on the table, upright: not lifted, not toppled
+  dwell_steps: 10                         # 0.5 s
+
+failure:
+  min_object_z_m: -0.02                   # fell off the table
+  # Hand contact with the trays, the wall fixture or the button ends the episode. Touching the
+  # table and the object is allowed: pushing happens just above the table.
+  hand_collision_bodies: [tray_left, tray_right, fixture_wall, button]
+
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - object_position
+  - object_rotation6d
+  - object_linear_velocity
+  - object_angular_velocity
+  - object_shape
+  - object_size
+  - goal_position                         # where the object should end up (an instruction)
+
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [200000, 210000]
+
+test_budget: 3

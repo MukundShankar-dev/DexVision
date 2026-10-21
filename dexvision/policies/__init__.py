@@ -2,11 +2,13 @@
 
 from dexvision.policies.baselines import RandomPolicy, ZeroPolicy
 from dexvision.policies.pick_expert import PickExpert
+from dexvision.policies.push_expert import PushExpert
 from dexvision.policies.reach_expert import ReachExpert
 from dexvision.sim.workcell import ActionSpace
 
 POLICIES = ("zero", "random", "expert")
-EXPERTS = {"pick": PickExpert, "reach": ReachExpert}  # one scripted expert per skill
+# one scripted expert per skill
+EXPERTS = {"pick": PickExpert, "push": PushExpert, "reach": ReachExpert}
 
 
 def make_policy(name: str, action_space: ActionSpace, skill: str):
