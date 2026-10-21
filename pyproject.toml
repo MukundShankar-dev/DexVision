@@ -38,3 +38,5 @@ max-complexity = 12
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m 'not slow'"
+markers = ["slow: minutes on CPU; run with `pytest -m slow`"]

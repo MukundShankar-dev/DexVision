@@ -1,0 +1,34 @@
+# The one learning method (AGENTS.md section 3). Every skill uses these values unchanged;
+# skills differ only in their task spec and dataset. Changing anything here is a method change
+# and must be re-run on every skill that has already qualified.
+#
+# Diffusion Policy follows Chi et al. 2023 (CNN variant) at a smaller width for an M1 laptop.
+
+horizons:
+  observation: 2              # observations fed to the policy: t-1 and t
+  prediction: 16              # actions predicted per inference: a[t] .. a[t+15]
+  execution: 8                # actions executed before predicting again: a[t] .. a[t+7]
+
+training:
+  steps: 60000                # optimizer steps (batch 256)
+  batch_size: 256
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-6
+  adam_betas: [0.95, 0.999]
+  warmup_steps: 500           # linear warmup, then cosine decay to zero
+  ema_power: 0.75             # EMA decay = 1 - (1 + step)^-power, capped at ema_max_decay
+  ema_max_decay: 0.9999
+  checkpoint_every: 10000     # steps; checkpoints are selected by val success (R6)
+
+diffusion:
+  down_dims: [128, 256, 512]  # UNet channel widths; the horizon halves at each level but the last
+  kernel_size: 5
+  group_norm_groups: 8
+  step_embedding_dim: 128
+  train_timesteps: 100        # DDPM, squared-cosine noise schedule, epsilon prediction
+  inference_steps: 10         # DDIM, deterministic (eta = 0) given the initial noise
+
+# Baseline on the same interface, data, normalization and training settings: regresses the
+# whole 16-step action chunk from the same 2 observations with a mean-squared error.
+mlp:
+  hidden_dims: [512, 512, 512]

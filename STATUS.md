@@ -1,39 +1,38 @@
 # Status
 
-**Active checkpoint:** R4 — Pick data generation, after re-opening R3 to harden
-the expert (see `docs/PLAN.md`)
-**State:** implemented, tests pass. Awaiting owner sign-off on the hardened
-expert (videos) and the dataset before R5.
-**Last completed:** R3 — Pick scripted expert and gate (owner approved 2026-10-20)
+**Active checkpoint:** R5 — Diffusion Policy and MLP-BC, method only (see `docs/PLAN.md`)
+**State:** implemented, tests pass. Awaiting owner sign-off before R6.
+**Last completed:** R4 — pick data generation with the hardened expert (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
 
-## Pick task and expert
+## Method (`dexvision/learning/`, `configs/learning/method.yaml`)
+
+- **Diffusion Policy:** 1-D conv UNet (128/256/512) with FiLM, 17.7M params;
+  DDPM with 100 squared-cosine steps and epsilon prediction; DDIM with 10
+  steps. Observation history 2, prediction 16, execute 8. Min-max
+  normalization fitted on training data. AdamW at 1e-4, batch 256, 60k steps,
+  EMA weights.
+- **MLP-BC:** 3×512 MLP regressing the 16-step chunk from the same inputs,
+  with the same data, normalization, training settings and policy wrapper.
+- **Speed (M1 Pro, batch 256):** diffusion 265 ms/step on MPS (about 4.4 h
+  for 60k steps); MLP 4 ms/step. Inference on CPU is about 120 ms per chunk,
+  about 2.5 s per episode. R6 training is planned on the owner's RTX 5070 Ti
+  over `ssh desktop`.
+
+## Pick task, expert and data
 
 - **Task** (`configs/tasks/pick.yaml`): one of six objects in an 8 × 12 cm
   region, any yaw. Success (measured): lifted ≥ 5 cm and held by thumb plus
   finger, touching nothing else, for 0.5 s within 8 s.
-- **Expert** (`dexvision/policies/pick_expert.py`, `configs/experts/pick.yaml`):
-  sees only the declared observation (test-enforced). It chooses a grasp from
-  object height alone: the opposition pinch by default; for objects ≤ 2 cm
-  tall (pucks), a flat grasp anchored to the near edge and the table, with a
-  thumb fence, a finger rake and an overdriven squeeze.
-- **Why the flat grasp exists.** The first R4 dataset showed the R3 expert
-  was fragile on pucks under DART noise (light puck kept 73/177). The default
-  pinch cleared the rim by millimetres, and its squeeze was sensitive to
-  target noise.
-- **Tuning.** Train seeds only: v1 fist 8/60; v2 pinch 300/300 clean; v3
-  (flat grasp) 300/300 clean and 293/300 with noise on seeds 0–299. Val was
-  never used for tuning.
-
-## Pick dataset (`configs/data/pick.yaml`, `datasets/pick/pick/`, untracked)
-
-- **Generation.** Expert v3 on train seeds 0–999 with DART noise (σ: 2 mm
-  and 0.01 rad per step on the hand, 0.05 rad on actuator targets). Labels
-  are the clean expert actions. Commit 308cf7c, clean tree.
-- **Kept.** 985/1000 [97.5%, 99.1%]: 83,698 transitions, median 82 steps.
-  Every object ≥ 92% lower bound (puck_light 175/177, puck_heavy 156/162).
-- **Replay.** 200/200 episodes reproduce the outcome and every observation
-  bit for bit.
+- **Expert v3** (`dexvision/policies/pick_expert.py`): declared observations
+  only. It uses the opposition pinch, or a flat grasp for objects ≤ 2 cm tall,
+  which was added after v2 proved fragile on pucks under noise. Tuned on train
+  seeds only.
+- **Dataset** (`configs/data/pick.yaml`, `datasets/pick/pick/`, untracked): v3
+  on train seeds 0–999 with DART noise (2 mm and 0.01 rad per step on the hand,
+  0.05 rad on targets); clean labels; commit 308cf7c. 985/1000 kept [97.5%,
+  99.1%], 83,698 transitions, every object ≥ 92% lower bound. 200/200
+  episodes replay bit for bit.
 
 ## Baselines and gates
 
