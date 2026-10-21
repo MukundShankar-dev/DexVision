@@ -1,0 +1,1036 @@
+{
+ "skill": "reach",
+ "policy": "random",
+ "split": "val",
+ "overall": {
+  "successes": 0,
+  "n": 100,
+  "ci95": [
+   0.0,
+   0.037
+  ]
+ },
+ "by_object": {
+  "none": {
+   "successes": 0,
+   "n": 100,
+   "ci95": [
+    0.0,
+    0.037
+   ]
+  }
+ },
+ "failures": {
+  "hand_collision": 26,
+  "timeout": 74
+ },
+ "episodes": [
+  {
+   "seed": 100000,
+   "target_object": "none",
+   "success": false,
+   "steps": 92,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0734
+   }
+  },
+  {
+   "seed": 100001,
+   "target_object": "none",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0391
+   }
+  },
+  {
+   "seed": 100002,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.004
+   }
+  },
+  {
+   "seed": 100003,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1136
+   }
+  },
+  {
+   "seed": 100004,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.062
+   }
+  },
+  {
+   "seed": 100005,
+   "target_object": "none",
+   "success": false,
+   "steps": 85,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0885
+   }
+  },
+  {
+   "seed": 100006,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0669
+   }
+  },
+  {
+   "seed": 100007,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.064
+   }
+  },
+  {
+   "seed": 100008,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0652
+   }
+  },
+  {
+   "seed": 100009,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0436
+   }
+  },
+  {
+   "seed": 100010,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0468
+   }
+  },
+  {
+   "seed": 100011,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0996
+   }
+  },
+  {
+   "seed": 100012,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.165
+   }
+  },
+  {
+   "seed": 100013,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0262
+   }
+  },
+  {
+   "seed": 100014,
+   "target_object": "none",
+   "success": false,
+   "steps": 64,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0836
+   }
+  },
+  {
+   "seed": 100015,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0681
+   }
+  },
+  {
+   "seed": 100016,
+   "target_object": "none",
+   "success": false,
+   "steps": 89,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0456
+   }
+  },
+  {
+   "seed": 100017,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0869
+   }
+  },
+  {
+   "seed": 100018,
+   "target_object": "none",
+   "success": false,
+   "steps": 97,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.043
+   }
+  },
+  {
+   "seed": 100019,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0402
+   }
+  },
+  {
+   "seed": 100020,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0821
+   }
+  },
+  {
+   "seed": 100021,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0776
+   }
+  },
+  {
+   "seed": 100022,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0367
+   }
+  },
+  {
+   "seed": 100023,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.08
+   }
+  },
+  {
+   "seed": 100024,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0355
+   }
+  },
+  {
+   "seed": 100025,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.155
+   }
+  },
+  {
+   "seed": 100026,
+   "target_object": "none",
+   "success": false,
+   "steps": 98,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0917
+   }
+  },
+  {
+   "seed": 100027,
+   "target_object": "none",
+   "success": false,
+   "steps": 92,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0572
+   }
+  },
+  {
+   "seed": 100028,
+   "target_object": "none",
+   "success": false,
+   "steps": 84,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.094
+   }
+  },
+  {
+   "seed": 100029,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1146
+   }
+  },
+  {
+   "seed": 100030,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.098
+   }
+  },
+  {
+   "seed": 100031,
+   "target_object": "none",
+   "success": false,
+   "steps": 91,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.116
+   }
+  },
+  {
+   "seed": 100032,
+   "target_object": "none",
+   "success": false,
+   "steps": 98,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0229
+   }
+  },
+  {
+   "seed": 100033,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0526
+   }
+  },
+  {
+   "seed": 100034,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0638
+   }
+  },
+  {
+   "seed": 100035,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0457
+   }
+  },
+  {
+   "seed": 100036,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0018
+   }
+  },
+  {
+   "seed": 100037,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.073
+   }
+  },
+  {
+   "seed": 100038,
+   "target_object": "none",
+   "success": false,
+   "steps": 94,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1471
+   }
+  },
+  {
+   "seed": 100039,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1626
+   }
+  },
+  {
+   "seed": 100040,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1101
+   }
+  },
+  {
+   "seed": 100041,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1019
+   }
+  },
+  {
+   "seed": 100042,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1532
+   }
+  },
+  {
+   "seed": 100043,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1011
+   }
+  },
+  {
+   "seed": 100044,
+   "target_object": "none",
+   "success": false,
+   "steps": 95,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1169
+   }
+  },
+  {
+   "seed": 100045,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.072
+   }
+  },
+  {
+   "seed": 100046,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0894
+   }
+  },
+  {
+   "seed": 100047,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0833
+   }
+  },
+  {
+   "seed": 100048,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0503
+   }
+  },
+  {
+   "seed": 100049,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0612
+   }
+  },
+  {
+   "seed": 100050,
+   "target_object": "none",
+   "success": false,
+   "steps": 94,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1062
+   }
+  },
+  {
+   "seed": 100051,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1466
+   }
+  },
+  {
+   "seed": 100052,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1645
+   }
+  },
+  {
+   "seed": 100053,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1429
+   }
+  },
+  {
+   "seed": 100054,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0944
+   }
+  },
+  {
+   "seed": 100055,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0731
+   }
+  },
+  {
+   "seed": 100056,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.081
+   }
+  },
+  {
+   "seed": 100057,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1378
+   }
+  },
+  {
+   "seed": 100058,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0916
+   }
+  },
+  {
+   "seed": 100059,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1335
+   }
+  },
+  {
+   "seed": 100060,
+   "target_object": "none",
+   "success": false,
+   "steps": 71,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0518
+   }
+  },
+  {
+   "seed": 100061,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1244
+   }
+  },
+  {
+   "seed": 100062,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.087
+   }
+  },
+  {
+   "seed": 100063,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0335
+   }
+  },
+  {
+   "seed": 100064,
+   "target_object": "none",
+   "success": false,
+   "steps": 85,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0829
+   }
+  },
+  {
+   "seed": 100065,
+   "target_object": "none",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0987
+   }
+  },
+  {
+   "seed": 100066,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0298
+   }
+  },
+  {
+   "seed": 100067,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0918
+   }
+  },
+  {
+   "seed": 100068,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1212
+   }
+  },
+  {
+   "seed": 100069,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0876
+   }
+  },
+  {
+   "seed": 100070,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1046
+   }
+  },
+  {
+   "seed": 100071,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0804
+   }
+  },
+  {
+   "seed": 100072,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0279
+   }
+  },
+  {
+   "seed": 100073,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0247
+   }
+  },
+  {
+   "seed": 100074,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0794
+   }
+  },
+  {
+   "seed": 100075,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1068
+   }
+  },
+  {
+   "seed": 100076,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0754
+   }
+  },
+  {
+   "seed": 100077,
+   "target_object": "none",
+   "success": false,
+   "steps": 99,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1235
+   }
+  },
+  {
+   "seed": 100078,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1239
+   }
+  },
+  {
+   "seed": 100079,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0818
+   }
+  },
+  {
+   "seed": 100080,
+   "target_object": "none",
+   "success": false,
+   "steps": 86,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1035
+   }
+  },
+  {
+   "seed": 100081,
+   "target_object": "none",
+   "success": false,
+   "steps": 93,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1025
+   }
+  },
+  {
+   "seed": 100082,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0778
+   }
+  },
+  {
+   "seed": 100083,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0422
+   }
+  },
+  {
+   "seed": 100084,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0624
+   }
+  },
+  {
+   "seed": 100085,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0319
+   }
+  },
+  {
+   "seed": 100086,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1277
+   }
+  },
+  {
+   "seed": 100087,
+   "target_object": "none",
+   "success": false,
+   "steps": 74,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0298
+   }
+  },
+  {
+   "seed": 100088,
+   "target_object": "none",
+   "success": false,
+   "steps": 91,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0876
+   }
+  },
+  {
+   "seed": 100089,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0591
+   }
+  },
+  {
+   "seed": 100090,
+   "target_object": "none",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0982
+   }
+  },
+  {
+   "seed": 100091,
+   "target_object": "none",
+   "success": false,
+   "steps": 98,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.1143
+   }
+  },
+  {
+   "seed": 100092,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0112
+   }
+  },
+  {
+   "seed": 100093,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1017
+   }
+  },
+  {
+   "seed": 100094,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.1209
+   }
+  },
+  {
+   "seed": 100095,
+   "target_object": "none",
+   "success": false,
+   "steps": 69,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0217
+   }
+  },
+  {
+   "seed": 100096,
+   "target_object": "none",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_distance_m": 0.0221
+   }
+  },
+  {
+   "seed": 100097,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0403
+   }
+  },
+  {
+   "seed": 100098,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0938
+   }
+  },
+  {
+   "seed": 100099,
+   "target_object": "none",
+   "success": false,
+   "steps": 100,
+   "failure": "timeout",
+   "metrics": {
+    "min_distance_m": 0.0448
+   }
+  }
+ ],
+ "code": {
+  "commit": "e44bbba0c250e6ff02423885d4ade182697f75c0",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {}
+}
