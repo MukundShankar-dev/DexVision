@@ -27,9 +27,10 @@ def _git(*args: str) -> str | None:
 
 def code_version() -> dict[str, object]:
     """{"commit", "dirty", "platform", "mujoco"}. ``dirty`` means results may not reproduce from
-    the commit alone."""
+    the commit alone: tracked files other than the ``results/`` outputs have uncommitted changes.
+    (Without the exclusion, each evaluation's own report would mark the next one dirty.)"""
     commit = _git("rev-parse", "HEAD")
-    status = _git("status", "--porcelain", "--untracked-files=no")
+    status = _git("status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)results")
     return {
         "commit": commit,
         "dirty": None if status is None else bool(status),
