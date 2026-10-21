@@ -1,27 +1,30 @@
 # Status
 
-**Active checkpoint:** R5 — Diffusion Policy and MLP-BC, method only (see `docs/PLAN.md`)
-**State:** implemented, tests pass. Awaiting owner sign-off before R6.
-**Last completed:** R4 — pick data generation with the hardened expert (owner approved 2026-10-21)
+**Active checkpoint:** R6 — train and evaluate pick (see `docs/PLAN.md`)
+**State:** in progress. Training runs on the desktop (RTX 5070 Ti).
+**Last completed:** R5 — Diffusion Policy and MLP-BC, method only (owner approved 2026-10-21)
 **Legacy pipeline:** git tag `legacy-v1`
+
+## R6 protocol (fixed before any pick training)
+
+1. Train diffusion and MLP-BC with seed 0 on `datasets/pick/pick`, using
+   `configs/learning/method.yaml` unchanged. Checkpoints every 10k steps.
+2. Selection: every checkpoint runs on val seeds 100000–100199. The most
+   successes wins; ties go to the later step
+   (`python -m dexvision.apps.select_checkpoint`).
+3. One test run per method on the selected checkpoint, 200 episodes,
+   ledgered. It is judged against the pick gate below.
+4. All evaluations (zero, random and expert baselines re-run too) are on the
+   desktop (Linux x86-64), so the table compares like with like.
 
 ## Method (`dexvision/learning/`, `configs/learning/method.yaml`)
 
-- **Diffusion Policy:** 1-D conv UNet (128/256/512) with FiLM, 17.7M params;
-  DDPM with 100 squared-cosine steps and epsilon prediction; DDIM with 10
-  steps. Observation history 2, prediction 16, execute 8. Min-max
-  normalization fitted on training data. AdamW at 1e-4, batch 256, 60k steps,
-  EMA weights.
-- **MLP-BC:** 3×512 MLP regressing the 16-step chunk from the same inputs,
-  with the same data, normalization, training settings and policy wrapper.
-- **Speed (batch 256), 60k diffusion steps:** RTX 5070 Ti (`ssh desktop`, WSL2)
-  34 ms/step, 0.6 h; M1 Pro MPS 265 ms/step, 4.4 h. MLP: 2–4 ms/step. CPU
-  inference is about 120 ms per chunk, about 2.5 s per episode.
-- **Desktop** (`~/DexVision`, Miniforge env `dexvision`): 66 tests pass, and
-  the dataset was copied with all 985 hashes verified. MuJoCo is not
-  bit-identical across arm64 and x86-64 (expert val 200/200 on both, but 48
-  episodes differ in detail), so all R6 evaluations run on one machine, and
-  provenance now records the platform.
+- **Diffusion Policy:** conv UNet with FiLM, 17.7M params, DDPM/DDIM,
+  observations 2 / predict 16 / execute 8, 60k steps. MLP-BC uses the same
+  data, normalization, training settings and wrapper.
+- **Machines:** training on the desktop takes 34 ms/step, 0.6 h per run.
+  MuJoCo is not bit-identical across arm64 and x86-64, so provenance records
+  the platform.
 
 ## Pick task, expert and data
 

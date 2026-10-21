@@ -7,15 +7,19 @@ the episode seed, so evaluation is reproducible. The policy has no skill-specifi
 
 from __future__ import annotations
 
+import hashlib
 from collections import deque
 from collections.abc import Mapping
+from pathlib import Path
 
 import numpy as np
 import torch
 
+from dexvision import REPO_ROOT
 from dexvision.learning.dataset import observation_vector
 from dexvision.learning.train import Trained
 from dexvision.tasks.features import TaskContext
+from dexvision.tasks.spec import TaskSpec
 
 
 class LearnedPolicy:
@@ -49,3 +53,28 @@ class LearnedPolicy:
         chunk = t.model.predict(obs, self._generator)[0].cpu().double().numpy()
         self.inferences += 1
         return t.action_norm.decode(chunk)[: self._execution]
+
+
+def load_learned_policy(path: Path, spec: TaskSpec, device: str = "cpu"
+                        ) -> tuple[LearnedPolicy, dict[str, object]]:
+    """Load a checkpoint for ``spec``'s skill. Refuses checkpoints trained for another skill or
+    on other observation fields. Returns the policy and its provenance for the report."""
+    path = Path(path).resolve()
+    trained = Trained.load(path, device)
+    if trained.record.get("skill") != spec.skill:
+        raise ValueError(f"{path} was trained for {trained.record.get('skill')!r}, "
+                         f"not {spec.skill!r}")
+    if trained.fields != spec.observation:
+        raise ValueError(f"{path} observes {trained.fields}, the task declares {spec.observation}")
+    try:
+        shown = str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        shown = str(path)
+    info = {
+        "checkpoint": shown,
+        "checkpoint_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "method": trained.method,
+        "step": trained.step,
+        "training": trained.record,
+    }
+    return LearnedPolicy(trained, device), info

@@ -52,6 +52,7 @@ class EvalReport:
     failures: dict[str, int]
     episodes: list[EpisodeResult] = field(repr=False)
     code: dict[str, object]
+    policy_info: dict[str, object] = field(default_factory=dict)  # e.g. checkpoint path and hash
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -92,6 +93,7 @@ def evaluate(
     video_dir: Path | None = None,
     n_videos: int = 0,
     ledger_path: Path = DEFAULT_LEDGER,
+    policy_info: dict[str, object] | None = None,
 ) -> EvalReport:
     """Run ``n_episodes`` on the first seeds of ``split``. Test runs are budgeted and logged."""
     skill = task.spec.skill
@@ -126,12 +128,14 @@ def evaluate(
         failures=dict(failures),
         episodes=episodes,
         code=code_version(),
+        policy_info=dict(policy_info or {}),
     )
     if split == "test":
         append_test_run(
             {"skill": skill, "policy": policy.name, "n": report.overall.n,
              "successes": report.overall.successes, "ci95": report.overall.ci95,
-             "seeds": [seeds.start, seeds.stop], "code": report.code},
+             "seeds": [seeds.start, seeds.stop], "code": report.code,
+             "policy_info": report.policy_info},
             ledger_path,
         )
     return report

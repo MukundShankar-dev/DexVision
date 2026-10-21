@@ -1,8 +1,10 @@
 """Evaluate a policy on a task split and write the report.
 
     python -m dexvision.apps.evaluate --task pick --policy zero --episodes 100 --videos 2
+    python -m dexvision.apps.evaluate --task pick --checkpoint runs/pick/<run>/step_060000.pt
 
-Reports go to results/<task>/<policy>_<split>.json and videos to runs/videos/. Test-split runs
+Reports go to results/<task>/<policy>_<split>.json (a checkpoint is named by its method) and
+videos to runs/videos/. Test-split runs
 count against the task's test budget and are logged in results/test_ledger.jsonl.
 
 --dart-noise executes every action with the DART noise from configs/data/<task>.yaml, to measure
@@ -19,6 +21,7 @@ from pathlib import Path
 from dexvision import REPO_ROOT
 from dexvision.data.demos import DemoRecorder, load_data_config, noise_std_vector
 from dexvision.eval.evaluator import evaluate
+from dexvision.learning.policy import load_learned_policy
 from dexvision.policies import POLICIES, make_policy
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASKS, make_task
@@ -27,7 +30,9 @@ from dexvision.tasks import TASKS, make_task
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--task", choices=sorted(TASKS), required=True)
-    parser.add_argument("--policy", choices=sorted(POLICIES), required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--policy", choices=sorted(POLICIES))
+    source.add_argument("--checkpoint", type=Path, help="a trained model from apps.train")
     parser.add_argument("--split", choices=("val", "test"), default="val")
     parser.add_argument("--episodes", type=int, default=100)
     parser.add_argument("--videos", type=int, default=0, help="record the first N episodes")
@@ -41,15 +46,20 @@ def main() -> None:
 
     workcell = Workcell()
     task = make_task(args.task)
-    policy = make_policy(args.policy, workcell.action_space)
+    info = {}
+    if args.checkpoint:
+        policy, info = load_learned_policy(args.checkpoint, task.spec)
+    else:
+        policy = make_policy(args.policy, workcell.action_space)
     if args.dart_noise:
         noise = noise_std_vector(load_data_config(args.task)["noise_std"])
+        name = policy.name
         policy = DemoRecorder(policy, workcell.action_space, noise)
-        policy.name = f"{args.policy}_dart"
+        policy.name = f"{name}_dart"
     print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes")
     started = time.perf_counter()
     report = evaluate(workcell, task, policy, args.split, args.episodes,
-                      video_dir=args.video_dir, n_videos=args.videos)
+                      video_dir=args.video_dir, n_videos=args.videos, policy_info=info)
     elapsed = time.perf_counter() - started
 
     out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}_{args.split}.json"
