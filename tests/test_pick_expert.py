@@ -5,10 +5,10 @@ import pytest
 
 from dexvision.data.demos import DemoRecorder, load_data_config, noise_std_vector
 from dexvision.eval.evaluator import run_episode
-from dexvision.policies.pick_expert import PickExpert, grasp_yaw, rotation_from_6d, wrap
+from dexvision.policies.pick_expert import PickExpert, grasp_yaw, wrap
 from dexvision.sim.workcell import OBJECT_IDS, Workcell
 from dexvision.tasks import make_task
-from dexvision.tasks.features import TaskContext, rotation6d
+from dexvision.tasks.features import TaskContext, rotation6d, rotation_from_6d
 
 
 def yaw_rotation(yaw):

@@ -74,11 +74,11 @@ def run_episode(
             recorder.capture()
         if check.success or check.failure:
             return EpisodeResult(
-                seed, context.target_object, check.success, step, check.failure,
+                seed, context.target_object or "none", check.success, step, check.failure,
                 task.episode_metrics(),
             )
     return EpisodeResult(
-        seed, context.target_object, False, task.spec.horizon_steps, "timeout",
+        seed, context.target_object or "none", False, task.spec.horizon_steps, "timeout",
         task.episode_metrics(),
     )
 

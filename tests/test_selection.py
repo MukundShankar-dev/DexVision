@@ -29,7 +29,7 @@ def checkpoints(tmp_path_factory):
     """Two tiny MLP checkpoints trained on two real expert episodes."""
     root = tmp_path_factory.mktemp("run")
     workcell, task = Workcell(), make_task("pick")
-    generate(workcell, task, make_policy("expert", workcell.action_space),
+    generate(workcell, task, make_policy("expert", workcell.action_space, "pick"),
              dict(load_data_config("pick"), episodes=2), root / "data")
     config = copy.deepcopy(load_method_config())
     config["mlp"]["hidden_dims"] = [32]

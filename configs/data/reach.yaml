@@ -1,0 +1,16 @@
+# Reach demonstrations: scripted expert rollouts on train seeds (AGENTS.md section 2, step 5).
+task: reach
+policy: expert
+split: train
+episodes: 1000                 # the first N train seeds
+
+# DART-style noise (Laskey et al. 2017): each step executes expert_action + noise and records
+# the clean expert action as the label, so the data covers states slightly off the expert's
+# path along with the expert's correction from them. Zero-mean Gaussian, independent per step
+# and per component, standard deviations below. Sampled from default_rng([seed, 3]).
+noise_std:
+  translation_m: 0.002         # per step; the motion limit is 0.01 m per step
+  rotation_rad: 0.01           # per step, each rotation-vector component
+  targets_rad: 0.05            # each actuator target; the rate limit is 0.15 rad per step
+
+# Only successful episodes are kept. The filter rate is reported in the manifest.

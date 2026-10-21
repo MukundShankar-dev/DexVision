@@ -50,7 +50,7 @@ def main() -> None:
     if args.checkpoint:
         policy, info = load_learned_policy(args.checkpoint, task.spec)
     else:
-        policy = make_policy(args.policy, workcell.action_space)
+        policy = make_policy(args.policy, workcell.action_space, args.task)
     if args.dart_noise:
         noise = noise_std_vector(load_data_config(args.task)["noise_std"])
         name = policy.name

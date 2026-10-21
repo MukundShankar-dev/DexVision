@@ -15,6 +15,15 @@ TASK_CONFIG_DIR = REPO_ROOT / "configs" / "tasks"
 SPLITS = ("train", "val", "test")
 
 
+@dataclass(frozen=True)
+class StepCheck:
+    """A task's verdict on one step."""
+
+    qualifies: bool  # success conditions hold at this step
+    success: bool  # they have held for the required dwell
+    failure: str | None  # a terminal failure reason, if any
+
+
 class TaskSpecError(ValueError):
     """Malformed task spec."""
 

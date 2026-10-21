@@ -21,16 +21,10 @@ import yaml
 
 from dexvision import REPO_ROOT
 from dexvision.sim.workcell import ACTUATOR_TARGETS, ROTATION, TRANSLATION, ActionSpace
-from dexvision.tasks.features import TaskContext
+from dexvision.tasks.features import TaskContext, rotation_from_6d
 
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "experts" / "pick.yaml"
 GRASP_POINT_IN_PALM = np.array([0.0, -0.035, 0.09])  # the menagerie grasp_site, palm frame
-
-
-def rotation_from_6d(r6: np.ndarray) -> np.ndarray:
-    """[6] -> [3, 3] rotation matrix (inverse of features.rotation6d)."""
-    c1, c2 = np.asarray(r6[:3]), np.asarray(r6[3:6])
-    return np.column_stack([c1, c2, np.cross(c1, c2)])
 
 
 def wrap(angle: float, period: float = 2 * math.pi) -> float:

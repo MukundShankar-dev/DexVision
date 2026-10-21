@@ -2,12 +2,21 @@
 
 from dexvision.policies.baselines import RandomPolicy, ZeroPolicy
 from dexvision.policies.pick_expert import PickExpert
+from dexvision.policies.reach_expert import ReachExpert
 from dexvision.sim.workcell import ActionSpace
 
-POLICIES = {"zero": ZeroPolicy, "random": RandomPolicy, "expert": PickExpert}
+POLICIES = ("zero", "random", "expert")
+EXPERTS = {"pick": PickExpert, "reach": ReachExpert}  # one scripted expert per skill
 
 
-def make_policy(name: str, action_space: ActionSpace):
-    if name not in POLICIES:
-        raise KeyError(f"Unknown policy '{name}'. Available: {sorted(POLICIES)}")
-    return POLICIES[name](action_space)
+def make_policy(name: str, action_space: ActionSpace, skill: str):
+    """``name`` is "zero", "random" or "expert"; "expert" means ``skill``'s scripted expert."""
+    if name == "zero":
+        return ZeroPolicy(action_space)
+    if name == "random":
+        return RandomPolicy(action_space)
+    if name == "expert":
+        if skill not in EXPERTS:
+            raise KeyError(f"No scripted expert for '{skill}'. Available: {sorted(EXPERTS)}")
+        return EXPERTS[skill](action_space)
+    raise KeyError(f"Unknown policy '{name}'. Available: {list(POLICIES)}")

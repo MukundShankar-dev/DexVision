@@ -32,7 +32,7 @@ def main() -> None:
     out = args.out or REPO_ROOT / "datasets" / config["task"] / name
     workcell = Workcell()
     task = make_task(config["task"])
-    expert = make_policy(config["policy"], workcell.action_space)
+    expert = make_policy(config["policy"], workcell.action_space, config["task"])
 
     def progress(done: int, total: int, result) -> None:
         if done % 100 == 0 or done == total:

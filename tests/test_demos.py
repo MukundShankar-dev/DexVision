@@ -27,7 +27,8 @@ def dataset(workcell, tmp_path_factory):
     config = dict(load_data_config("pick"), episodes=3)
     out = tmp_path_factory.mktemp("demos") / "pick"
     task = make_task("pick")
-    manifest = generate(workcell, task, make_policy("expert", workcell.action_space), config, out)
+    expert = make_policy("expert", workcell.action_space, "pick")
+    manifest = generate(workcell, task, expert, config, out)
     return out, manifest, task
 
 
@@ -44,7 +45,7 @@ def test_action_space_clip_matches_step_limits(workcell):
 
 def test_recorder_labels_are_clean_and_execution_is_noisy(workcell):
     task = make_task("pick")
-    expert = make_policy("expert", workcell.action_space)
+    expert = make_policy("expert", workcell.action_space, "pick")
     std = noise_std_vector(load_data_config("pick")["noise_std"])
     recorder = DemoRecorder(expert, workcell.action_space, std)
     result = run_episode(workcell, task, recorder, 7)
@@ -62,10 +63,10 @@ def test_recorder_labels_are_clean_and_execution_is_noisy(workcell):
 
 def test_zero_noise_recording_equals_the_plain_expert(workcell):
     task = make_task("pick")
-    recorder = DemoRecorder(make_policy("expert", workcell.action_space), workcell.action_space,
-                            np.zeros(ACTION_DIM))
+    expert = make_policy("expert", workcell.action_space, "pick")
+    recorder = DemoRecorder(expert, workcell.action_space, np.zeros(ACTION_DIM))
     recorded = run_episode(workcell, task, recorder, 4)
-    plain = run_episode(workcell, task, make_policy("expert", workcell.action_space), 4)
+    plain = run_episode(workcell, task, make_policy("expert", workcell.action_space, "pick"), 4)
     assert recorded == plain
 
 

@@ -1,0 +1,6 @@
+# Scripted reach expert. It sees only the observation fields of configs/tasks/reach.yaml and has
+# one parameter set (AGENTS.md rule 4). Tuned on train seeds only.
+
+gains:
+  position: 0.6            # fraction of the grasp-point error commanded per step
+  orientation: 0.5         # fraction of the palm orientation error (to its starting pose) per step

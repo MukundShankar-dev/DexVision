@@ -1,0 +1,40 @@
+# Reach: bring the hand's grasp point to a goal in free space and hold it there.
+# Written before any controller or policy exists (AGENTS.md section 2).
+skill: reach
+
+reset:
+  # No objects on the table. The goal is uniform in this box (world frame, m). The bounds keep
+  # the whole hand at least 4 cm above the table and the fingertips clear of the trays and the
+  # wall fixture.
+  goal_center_m: [-0.11, 0.0, 0.13]
+  goal_half_extent_m: [0.09, 0.10, 0.07]
+  min_goal_distance_m: 0.05               # from the hand's starting grasp point; resampled if closer
+  hand_jitter_m: [0.02, 0.02, 0.02]       # uniform offset from the neutral hand position
+
+horizon_steps: 100                        # 5 s at 20 Hz
+
+success:
+  # Measured on the physical grasp site (Observation.grasp_position), never on the command.
+  tolerance_m: 0.015
+  dwell_steps: 10                         # within tolerance for 0.5 s in a row
+
+failure:
+  # Any contact between the hand and something that is not the hand (table, trays, wall,
+  # button) ends the episode.
+  hand_collision: true
+
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - goal_position
+
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [200000, 210000]
+
+test_budget: 3

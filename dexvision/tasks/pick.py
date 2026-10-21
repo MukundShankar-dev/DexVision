@@ -2,21 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
 
 from dexvision.sim.workcell import Contact, Observation, Placement, Workcell
 from dexvision.tasks.contacts import bodies_touching, held_by_opposition, is_hand
 from dexvision.tasks.features import TaskContext
-from dexvision.tasks.spec import TaskSpec
-
-
-@dataclass(frozen=True)
-class StepCheck:
-    qualifies: bool  # success conditions hold at this step
-    success: bool  # they have held for the required dwell
-    failure: str | None  # a terminal failure reason, if any
+from dexvision.tasks.spec import StepCheck, TaskSpec
 
 
 def pick_qualifies(lift_m: float, touching: set[str], min_lift_m: float) -> bool:
