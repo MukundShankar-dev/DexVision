@@ -24,6 +24,8 @@ def main() -> None:
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
+    parser.add_argument("--out", type=Path, default=None,
+                        help="default results/<task>/<method>_val.json")
     args = parser.parse_args()
 
     checkpoints = sorted(args.run.glob("step_*.pt"))
@@ -45,7 +47,7 @@ def main() -> None:
     report = json.loads((args.run / chosen["report"]).read_text(encoding="utf-8"))
     report["selection"] = selection
     method = report["policy"]
-    out = REPO_ROOT / "results" / args.task / f"{method}_val.json"
+    out = args.out or REPO_ROOT / "results" / args.task / f"{method}_val.json"
     out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(f"Selected {chosen['checkpoint']}; wrote {out}")
 
