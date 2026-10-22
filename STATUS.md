@@ -1,8 +1,7 @@
 # Status
 
 **Active checkpoint:** R7 — push, widened to ±90° (`docs/PLAN.md`)
-**State:** spec, expert and val baselines done. Awaiting owner sign-off on
-the gate below before data generation and training.
+**State:** gate approved (2026-10-22). Generating data and training.
 **Done:** pick, reach, push ±45° (git tag `push-45`). Legacy: tag `legacy-v1`.
 
 ## Shared protocol (every skill)
@@ -51,7 +50,7 @@ Every task so far has one obvious way to act, so the MLP matches diffusion.
 
 Sectors: right < −45° ≤ forward ≤ 45° < left (`push_angle_deg` metric).
 
-**Push gate (proposed, before any training; needs owner sign-off).** A
+**Push gate (approved by owner 2026-10-22, before any training).** A
 learned policy passes only if its single 200-episode test run has a Wilson
 95% lower bound ≥ 80% (≥ 170/200), every object ≥ 60%, and every direction
 sector ≥ 60%.
