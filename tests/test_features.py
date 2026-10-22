@@ -9,7 +9,7 @@ EXPECTED_SIZES = {
     "palm_position": 3, "palm_rotation6d": 6, "hand_qpos": 24, "hand_qvel": 24,
     "fingertip_positions": 15, "object_position": 3, "object_rotation6d": 6,
     "object_linear_velocity": 3, "object_angular_velocity": 3, "object_shape": 2,
-    "object_size": 3, "grasp_position": 3, "goal_position": 3,
+    "object_size": 3, "grasp_position": 3, "goal_position": 3, "button_depth": 1,
 }
 
 

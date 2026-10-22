@@ -1,0 +1,45 @@
+# Press: push the wall button in with the hand, then let it spring back out.
+# Written before any controller or policy exists (AGENTS.md section 2).
+skill: press
+
+reset:
+  # No objects on the table. The button is fixed on the wall fixture at (0.110, -0.110, 0.200),
+  # facing -x; it slides 0-22 mm along +x against a spring (assets/mujoco/workcell.xml). Its
+  # position is the same in every episode, so the variation is in where the hand starts: a
+  # uniform offset from the neutral hand position (-0.16, 0, 0.20).
+  hand_jitter_m: [0.04, 0.06, 0.04]
+
+horizon_steps: 150                        # 7.5 s at 20 Hz
+
+success:
+  # Measured on the button joint (Observation.button_depth), never on a command. A press is the
+  # button held in at least press_depth_m for press_steps in a row; it succeeds once, after that,
+  # the button is back out (at most release_depth_m) with no hand contact for release_steps.
+  press_depth_m: 0.015
+  press_steps: 5                          # 0.25 s
+  release_depth_m: 0.003
+  release_steps: 10                       # 0.5 s
+
+failure:
+  # The button's travel ends at 22 mm, but its end stop is soft in the simulator: a hand driving
+  # into it pushes it further. More than max_depth_m counts as breaking the button.
+  max_depth_m: 0.024
+  # Hand contact with the wall fixture, trays or table ends the episode. Touching the button is
+  # the task.
+  hand_collision_bodies: [fixture_wall, tray_left, tray_right, table]
+
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - button_depth                          # measured joint position, m
+
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [200000, 210000]
+
+test_budget: 3
