@@ -3,28 +3,28 @@
  "policy": "random",
  "split": "val",
  "overall": {
-  "successes": 6,
+  "successes": 3,
   "n": 100,
   "ci95": [
-   0.0278,
-   0.1248
+   0.0103,
+   0.0845
   ]
  },
  "by_object": {
   "block_large": {
-   "successes": 2,
+   "successes": 1,
    "n": 19,
    "ci95": [
-    0.0294,
-    0.3139
+    0.0094,
+    0.2464
    ]
   },
   "block_small": {
-   "successes": 2,
+   "successes": 0,
    "n": 23,
    "ci95": [
-    0.0242,
-    0.268
+    0.0,
+    0.1431
    ]
   },
   "cylinder_short": {
@@ -45,7 +45,7 @@
   }
  },
  "failures": {
-  "timeout": 90,
+  "timeout": 93,
   "object_fell_off_table": 4
  },
  "episodes": [
@@ -67,7 +67,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0565,
+    "min_goal_distance_m": 0.0605,
     "max_height_change_m": 0.0008
    }
   },
@@ -89,7 +89,7 @@
    "steps": 191,
    "failure": "object_fell_off_table",
    "metrics": {
-    "min_goal_distance_m": 0.0427,
+    "min_goal_distance_m": 0.0464,
     "max_height_change_m": 0.0967
    }
   },
@@ -100,7 +100,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0561,
+    "min_goal_distance_m": 0.0552,
     "max_height_change_m": 0.018
    }
   },
@@ -166,7 +166,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0572,
+    "min_goal_distance_m": 0.0723,
     "max_height_change_m": 0.007
    }
   },
@@ -177,7 +177,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0628,
+    "min_goal_distance_m": 0.0656,
     "max_height_change_m": 0.0163
    }
   },
@@ -199,18 +199,18 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0294,
+    "min_goal_distance_m": 0.0281,
     "max_height_change_m": 0.0081
    }
   },
   {
    "seed": 100014,
    "target_object": "block_small",
-   "success": true,
-   "steps": 109,
-   "failure": null,
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0013,
+    "min_goal_distance_m": 0.0073,
     "max_height_change_m": 0.0123
    }
   },
@@ -232,7 +232,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0645,
+    "min_goal_distance_m": 0.0625,
     "max_height_change_m": 0.0005
    }
   },
@@ -250,12 +250,12 @@
   {
    "seed": 100018,
    "target_object": "block_large",
-   "success": true,
-   "steps": 133,
-   "failure": null,
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0134,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0309,
+    "max_height_change_m": 0.0035
    }
   },
   {
@@ -265,7 +265,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0348,
+    "min_goal_distance_m": 0.0301,
     "max_height_change_m": 0.0068
    }
   },
@@ -294,11 +294,11 @@
   {
    "seed": 100022,
    "target_object": "block_small",
-   "success": true,
-   "steps": 196,
-   "failure": null,
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0102,
+    "min_goal_distance_m": 0.0207,
     "max_height_change_m": 0.0045
    }
   },
@@ -309,7 +309,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0305,
+    "min_goal_distance_m": 0.0307,
     "max_height_change_m": 0.0107
    }
   },
@@ -320,7 +320,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0559,
+    "min_goal_distance_m": 0.0595,
     "max_height_change_m": 0.008
    }
   },
@@ -342,7 +342,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.055,
+    "min_goal_distance_m": 0.0552,
     "max_height_change_m": 0.0038
    }
   },
@@ -353,7 +353,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0336,
+    "min_goal_distance_m": 0.0326,
     "max_height_change_m": 0.0102
    }
   },
@@ -364,7 +364,7 @@
    "steps": 145,
    "failure": "object_fell_off_table",
    "metrics": {
-    "min_goal_distance_m": 0.0294,
+    "min_goal_distance_m": 0.0497,
     "max_height_change_m": 0.0471
    }
   },
@@ -375,7 +375,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0079,
+    "min_goal_distance_m": 0.0111,
     "max_height_change_m": 0.0173
    }
   },
@@ -419,7 +419,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0573,
+    "min_goal_distance_m": 0.0446,
     "max_height_change_m": 0.0095
    }
   },
@@ -448,11 +448,11 @@
   {
    "seed": 100036,
    "target_object": "cylinder_short",
-   "success": false,
-   "steps": 200,
-   "failure": "timeout",
+   "success": true,
+   "steps": 141,
+   "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0046,
+    "min_goal_distance_m": 0.0034,
     "max_height_change_m": 0.0112
    }
   },
@@ -485,7 +485,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0116,
+    "min_goal_distance_m": 0.0424,
     "max_height_change_m": 0.0178
    }
   },
@@ -496,18 +496,18 @@
    "steps": 89,
    "failure": "object_fell_off_table",
    "metrics": {
-    "min_goal_distance_m": 0.0642,
+    "min_goal_distance_m": 0.0691,
     "max_height_change_m": 0.0809
    }
   },
   {
    "seed": 100041,
    "target_object": "cylinder_short",
-   "success": true,
-   "steps": 178,
-   "failure": null,
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0045,
+    "min_goal_distance_m": 0.0143,
     "max_height_change_m": 0.0101
    }
   },
@@ -540,7 +540,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0489,
+    "min_goal_distance_m": 0.0507,
     "max_height_change_m": 0.0032
    }
   },
@@ -551,7 +551,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0403,
+    "min_goal_distance_m": 0.0292,
     "max_height_change_m": 0.0088
    }
   },
@@ -562,7 +562,7 @@
    "steps": 190,
    "failure": "object_fell_off_table",
    "metrics": {
-    "min_goal_distance_m": 0.0643,
+    "min_goal_distance_m": 0.0653,
     "max_height_change_m": 0.0943
    }
   },
@@ -584,7 +584,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0326,
+    "min_goal_distance_m": 0.0384,
     "max_height_change_m": 0.0206
    }
   },
@@ -617,7 +617,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0072,
+    "min_goal_distance_m": 0.0198,
     "max_height_change_m": 0.0079
    }
   },
@@ -650,7 +650,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0433,
+    "min_goal_distance_m": 0.0767,
     "max_height_change_m": 0.0185
    }
   },
@@ -661,7 +661,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0094,
+    "min_goal_distance_m": 0.0053,
     "max_height_change_m": 0.0179
    }
   },
@@ -672,7 +672,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0752,
+    "min_goal_distance_m": 0.075,
     "max_height_change_m": 0.0077
    }
   },
@@ -694,7 +694,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0594,
+    "min_goal_distance_m": 0.0608,
     "max_height_change_m": 0.0029
    }
   },
@@ -705,7 +705,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0391,
+    "min_goal_distance_m": 0.042,
     "max_height_change_m": 0.0098
    }
   },
@@ -738,7 +738,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.038,
+    "min_goal_distance_m": 0.0261,
     "max_height_change_m": 0.0176
    }
   },
@@ -749,7 +749,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0068,
+    "min_goal_distance_m": 0.0398,
     "max_height_change_m": 0.0175
    }
   },
@@ -771,7 +771,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0746,
+    "min_goal_distance_m": 0.0783,
     "max_height_change_m": 0.0027
    }
   },
@@ -782,7 +782,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.034,
+    "min_goal_distance_m": 0.0407,
     "max_height_change_m": 0.0106
    }
   },
@@ -793,7 +793,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0547,
+    "min_goal_distance_m": 0.0574,
     "max_height_change_m": 0.0172
    }
   },
@@ -804,7 +804,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0321,
+    "min_goal_distance_m": 0.0338,
     "max_height_change_m": 0.0087
    }
   },
@@ -815,7 +815,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0252,
+    "min_goal_distance_m": 0.0323,
     "max_height_change_m": 0.007
    }
   },
@@ -826,7 +826,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0294,
+    "min_goal_distance_m": 0.0297,
     "max_height_change_m": 0.0174
    }
   },
@@ -837,7 +837,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0131,
+    "min_goal_distance_m": 0.0123,
     "max_height_change_m": 0.0187
    }
   },
@@ -856,10 +856,10 @@
    "seed": 100073,
    "target_object": "block_large",
    "success": true,
-   "steps": 163,
+   "steps": 69,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0107,
+    "min_goal_distance_m": 0.0099,
     "max_height_change_m": 0.0062
    }
   },
@@ -870,7 +870,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0341,
+    "min_goal_distance_m": 0.0221,
     "max_height_change_m": 0.0018
    }
   },
@@ -881,7 +881,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0472,
+    "min_goal_distance_m": 0.0454,
     "max_height_change_m": 0.0035
    }
   },
@@ -936,7 +936,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0456,
+    "min_goal_distance_m": 0.0487,
     "max_height_change_m": 0.0033
    }
   },
@@ -944,10 +944,10 @@
    "seed": 100081,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 199,
+   "steps": 200,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0149,
+    "min_goal_distance_m": 0.02,
     "max_height_change_m": 0.0064
    }
   },
@@ -969,7 +969,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0446,
+    "min_goal_distance_m": 0.0409,
     "max_height_change_m": 0.0107
    }
   },
@@ -980,7 +980,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.078,
+    "min_goal_distance_m": 0.0781,
     "max_height_change_m": 0.0001
    }
   },
@@ -991,7 +991,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0356,
+    "min_goal_distance_m": 0.0261,
     "max_height_change_m": 0.0078
    }
   },
@@ -1002,7 +1002,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0713,
+    "min_goal_distance_m": 0.0755,
     "max_height_change_m": 0.0013
    }
   },
@@ -1024,7 +1024,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0331,
+    "min_goal_distance_m": 0.0338,
     "max_height_change_m": 0.0082
    }
   },
@@ -1046,7 +1046,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0322,
+    "min_goal_distance_m": 0.029,
     "max_height_change_m": 0.0102
    }
   },
@@ -1057,7 +1057,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0604,
+    "min_goal_distance_m": 0.0611,
     "max_height_change_m": 0.0073
    }
   },
@@ -1068,7 +1068,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0654,
+    "min_goal_distance_m": 0.068,
     "max_height_change_m": 0.0088
    }
   },
@@ -1079,7 +1079,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0356,
+    "min_goal_distance_m": 0.0499,
     "max_height_change_m": 0.0074
    }
   },
@@ -1090,7 +1090,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0716,
+    "min_goal_distance_m": 0.0748,
     "max_height_change_m": 0.0026
    }
   },
@@ -1112,7 +1112,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0379,
+    "min_goal_distance_m": 0.0385,
     "max_height_change_m": 0.0009
    }
   },
@@ -1123,7 +1123,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0439,
+    "min_goal_distance_m": 0.0438,
     "max_height_change_m": 0.018
    }
   },
@@ -1134,7 +1134,7 @@
    "steps": 200,
    "failure": "timeout",
    "metrics": {
-    "min_goal_distance_m": 0.0708,
+    "min_goal_distance_m": 0.072,
     "max_height_change_m": 0.0172
    }
   },
@@ -1151,7 +1151,7 @@
   }
  ],
  "code": {
-  "commit": "238af08d3a63a46252c030cb77448dcebd88e5b9",
+  "commit": "bd30b34c455b68057a90cff611dd7482e6569177",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"

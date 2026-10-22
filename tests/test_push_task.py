@@ -45,6 +45,8 @@ def test_goals_are_a_short_push_not_toward_the_arm(workcell):
         assert 0.05 <= np.linalg.norm(offset[:2]) <= 0.08
         assert abs(math.atan2(offset[1], offset[0])) <= math.pi / 2 + 1e-9
         assert offset[2] == 0 and context.target_object in task.objects
+        angle = task.episode_metrics()["push_angle_deg"]
+        assert angle == pytest.approx(math.degrees(math.atan2(offset[1], offset[0])), abs=0.1)
 
 
 def test_success_dwell_and_collision_failures(workcell):

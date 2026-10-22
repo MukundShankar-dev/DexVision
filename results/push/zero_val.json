@@ -1150,7 +1150,7 @@
   }
  ],
  "code": {
-  "commit": "238af08d3a63a46252c030cb77448dcebd88e5b9",
+  "commit": "bd30b34c455b68057a90cff611dd7482e6569177",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"

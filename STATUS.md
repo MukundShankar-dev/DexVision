@@ -1,10 +1,9 @@
 # Status
 
-**Active checkpoint:** R7 — push (R2–R6 repeated; see `docs/PLAN.md`)
-**State:** push trained and tested; both methods pass. Awaiting owner
-sign-off before press.
-**Last completed:** R7 reach — both methods pass (owner approved 2026-10-21)
-**Legacy pipeline:** git tag `legacy-v1`
+**Active checkpoint:** R7 — push, widened to ±90° (`docs/PLAN.md`)
+**State:** spec, expert and val baselines done. Awaiting owner sign-off on
+the gate below before data generation and training.
+**Done:** pick, reach, push ±45° (git tag `push-45`). Legacy: tag `legacy-v1`.
 
 ## Shared protocol (every skill)
 
@@ -13,69 +12,55 @@ sign-off before press.
   the desktop RTX 5070 Ti.
 - **Selection:** the most val successes on the first 200 val seeds, ties to
   the later step. Then one ledgered 200-episode test run per method.
-- **Platform:** all results are evaluated on the desktop (Linux x86-64),
-  because MuJoCo is not bit-identical across arm64 and x86-64. Provenance
-  records the platform.
+- **Platform:** all results are evaluated on the desktop (Linux x86-64).
+  MuJoCo is not bit-identical across arm64 and x86-64.
+- **Test budget:** 3 runs per (skill, method, test seed range).
 
-## Pick (done, R6)
+## Results so far (test, 200 episodes each)
 
-- Six objects; lift ≥ 5 cm with a thumb-opposition hold for 0.5 s. Expert
-  v3. Data: 985/1000 kept. Val: zero 0/100, random 0/100, expert 200/200.
-- **Test:** MLP-BC **200/200**, Diffusion **200/200** (gate passed). Hiding
-  the object pose drops val success to 0 and 12 of 200.
-- Ledger: the pick MLP entry says `dirty` only because of uncommitted
-  `results/` files; that flag now ignores `results/`.
+| Skill | MLP-BC | Diffusion | Goal or object hidden (val) |
+|---|---|---|---|
+| pick | 200 | 200 | object pose hidden: 0 and 12 |
+| reach | 200 | 200 | goal hidden: 1 and 2 |
+| push ±45° | 198 | 199 | goal hidden: 65 and 70 (the expert without the goal: 69) |
 
-## Reach (done)
+Every task so far has one obvious way to act, so the MLP matches diffusion.
 
-- Bring the measured grasp point within 1.5 cm of a goal for 0.5 s; any hand
-  collision fails. Val: zero 0/100, random 0/100, expert 200/200.
-- **Test:** MLP-BC **200/200**, Diffusion **200/200** (gate passed). With a
-  fake goal (the training mean), success drops to 1 and 2 of 200.
+## Push ±90° (`configs/tasks/push.yaml`, `dexvision/policies/push_expert.py`)
 
-## Push (`configs/tasks/push.yaml`, `dexvision/policies/push_expert.py`)
+- **Task:** slide one of four objects 5–8 cm toward a goal in any direction
+  not toward the arm (±90° of +x). Success: within 2 cm of the goal and
+  upright for 0.5 s, within 10 s. Hand contact with trays, wall fixture or
+  button fails. Test seeds are now 210000–220000.
+- **Expert:** three pushing faces. Each approach picks the one needing the
+  least hand turn:
+  - forward: fingers bent at the knuckle into a wall;
+  - left: the palm, thumb up;
+  - right: the back of the hand, thumb up.
+  The thumb-up faces lean 30° so they touch below the tall cylinder's
+  tipping height. Train seeds 0–299: 300/300 clean, 297/300 with DART noise.
+  First face used on those seeds: wall 150, back 80, palm 70.
 
-- **Task:** slide one of four objects (both blocks, both cylinders; no
-  pucks) 5–8 cm toward a goal within ±45° of +x. Success (measured on the
-  object): within 2 cm of the goal and still upright on the table for 0.5 s,
-  within 10 s. Hand contact with the trays, wall fixture or button fails the
-  episode.
-- **Fan narrowed during design** from ±90° to ±60° to ±45°. The forearm
-  trails about 30 cm behind the hand and hit the wall fixture and button past
-  about 105° of hand yaw. Pushes also need steering room.
-- **Expert:** fingers bent 90° at the knuckle form a wall. It approaches high
-  behind the object, descends, and pushes along object → goal, re-aimed every
-  step. It slides back before rising to re-approach (rising while touching
-  toppled tall cylinders) and never turns the hand past 90°. Train seeds
-  0–299: 300/300 clean, 293/300 with DART noise.
-
-| Split | Policy | Successes / n | Wilson 95% CI | Notes |
+| Split | Policy | Successes / n | Wilson 95% CI | right / forward / left |
 |---|---|---|---|---|
-| val | zero | 0 / 100 | [0.0%, 3.7%] | 100 timeouts |
-| val | random | 6 / 100 | [2.8%, 12.5%] | genuine: objects moved 5–7 cm (see note) |
-| val | expert | 200 / 200 | [98.1%, 100%] | every object 100% |
-| val | expert + DART noise | 196 / 200 | [95.0%, 99.2%] | robustness, not a policy |
+| val | zero | 0 / 100 | [0.0%, 3.7%] | |
+| val | random | 3 / 100 | [1.0%, 8.5%] | 1/30, 1/50, 1/20 |
+| val | expert | 200 / 200 | [98.1%, 100%] | 60/60, 97/97, 43/43 |
+| val | expert + DART noise | 199 / 200 | [97.2%, 99.9%] | 60/60, 97/97, 42/43 |
+| val | expert, goal = training mean | 26 / 200 | [9.0%, 18.4%] | floor without the goal |
 
-The random policy's successes are real pushes (checked). Chance is higher
-here because the hand starts behind the object and every goal lies away from
-it.
+Sectors: right < −45° ≤ forward ≤ 45° < left (`push_angle_deg` metric).
 
-**Gate** (approved before training): test Wilson lower bound ≥ 80% and every
-object ≥ 60%.
+**Push gate (proposed, before any training; needs owner sign-off).** A
+learned policy passes only if its single 200-episode test run has a Wilson
+95% lower bound ≥ 80% (≥ 170/200), every object ≥ 60%, and every direction
+sector ≥ 60%.
 
-- Data: 981/1000 kept (19 timeouts); 200/200 replays exact.
-- Val selection: MLP-BC step 50k 200/200; Diffusion step 60k 200/200.
-- **Test:** MLP-BC **198/200** [96.4%, 99.7%], Diffusion **199/200**
-  [97.2%, 99.9%]; every object ≥ 46/48 (gate passed).
-- Goal hidden (training mean): MLP 65/200, Diffusion 70/200. The expert
-  given that same fake goal scores 69/200, and just pushing 5.8 cm forward
-  scores 84/200. That is the floor without knowing the goal; this task has a
-  strong "push forward" prior.
+Not a gate, but stated in advance: if the multimodality argument holds,
+diffusion should beat MLP-BC near the ±45° switch between faces.
 
 ## Caveats
 
-- The hand is a floating forearm on a mocap weld (an arm stand-in).
-- Pick's `object_*` observations are privileged simulator state. Reach has
-  none.
-- Reach is easy: free space and a smooth single-strategy expert. It checks
-  that the pipeline transfers unchanged to a second skill.
+- The hand is a floating forearm on a mocap weld (an arm stand-in). The
+  thumb-up faces use 60–120° of forearm roll, within a human range.
+- `object_*` observations are privileged simulator state (pick and push).

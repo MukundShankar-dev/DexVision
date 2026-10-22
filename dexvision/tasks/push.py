@@ -54,6 +54,7 @@ class PushTask:
         self._start_z = float(start[2])
         self._dwell = 0
         self.min_goal_distance_m = distance
+        self.push_angle_rad = angle
         self.max_height_change = 0.0
         return self._context, observation
 
@@ -81,4 +82,5 @@ class PushTask:
 
     def episode_metrics(self) -> dict[str, float]:
         return {"min_goal_distance_m": round(self.min_goal_distance_m, 4),
-                "max_height_change_m": round(self.max_height_change, 4)}
+                "max_height_change_m": round(self.max_height_change, 4),
+                "push_angle_deg": round(math.degrees(self.push_angle_rad), 1)}  # from the reset

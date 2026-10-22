@@ -3,20 +3,20 @@
  "policy": "expert_dart",
  "split": "val",
  "overall": {
-  "successes": 196,
+  "successes": 199,
   "n": 200,
   "ci95": [
-   0.9497,
-   0.9922
+   0.9722,
+   0.9991
   ]
  },
  "by_object": {
   "block_large": {
-   "successes": 48,
+   "successes": 50,
    "n": 50,
    "ci95": [
-    0.8654,
-    0.989
+    0.9287,
+    1.0
    ]
   },
   "block_small": {
@@ -36,70 +36,70 @@
    ]
   },
   "cylinder_tall": {
-   "successes": 52,
+   "successes": 53,
    "n": 53,
    "ci95": [
-    0.9006,
-    0.9967
+    0.9324,
+    1.0
    ]
   }
  },
  "failures": {
-  "timeout": 4
+  "hand_collision": 1
  },
  "episodes": [
   {
    "seed": 100000,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 46,
+   "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0107,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.012,
+    "max_height_change_m": 0.0021
    }
   },
   {
    "seed": 100001,
    "target_object": "block_large",
    "success": true,
-   "steps": 56,
+   "steps": 62,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0062,
-    "max_height_change_m": 0.0033
+    "min_goal_distance_m": 0.0128,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100002,
    "target_object": "block_small",
    "success": true,
-   "steps": 46,
+   "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0002,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0065,
+    "max_height_change_m": 0.0009
    }
   },
   {
    "seed": 100003,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 54,
+   "steps": 75,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0032,
-    "max_height_change_m": 0.0039
+    "min_goal_distance_m": 0.0115,
+    "max_height_change_m": 0.0031
    }
   },
   {
    "seed": 100004,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 48,
+   "steps": 134,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0126,
+    "min_goal_distance_m": 0.0011,
     "max_height_change_m": 0.0037
    }
   },
@@ -107,10 +107,10 @@
    "seed": 100005,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 54,
+   "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0104,
+    "min_goal_distance_m": 0.0099,
     "max_height_change_m": 0.0013
    }
   },
@@ -121,7 +121,7 @@
    "steps": 47,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0127,
+    "min_goal_distance_m": 0.0122,
     "max_height_change_m": 0.0021
    }
   },
@@ -129,10 +129,10 @@
    "seed": 100007,
    "target_object": "block_small",
    "success": true,
-   "steps": 57,
+   "steps": 158,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.013,
+    "min_goal_distance_m": 0.0056,
     "max_height_change_m": 0.0027
    }
   },
@@ -143,118 +143,118 @@
    "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0062,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0057,
+    "max_height_change_m": 0.0032
    }
   },
   {
    "seed": 100009,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 50,
+   "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0034,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0089,
+    "max_height_change_m": 0.0021
    }
   },
   {
    "seed": 100010,
    "target_object": "block_small",
    "success": true,
-   "steps": 63,
+   "steps": 97,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0016,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.0106,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100011,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 59,
+   "steps": 77,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0156,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.0022,
+    "max_height_change_m": 0.0043
    }
   },
   {
    "seed": 100012,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 57,
+   "steps": 76,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.003,
-    "max_height_change_m": 0.0007
+    "min_goal_distance_m": 0.0016,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100013,
    "target_object": "block_small",
    "success": true,
-   "steps": 58,
+   "steps": 68,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0154,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.004,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100014,
    "target_object": "block_small",
    "success": true,
-   "steps": 56,
+   "steps": 79,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0098,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0052,
+    "max_height_change_m": 0.0032
    }
   },
   {
    "seed": 100015,
    "target_object": "block_small",
    "success": true,
-   "steps": 59,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0095,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0043,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100016,
    "target_object": "block_large",
    "success": true,
-   "steps": 58,
+   "steps": 96,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0061,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0088,
+    "max_height_change_m": 0.0003
    }
   },
   {
    "seed": 100017,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 49,
+   "steps": 110,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0146,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0067,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100018,
    "target_object": "block_large",
    "success": true,
-   "steps": 50,
+   "steps": 79,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0031,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0027,
+    "max_height_change_m": 0.0018
    }
   },
   {
@@ -264,95 +264,95 @@
    "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0028,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0085,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100020,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 54,
+   "steps": 64,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0178,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0168,
+    "max_height_change_m": 0.002
    }
   },
   {
    "seed": 100021,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 44,
+   "steps": 47,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0021,
-    "max_height_change_m": 0.0035
+    "min_goal_distance_m": 0.0054,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100022,
    "target_object": "block_small",
    "success": true,
-   "steps": 56,
+   "steps": 159,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0057,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.0023,
+    "max_height_change_m": 0.0021
    }
   },
   {
    "seed": 100023,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 57,
+   "steps": 66,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0075,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0118,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100024,
    "target_object": "block_small",
    "success": true,
-   "steps": 61,
+   "steps": 124,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0169,
-    "max_height_change_m": 0.0011
+    "min_goal_distance_m": 0.0091,
+    "max_height_change_m": 0.0055
    }
   },
   {
    "seed": 100025,
    "target_object": "block_small",
    "success": true,
-   "steps": 59,
+   "steps": 76,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.018,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.004,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100026,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 52,
+   "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0112,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0182,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100027,
    "target_object": "block_large",
    "success": true,
-   "steps": 48,
+   "steps": 47,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0114,
+    "min_goal_distance_m": 0.0104,
     "max_height_change_m": 0.0039
    }
   },
@@ -360,110 +360,110 @@
    "seed": 100028,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 52,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0024,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.003,
+    "max_height_change_m": 0.0049
    }
   },
   {
    "seed": 100029,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 44,
+   "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0075,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.003,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100030,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 49,
+   "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.018,
-    "max_height_change_m": 0.0031
+    "min_goal_distance_m": 0.0079,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100031,
    "target_object": "block_large",
    "success": true,
-   "steps": 96,
+   "steps": 68,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0016,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0004,
+    "max_height_change_m": 0.0012
    }
   },
   {
    "seed": 100032,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 50,
+   "steps": 88,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0104,
-    "max_height_change_m": 0.0024
+    "min_goal_distance_m": 0.0026,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100033,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 56,
+   "steps": 78,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0011,
-    "max_height_change_m": 0.0046
+    "min_goal_distance_m": 0.0086,
+    "max_height_change_m": 0.003
    }
   },
   {
    "seed": 100034,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 102,
+   "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0018,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0055,
+    "max_height_change_m": 0.002
    }
   },
   {
    "seed": 100035,
    "target_object": "block_small",
    "success": true,
-   "steps": 48,
+   "steps": 154,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0027,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.0056,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100036,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 56,
+   "steps": 93,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0042,
-    "max_height_change_m": 0.0041
+    "min_goal_distance_m": 0.0017,
+    "max_height_change_m": 0.0052
    }
   },
   {
    "seed": 100037,
    "target_object": "block_small",
    "success": true,
-   "steps": 52,
+   "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.014,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0162,
+    "max_height_change_m": 0.0015
    }
   },
   {
@@ -473,51 +473,51 @@
    "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0102,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0085,
+    "max_height_change_m": 0.0024
    }
   },
   {
    "seed": 100039,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 60,
+   "steps": 79,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0027,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0056,
+    "max_height_change_m": 0.0025
    }
   },
   {
    "seed": 100040,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 121,
+   "steps": 101,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.002,
-    "max_height_change_m": 0.0024
+    "min_goal_distance_m": 0.0078,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100041,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 52,
+   "steps": 90,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0008,
-    "max_height_change_m": 0.0024
+    "min_goal_distance_m": 0.0044,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100042,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 64,
+   "steps": 71,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0064,
+    "min_goal_distance_m": 0.0109,
     "max_height_change_m": 0.0032
    }
   },
@@ -525,87 +525,87 @@
    "seed": 100043,
    "target_object": "block_small",
    "success": true,
-   "steps": 90,
+   "steps": 59,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0088,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0118,
+    "max_height_change_m": 0.003
    }
   },
   {
    "seed": 100044,
    "target_object": "block_large",
    "success": true,
-   "steps": 52,
+   "steps": 84,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0172,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0106,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100045,
    "target_object": "block_small",
    "success": true,
-   "steps": 55,
+   "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0033,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.012,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100046,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 61,
+   "steps": 182,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0092,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0033,
+    "max_height_change_m": 0.0047
    }
   },
   {
    "seed": 100047,
    "target_object": "cylinder_short",
-   "success": false,
-   "steps": 200,
-   "failure": "timeout",
+   "success": true,
+   "steps": 139,
+   "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0209,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.0044,
+    "max_height_change_m": 0.0021
    }
   },
   {
    "seed": 100048,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 48,
+   "steps": 63,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0035,
-    "max_height_change_m": 0.0041
+    "min_goal_distance_m": 0.0017,
+    "max_height_change_m": 0.003
    }
   },
   {
    "seed": 100049,
    "target_object": "block_large",
    "success": true,
-   "steps": 59,
+   "steps": 102,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0132,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0096,
+    "max_height_change_m": 0.0012
    }
   },
   {
    "seed": 100050,
    "target_object": "block_large",
    "success": true,
-   "steps": 51,
+   "steps": 102,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0189,
+    "min_goal_distance_m": 0.0128,
     "max_height_change_m": 0.0012
    }
   },
@@ -613,44 +613,44 @@
    "seed": 100051,
    "target_object": "block_small",
    "success": true,
-   "steps": 60,
+   "steps": 69,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0135,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0122,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100052,
    "target_object": "block_small",
    "success": true,
-   "steps": 52,
+   "steps": 70,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0087,
-    "max_height_change_m": 0.0028
+    "min_goal_distance_m": 0.0096,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100053,
    "target_object": "block_large",
    "success": true,
-   "steps": 110,
+   "steps": 78,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0047,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0017,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100054,
    "target_object": "cylinder_tall",
-   "success": false,
-   "steps": 200,
-   "failure": "timeout",
+   "success": true,
+   "steps": 102,
+   "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0217,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0079,
+    "max_height_change_m": 0.0016
    }
   },
   {
@@ -660,7 +660,7 @@
    "steps": 46,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0151,
+    "min_goal_distance_m": 0.0184,
     "max_height_change_m": 0.0012
    }
   },
@@ -671,84 +671,84 @@
    "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0017,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0029,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100057,
    "target_object": "block_large",
    "success": true,
-   "steps": 53,
+   "steps": 75,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0055,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0049,
+    "max_height_change_m": 0.003
    }
   },
   {
    "seed": 100058,
    "target_object": "block_large",
    "success": true,
-   "steps": 125,
+   "steps": 92,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0097,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0082,
+    "max_height_change_m": 0.0009
    }
   },
   {
    "seed": 100059,
    "target_object": "block_small",
    "success": true,
-   "steps": 58,
+   "steps": 66,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0187,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0114,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100060,
    "target_object": "block_large",
    "success": true,
-   "steps": 62,
+   "steps": 105,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0018,
-    "max_height_change_m": 0.0032
+    "min_goal_distance_m": 0.0003,
+    "max_height_change_m": 0.0002
    }
   },
   {
    "seed": 100061,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 102,
+   "steps": 59,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0066,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0142,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100062,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 51,
+   "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.009,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.003,
+    "max_height_change_m": 0.0011
    }
   },
   {
    "seed": 100063,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 57,
+   "steps": 135,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0131,
+    "min_goal_distance_m": 0.003,
     "max_height_change_m": 0.002
    }
   },
@@ -756,10 +756,10 @@
    "seed": 100064,
    "target_object": "block_small",
    "success": true,
-   "steps": 46,
+   "steps": 45,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0115,
+    "min_goal_distance_m": 0.0103,
     "max_height_change_m": 0.0018
    }
   },
@@ -767,165 +767,165 @@
    "seed": 100065,
    "target_object": "block_small",
    "success": true,
-   "steps": 99,
+   "steps": 133,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0089,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0048,
+    "max_height_change_m": 0.001
    }
   },
   {
    "seed": 100066,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 100,
+   "steps": 90,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0069,
-    "max_height_change_m": 0.0033
+    "min_goal_distance_m": 0.0015,
+    "max_height_change_m": 0.0031
    }
   },
   {
    "seed": 100067,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 50,
+   "steps": 54,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0032,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0057,
+    "max_height_change_m": 0.0024
    }
   },
   {
    "seed": 100068,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 52,
+   "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0128,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0115,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100069,
    "target_object": "block_large",
    "success": true,
-   "steps": 60,
+   "steps": 94,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0097,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0072,
+    "max_height_change_m": 0.0039
    }
   },
   {
    "seed": 100070,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 48,
+   "steps": 100,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0157,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.009,
+    "max_height_change_m": 0.0028
    }
   },
   {
    "seed": 100071,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 54,
+   "steps": 92,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0106,
-    "max_height_change_m": 0.003
+    "min_goal_distance_m": 0.0182,
+    "max_height_change_m": 0.0007
    }
   },
   {
    "seed": 100072,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 50,
+   "steps": 178,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0049,
-    "max_height_change_m": 0.0044
+    "min_goal_distance_m": 0.0092,
+    "max_height_change_m": 0.0025
    }
   },
   {
    "seed": 100073,
    "target_object": "block_large",
    "success": true,
-   "steps": 98,
+   "steps": 75,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.003,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0116,
+    "max_height_change_m": 0.0036
    }
   },
   {
    "seed": 100074,
    "target_object": "block_large",
    "success": true,
-   "steps": 50,
+   "steps": 60,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0143,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0078,
+    "max_height_change_m": 0.0013
    }
   },
   {
    "seed": 100075,
    "target_object": "block_large",
    "success": true,
-   "steps": 54,
+   "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0088,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0128,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100076,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 49,
+   "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0058,
-    "max_height_change_m": 0.0038
+    "min_goal_distance_m": 0.0114,
+    "max_height_change_m": 0.0039
    }
   },
   {
    "seed": 100077,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 55,
+   "steps": 62,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0095,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.0182,
+    "max_height_change_m": 0.0028
    }
   },
   {
    "seed": 100078,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 58,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.008,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0029,
+    "max_height_change_m": 0.0024
    }
   },
   {
    "seed": 100079,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 55,
+   "steps": 76,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0074,
-    "max_height_change_m": 0.0033
+    "min_goal_distance_m": 0.0101,
+    "max_height_change_m": 0.0051
    }
   },
   {
@@ -935,52 +935,52 @@
    "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0135,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0151,
+    "max_height_change_m": 0.0008
    }
   },
   {
    "seed": 100081,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 57,
+   "steps": 60,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0184,
-    "max_height_change_m": 0.0052
+    "min_goal_distance_m": 0.0109,
+    "max_height_change_m": 0.005
    }
   },
   {
    "seed": 100082,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 103,
+   "steps": 90,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0082,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.0119,
+    "max_height_change_m": 0.006
    }
   },
   {
    "seed": 100083,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 103,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0086,
-    "max_height_change_m": 0.0041
+    "min_goal_distance_m": 0.008,
+    "max_height_change_m": 0.0032
    }
   },
   {
    "seed": 100084,
    "target_object": "block_large",
    "success": true,
-   "steps": 60,
+   "steps": 98,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0191,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0052,
+    "max_height_change_m": 0.0024
    }
   },
   {
@@ -990,19 +990,19 @@
    "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0026,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0036,
+    "max_height_change_m": 0.0013
    }
   },
   {
    "seed": 100086,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 64,
+   "steps": 72,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.017,
-    "max_height_change_m": 0.0038
+    "min_goal_distance_m": 0.0024,
+    "max_height_change_m": 0.0021
    }
   },
   {
@@ -1012,8 +1012,8 @@
    "steps": 50,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0098,
-    "max_height_change_m": 0.004
+    "min_goal_distance_m": 0.0057,
+    "max_height_change_m": 0.0039
    }
   },
   {
@@ -1023,19 +1023,19 @@
    "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0024,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0028,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100089,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 46,
+   "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0049,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0048,
+    "max_height_change_m": 0.0018
    }
   },
   {
@@ -1045,63 +1045,63 @@
    "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0008,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0053,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100091,
    "target_object": "block_small",
    "success": true,
-   "steps": 58,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.001,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0073,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100092,
    "target_object": "block_large",
    "success": true,
-   "steps": 102,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0106,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0181,
+    "max_height_change_m": 0.0027
    }
   },
   {
    "seed": 100093,
    "target_object": "block_small",
    "success": true,
-   "steps": 52,
+   "steps": 95,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0031,
-    "max_height_change_m": 0.0049
+    "min_goal_distance_m": 0.0036,
+    "max_height_change_m": 0.0009
    }
   },
   {
    "seed": 100094,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 65,
+   "steps": 69,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0087,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0086,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100095,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 50,
+   "steps": 49,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0098,
-    "max_height_change_m": 0.0038
+    "min_goal_distance_m": 0.0099,
+    "max_height_change_m": 0.0035
    }
   },
   {
@@ -1111,8 +1111,8 @@
    "steps": 45,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.005,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0149,
+    "max_height_change_m": 0.001
    }
   },
   {
@@ -1122,8 +1122,8 @@
    "steps": 49,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0018,
-    "max_height_change_m": 0.0032
+    "min_goal_distance_m": 0.0088,
+    "max_height_change_m": 0.0023
    }
   },
   {
@@ -1133,30 +1133,30 @@
    "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0022,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.0039,
+    "max_height_change_m": 0.002
    }
   },
   {
    "seed": 100099,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 48,
+   "steps": 65,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0142,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.0065,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100100,
    "target_object": "block_small",
    "success": true,
-   "steps": 53,
+   "steps": 70,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0096,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.01,
+    "max_height_change_m": 0.0018
    }
   },
   {
@@ -1166,52 +1166,52 @@
    "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0161,
-    "max_height_change_m": 0.0034
+    "min_goal_distance_m": 0.0165,
+    "max_height_change_m": 0.0033
    }
   },
   {
    "seed": 100102,
    "target_object": "block_large",
    "success": true,
-   "steps": 59,
+   "steps": 60,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0022,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.0037,
+    "max_height_change_m": 0.0024
    }
   },
   {
    "seed": 100103,
    "target_object": "block_large",
-   "success": false,
-   "steps": 200,
-   "failure": "timeout",
+   "success": true,
+   "steps": 100,
+   "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0304,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0013,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100104,
    "target_object": "block_small",
    "success": true,
-   "steps": 62,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0035,
-    "max_height_change_m": 0.0047
+    "min_goal_distance_m": 0.0108,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100105,
    "target_object": "block_small",
    "success": true,
-   "steps": 48,
+   "steps": 56,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0028,
-    "max_height_change_m": 0.0039
+    "min_goal_distance_m": 0.0136,
+    "max_height_change_m": 0.0034
    }
   },
   {
@@ -1221,8 +1221,8 @@
    "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0013,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0007,
+    "max_height_change_m": 0.0019
    }
   },
   {
@@ -1232,96 +1232,96 @@
    "steps": 62,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0164,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0112,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100108,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 50,
+   "steps": 68,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0131,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0003,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100109,
    "target_object": "block_small",
    "success": true,
-   "steps": 51,
+   "steps": 56,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.007,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.003,
+    "max_height_change_m": 0.0036
    }
   },
   {
    "seed": 100110,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 56,
+   "steps": 82,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0013,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.0009,
+    "max_height_change_m": 0.0033
    }
   },
   {
    "seed": 100111,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 102,
+   "steps": 100,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0033,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0077,
+    "max_height_change_m": 0.0055
    }
   },
   {
    "seed": 100112,
    "target_object": "block_large",
    "success": true,
-   "steps": 59,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0062,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.0023,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100113,
    "target_object": "block_large",
    "success": true,
-   "steps": 56,
+   "steps": 134,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0188,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0047,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100114,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 48,
+   "steps": 71,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0053,
-    "max_height_change_m": 0.0031
+    "min_goal_distance_m": 0.0038,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100115,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 51,
+   "steps": 66,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0113,
-    "max_height_change_m": 0.0033
+    "min_goal_distance_m": 0.0027,
+    "max_height_change_m": 0.004
    }
   },
   {
@@ -1331,84 +1331,84 @@
    "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0158,
-    "max_height_change_m": 0.0038
+    "min_goal_distance_m": 0.0154,
+    "max_height_change_m": 0.0042
    }
   },
   {
    "seed": 100117,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 48,
+   "steps": 56,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0047,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0087,
+    "max_height_change_m": 0.0037
    }
   },
   {
    "seed": 100118,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 49,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0011,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.001,
+    "max_height_change_m": 0.0009
    }
   },
   {
    "seed": 100119,
    "target_object": "block_large",
    "success": true,
-   "steps": 111,
+   "steps": 92,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0156,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0008,
+    "max_height_change_m": 0.0049
    }
   },
   {
    "seed": 100120,
    "target_object": "cylinder_short",
-   "success": true,
-   "steps": 57,
-   "failure": null,
+   "success": false,
+   "steps": 159,
+   "failure": "hand_collision",
    "metrics": {
-    "min_goal_distance_m": 0.0073,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0366,
+    "max_height_change_m": 0.0106
    }
   },
   {
    "seed": 100121,
    "target_object": "block_large",
    "success": true,
-   "steps": 45,
+   "steps": 55,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0061,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0073,
+    "max_height_change_m": 0.0011
    }
   },
   {
    "seed": 100122,
    "target_object": "block_small",
    "success": true,
-   "steps": 50,
+   "steps": 70,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0061,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0055,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100123,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 99,
+   "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0133,
+    "min_goal_distance_m": 0.006,
     "max_height_change_m": 0.0026
    }
   },
@@ -1419,41 +1419,41 @@
    "steps": 56,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0015,
-    "max_height_change_m": 0.005
+    "min_goal_distance_m": 0.0046,
+    "max_height_change_m": 0.0039
    }
   },
   {
    "seed": 100125,
    "target_object": "block_large",
    "success": true,
-   "steps": 53,
+   "steps": 68,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0044,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0076,
+    "max_height_change_m": 0.0025
    }
   },
   {
    "seed": 100126,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 100,
+   "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0113,
-    "max_height_change_m": 0.0024
+    "min_goal_distance_m": 0.0062,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100127,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 53,
+   "steps": 54,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0068,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0092,
+    "max_height_change_m": 0.0021
    }
   },
   {
@@ -1463,63 +1463,63 @@
    "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0038,
-    "max_height_change_m": 0.0011
+    "min_goal_distance_m": 0.0084,
+    "max_height_change_m": 0.0012
    }
   },
   {
    "seed": 100129,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 44,
+   "steps": 129,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.007,
-    "max_height_change_m": 0.003
+    "min_goal_distance_m": 0.0097,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100130,
    "target_object": "block_small",
    "success": true,
-   "steps": 48,
+   "steps": 92,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0011,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0101,
+    "max_height_change_m": 0.004
    }
   },
   {
    "seed": 100131,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 52,
+   "steps": 58,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0099,
-    "max_height_change_m": 0.0034
+    "min_goal_distance_m": 0.0172,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100132,
    "target_object": "block_large",
    "success": true,
-   "steps": 56,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0104,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0111,
+    "max_height_change_m": 0.001
    }
   },
   {
    "seed": 100133,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 48,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0094,
-    "max_height_change_m": 0.0009
+    "min_goal_distance_m": 0.0021,
+    "max_height_change_m": 0.0008
    }
   },
   {
@@ -1529,19 +1529,19 @@
    "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0074,
-    "max_height_change_m": 0.0035
+    "min_goal_distance_m": 0.006,
+    "max_height_change_m": 0.0025
    }
   },
   {
    "seed": 100135,
    "target_object": "block_large",
    "success": true,
-   "steps": 65,
+   "steps": 185,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.007,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0065,
+    "max_height_change_m": 0.0034
    }
   },
   {
@@ -1551,257 +1551,301 @@
    "steps": 49,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0163,
-    "max_height_change_m": 0.0031
+    "min_goal_distance_m": 0.0169,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100137,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 51,
+   "steps": 50,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0086,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0043,
+    "max_height_change_m": 0.001
    }
   },
   {
    "seed": 100138,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 56,
+   "steps": 73,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0034,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0081,
+    "max_height_change_m": 0.0062
    }
   },
   {
    "seed": 100139,
    "target_object": "block_large",
    "success": true,
-   "steps": 60,
+   "steps": 82,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0136,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0112,
+    "max_height_change_m": 0.0027
    }
   },
   {
    "seed": 100140,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 54,
+   "steps": 57,
    "failure": null,
    "metrics": {
     "min_goal_distance_m": 0.0021,
-    "max_height_change_m": 0.0036
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100141,
    "target_object": "block_large",
    "success": true,
-   "steps": 53,
+   "steps": 69,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0083,
-    "max_height_change_m": 0.0053
+    "min_goal_distance_m": 0.0197,
+    "max_height_change_m": 0.0027
    }
   },
   {
    "seed": 100142,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 55,
+   "steps": 61,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0082,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0183,
+    "max_height_change_m": 0.001
    }
   },
   {
    "seed": 100143,
    "target_object": "block_small",
    "success": true,
-   "steps": 46,
+   "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0008,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0002,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100144,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 113,
+   "steps": 173,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0036,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.0051,
+    "max_height_change_m": 0.0028
    }
   },
   {
    "seed": 100145,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 57,
+   "steps": 91,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0104,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0098,
+    "max_height_change_m": 0.0039
    }
   },
   {
    "seed": 100146,
    "target_object": "block_large",
    "success": true,
-   "steps": 60,
+   "steps": 58,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0057,
-    "max_height_change_m": 0.0018
+    "min_goal_distance_m": 0.0054,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100147,
    "target_object": "block_small",
    "success": true,
-   "steps": 49,
+   "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0045,
-    "max_height_change_m": 0.0024
+    "min_goal_distance_m": 0.0079,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100148,
    "target_object": "block_large",
    "success": true,
-   "steps": 47,
+   "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0106,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0119,
+    "max_height_change_m": 0.0013
    }
   },
   {
    "seed": 100149,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 46,
+   "steps": 66,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0166,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.0024,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100150,
    "target_object": "block_small",
    "success": true,
-   "steps": 47,
+   "steps": 77,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0075,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0016,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100151,
    "target_object": "block_small",
    "success": true,
-   "steps": 57,
+   "steps": 104,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0024,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.0017,
+    "max_height_change_m": 0.0052
    }
   },
   {
    "seed": 100152,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 56,
+   "steps": 60,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0064,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0071,
+    "max_height_change_m": 0.0011
    }
   },
   {
    "seed": 100153,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 49,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0035,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0013,
+    "max_height_change_m": 0.002
    }
   },
   {
    "seed": 100154,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 91,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0061,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0125,
+    "max_height_change_m": 0.003
    }
   },
   {
    "seed": 100155,
    "target_object": "block_small",
    "success": true,
-   "steps": 58,
+   "steps": 52,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0072,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0048,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100156,
    "target_object": "block_large",
    "success": true,
-   "steps": 49,
+   "steps": 50,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0133,
-    "max_height_change_m": 0.0012
+    "min_goal_distance_m": 0.0154,
+    "max_height_change_m": 0.0018
    }
   },
   {
    "seed": 100157,
    "target_object": "block_small",
    "success": true,
-   "steps": 101,
+   "steps": 47,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0047,
-    "max_height_change_m": 0.0027
+    "min_goal_distance_m": 0.0027,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100158,
    "target_object": "block_small",
    "success": true,
-   "steps": 60,
+   "steps": 130,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0027,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.0143,
+    "max_height_change_m": 0.0066
    }
   },
   {
    "seed": 100159,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 55,
+   "steps": 98,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0041,
+    "max_height_change_m": 0.001
+   }
+  },
+  {
+   "seed": 100160,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 51,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0067,
+    "max_height_change_m": 0.0019
+   }
+  },
+  {
+   "seed": 100161,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 71,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0086,
+    "max_height_change_m": 0.0022
+   }
+  },
+  {
+   "seed": 100162,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0124,
+    "max_height_change_m": 0.0008
+   }
+  },
+  {
+   "seed": 100163,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 90,
    "failure": null,
    "metrics": {
     "min_goal_distance_m": 0.005,
@@ -1809,190 +1853,146 @@
    }
   },
   {
-   "seed": 100160,
-   "target_object": "cylinder_tall",
-   "success": true,
-   "steps": 50,
-   "failure": null,
-   "metrics": {
-    "min_goal_distance_m": 0.0032,
-    "max_height_change_m": 0.0021
-   }
-  },
-  {
-   "seed": 100161,
-   "target_object": "cylinder_short",
-   "success": true,
-   "steps": 57,
-   "failure": null,
-   "metrics": {
-    "min_goal_distance_m": 0.0173,
-    "max_height_change_m": 0.0027
-   }
-  },
-  {
-   "seed": 100162,
-   "target_object": "cylinder_tall",
-   "success": true,
-   "steps": 55,
-   "failure": null,
-   "metrics": {
-    "min_goal_distance_m": 0.0104,
-    "max_height_change_m": 0.0039
-   }
-  },
-  {
-   "seed": 100163,
-   "target_object": "block_small",
-   "success": true,
-   "steps": 50,
-   "failure": null,
-   "metrics": {
-    "min_goal_distance_m": 0.0047,
-    "max_height_change_m": 0.0022
-   }
-  },
-  {
    "seed": 100164,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 42,
+   "steps": 44,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0166,
-    "max_height_change_m": 0.0038
+    "min_goal_distance_m": 0.0071,
+    "max_height_change_m": 0.0036
    }
   },
   {
    "seed": 100165,
    "target_object": "block_large",
    "success": true,
-   "steps": 56,
+   "steps": 84,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0141,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0022,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100166,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 55,
+   "steps": 61,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0092,
-    "max_height_change_m": 0.003
+    "min_goal_distance_m": 0.0096,
+    "max_height_change_m": 0.0042
    }
   },
   {
    "seed": 100167,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 109,
+   "steps": 85,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0012,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0115,
+    "max_height_change_m": 0.0042
    }
   },
   {
    "seed": 100168,
    "target_object": "block_small",
    "success": true,
-   "steps": 49,
+   "steps": 116,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0071,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0034,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100169,
    "target_object": "block_small",
    "success": true,
-   "steps": 58,
+   "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0098,
-    "max_height_change_m": 0.0033
+    "min_goal_distance_m": 0.0076,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100170,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 107,
+   "steps": 70,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0093,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.007,
+    "max_height_change_m": 0.004
    }
   },
   {
    "seed": 100171,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 59,
+   "steps": 154,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0015,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.004,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100172,
    "target_object": "block_small",
    "success": true,
-   "steps": 45,
+   "steps": 46,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0041,
-    "max_height_change_m": 0.0008
+    "min_goal_distance_m": 0.0036,
+    "max_height_change_m": 0.0012
    }
   },
   {
    "seed": 100173,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 49,
+   "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0017,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.0012,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100174,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 112,
+   "steps": 95,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.012,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0106,
+    "max_height_change_m": 0.0023
    }
   },
   {
    "seed": 100175,
    "target_object": "block_small",
    "success": true,
-   "steps": 59,
+   "steps": 79,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0157,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0007,
+    "max_height_change_m": 0.0048
    }
   },
   {
    "seed": 100176,
    "target_object": "block_large",
    "success": true,
-   "steps": 58,
+   "steps": 97,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0075,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0068,
+    "max_height_change_m": 0.0024
    }
   },
   {
@@ -2002,7 +2002,7 @@
    "steps": 53,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0135,
+    "min_goal_distance_m": 0.0153,
     "max_height_change_m": 0.0019
    }
   },
@@ -2010,66 +2010,66 @@
    "seed": 100178,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 66,
+   "steps": 72,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0088,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.0018,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100179,
    "target_object": "block_small",
    "success": true,
-   "steps": 62,
+   "steps": 98,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.012,
-    "max_height_change_m": 0.0029
+    "min_goal_distance_m": 0.0041,
+    "max_height_change_m": 0.0044
    }
   },
   {
    "seed": 100180,
    "target_object": "block_large",
    "success": true,
-   "steps": 67,
+   "steps": 76,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.008,
-    "max_height_change_m": 0.0026
+    "min_goal_distance_m": 0.0062,
+    "max_height_change_m": 0.0004
    }
   },
   {
    "seed": 100181,
    "target_object": "block_large",
    "success": true,
-   "steps": 51,
+   "steps": 87,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0046,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0042,
+    "max_height_change_m": 0.0027
    }
   },
   {
    "seed": 100182,
    "target_object": "block_small",
    "success": true,
-   "steps": 47,
+   "steps": 97,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0044,
-    "max_height_change_m": 0.0039
+    "min_goal_distance_m": 0.0063,
+    "max_height_change_m": 0.0016
    }
   },
   {
    "seed": 100183,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 50,
+   "steps": 49,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0005,
-    "max_height_change_m": 0.0016
+    "min_goal_distance_m": 0.0085,
+    "max_height_change_m": 0.0022
    }
   },
   {
@@ -2079,178 +2079,178 @@
    "steps": 48,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.001,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0019,
+    "max_height_change_m": 0.0019
    }
   },
   {
    "seed": 100185,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 111,
+   "steps": 98,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0066,
-    "max_height_change_m": 0.0011
+    "min_goal_distance_m": 0.0055,
+    "max_height_change_m": 0.0014
    }
   },
   {
    "seed": 100186,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 47,
+   "steps": 78,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0051,
-    "max_height_change_m": 0.0021
+    "min_goal_distance_m": 0.0163,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100187,
    "target_object": "block_large",
    "success": true,
-   "steps": 62,
+   "steps": 59,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0074,
-    "max_height_change_m": 0.0013
+    "min_goal_distance_m": 0.0086,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100188,
    "target_object": "cylinder_tall",
    "success": true,
-   "steps": 59,
+   "steps": 68,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0146,
-    "max_height_change_m": 0.002
+    "min_goal_distance_m": 0.0045,
+    "max_height_change_m": 0.0032
    }
   },
   {
    "seed": 100189,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 47,
+   "steps": 50,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0053,
-    "max_height_change_m": 0.003
+    "min_goal_distance_m": 0.0085,
+    "max_height_change_m": 0.0028
    }
   },
   {
    "seed": 100190,
    "target_object": "block_large",
    "success": true,
-   "steps": 103,
+   "steps": 156,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0045,
-    "max_height_change_m": 0.0028
+    "min_goal_distance_m": 0.0063,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100191,
    "target_object": "block_large",
    "success": true,
-   "steps": 55,
+   "steps": 91,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0111,
-    "max_height_change_m": 0.0017
+    "min_goal_distance_m": 0.0096,
+    "max_height_change_m": 0.0029
    }
   },
   {
    "seed": 100192,
    "target_object": "block_small",
    "success": true,
-   "steps": 120,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.005,
-    "max_height_change_m": 0.0031
+    "min_goal_distance_m": 0.0154,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100193,
    "target_object": "block_large",
    "success": true,
-   "steps": 63,
+   "steps": 89,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0169,
-    "max_height_change_m": 0.0019
+    "min_goal_distance_m": 0.0103,
+    "max_height_change_m": 0.0026
    }
   },
   {
    "seed": 100194,
    "target_object": "block_large",
    "success": true,
-   "steps": 71,
+   "steps": 88,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0094,
-    "max_height_change_m": 0.0014
+    "min_goal_distance_m": 0.0008,
+    "max_height_change_m": 0.0015
    }
   },
   {
    "seed": 100195,
    "target_object": "block_large",
    "success": true,
-   "steps": 58,
+   "steps": 57,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0083,
-    "max_height_change_m": 0.0025
+    "min_goal_distance_m": 0.0108,
+    "max_height_change_m": 0.0024
    }
   },
   {
    "seed": 100196,
    "target_object": "block_small",
    "success": true,
-   "steps": 49,
+   "steps": 81,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0165,
-    "max_height_change_m": 0.0022
+    "min_goal_distance_m": 0.0121,
+    "max_height_change_m": 0.002
    }
   },
   {
    "seed": 100197,
    "target_object": "block_large",
-   "success": false,
-   "steps": 200,
-   "failure": "timeout",
+   "success": true,
+   "steps": 95,
+   "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0222,
-    "max_height_change_m": 0.001
+    "min_goal_distance_m": 0.0008,
+    "max_height_change_m": 0.0017
    }
   },
   {
    "seed": 100198,
    "target_object": "cylinder_short",
    "success": true,
-   "steps": 54,
+   "steps": 67,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0049,
-    "max_height_change_m": 0.0023
+    "min_goal_distance_m": 0.002,
+    "max_height_change_m": 0.0022
    }
   },
   {
    "seed": 100199,
    "target_object": "block_small",
    "success": true,
-   "steps": 110,
+   "steps": 51,
    "failure": null,
    "metrics": {
-    "min_goal_distance_m": 0.0021,
-    "max_height_change_m": 0.0015
+    "min_goal_distance_m": 0.01,
+    "max_height_change_m": 0.0024
    }
   }
  ],
  "code": {
-  "commit": "238af08d3a63a46252c030cb77448dcebd88e5b9",
+  "commit": "bd30b34c455b68057a90cff611dd7482e6569177",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"
