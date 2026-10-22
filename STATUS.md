@@ -23,11 +23,13 @@ sign-off before press.
 | pick | 200 | 200 | object pose hidden: 0 and 12 |
 | reach | 200 | 200 | goal hidden: 1 and 2 |
 | push ±45° | 198 | 199 | goal hidden: 65 and 70 (the expert without the goal: 69) |
-| push ±90° | 188 | **194** | goal hidden: 17 and 23 (the expert without the goal: 26) |
+| push ±90° seed 0 | 188 | **194** | goal hidden: 17 and 23 (the expert without the goal: 26) |
+| push ±90° seed 1 | 180 | **194** | |
 
-Push ±90° is the first task where diffusion beats MLP-BC, and only on rightward
-(back-of-hand) pushes: test 54/57 vs 45/57 (Fisher p = 0.024; val agrees,
-54/60 vs 47/60). One training seed each.
+Push ±90° is the first task where diffusion beats MLP-BC, on rightward
+(back-of-hand) pushes only. Pooled over both training seeds, test right
+sector: diffusion 106/114 vs MLP 83/114 (Fisher p = 0.0001; each seed
+alone favours diffusion). Forward and left: no difference.
 
 ## Push ±90° (`configs/tasks/push.yaml`, `dexvision/policies/push_expert.py`)
 
@@ -57,13 +59,16 @@ Sectors: right < −45° ≤ forward ≤ 45° < left (`push_angle_deg` metric).
 **Gate** (approved before training): Wilson lower bound ≥ 80%, every object
 ≥ 60%, every direction sector ≥ 60%. **Both pass.**
 
-| Test (seeds 210000–210199) | Successes | Wilson 95% CI | right / forward / left | Worst object |
-|---|---|---|---|---|
-| MLP-BC, step 20k | 188 / 200 | [89.8%, 96.5%] | 45/57, 97/97, 46/46 | 39/44 tall cylinder |
-| Diffusion, step 40k | 194 / 200 | [93.6%, 98.6%] | 54/57, 96/97, 44/46 | 41/44 tall cylinder |
+| Test (seeds 210000–210199) | Successes | Wilson 95% CI | right / forward / left |
+|---|---|---|---|
+| MLP-BC seed 0, step 20k | 188 / 200 | [89.8%, 96.5%] | 45/57, 97/97, 46/46 |
+| MLP-BC seed 1, step 30k | 180 / 200 | [85.1%, 93.4%] | 38/57, 96/97, 46/46 |
+| Diffusion seed 0, step 40k | 194 / 200 | [93.6%, 98.6%] | 54/57, 96/97, 44/46 |
+| Diffusion seed 1, step 40k | 194 / 200 | [93.6%, 98.6%] | 52/57, 97/97, 45/46 |
 
-- Data: 982/1000 kept; 200/200 replays exact. Val selection: MLP 185/200,
-  Diffusion 192/200.
+All four runs pass the gate; each method has used 2 of 3 test runs here.
+- Data: 982/1000 kept; 200/200 replays exact. Val selection (seed 0 / 1):
+  MLP 185 / 178, Diffusion 192 / 193 of 200.
 - **The prediction was wrong about why.** I expected the MLP to average the
   two hand postures near the ±45° switch between faces. It doesn't: there is
   no gap at 30–60°, and its failed rightward pushes hold the back-of-hand roll
