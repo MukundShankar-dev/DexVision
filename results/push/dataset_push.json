@@ -1,0 +1,216 @@
+{
+ "code": {
+  "commit": "84c6f90c7eea7292eb567a6ba2ec66ae8079dd79",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "config": {
+  "task": "push",
+  "policy": "expert",
+  "split": "train",
+  "episodes": 1000,
+  "noise_std": {
+   "translation_m": 0.002,
+   "rotation_rad": 0.01,
+   "targets_rad": 0.05
+  }
+ },
+ "task_spec": {
+  "skill": "push",
+  "objects": [
+   "block_small",
+   "block_large",
+   "cylinder_short",
+   "cylinder_tall"
+  ],
+  "reset": {
+   "object_center_xy_m": [
+    -0.1,
+    0.0
+   ],
+   "object_half_extent_xy_m": [
+    0.02,
+    0.03
+   ],
+   "object_yaw_range_rad": [
+    -3.141592653589793,
+    3.141592653589793
+   ],
+   "push_distance_m": [
+    0.05,
+    0.08
+   ],
+   "push_angle_rad": [
+    -1.5707963267948966,
+    1.5707963267948966
+   ],
+   "hand_jitter_m": [
+    0.02,
+    0.02,
+    0.02
+   ]
+  },
+  "horizon_steps": 200,
+  "success": {
+   "tolerance_xy_m": 0.02,
+   "max_height_change_m": 0.01,
+   "dwell_steps": 10
+  },
+  "failure": {
+   "min_object_z_m": -0.02,
+   "hand_collision_bodies": [
+    "tray_left",
+    "tray_right",
+    "fixture_wall",
+    "button"
+   ]
+  },
+  "observation": [
+   "palm_position",
+   "palm_rotation6d",
+   "grasp_position",
+   "hand_qpos",
+   "hand_qvel",
+   "fingertip_positions",
+   "object_position",
+   "object_rotation6d",
+   "object_linear_velocity",
+   "object_angular_velocity",
+   "object_shape",
+   "object_size",
+   "goal_position"
+  ],
+  "splits": {
+   "train": [
+    0,
+    100000
+   ],
+   "val": [
+    100000,
+    110000
+   ],
+   "test": [
+    210000,
+    220000
+   ]
+  },
+  "test_budget": 3
+ },
+ "expert_config": {
+  "gains": {
+   "position": 0.6,
+   "orientation": 0.5
+  },
+  "max_push_step_m": 0.004,
+  "position_tolerance_m": 0.01,
+  "rotation_tolerance_rad": 0.1,
+  "descend_timeout_steps": 30,
+  "push_height_m": 0.006,
+  "standoff_m": 0.03,
+  "clearance_m": 0.02,
+  "push_depth_m": 0.01,
+  "max_yaw_rad": 1.5708,
+  "back_off_m": 0.03,
+  "max_lateral_error_m": 0.025,
+  "stop_tolerance_m": 0.008,
+  "resume_tolerance_m": 0.015,
+  "pushers": {
+   "wall": {
+    "posture": {
+     "FFJ3": 1.57,
+     "MFJ3": 1.57,
+     "RFJ3": 1.57,
+     "LFJ3": 1.57
+    },
+    "roll_rad": 0.0,
+    "pitch_rad": 0.0,
+    "face_yaw_rad": 0.0,
+    "face_offset_m": 0.02,
+    "along_fingers_m": 0.0,
+    "drop_m": 0.068
+   },
+   "palm": {
+    "posture": {},
+    "roll_rad": 2.094,
+    "pitch_rad": 0.349,
+    "face_yaw_rad": 1.5708,
+    "face_offset_m": -0.005,
+    "along_fingers_m": 0.05,
+    "drop_m": 0.09
+   },
+   "back": {
+    "posture": {},
+    "roll_rad": 1.047,
+    "pitch_rad": 0.349,
+    "face_yaw_rad": -1.5708,
+    "face_offset_m": 0.054,
+    "along_fingers_m": 0.055,
+    "drop_m": 0.058
+   }
+  }
+ },
+ "seeds": [
+  0,
+  1000
+ ],
+ "attempted": 1000,
+ "kept": {
+  "successes": 982,
+  "n": 1000,
+  "ci95": [
+   0.9717,
+   0.9886
+  ]
+ },
+ "kept_by_object": {
+  "block_large": {
+   "successes": 259,
+   "n": 259,
+   "ci95": [
+    0.9854,
+    1.0
+   ]
+  },
+  "block_small": {
+   "successes": 242,
+   "n": 245,
+   "ci95": [
+    0.9646,
+    0.9958
+   ]
+  },
+  "cylinder_short": {
+   "successes": 239,
+   "n": 240,
+   "ci95": [
+    0.9768,
+    0.9993
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 242,
+   "n": 256,
+   "ci95": [
+    0.9103,
+    0.9671
+   ]
+  }
+ },
+ "dropped": {
+  "timeout": 8,
+  "hand_collision": 7,
+  "object_fell_off_table": 3
+ },
+ "transitions": 76232,
+ "steps_per_episode": {
+  "min": 40,
+  "median": 72.0,
+  "max": 193
+ },
+ "files_sha256": "d3a05feb43549aef9ab0d7d2f17fb478551eccaf932f7ce4de079de19fd7667a",
+ "replay_check": {
+  "episodes": 200,
+  "matched": 200
+ }
+}

@@ -1,7 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — push, widened to ±90° (`docs/PLAN.md`)
-**State:** gate approved (2026-10-22). Generating data and training.
+**State:** push ±90° trained and tested; both methods pass. Awaiting owner
+sign-off before press.
 **Done:** pick, reach, push ±45° (git tag `push-45`). Legacy: tag `legacy-v1`.
 
 ## Shared protocol (every skill)
@@ -22,8 +23,11 @@
 | pick | 200 | 200 | object pose hidden: 0 and 12 |
 | reach | 200 | 200 | goal hidden: 1 and 2 |
 | push ±45° | 198 | 199 | goal hidden: 65 and 70 (the expert without the goal: 69) |
+| push ±90° | 188 | **194** | goal hidden: 17 and 23 (the expert without the goal: 26) |
 
-Every task so far has one obvious way to act, so the MLP matches diffusion.
+Push ±90° is the first task where diffusion beats MLP-BC, and only on rightward
+(back-of-hand) pushes: test 54/57 vs 45/57 (Fisher p = 0.024; val agrees,
+54/60 vs 47/60). One training seed each.
 
 ## Push ±90° (`configs/tasks/push.yaml`, `dexvision/policies/push_expert.py`)
 
@@ -50,13 +54,21 @@ Every task so far has one obvious way to act, so the MLP matches diffusion.
 
 Sectors: right < −45° ≤ forward ≤ 45° < left (`push_angle_deg` metric).
 
-**Push gate (approved by owner 2026-10-22, before any training).** A
-learned policy passes only if its single 200-episode test run has a Wilson
-95% lower bound ≥ 80% (≥ 170/200), every object ≥ 60%, and every direction
-sector ≥ 60%.
+**Gate** (approved before training): Wilson lower bound ≥ 80%, every object
+≥ 60%, every direction sector ≥ 60%. **Both pass.**
 
-Not a gate, but stated in advance: if the multimodality argument holds,
-diffusion should beat MLP-BC near the ±45° switch between faces.
+| Test (seeds 210000–210199) | Successes | Wilson 95% CI | right / forward / left | Worst object |
+|---|---|---|---|---|
+| MLP-BC, step 20k | 188 / 200 | [89.8%, 96.5%] | 45/57, 97/97, 46/46 | 39/44 tall cylinder |
+| Diffusion, step 40k | 194 / 200 | [93.6%, 98.6%] | 54/57, 96/97, 44/46 | 41/44 tall cylinder |
+
+- Data: 982/1000 kept; 200/200 replays exact. Val selection: MLP 185/200,
+  Diffusion 192/200.
+- **The prediction was wrong about why.** I expected the MLP to average the
+  two hand postures near the ±45° switch between faces. It doesn't: there is
+  no gap at 30–60°, and its failed rightward pushes hold the back-of-hand roll
+  (≈63°) cleanly, then time out. Why diffusion does better there is not yet
+  understood.
 
 ## Caveats
 
