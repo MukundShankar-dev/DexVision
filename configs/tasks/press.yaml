@@ -21,9 +21,12 @@ success:
   release_steps: 10                       # 0.5 s
 
 failure:
-  # The button's travel ends at 22 mm, but its end stop is soft in the simulator: a hand driving
-  # into it pushes it further. More than max_depth_m counts as breaking the button.
-  max_depth_m: 0.024
+  # Pressing the button to the bottom of its travel is not a failure: real buttons are built to
+  # bottom out. Past 22 mm the force goes into the end stop, which is soft in the simulator, at
+  # about 3-4 N per mm; the most this hand on its weld produces is about 20 N, measured with the
+  # expert driven deep (comparable to a firm human press; Shadow publishes no fingertip force
+  # limit). No source justifies a damage threshold, so there is none; the peak hand-button
+  # contact force is reported per episode instead (metric peak_press_force_n).
   # Hand contact with the wall fixture, trays or table ends the episode. Touching the button is
   # the task.
   hand_collision_bodies: [fixture_wall, tray_left, tray_right, table]
@@ -40,6 +43,6 @@ observation:
 splits:
   train: [0, 100000]
   val: [100000, 110000]
-  test: [200000, 210000]
+  test: [210000, 220000]                  # 200000-210000 was used under tag press-depth-limit
 
 test_budget: 3

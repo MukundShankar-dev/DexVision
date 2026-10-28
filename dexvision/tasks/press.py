@@ -20,7 +20,6 @@ class PressTask:
         self.press_steps = int(success["press_steps"])
         self.release_depth_m = float(success["release_depth_m"])
         self.release_steps = int(success["release_steps"])
-        self.max_depth_m = float(spec.raw["failure"]["max_depth_m"])
         self.collision_bodies = frozenset(spec.raw["failure"]["hand_collision_bodies"])
 
     def reset(self, workcell: Workcell, seed: int) -> tuple[TaskContext, Observation]:
@@ -31,6 +30,7 @@ class PressTask:
         self._pressed = False  # a full press has happened
         self._released = 0  # consecutive steps released after the press
         self.deepest_m = 0.0
+        self.peak_force_n = 0.0  # hand on button, measured contact normal force
         return TaskContext("press"), observation
 
     def check(self, observation: Observation, contacts: tuple[Contact, ...]) -> StepCheck:
@@ -39,15 +39,15 @@ class PressTask:
         self._held = self._held + 1 if depth >= self.press_depth_m else 0
         self._pressed = self._pressed or self._held >= self.press_steps
         touching = any(is_hand(b) for b in bodies_touching(contacts, "button"))
+        force = sum(c.normal_force for c in contacts
+                    if "button" in (c.body1, c.body2) and (is_hand(c.body1) or is_hand(c.body2)))
+        self.peak_force_n = max(self.peak_force_n, force)
         out = self._pressed and depth <= self.release_depth_m and not touching
         self._released = self._released + 1 if out else 0
-        failure = None
-        if depth > self.max_depth_m:
-            failure = "button_overpressed"
-        elif hand_collisions(contacts) & self.collision_bodies:
-            failure = "hand_collision"
+        failure = "hand_collision" if hand_collisions(contacts) & self.collision_bodies else None
         success = self._released >= self.release_steps and not failure
         return StepCheck(out, success, failure)
 
     def episode_metrics(self) -> dict[str, float]:
-        return {"max_button_depth_m": round(self.deepest_m, 4), "pressed": float(self._pressed)}
+        return {"max_button_depth_m": round(self.deepest_m, 4), "pressed": float(self._pressed),
+                "peak_press_force_n": round(self.peak_force_n, 2)}

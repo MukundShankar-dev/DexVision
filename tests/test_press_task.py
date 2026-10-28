@@ -40,10 +40,12 @@ def test_release_does_not_count_while_the_hand_touches_the_button(workcell):
     assert not any(c.success for c in checks)
 
 
-def test_overpressing_and_collisions_fail(workcell):
+def test_bottoming_out_is_allowed_but_collisions_fail(workcell):
     task = make_task("press")
     _, observation = task.reset(workcell, 0)
-    assert run_depths(task, observation, [0.025])[0].failure == "button_overpressed"
+    pushing = (Contact("button", "rh_ffdistal", 12.0), Contact("rh_mfdistal", "button", 3.0))
+    assert run_depths(task, observation, [0.030], pushing)[0].failure is None
+    assert task.episode_metrics()["peak_press_force_n"] == 15.0
     hit = task.check(observation, (Contact("fixture_wall", "rh_ffdistal", 1.0),))
     assert hit.failure == "hand_collision"
     assert task.check(observation, (Contact("button", "rh_ffdistal", 1.0),)).failure is None

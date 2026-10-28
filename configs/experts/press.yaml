@@ -10,9 +10,9 @@ gains:
 button_face_m: [0.102, -0.110, 0.200]
 tip_offset_m: [0.011, 0.0, 0.0]  # index pad centre -> fingertip end (the button starts moving at pad x = face - 11 mm)
 standoff_m: 0.03           # pad this far in front of the face before pressing
-depth_target_m: 0.018      # servo the measured button depth to this (travel 22 mm, task limit 24 mm)
-depth_gain: 1.0            # fraction of the depth error corrected per step (all of it: DART noise
-                           # of 2 mm per step must not accumulate toward the 24 mm limit)
+depth_target_m: 0.018      # servo the measured button depth to this (travel 22 mm)
+depth_gain: 1.0            # fraction of the depth error corrected per step (all of it, so DART noise
+                           # of 2 mm per step does not accumulate)
 max_press_step_m: 0.003    # fingertip speed while pressing and releasing: 6 cm/s
 pressed_depth_m: 0.0155    # measured depth that counts as pressed for the expert (the task: 15 mm)
 hold_steps: 5              # release after this many consecutive pressed steps (the task needs 5)
