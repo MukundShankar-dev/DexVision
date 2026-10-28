@@ -90,6 +90,7 @@ class Observation:
     actuator_targets: np.ndarray  # [20] last commanded actuator targets
     objects: Mapping[str, ObjectState]
     button_depth: float  # m, 0 = released
+    button_position: np.ndarray  # [3] centre of the button's front face (moves in when pressed)
 
 
 @dataclass(frozen=True)
@@ -159,6 +160,9 @@ class Workcell:
         m = self.model
         self._target_mocap = int(m.body_mocapid[self._id("body", "hand_target")])
         self._goal_mocap = int(m.body_mocapid[self._id("body", "goal_marker")])
+        self._button_mount = int(m.body_mocapid[self._id("body", "button_mount")])
+        self.button_mount_default = m.body_pos[self._id("body", "button_mount")].copy()
+        self._button_face = self._id("site", "button_face")
         self._forearm = self._id("body", "rh_forearm")
         self._palm = self._id("body", "rh_palm")
         self._grasp_site = self._id("site", "grasp_site")
@@ -207,11 +211,13 @@ class Workcell:
         seed: int,
         layout: Mapping[str, Placement],
         hand_offset: np.ndarray | None = None,
+        button_offset: np.ndarray | None = None,
     ) -> Observation:
         """Place the hand, sample object poses for ``seed``, and settle physically.
 
-        ``hand_offset`` [3] shifts the hand from its neutral position. Objects missing from
-        ``layout`` rest on the floor out of reach.
+        ``hand_offset`` [3] shifts the hand from its neutral position, and ``button_offset`` [3]
+        the button mount from its default place on the wall. Objects missing from ``layout`` rest
+        on the floor out of reach.
         """
         unknown = set(layout) - set(OBJECT_IDS)
         if unknown:
@@ -229,6 +235,9 @@ class Workcell:
         self._command_position, self._command_orientation = position, orientation
         self.data.ctrl[:] = self.neutral_actuator_targets
 
+        if button_offset is not None:
+            self.data.mocap_pos[self._button_mount] = (
+                self.button_mount_default + np.asarray(button_offset, dtype=float))
         self._place_objects(rng, layout)
         mujoco.mj_forward(self.model, self.data)
         self._ready = True
@@ -299,6 +308,7 @@ class Workcell:
             actuator_targets=d.ctrl.copy(),
             objects=objects,
             button_depth=float(d.qpos[self._button_qpos]),
+            button_position=d.site_xpos[self._button_face].copy(),
         )
 
     def contacts(self) -> tuple[Contact, ...]:

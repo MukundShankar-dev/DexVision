@@ -16,6 +16,9 @@ class PressTask:
         self.spec = spec
         success = spec.raw["success"]
         self._hand_jitter = np.asarray(spec.raw["reset"]["hand_jitter_m"], dtype=float)
+        reset = spec.raw["reset"]
+        self._button_low = np.array([0.0, reset["button_y_m"][0], reset["button_z_m"][0]])
+        self._button_high = np.array([0.0, reset["button_y_m"][1], reset["button_z_m"][1]])
         self.press_depth_m = float(success["press_depth_m"])
         self.press_steps = int(success["press_steps"])
         self.release_depth_m = float(success["release_depth_m"])
@@ -25,7 +28,10 @@ class PressTask:
     def reset(self, workcell: Workcell, seed: int) -> tuple[TaskContext, Observation]:
         rng = np.random.default_rng([seed, 1])  # independent of the workcell's placement stream
         hand_offset = rng.uniform(-self._hand_jitter, self._hand_jitter)
-        observation = workcell.reset(seed, {}, hand_offset=hand_offset)
+        button = rng.uniform(self._button_low, self._button_high)  # centre; x stays on the wall
+        button[0] = workcell.button_mount_default[0]
+        observation = workcell.reset(seed, {}, hand_offset=hand_offset,
+                                     button_offset=button - workcell.button_mount_default)
         self._held = 0  # consecutive steps pressed in
         self._pressed = False  # a full press has happened
         self._released = 0  # consecutive steps released after the press

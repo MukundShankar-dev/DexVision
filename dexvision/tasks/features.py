@@ -62,6 +62,7 @@ FEATURES: Mapping[str, Callable[[Observation, TaskContext], np.ndarray]] = {
     "object_size": lambda o, c: c.object_size,
     "goal_position": lambda o, c: c.goal_position,
     "button_depth": lambda o, c: np.array([o.button_depth]),
+    "button_position": lambda o, c: o.button_position,
 }
 
 

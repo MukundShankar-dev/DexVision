@@ -1,5 +1,6 @@
 from dataclasses import replace
 
+import numpy as np
 import pytest
 
 from dexvision.eval.evaluator import run_episode
@@ -49,6 +50,18 @@ def test_bottoming_out_is_allowed_but_collisions_fail(workcell):
     hit = task.check(observation, (Contact("fixture_wall", "rh_ffdistal", 1.0),))
     assert hit.failure == "hand_collision"
     assert task.check(observation, (Contact("button", "rh_ffdistal", 1.0),)).failure is None
+
+
+def test_reset_places_the_button_on_the_wall_within_range(workcell):
+    task = make_task("press")
+    faces = np.array([task.reset(workcell, seed)[1].button_position for seed in range(30)])
+    reset = task.spec.raw["reset"]
+    centre = faces + [0.008, 0.0, 0.0]  # face -> centre (half-length 8 mm)
+    np.testing.assert_allclose(centre[:, 0], workcell.button_mount_default[0], atol=1e-9)
+    for axis, key in ((1, "button_y_m"), (2, "button_z_m")):
+        low, high = reset[key]
+        assert np.all((low <= centre[:, axis]) & (centre[:, axis] <= high))
+    assert np.ptp(centre[:, 1]) > 0.1 and np.ptp(centre[:, 2]) > 0.08  # actually varies
 
 
 @pytest.mark.parametrize("seed", [0, 1, 2])

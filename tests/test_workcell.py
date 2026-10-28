@@ -89,6 +89,20 @@ def test_model_is_never_modified(workcell):
         np.testing.assert_array_equal(before[name], getattr(workcell.model, name), err_msg=name)
 
 
+def test_button_is_placed_at_reset_and_stays_put(workcell):
+    face = workcell.reset(0, {}).button_position  # default place
+    offset = np.array([0.0, 0.08, -0.05])
+    rng = np.random.default_rng(2)
+    observation = workcell.reset(0, {}, button_offset=offset)
+    np.testing.assert_allclose(observation.button_position, face + offset, atol=1e-9)
+    for action in random_actions(workcell, rng, 20):
+        observation = workcell.step(action)
+    rest = observation.button_position - np.array([observation.button_depth, 0.0, 0.0])
+    np.testing.assert_allclose(rest, face + offset, atol=1e-9)
+    # the next reset without an offset puts it back for every other task
+    np.testing.assert_allclose(workcell.reset(0, {}).button_position, face, atol=1e-12)
+
+
 def test_hand_tracks_command_in_free_space(workcell):
     workcell.reset(0, LAYOUT)
     for _ in range(10):

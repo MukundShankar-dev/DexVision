@@ -1,13 +1,10 @@
-# Scripted press expert. It sees only the observation fields of configs/tasks/press.yaml. The
-# button is part of the fixed scene (assets/mujoco/workcell.xml), so its pose is a constant here,
-# the same in every episode. Tuned on train seeds only.
+# Scripted press expert. It sees only the observation fields of configs/tasks/press.yaml,
+# including the measured button face position. Tuned on train seeds only.
 
 gains:
   position: 0.6            # fraction of the fingertip position error commanded per step
   orientation: 0.5         # fraction of the palm orientation error commanded per step
 
-# The button face: centre (0.110, -0.110, 0.200) minus its 8 mm half-length along x.
-button_face_m: [0.102, -0.110, 0.200]
 tip_offset_m: [0.011, 0.0, 0.0]  # index pad centre -> fingertip end (the button starts moving at pad x = face - 11 mm)
 standoff_m: 0.03           # pad this far in front of the face before pressing
 depth_target_m: 0.018      # servo the measured button depth to this (travel 22 mm)

@@ -5,8 +5,8 @@ the palm at its starting orientation, and steers the measured index fingertip: f
 in front of the button, then into it, servoing on the measured button depth so it never drives
 into the end stop. It holds briefly and pulls back out so the button springs back.
 
-It reads only the declared observation fields; the button's pose is a scene constant in the
-expert config. No simulator access, no lookahead.
+It reads only the declared observation fields, including the measured button face position (the
+button is placed somewhere on the wall each episode). No simulator access, no lookahead.
 """
 
 from __future__ import annotations
@@ -38,9 +38,6 @@ class PressExpert:
         for joint, value in self.config["point_posture"].items():
             fingers[names.index(joint)] = value
         self._fingers = np.clip(fingers, action_space.target_low, action_space.target_high)
-        face = np.asarray(self.config["button_face_m"], dtype=float)
-        self._face = face
-        self._ready_at = face - PRESS_AXIS * self.config["standoff_m"]
 
     def reset(self, context: TaskContext, seed: int) -> None:
         self._phase, self._phase_steps = "settle", 0
@@ -56,6 +53,9 @@ class PressExpert:
             self._initial_palm = palm
         tip = observation["fingertip_positions"].reshape(5, 3)[INDEX] + c["tip_offset_m"]
         depth = float(observation["button_depth"][0])
+        # the face at rest: the measured face has moved in by the measured depth
+        self._face = observation["button_position"] - PRESS_AXIS * depth
+        self._ready_at = self._face - PRESS_AXIS * self.config["standoff_m"]
         self._phase_steps += 1
         target = getattr(self, f"_{self._phase}")(tip, depth)
 

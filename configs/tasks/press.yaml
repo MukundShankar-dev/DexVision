@@ -3,11 +3,14 @@
 skill: press
 
 reset:
-  # No objects on the table. The button is fixed on the wall fixture at (0.110, -0.110, 0.200),
-  # facing -x; it slides 0-22 mm along +x against a spring (assets/mujoco/workcell.xml). Its
-  # position is the same in every episode, so the variation is in where the hand starts: a
-  # uniform offset from the neutral hand position (-0.16, 0, 0.20).
+  # No objects on the table. The hand starts at a uniform offset from its neutral position
+  # (-0.16, 0, 0.20). The button faces -x and slides 0-22 mm along +x against a spring
+  # (assets/mujoco/workcell.xml); its centre is placed uniformly on the wall face, which spans
+  # y -0.15..0.15 and z 0..0.44. The ranges keep the whole button (radius 18 mm) at least 22 mm
+  # inside the wall's side edges and 10 cm above the table; they come from the wall alone.
   hand_jitter_m: [0.04, 0.06, 0.04]
+  button_y_m: [-0.11, 0.11]
+  button_z_m: [0.12, 0.28]
 
 horizon_steps: 150                        # 7.5 s at 20 Hz
 
@@ -39,10 +42,11 @@ observation:
   - hand_qvel
   - fingertip_positions
   - button_depth                          # measured joint position, m
+  - button_position                       # measured face centre; simulator ground truth (privileged)
 
 splits:
   train: [0, 100000]
   val: [100000, 110000]
-  test: [210000, 220000]                  # 200000-210000 was used under tag press-depth-limit
+  test: [220000, 230000]                  # 200000-210000: tag press-depth-limit; 210000-220000: tag press-fixed-button
 
 test_budget: 3
