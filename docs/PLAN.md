@@ -151,8 +151,15 @@ Rules carried over:
   wall: the existing front-left view and one from the opposite side. A wrist
   camera is left out at first (simpler; revisit if occlusion by the hand
   proves to be the main failure).
-- RGB, 96 × 96, rendered from the simulation after each step (measured, not
-  privileged: what a camera would see).
+- Cameras framed on the work area (about 30 cm across), not the whole scene:
+  the current view spans about 65 cm, about 7 mm per pixel at 96 px, which
+  leaves a 2 cm goal tolerance about 3 pixels wide.
+- RGB, rendered from the simulation after each step (measured, not
+  privileged: what a camera would see). Resolution is chosen in V1 from
+  sample frames and measured cost: 96 × 96 to start (the size Diffusion
+  Policy used on its 2D pushing task), 128 × 128 if 96 is too coarse.
+- `button_depth` is a sensor on the button, not on the robot. Whether press
+  keeps it is decided with the owner before press is redone from images.
 - Demos store images alongside the state fields, so the state and vision
   tracks train on the same episodes. Images are uint8, compressed.
 - **Measure:** render time per frame on an idle GPU (about 30 ms while the
