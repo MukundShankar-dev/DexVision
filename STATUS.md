@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — press (`docs/PLAN.md`)
-**State:** spec revised (depth limit dropped), val baselines re-run; gate
-re-confirmed; training both methods.
+**State:** press done; Diffusion passes the gate, MLP-BC does not. Awaiting
+owner sign-off.
 **Done:** pick, reach, push ±90° (owner approved 2026-10-22). Tags:
 `legacy-v1` (old pipeline), `push-45` (the first push spec).
 
@@ -24,6 +24,7 @@ re-confirmed; training both methods.
 | reach | 200 | 200 | goal: 1 and 2 |
 | push ±90°, seed 0 | 188 | 194 | goal: 17 and 23 (expert without goal: 26) |
 | push ±90°, seed 1 | 180 | 194 | |
+| press (spec v2) | 107 | 196 | n/a (button never moves) |
 
 Diffusion beats MLP-BC only on rightward (back-of-hand) pushes: 106/114 vs
 83/114 over both seeds (Fisher p = 0.0001). The MLP does not average the two
@@ -52,6 +53,11 @@ hand postures; it holds the right one and times out. Why is not yet known.
 | val | expert + DART noise | 194 / 200 | [93.6%, 98.6%] | peak force median 1.4 N, max 31 N |
 | val | open-loop expert replay | 25 / 1000 | [1.7%, 3.7%] | 10 recordings × 100 seeds |
 | train | demos kept (DART) | 981 / 1000 | [97.0%, 98.8%] | 103k transitions |
+
+Learned, spec v2 (val pick / test): MLP-BC 98/200 (step 50k) / 107/200
+[46.6%, 60.3%], 93 timeouts, all pressed but never released. Diffusion
+191/200 (step 60k) / 196/200 [95.0%, 99.2%], 4 timeouts. Test peak force:
+median 1.6–1.7 N, max 15 N (MLP-BC) and 18 N (Diffusion).
 
 **Press gate (approved 2026-10-28, re-confirmed for spec v2 before training).** A learned
 policy passes only if its single 200-episode test run has a Wilson 95%
