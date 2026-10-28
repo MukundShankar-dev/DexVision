@@ -1,0 +1,68 @@
+# Place: pick an object up, carry it, and set it down upright on a goal spot, then let go.
+# Written before any controller or policy exists (AGENTS.md section 2).
+skill: place
+
+objects: [block_small, block_large, cylinder_short, cylinder_tall, puck_light, puck_heavy]
+
+reset:
+  # The object starts in the pick region, upright at any yaw.
+  object_center_xy_m: [-0.06, 0.0]
+  object_half_extent_xy_m: [0.04, 0.06]
+  object_yaw_range_rad: [-3.141592653589793, 3.141592653589793]
+  hand_jitter_m: [0.02, 0.02, 0.02]
+  # The goal is uniform over this region, redrawn until it is at least min_goal_distance_m from
+  # the start, so every episode needs a real carry. Its far edge is set by the hand, not the
+  # object: grasping from above with the fingers forward, the hand reaches up to about 10 cm past
+  # the object (flat grasp of the pucks), and in a sweep of goals on train seeds the hand began to
+  # hit the trays, the wall and the button for goals at x >= -0.03; at x <= -0.05 it did not.
+  # The region stays 4 cm inside the table edges.
+  goal_x_m: [-0.12, -0.05]
+  goal_y_m: [-0.10, 0.10]
+  min_goal_distance_m: 0.06
+
+horizon_steps: 400                        # 20 s at 20 Hz: about twice a clean place, so one retry fits
+
+success:
+  # Measured on the object body and contacts. The object must have been carried (lifted at least
+  # min_lift_m above its start) at some point; then, for dwell_steps in a row, it is
+  #   - within tolerance_xy_m of the goal, horizontally;
+  #   - resting: its centre within max_height_change_m of its starting height, and its axis
+  #     within max_tilt_rad of vertical (upright, as it started);
+  #   - released: no hand contact.
+  min_lift_m: 0.03
+  tolerance_xy_m: 0.02
+  max_height_change_m: 0.005
+  max_tilt_rad: 0.17                      # about 10 degrees
+  dwell_steps: 10                         # 0.5 s
+
+failure:
+  min_object_z_m: -0.02                   # fell off the table
+  # Hand contact with the trays, the wall fixture or the button ends the episode. The table and
+  # the object may be touched.
+  hand_collision_bodies: [tray_left, tray_right, fixture_wall, button]
+
+# A dropped object is not a failure in itself, but how hard it lands is reported per episode:
+# the object's downward speed when it first touches the table again after being carried
+# (metric landing_speed_mps).
+
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - object_position
+  - object_rotation6d
+  - object_linear_velocity
+  - object_angular_velocity
+  - object_shape
+  - object_size
+  - goal_position                         # where the object should end up (an instruction)
+
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [200000, 210000]
+
+test_budget: 3

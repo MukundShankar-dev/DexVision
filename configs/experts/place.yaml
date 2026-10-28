@@ -1,0 +1,18 @@
+# Scripted place expert: the pick expert (configs/experts/pick.yaml, unchanged) up to a lift, then
+# carry, lower, release, slide back and retreat. It sees only the observation fields of
+# configs/tasks/place.yaml, and these parameters do not depend on the object. Tuned on train seeds
+# only.
+
+carry_rise_m: 0.05            # start carrying once the object is this far above its rest height
+dropped_below_m: 0.01         # while carrying, below this the object has fallen out
+max_carry_step_m: 0.006       # hand speed while carrying: 12 cm/s
+over_goal_tolerance_m: 0.005  # start lowering once the object is this close to the goal, horizontally
+max_lower_step_m: 0.003       # hand speed while lowering, releasing and retreating: 6 cm/s
+set_down_gap_m: 0.002         # release when the object is this far above its rest height
+lower_timeout_steps: 60       # the table may stop the object (or the hand) short of the gap
+thumb_release_steps: 5        # hold still while the thumb backs off to the grasp's open posture
+finger_release_steps: 5       # then while the fingers open
+slide_back_m: 0.02            # then slide back along the fingers: the thumb leaves the object
+retreat_m: 0.06               # then rise this far with the hand open
+move_timeout_steps: 15        # slide back for at most this long (and rise for twice this)
+replace_tolerance_m: 0.012    # after rising, place again if the object is further than this from the goal
