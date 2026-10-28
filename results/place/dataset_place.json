@@ -1,0 +1,268 @@
+{
+ "code": {
+  "commit": "983ecc68bf5143b1e8d5d2a3873a859ce0ba803c",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "config": {
+  "task": "place",
+  "policy": "expert",
+  "split": "train",
+  "episodes": 1000,
+  "noise_std": {
+   "translation_m": 0.002,
+   "rotation_rad": 0.01,
+   "targets_rad": 0.05
+  }
+ },
+ "task_spec": {
+  "skill": "place",
+  "objects": [
+   "block_small",
+   "block_large",
+   "cylinder_short",
+   "cylinder_tall",
+   "puck_light",
+   "puck_heavy"
+  ],
+  "reset": {
+   "object_center_xy_m": [
+    -0.06,
+    0.0
+   ],
+   "object_half_extent_xy_m": [
+    0.04,
+    0.06
+   ],
+   "object_yaw_range_rad": [
+    -3.141592653589793,
+    3.141592653589793
+   ],
+   "hand_jitter_m": [
+    0.02,
+    0.02,
+    0.02
+   ],
+   "goal_x_m": [
+    -0.12,
+    -0.05
+   ],
+   "goal_y_m": [
+    -0.1,
+    0.1
+   ],
+   "min_goal_distance_m": 0.06
+  },
+  "horizon_steps": 400,
+  "success": {
+   "min_lift_m": 0.03,
+   "tolerance_xy_m": 0.02,
+   "max_height_change_m": 0.005,
+   "max_tilt_rad": 0.17,
+   "dwell_steps": 10
+  },
+  "failure": {
+   "min_object_z_m": -0.02,
+   "hand_collision_bodies": [
+    "tray_left",
+    "tray_right",
+    "fixture_wall",
+    "button"
+   ]
+  },
+  "observation": [
+   "palm_position",
+   "palm_rotation6d",
+   "grasp_position",
+   "hand_qpos",
+   "hand_qvel",
+   "fingertip_positions",
+   "object_position",
+   "object_rotation6d",
+   "object_linear_velocity",
+   "object_angular_velocity",
+   "object_shape",
+   "object_size",
+   "goal_position"
+  ],
+  "splits": {
+   "train": [
+    0,
+    100000
+   ],
+   "val": [
+    100000,
+    110000
+   ],
+   "test": [
+    200000,
+    210000
+   ]
+  },
+  "test_budget": 3
+ },
+ "expert_config": {
+  "gains": {
+   "position": 0.6,
+   "yaw": 0.5,
+   "level": 0.5
+  },
+  "approach_clearance_m": 0.06,
+  "position_tolerance_m": 0.008,
+  "yaw_tolerance_rad": 0.08,
+  "descend_timeout_steps": 30,
+  "lift_m": 0.1,
+  "lift_check_m": 0.04,
+  "max_attempts": 2,
+  "flat_max_height_m": 0.02,
+  "grasps": {
+   "default": {
+    "offset_m": [
+     -0.015,
+     -0.022,
+     0.042
+    ],
+    "open": {
+     "THJ5": 0.5,
+     "THJ4": 1.2,
+     "THJ2": -0.4
+    },
+    "close": [
+     {
+      "steps": 14,
+      "targets": {
+       "THJ5": 1.0,
+       "THJ4": 1.2,
+       "THJ2": 0.0,
+       "THJ1": 0.4,
+       "FFJ3": 1.0,
+       "FFJ0": 0.8,
+       "MFJ3": 1.0,
+       "MFJ0": 0.8,
+       "RFJ3": 1.0,
+       "RFJ0": 0.8
+      }
+     }
+    ]
+   },
+   "flat": {
+    "anchor": "near_edge_bottom",
+    "offset_m": [
+     0.023,
+     -0.032,
+     0.056
+    ],
+    "open": {
+     "THJ5": -0.25,
+     "THJ4": 1.22,
+     "THJ3": 0.2,
+     "THJ2": 0.6,
+     "THJ1": 0.5
+    },
+    "close": [
+     {
+      "steps": 10,
+      "targets": {
+       "FFJ3": 1.0,
+       "MFJ3": 1.0,
+       "RFJ3": 1.0
+      }
+     },
+     {
+      "steps": 8,
+      "targets": {
+       "FFJ3": 1.3,
+       "FFJ0": 1.4,
+       "MFJ3": 1.3,
+       "MFJ0": 1.4,
+       "RFJ3": 1.3,
+       "RFJ0": 1.4,
+       "THJ4": 1.02,
+       "THJ5": -0.1
+      }
+     }
+    ]
+   }
+  }
+ },
+ "seeds": [
+  0,
+  1000
+ ],
+ "attempted": 1000,
+ "kept": {
+  "successes": 878,
+  "n": 1000,
+  "ci95": [
+   0.8563,
+   0.8969
+  ]
+ },
+ "kept_by_object": {
+  "block_large": {
+   "successes": 153,
+   "n": 161,
+   "ci95": [
+    0.905,
+    0.9746
+   ]
+  },
+  "block_small": {
+   "successes": 181,
+   "n": 184,
+   "ci95": [
+    0.9532,
+    0.9944
+   ]
+  },
+  "cylinder_short": {
+   "successes": 150,
+   "n": 159,
+   "ci95": [
+    0.8959,
+    0.9699
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 130,
+   "n": 157,
+   "ci95": [
+    0.7613,
+    0.879
+   ]
+  },
+  "puck_heavy": {
+   "successes": 131,
+   "n": 162,
+   "ci95": [
+    0.7412,
+    0.8618
+   ]
+  },
+  "puck_light": {
+   "successes": 133,
+   "n": 177,
+   "ci95": [
+    0.6829,
+    0.8093
+   ]
+  }
+ },
+ "dropped": {
+  "timeout": 77,
+  "hand_collision": 20,
+  "object_fell_off_table": 25
+ },
+ "transitions": 147622,
+ "steps_per_episode": {
+  "min": 105,
+  "median": 157.0,
+  "max": 389
+ },
+ "files_sha256": "94df6d925a12e58e19b9fa407c439bce6c4b5dcb09228fb88024686e3817f0d2",
+ "replay_check": {
+  "episodes": 200,
+  "matched": 200
+ }
+}
