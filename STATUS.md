@@ -1,9 +1,9 @@
 # Status
 
-**Active checkpoint:** R7 — place (`docs/PLAN.md`)
-**State:** test done; both methods pass the gate. Awaiting owner sign-off.
-**Done:** pick, reach, push ±90°, press (button anywhere; owner approved
-2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
+**Active checkpoint:** none — every planned skill is done (`docs/PLAN.md`)
+**State:** the next step ("Later" in the plan) needs planning with the owner.
+**Done:** pick, reach, push ±90°, press (button anywhere), place (owner
+approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
 
 ## Shared protocol (every skill)
