@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — place (`docs/PLAN.md`)
-**State:** spec, expert and val baselines done. Awaiting owner sign-off on
-the gate below before data generation and training.
+**State:** spec, expert and val baselines done; gate approved; data, training
+and test running.
 **Done:** pick, reach, push ±90°, press (button anywhere; owner approved
 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -51,7 +51,7 @@ hand postures; it holds the right one and times out. Why is not yet known.
 | val | expert + DART noise | 169 / 200 | [78.8%, 88.9%] | light puck 27/36 |
 | val | expert, mean goal | 8 / 200 | [2.0%, 7.7%] | |
 
-**Place gate (proposed, before any training).** A learned policy passes only
+**Place gate (approved by the owner 2026-10-28, before any training).** A learned policy passes only
 if its single 200-episode test run has a Wilson 95% lower bound ≥ 80%
 (≥ 170/200) and every object succeeds ≥ 60%.
 
