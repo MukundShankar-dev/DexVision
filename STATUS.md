@@ -2,7 +2,7 @@
 
 **Active checkpoint:** R7 — press (`docs/PLAN.md`)
 **State:** press spec v3 (button anywhere on the wall): val baselines
-done; gate needs owner re-confirmation before training.
+done; gate re-confirmed; training both methods.
 **Done:** pick, reach, push ±90° (owner approved 2026-10-22). Tags:
 `legacy-v1` (old pipeline), `push-45` (the first push spec).
 
@@ -54,9 +54,10 @@ hand postures; it holds the right one and times out. Why is not yet known.
 | val | expert + DART noise | 199 / 200 | [97.2%, 99.9%] | 1 collision |
 | val | expert, mean button position | 14 / 200 | [4.2%, 11.4%] | 186 collisions |
 | val | open-loop expert replay | 6 / 1000 | [0.3%, 1.3%] | |
+| val | v2 models (fixed button) | MLP 2, Diff 4 / 200 | ≤ 5.0% | all 4 Diff wins within 2 cm of the old spot |
 | train | demos kept (DART) | 989 / 1000 | [98.0%, 99.4%] | 96k transitions |
 
-**Press gate (proposed for v3, before any training).** A learned policy
+**Press gate (owner re-confirmed for v3 2026-10-28, before any training).** A learned policy
 passes only if its single 200-episode test run has a Wilson 95% lower
 bound ≥ 80% (≥ 170/200).
 
