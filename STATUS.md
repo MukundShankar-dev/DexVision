@@ -2,7 +2,7 @@
 
 **Active checkpoint:** R7 — press (`docs/PLAN.md`)
 **State:** spec revised (depth limit dropped), val baselines re-run; gate
-needs owner re-confirmation before training.
+re-confirmed; training both methods.
 **Done:** pick, reach, push ±90° (owner approved 2026-10-22). Tags:
 `legacy-v1` (old pipeline), `push-45` (the first push spec).
 
@@ -53,7 +53,7 @@ hand postures; it holds the right one and times out. Why is not yet known.
 | val | open-loop expert replay | 25 / 1000 | [1.7%, 3.7%] | 10 recordings × 100 seeds |
 | train | demos kept (DART) | 981 / 1000 | [97.0%, 98.8%] | 103k transitions |
 
-**Press gate (approved 2026-10-28; to re-confirm for spec v2).** A learned
+**Press gate (approved 2026-10-28, re-confirmed for spec v2 before training).** A learned
 policy passes only if its single 200-episode test run has a Wilson 95%
 lower bound ≥ 80% (≥ 170/200).
 
