@@ -1,6 +1,6 @@
 {
  "code": {
-  "commit": "f4148c80510cdadc8f814f16dcd18b87a62bfb56",
+  "commit": "10ccc01d03732f6344f7975052882ed492a97cb2",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"
@@ -23,6 +23,14 @@
     0.04,
     0.06,
     0.04
+   ],
+   "button_y_m": [
+    -0.11,
+    0.11
+   ],
+   "button_z_m": [
+    0.12,
+    0.28
    ]
   },
   "horizon_steps": 150,
@@ -47,7 +55,8 @@
    "hand_qpos",
    "hand_qvel",
    "fingertip_positions",
-   "button_depth"
+   "button_depth",
+   "button_position"
   ],
   "splits": {
    "train": [
@@ -59,8 +68,8 @@
     110000
    ],
    "test": [
-    210000,
-    220000
+    220000,
+    230000
    ]
   },
   "test_budget": 3
@@ -70,11 +79,6 @@
    "position": 0.6,
    "orientation": 0.5
   },
-  "button_face_m": [
-   0.102,
-   -0.11,
-   0.2
-  ],
   "tip_offset_m": [
    0.011,
    0.0,
@@ -108,34 +112,34 @@
  ],
  "attempted": 1000,
  "kept": {
-  "successes": 981,
+  "successes": 989,
   "n": 1000,
   "ci95": [
-   0.9705,
-   0.9878
+   0.9804,
+   0.9938
   ]
  },
  "kept_by_object": {
   "none": {
-   "successes": 981,
+   "successes": 989,
    "n": 1000,
    "ci95": [
-    0.9705,
-    0.9878
+    0.9804,
+    0.9938
    ]
   }
  },
  "dropped": {
-  "timeout": 15,
-  "hand_collision": 4
+  "timeout": 8,
+  "hand_collision": 3
  },
- "transitions": 103010,
+ "transitions": 95973,
  "steps_per_episode": {
-  "min": 72,
-  "median": 103.0,
-  "max": 150
+  "min": 64,
+  "median": 95.0,
+  "max": 147
  },
- "files_sha256": "c180d054bbb48baa3e2a663bf282b43ab7b4a9d973c6588d16601ce0e9c236b7",
+ "files_sha256": "9e9644a4891cb09a34b8b21cbbe9f52f859bbb12404bdc99ee414fcf68a8d30d",
  "replay_check": {
   "episodes": 200,
   "matched": 200
