@@ -157,6 +157,16 @@ Contact model choices:
     <body name="hand_target" mocap="true" pos="-0.16 0 0.20" quat="1 0 0 0"/>
 
     <camera name="fixed" pos="-0.35 -0.55 0.45" mode="targetbody" target="table" fovy="45"/>
+
+    <!-- Policy cameras (perception track). A mirrored pair on the hand's right (-y) and left
+      (+y), 0.52 m from (-0.03, 0, 0.11), 40 degrees down and 70 degrees off the hand's +x
+      approach, so between them they see the tabletop work area, the hand and the button wall,
+      and when the hand hides the object from one the other usually sees it. Chosen from sample
+      frames of expert runs of every skill; fixed before any training (docs/PLAN.md, V1). -->
+    <camera name="policy_right" pos="-0.1662 -0.3743 0.4442" fovy="50"
+      xyaxes="0.9397 -0.342 0 0.2198 0.604 0.766"/>
+    <camera name="policy_left" pos="-0.1662 0.3743 0.4442" fovy="50"
+      xyaxes="-0.9397 -0.342 0 0.2198 -0.604 0.766"/>
   </worldbody>
 
   <equality>

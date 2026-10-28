@@ -1,0 +1,9 @@
+# Policy cameras for the perception track (docs/PLAN.md, V). Fixed before any training; like
+# physics, never tuned to make a policy pass. The camera poses live in assets/mujoco/workcell.xml.
+cameras: [policy_right, policy_left]
+size_px: 96                     # square RGB; chosen in V1 from sample frames and measured cost
+
+# Geom groups the policy cameras do not render. Group 1 holds only visual markings with no
+# collision or mass: the goal marker (the goal reaches the policy as the declared goal_position
+# instruction, not as a picture of it) and the decorative slot and inspection-pad decals.
+hidden_geom_groups: [1]
