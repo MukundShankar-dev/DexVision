@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** R7 — press (`docs/PLAN.md`)
-**State:** spec, expert and val baselines done. Awaiting owner sign-off on
-the gate below before data generation and training.
+**State:** gate approved 2026-10-28; data generated (941/1000 noisy demos
+kept). Training both methods.
 **Done:** pick, reach, push ±90° (owner approved 2026-10-22). Tags:
 `legacy-v1` (old pipeline), `push-45` (the first push spec).
 
@@ -52,7 +52,7 @@ hand postures; it holds the right one and times out. Why is not yet known.
 The open-loop row shows a memorized motion does not work: the policy needs
 feedback on where the hand is.
 
-**Press gate (proposed, before any training; needs owner sign-off).** A
+**Press gate (approved by the owner 2026-10-28, before any training).** A
 learned policy passes only if its single 200-episode test run has a Wilson
 95% lower bound ≥ 80% (≥ 170/200).
 
