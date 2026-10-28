@@ -1,0 +1,2584 @@
+{
+ "skill": "place",
+ "policy": "mlp",
+ "split": "val",
+ "overall": {
+  "successes": 170,
+  "n": 200,
+  "ci95": [
+   0.7939,
+   0.8929
+  ]
+ },
+ "by_object": {
+  "block_large": {
+   "successes": 21,
+   "n": 30,
+   "ci95": [
+    0.5212,
+    0.8334
+   ]
+  },
+  "block_small": {
+   "successes": 36,
+   "n": 36,
+   "ci95": [
+    0.9036,
+    1.0
+   ]
+  },
+  "cylinder_short": {
+   "successes": 31,
+   "n": 31,
+   "ci95": [
+    0.8897,
+    1.0
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 33,
+   "n": 33,
+   "ci95": [
+    0.8957,
+    1.0
+   ]
+  },
+  "puck_heavy": {
+   "successes": 22,
+   "n": 34,
+   "ci95": [
+    0.4791,
+    0.7851
+   ]
+  },
+  "puck_light": {
+   "successes": 27,
+   "n": 36,
+   "ci95": [
+    0.5893,
+    0.8625
+   ]
+  }
+ },
+ "failures": {
+  "timeout": 29,
+  "object_fell_off_table": 1
+ },
+ "episodes": [
+  {
+   "seed": 100000,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 250,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1004,
+    "landing_speed_mps": 0.014,
+    "goal_distance_m": 0.0699
+   }
+  },
+  {
+   "seed": 100001,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 266,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1015,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0988
+   }
+  },
+  {
+   "seed": 100002,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 269,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.105,
+    "landing_speed_mps": 0.016,
+    "goal_distance_m": 0.0655
+   }
+  },
+  {
+   "seed": 100003,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 391,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0989,
+    "landing_speed_mps": 0.13,
+    "goal_distance_m": 0.0881
+   }
+  },
+  {
+   "seed": 100004,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 384,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0945,
+    "landing_speed_mps": 0.007,
+    "goal_distance_m": 0.0874
+   }
+  },
+  {
+   "seed": 100005,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0976,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0787
+   }
+  },
+  {
+   "seed": 100006,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0984,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0603
+   }
+  },
+  {
+   "seed": 100007,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 196,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1001,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1475
+   }
+  },
+  {
+   "seed": 100008,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 231,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0961,
+    "landing_speed_mps": 0.245,
+    "goal_distance_m": 0.1045
+   }
+  },
+  {
+   "seed": 100009,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 165,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1004,
+    "landing_speed_mps": 0.379,
+    "goal_distance_m": 0.0847
+   }
+  },
+  {
+   "seed": 100010,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 236,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1063,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.104
+   }
+  },
+  {
+   "seed": 100011,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0975,
+    "landing_speed_mps": 0.424,
+    "goal_distance_m": 0.0937
+   }
+  },
+  {
+   "seed": 100012,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 365,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0987,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1051
+   }
+  },
+  {
+   "seed": 100013,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 226,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1043,
+    "landing_speed_mps": 0.011,
+    "goal_distance_m": 0.1133
+   }
+  },
+  {
+   "seed": 100014,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1033,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0769
+   }
+  },
+  {
+   "seed": 100015,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 210,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1042,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1286
+   }
+  },
+  {
+   "seed": 100016,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 255,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1026,
+    "landing_speed_mps": 0.003,
+    "goal_distance_m": 0.0846
+   }
+  },
+  {
+   "seed": 100017,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 198,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1012,
+    "landing_speed_mps": 0.185,
+    "goal_distance_m": 0.0658
+   }
+  },
+  {
+   "seed": 100018,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 300,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1033,
+    "landing_speed_mps": 0.041,
+    "goal_distance_m": 0.0864
+   }
+  },
+  {
+   "seed": 100019,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 215,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1017,
+    "landing_speed_mps": 0.008,
+    "goal_distance_m": 0.1002
+   }
+  },
+  {
+   "seed": 100020,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 202,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1006,
+    "landing_speed_mps": 0.422,
+    "goal_distance_m": 0.065
+   }
+  },
+  {
+   "seed": 100021,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 154,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0904,
+    "landing_speed_mps": 0.017,
+    "goal_distance_m": 0.0918
+   }
+  },
+  {
+   "seed": 100022,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 207,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.102,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.0716
+   }
+  },
+  {
+   "seed": 100023,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0949,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0897
+   }
+  },
+  {
+   "seed": 100024,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 203,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1039,
+    "landing_speed_mps": 0.012,
+    "goal_distance_m": 0.1104
+   }
+  },
+  {
+   "seed": 100025,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 260,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1011,
+    "landing_speed_mps": 0.012,
+    "goal_distance_m": 0.1117
+   }
+  },
+  {
+   "seed": 100026,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 228,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0995,
+    "landing_speed_mps": 0.819,
+    "goal_distance_m": 0.08
+   }
+  },
+  {
+   "seed": 100027,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 302,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0996,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.0821
+   }
+  },
+  {
+   "seed": 100028,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 259,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1005,
+    "landing_speed_mps": 0.041,
+    "goal_distance_m": 0.0652
+   }
+  },
+  {
+   "seed": 100029,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 195,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0977,
+    "landing_speed_mps": 0.181,
+    "goal_distance_m": 0.0708
+   }
+  },
+  {
+   "seed": 100030,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 285,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0884
+   }
+  },
+  {
+   "seed": 100031,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 256,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.104,
+    "landing_speed_mps": 0.001,
+    "goal_distance_m": 0.0647
+   }
+  },
+  {
+   "seed": 100032,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 157,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.096,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0696
+   }
+  },
+  {
+   "seed": 100033,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 243,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0976,
+    "landing_speed_mps": 0.011,
+    "goal_distance_m": 0.0608
+   }
+  },
+  {
+   "seed": 100034,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 369,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.0759
+   }
+  },
+  {
+   "seed": 100035,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 207,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1018,
+    "landing_speed_mps": 0.001,
+    "goal_distance_m": 0.1157
+   }
+  },
+  {
+   "seed": 100036,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 178,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0923,
+    "landing_speed_mps": 0.008,
+    "goal_distance_m": 0.1614
+   }
+  },
+  {
+   "seed": 100037,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 227,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1024,
+    "landing_speed_mps": 0.002,
+    "goal_distance_m": 0.0833
+   }
+  },
+  {
+   "seed": 100038,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 156,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0975,
+    "landing_speed_mps": 0.163,
+    "goal_distance_m": 0.1479
+   }
+  },
+  {
+   "seed": 100039,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0982,
+    "landing_speed_mps": 0.01,
+    "goal_distance_m": 0.0688
+   }
+  },
+  {
+   "seed": 100040,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 310,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0986,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.1299
+   }
+  },
+  {
+   "seed": 100041,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 234,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0969,
+    "landing_speed_mps": 0.015,
+    "goal_distance_m": 0.1201
+   }
+  },
+  {
+   "seed": 100042,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 250,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0984,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0682
+   }
+  },
+  {
+   "seed": 100043,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 323,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1017,
+    "landing_speed_mps": 0.014,
+    "goal_distance_m": 0.0982
+   }
+  },
+  {
+   "seed": 100044,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 283,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1006,
+    "landing_speed_mps": 0.001,
+    "goal_distance_m": 0.1383
+   }
+  },
+  {
+   "seed": 100045,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 266,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1037,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0923
+   }
+  },
+  {
+   "seed": 100046,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 379,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0998,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0741
+   }
+  },
+  {
+   "seed": 100047,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 181,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0966,
+    "landing_speed_mps": 0.164,
+    "goal_distance_m": 0.0775
+   }
+  },
+  {
+   "seed": 100048,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 224,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0963,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1042
+   }
+  },
+  {
+   "seed": 100049,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1037,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0833
+   }
+  },
+  {
+   "seed": 100050,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 241,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1041,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0702
+   }
+  },
+  {
+   "seed": 100051,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 132,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0788,
+    "landing_speed_mps": 0.019,
+    "goal_distance_m": 0.0875
+   }
+  },
+  {
+   "seed": 100052,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 218,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1058,
+    "landing_speed_mps": 0.003,
+    "goal_distance_m": 0.0793
+   }
+  },
+  {
+   "seed": 100053,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 244,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1027,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0654
+   }
+  },
+  {
+   "seed": 100054,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0975,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0804
+   }
+  },
+  {
+   "seed": 100055,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 193,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.048,
+    "goal_distance_m": 0.0946
+   }
+  },
+  {
+   "seed": 100056,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 227,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0979,
+    "landing_speed_mps": 0.154,
+    "goal_distance_m": 0.1036
+   }
+  },
+  {
+   "seed": 100057,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 237,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.101,
+    "landing_speed_mps": 0.022,
+    "goal_distance_m": 0.1318
+   }
+  },
+  {
+   "seed": 100058,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 224,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1012,
+    "landing_speed_mps": 0.008,
+    "goal_distance_m": 0.1212
+   }
+  },
+  {
+   "seed": 100059,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 260,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1026,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1486
+   }
+  },
+  {
+   "seed": 100060,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 228,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0991,
+    "landing_speed_mps": 0.019,
+    "goal_distance_m": 0.1572
+   }
+  },
+  {
+   "seed": 100061,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 171,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0963,
+    "landing_speed_mps": 0.09,
+    "goal_distance_m": 0.1401
+   }
+  },
+  {
+   "seed": 100062,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 219,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0992,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.073
+   }
+  },
+  {
+   "seed": 100063,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0963,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.1559
+   }
+  },
+  {
+   "seed": 100064,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 273,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1062,
+    "landing_speed_mps": 0.011,
+    "goal_distance_m": 0.0676
+   }
+  },
+  {
+   "seed": 100065,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 243,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1077,
+    "landing_speed_mps": 0.057,
+    "goal_distance_m": 0.0757
+   }
+  },
+  {
+   "seed": 100066,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 204,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0956,
+    "landing_speed_mps": 0.006,
+    "goal_distance_m": 0.1301
+   }
+  },
+  {
+   "seed": 100067,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 184,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1024,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0624
+   }
+  },
+  {
+   "seed": 100068,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 275,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0968,
+    "landing_speed_mps": 0.031,
+    "goal_distance_m": 0.1049
+   }
+  },
+  {
+   "seed": 100069,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1011,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0672
+   }
+  },
+  {
+   "seed": 100070,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0976,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1133
+   }
+  },
+  {
+   "seed": 100071,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0952,
+    "landing_speed_mps": 0.013,
+    "goal_distance_m": 0.0966
+   }
+  },
+  {
+   "seed": 100072,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0998,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0842
+   }
+  },
+  {
+   "seed": 100073,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1031,
+    "landing_speed_mps": 0.012,
+    "goal_distance_m": 0.1204
+   }
+  },
+  {
+   "seed": 100074,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 240,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1022,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1385
+   }
+  },
+  {
+   "seed": 100075,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 251,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.101,
+    "landing_speed_mps": 0.012,
+    "goal_distance_m": 0.0671
+   }
+  },
+  {
+   "seed": 100076,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 209,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1007,
+    "landing_speed_mps": 0.406,
+    "goal_distance_m": 0.0973
+   }
+  },
+  {
+   "seed": 100077,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 299,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0981,
+    "landing_speed_mps": 0.018,
+    "goal_distance_m": 0.0848
+   }
+  },
+  {
+   "seed": 100078,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 291,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0969,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.0926
+   }
+  },
+  {
+   "seed": 100079,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 230,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0951,
+    "landing_speed_mps": 0.06,
+    "goal_distance_m": 0.0945
+   }
+  },
+  {
+   "seed": 100080,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 386,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0987,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0765
+   }
+  },
+  {
+   "seed": 100081,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 258,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.094,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1284
+   }
+  },
+  {
+   "seed": 100082,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 248,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0922,
+    "landing_speed_mps": 0.011,
+    "goal_distance_m": 0.1039
+   }
+  },
+  {
+   "seed": 100083,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 235,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0963,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1174
+   }
+  },
+  {
+   "seed": 100084,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1026,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1488
+   }
+  },
+  {
+   "seed": 100085,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 189,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0962,
+    "landing_speed_mps": 0.017,
+    "goal_distance_m": 0.0602
+   }
+  },
+  {
+   "seed": 100086,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 267,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0877
+   }
+  },
+  {
+   "seed": 100087,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 250,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0973,
+    "landing_speed_mps": 0.02,
+    "goal_distance_m": 0.0826
+   }
+  },
+  {
+   "seed": 100088,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 255,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1017,
+    "landing_speed_mps": 0.003,
+    "goal_distance_m": 0.1145
+   }
+  },
+  {
+   "seed": 100089,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 306,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0953,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0796
+   }
+  },
+  {
+   "seed": 100090,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 325,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1004,
+    "landing_speed_mps": 0.021,
+    "goal_distance_m": 0.0647
+   }
+  },
+  {
+   "seed": 100091,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 204,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1051,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.1439
+   }
+  },
+  {
+   "seed": 100092,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 301,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1007,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0851
+   }
+  },
+  {
+   "seed": 100093,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 212,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1043,
+    "landing_speed_mps": 0.008,
+    "goal_distance_m": 0.0721
+   }
+  },
+  {
+   "seed": 100094,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 370,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0988,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.0796
+   }
+  },
+  {
+   "seed": 100095,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 267,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1007,
+    "landing_speed_mps": 0.01,
+    "goal_distance_m": 0.0723
+   }
+  },
+  {
+   "seed": 100096,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.102,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0777
+   }
+  },
+  {
+   "seed": 100097,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 228,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0988,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0752
+   }
+  },
+  {
+   "seed": 100098,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0996,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0653
+   }
+  },
+  {
+   "seed": 100099,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 134,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0986,
+    "landing_speed_mps": 0.821,
+    "goal_distance_m": 0.133
+   }
+  },
+  {
+   "seed": 100100,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 197,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1074,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0649
+   }
+  },
+  {
+   "seed": 100101,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 289,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1058,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0713
+   }
+  },
+  {
+   "seed": 100102,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 274,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1049,
+    "landing_speed_mps": 0.032,
+    "goal_distance_m": 0.0615
+   }
+  },
+  {
+   "seed": 100103,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0991,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0939
+   }
+  },
+  {
+   "seed": 100104,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 211,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1034,
+    "landing_speed_mps": 0.039,
+    "goal_distance_m": 0.0896
+   }
+  },
+  {
+   "seed": 100105,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 250,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1045,
+    "landing_speed_mps": 0.014,
+    "goal_distance_m": 0.1105
+   }
+  },
+  {
+   "seed": 100106,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 246,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1027,
+    "landing_speed_mps": 0.006,
+    "goal_distance_m": 0.0629
+   }
+  },
+  {
+   "seed": 100107,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 258,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0953
+   }
+  },
+  {
+   "seed": 100108,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 198,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0953,
+    "landing_speed_mps": 0.028,
+    "goal_distance_m": 0.0894
+   }
+  },
+  {
+   "seed": 100109,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 258,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1026,
+    "landing_speed_mps": 0.008,
+    "goal_distance_m": 0.0768
+   }
+  },
+  {
+   "seed": 100110,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 258,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.092,
+    "landing_speed_mps": 0.073,
+    "goal_distance_m": 0.1033
+   }
+  },
+  {
+   "seed": 100111,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 226,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0951,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0795
+   }
+  },
+  {
+   "seed": 100112,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1001,
+    "landing_speed_mps": 0.003,
+    "goal_distance_m": 0.1207
+   }
+  },
+  {
+   "seed": 100113,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 251,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1047,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0712
+   }
+  },
+  {
+   "seed": 100114,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 380,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0975,
+    "landing_speed_mps": 0.03,
+    "goal_distance_m": 0.0653
+   }
+  },
+  {
+   "seed": 100115,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 251,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0993,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0877
+   }
+  },
+  {
+   "seed": 100116,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 157,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0959,
+    "landing_speed_mps": 0.069,
+    "goal_distance_m": 0.1461
+   }
+  },
+  {
+   "seed": 100117,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 191,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0972,
+    "landing_speed_mps": 0.08,
+    "goal_distance_m": 0.1036
+   }
+  },
+  {
+   "seed": 100118,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0602
+   }
+  },
+  {
+   "seed": 100119,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 224,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1002,
+    "landing_speed_mps": 0.028,
+    "goal_distance_m": 0.1129
+   }
+  },
+  {
+   "seed": 100120,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.097,
+    "landing_speed_mps": 0.007,
+    "goal_distance_m": 0.0794
+   }
+  },
+  {
+   "seed": 100121,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 248,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1018,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0848
+   }
+  },
+  {
+   "seed": 100122,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 245,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1059,
+    "landing_speed_mps": 0.013,
+    "goal_distance_m": 0.0715
+   }
+  },
+  {
+   "seed": 100123,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 309,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1009,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0812
+   }
+  },
+  {
+   "seed": 100124,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 306,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1007,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0763
+   }
+  },
+  {
+   "seed": 100125,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 260,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1049,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0658
+   }
+  },
+  {
+   "seed": 100126,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0994,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1165
+   }
+  },
+  {
+   "seed": 100127,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 244,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0964,
+    "landing_speed_mps": 0.042,
+    "goal_distance_m": 0.081
+   }
+  },
+  {
+   "seed": 100128,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 249,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1024,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0904
+   }
+  },
+  {
+   "seed": 100129,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 261,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0937,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0654
+   }
+  },
+  {
+   "seed": 100130,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 186,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1008,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.1399
+   }
+  },
+  {
+   "seed": 100131,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0992,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0612
+   }
+  },
+  {
+   "seed": 100132,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 219,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1025,
+    "landing_speed_mps": 0.018,
+    "goal_distance_m": 0.1207
+   }
+  },
+  {
+   "seed": 100133,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0995,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0701
+   }
+  },
+  {
+   "seed": 100134,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0991,
+    "landing_speed_mps": 0.021,
+    "goal_distance_m": 0.0912
+   }
+  },
+  {
+   "seed": 100135,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 225,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.101,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1501
+   }
+  },
+  {
+   "seed": 100136,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 307,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0983,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0725
+   }
+  },
+  {
+   "seed": 100137,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0926,
+    "landing_speed_mps": 0.703,
+    "goal_distance_m": 0.0664
+   }
+  },
+  {
+   "seed": 100138,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 211,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0943,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1056
+   }
+  },
+  {
+   "seed": 100139,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1059,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.0614
+   }
+  },
+  {
+   "seed": 100140,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0985,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0635
+   }
+  },
+  {
+   "seed": 100141,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1013,
+    "landing_speed_mps": 0.002,
+    "goal_distance_m": 0.0813
+   }
+  },
+  {
+   "seed": 100142,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0991,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0919
+   }
+  },
+  {
+   "seed": 100143,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 293,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1049,
+    "landing_speed_mps": 0.015,
+    "goal_distance_m": 0.0715
+   }
+  },
+  {
+   "seed": 100144,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0894
+   }
+  },
+  {
+   "seed": 100145,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 226,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.007,
+    "goal_distance_m": 0.0852
+   }
+  },
+  {
+   "seed": 100146,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 270,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": 0.004,
+    "goal_distance_m": 0.1148
+   }
+  },
+  {
+   "seed": 100147,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 305,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1025,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0689
+   }
+  },
+  {
+   "seed": 100148,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1016,
+    "landing_speed_mps": 0.002,
+    "goal_distance_m": 0.0782
+   }
+  },
+  {
+   "seed": 100149,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 135,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.094,
+    "landing_speed_mps": 0.118,
+    "goal_distance_m": 0.117
+   }
+  },
+  {
+   "seed": 100150,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 210,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1029,
+    "landing_speed_mps": 0.01,
+    "goal_distance_m": 0.0756
+   }
+  },
+  {
+   "seed": 100151,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 230,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1035,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0901
+   }
+  },
+  {
+   "seed": 100152,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0976,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.1272
+   }
+  },
+  {
+   "seed": 100153,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 228,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0988,
+    "landing_speed_mps": 0.018,
+    "goal_distance_m": 0.0887
+   }
+  },
+  {
+   "seed": 100154,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1003,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0767
+   }
+  },
+  {
+   "seed": 100155,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 252,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1027,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0774
+   }
+  },
+  {
+   "seed": 100156,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 298,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1047,
+    "landing_speed_mps": 0.02,
+    "goal_distance_m": 0.0931
+   }
+  },
+  {
+   "seed": 100157,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 251,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1031,
+    "landing_speed_mps": 0.011,
+    "goal_distance_m": 0.0745
+   }
+  },
+  {
+   "seed": 100158,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 257,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1018,
+    "landing_speed_mps": 0.018,
+    "goal_distance_m": 0.1355
+   }
+  },
+  {
+   "seed": 100159,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 227,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.096,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0872
+   }
+  },
+  {
+   "seed": 100160,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 376,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0999,
+    "landing_speed_mps": 0.01,
+    "goal_distance_m": 0.0832
+   }
+  },
+  {
+   "seed": 100161,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 153,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0986,
+    "landing_speed_mps": 0.041,
+    "goal_distance_m": 0.108
+   }
+  },
+  {
+   "seed": 100162,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 222,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0953,
+    "landing_speed_mps": 0.601,
+    "goal_distance_m": 0.1461
+   }
+  },
+  {
+   "seed": 100163,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 253,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1057,
+    "landing_speed_mps": 0.016,
+    "goal_distance_m": 0.0687
+   }
+  },
+  {
+   "seed": 100164,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 268,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0957,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.094
+   }
+  },
+  {
+   "seed": 100165,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 242,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.103,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1236
+   }
+  },
+  {
+   "seed": 100166,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 261,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0985,
+    "landing_speed_mps": 0.051,
+    "goal_distance_m": 0.0912
+   }
+  },
+  {
+   "seed": 100167,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 380,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0977,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.1149
+   }
+  },
+  {
+   "seed": 100168,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 208,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1045,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.083
+   }
+  },
+  {
+   "seed": 100169,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 240,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1075,
+    "landing_speed_mps": 0.015,
+    "goal_distance_m": 0.0741
+   }
+  },
+  {
+   "seed": 100170,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1157
+   }
+  },
+  {
+   "seed": 100171,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 223,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0926,
+    "landing_speed_mps": 0.186,
+    "goal_distance_m": 0.1444
+   }
+  },
+  {
+   "seed": 100172,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 274,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1024,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0898
+   }
+  },
+  {
+   "seed": 100173,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 192,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0985,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0896
+   }
+  },
+  {
+   "seed": 100174,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 302,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0966,
+    "landing_speed_mps": 0.006,
+    "goal_distance_m": 0.0965
+   }
+  },
+  {
+   "seed": 100175,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 131,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.1096
+   }
+  },
+  {
+   "seed": 100176,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 275,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1005,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0683
+   }
+  },
+  {
+   "seed": 100177,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1015,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0831
+   }
+  },
+  {
+   "seed": 100178,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 354,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.006,
+    "goal_distance_m": 0.143
+   }
+  },
+  {
+   "seed": 100179,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 217,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.103,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1199
+   }
+  },
+  {
+   "seed": 100180,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 245,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.102,
+    "landing_speed_mps": 0.001,
+    "goal_distance_m": 0.1123
+   }
+  },
+  {
+   "seed": 100181,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 257,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1017,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0983
+   }
+  },
+  {
+   "seed": 100182,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 210,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1004,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1134
+   }
+  },
+  {
+   "seed": 100183,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 227,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0978,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1346
+   }
+  },
+  {
+   "seed": 100184,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1019,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0855
+   }
+  },
+  {
+   "seed": 100185,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 387,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0964,
+    "landing_speed_mps": 0.005,
+    "goal_distance_m": 0.0899
+   }
+  },
+  {
+   "seed": 100186,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 218,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1001,
+    "landing_speed_mps": 0.012,
+    "goal_distance_m": 0.0729
+   }
+  },
+  {
+   "seed": 100187,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 266,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1041,
+    "landing_speed_mps": 0.007,
+    "goal_distance_m": 0.0609
+   }
+  },
+  {
+   "seed": 100188,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 357,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0951,
+    "landing_speed_mps": 0.002,
+    "goal_distance_m": 0.1594
+   }
+  },
+  {
+   "seed": 100189,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 208,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0923,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.111
+   }
+  },
+  {
+   "seed": 100190,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1005,
+    "landing_speed_mps": -1.0,
+    "goal_distance_m": 0.0691
+   }
+  },
+  {
+   "seed": 100191,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 238,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0998,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1365
+   }
+  },
+  {
+   "seed": 100192,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 225,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1036,
+    "landing_speed_mps": 0.003,
+    "goal_distance_m": 0.103
+   }
+  },
+  {
+   "seed": 100193,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 219,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.101,
+    "landing_speed_mps": 0.009,
+    "goal_distance_m": 0.1297
+   }
+  },
+  {
+   "seed": 100194,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 258,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1038,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0602
+   }
+  },
+  {
+   "seed": 100195,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 400,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.1035,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0727
+   }
+  },
+  {
+   "seed": 100196,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 211,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1017,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.0909
+   }
+  },
+  {
+   "seed": 100197,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 254,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1001,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1261
+   }
+  },
+  {
+   "seed": 100198,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 260,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0982,
+    "landing_speed_mps": 0.0,
+    "goal_distance_m": 0.1183
+   }
+  },
+  {
+   "seed": 100199,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 337,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.1059,
+    "landing_speed_mps": 0.023,
+    "goal_distance_m": 0.0653
+   }
+  }
+ ],
+ "code": {
+  "commit": "91a88460241c2f9a569a906f5aa007718e4292fc",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {
+  "checkpoint": "runs/place/mlp_seed1/step_060000.pt",
+  "checkpoint_sha256": "810e2c42055c1916afa9ebefb2c4ba70464b5a6211a55aa12e3af96fca8a5ddf",
+  "method": "mlp",
+  "step": 60000,
+  "training": {
+   "skill": "place",
+   "dataset": "datasets/place/place",
+   "dataset_files_sha256": "94df6d925a12e58e19b9fa407c439bce6c4b5dcb09228fb88024686e3817f0d2",
+   "dataset_code": {
+    "commit": "983ecc68bf5143b1e8d5d2a3873a859ce0ba803c",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "steps_override": null,
+   "code": {
+    "commit": "91a88460241c2f9a569a906f5aa007718e4292fc",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "seed": 1,
+   "episodes": 878,
+   "windows": 147622
+  }
+ },
+ "selection": {
+  "rule": "most val successes on the same seeds; ties go to the later step",
+  "candidates": [
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_010000.pt",
+    "step": 10000,
+    "successes": 87,
+    "n": 200,
+    "ci95": [
+     0.3682,
+     0.5043
+    ],
+    "report": "val_step_010000.json"
+   },
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_020000.pt",
+    "step": 20000,
+    "successes": 136,
+    "n": 200,
+    "ci95": [
+     0.6125,
+     0.7407
+    ],
+    "report": "val_step_020000.json"
+   },
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_030000.pt",
+    "step": 30000,
+    "successes": 151,
+    "n": 200,
+    "ci95": [
+     0.691,
+     0.8094
+    ],
+    "report": "val_step_030000.json"
+   },
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_040000.pt",
+    "step": 40000,
+    "successes": 159,
+    "n": 200,
+    "ci95": [
+     0.7337,
+     0.8451
+    ],
+    "report": "val_step_040000.json"
+   },
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_050000.pt",
+    "step": 50000,
+    "successes": 166,
+    "n": 200,
+    "ci95": [
+     0.7718,
+     0.8757
+    ],
+    "report": "val_step_050000.json"
+   },
+   {
+    "checkpoint": "runs/place/mlp_seed1/step_060000.pt",
+    "step": 60000,
+    "successes": 170,
+    "n": 200,
+    "ci95": [
+     0.7939,
+     0.8929
+    ],
+    "report": "val_step_060000.json"
+   }
+  ],
+  "selected": {
+   "checkpoint": "runs/place/mlp_seed1/step_060000.pt",
+   "step": 60000,
+   "successes": 170,
+   "n": 200,
+   "ci95": [
+    0.7939,
+    0.8929
+   ],
+   "report": "val_step_060000.json"
+  }
+ }
+}
