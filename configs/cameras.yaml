@@ -2,6 +2,10 @@
 # physics, never tuned to make a policy pass. The camera poses live in assets/mujoco/workcell.xml.
 cameras: [policy_right, policy_left]
 size_px: 96                     # square RGB; chosen in V1 from sample frames and measured cost
+# Shadows stay on: they show an object's height above the table. The scene's 4096 px shadow map
+# is sized for 640 px videos; at policy size 1024 px looks the same and renders about a third
+# faster on the desktop's software OpenGL (WSL has no hardware EGL): 46 vs 68 ms per step.
+shadow_map_px: 1024
 
 # Geom groups the policy cameras do not render. Group 1 holds only visual markings with no
 # collision or mass: the goal marker (the goal reaches the policy as the declared goal_position

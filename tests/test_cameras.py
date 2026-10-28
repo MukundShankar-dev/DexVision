@@ -79,3 +79,7 @@ def test_goal_marker_is_not_rendered(workcell, rig):
     with_marker = rig.render()
     for name in rig.config.cameras:
         assert np.array_equal(without[name], with_marker[name])
+
+
+def test_rig_leaves_the_scene_shadow_map_for_videos(workcell, rig):
+    assert workcell.model.vis.quality.shadowsize == 4096

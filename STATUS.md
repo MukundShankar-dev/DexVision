@@ -1,7 +1,8 @@
 # Status
 
-**Active checkpoint:** caveats (second seeds, MLP-BC diagnostics) done;
-next is V1 perception (`docs/PLAN.md`), after owner sign-off.
+**Active checkpoint:** V1 — cameras and image observations (`docs/PLAN.md`).
+**State:** cameras, rig, tests and measurements done; awaiting owner review of
+sample frames and the resolution choice.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -38,21 +39,19 @@ seed). MLP-BC fails press on both seeds and place on seed 1. Diagnostics (val, s
   2.0-2.5 cm from the goal (tolerance 2 cm) and hover. Demos near the goal
   are equally mixed for every face, so that is not the cause. Open.
 
-## Place (`configs/tasks/place.yaml`, `dexvision/policies/place_expert.py`)
+Place details (spec, baselines, gate) are in `configs/tasks/place.yaml`,
+`results/place/` and the commit history.
 
-- **Task:** lift one of six objects ≥ 3 cm, carry it to a goal ≥ 6 cm away
-  (x −0.12..−0.05, y −0.10..0.10) and leave it released and upright within
-  2 cm for 0.5 s, within 20 s. Landing speed is reported, not failed.
-- **Expert:** pick expert, then carry, lower, thumb-first release, slide
-  back, rise; re-place if off the goal.
+## V1 (`configs/cameras.yaml`, `dexvision/sim/cameras.py`)
 
-Val baselines: zero and random 0/100; expert 200/200; expert + DART
-169/200; expert with the mean goal 8/200. Demos: 878/1000 kept. Learned
-policies sometimes let go higher than the expert (landing > 0.2 m/s in a
-few successes; expert ≤ 0.06 m/s). MLP-BC fails mostly on the pucks.
-
-**Gate (approved 2026-10-28, before training):** test Wilson lower bound
-≥ 80% (≥ 170/200) and every object ≥ 60%.
+- Two fixed cameras, `policy_right` and `policy_left`: a mirrored pair 0.52 m
+  from the work area, 40° down. Adding them leaves every skill's expert
+  rollout bit-identical. The goal marker and decals are not rendered.
+- Desktop rendering is software (WSL: llvmpipe; D3D12 to the 5070 Ti was
+  slower, 160 ms). Both cameras: 68 ms per step with a 4096 px shadow map,
+  46 ms with 1024 (same image: 0.26/255 mean difference), 19 ms without
+  shadows; 6 workers give about 63 steps/s. Laptop (Metal): 13 ms.
+- 96 vs 128 px renders at the same speed; storage is a few GB per skill.
 
 ## Caveats
 

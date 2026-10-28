@@ -23,12 +23,14 @@ DEFAULT_CONFIG = REPO_ROOT / "configs" / "cameras.yaml"
 class CameraConfig:
     cameras: tuple[str, ...]
     size_px: int
+    shadow_map_px: int
     hidden_geom_groups: tuple[int, ...]
 
     @classmethod
     def load(cls, path: Path = DEFAULT_CONFIG) -> CameraConfig:
         raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-        return cls(tuple(raw["cameras"]), int(raw["size_px"]), tuple(raw["hidden_geom_groups"]))
+        return cls(tuple(raw["cameras"]), int(raw["size_px"]), int(raw["shadow_map_px"]),
+                   tuple(raw["hidden_geom_groups"]))
 
 
 class CameraRig:
@@ -38,7 +40,13 @@ class CameraRig:
         self.config = config or CameraConfig.load()
         self._workcell = workcell
         size = self.config.size_px
-        self._renderer = mujoco.Renderer(workcell.model, size, size)
+        # the shadow map size is read once, when the rendering context is made
+        quality = workcell.model.vis.quality
+        scene_shadow_map, quality.shadowsize = quality.shadowsize, self.config.shadow_map_px
+        try:
+            self._renderer = mujoco.Renderer(workcell.model, size, size)
+        finally:
+            quality.shadowsize = scene_shadow_map
         self._option = mujoco.MjvOption()
         for group in self.config.hidden_geom_groups:
             self._option.geomgroup[group] = 0
