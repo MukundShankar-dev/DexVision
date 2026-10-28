@@ -3,26 +3,25 @@
  "policy": "expert_dart",
  "split": "val",
  "overall": {
-  "successes": 187,
+  "successes": 194,
   "n": 200,
   "ci95": [
-   0.892,
-   0.9616
+   0.9361,
+   0.9862
   ]
  },
  "by_object": {
   "none": {
-   "successes": 187,
+   "successes": 194,
    "n": 200,
    "ci95": [
-    0.892,
-    0.9616
+    0.9361,
+    0.9862
    ]
   }
  },
  "failures": {
   "timeout": 4,
-  "button_overpressed": 7,
   "hand_collision": 2
  },
  "episodes": [
@@ -34,7 +33,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
@@ -45,7 +45,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0201,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.44
    }
   },
   {
@@ -56,7 +57,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0228,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.05
    }
   },
   {
@@ -67,7 +69,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0204,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.38
    }
   },
   {
@@ -78,7 +81,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0201,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.4
    }
   },
   {
@@ -89,7 +93,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.15
    }
   },
   {
@@ -100,7 +105,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0196,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.5
    }
   },
   {
@@ -111,7 +117,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0218,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.2
    }
   },
   {
@@ -122,7 +129,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0239,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 5.72
    }
   },
   {
@@ -133,7 +141,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0183,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.46
    }
   },
   {
@@ -144,7 +153,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.02
    }
   },
   {
@@ -155,7 +165,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0216,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.25
    }
   },
   {
@@ -166,7 +177,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0178,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.48
    }
   },
   {
@@ -177,7 +189,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0192,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06
    }
   },
   {
@@ -188,7 +201,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0193,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.44
    }
   },
   {
@@ -199,7 +213,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.02,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.3
    }
   },
   {
@@ -210,7 +225,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0196,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.59
    }
   },
   {
@@ -221,7 +237,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.023,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.9
    }
   },
   {
@@ -232,7 +249,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0196,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
@@ -243,7 +261,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.2
    }
   },
   {
@@ -254,7 +273,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0234,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.97
    }
   },
   {
@@ -265,7 +285,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0218,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.95
    }
   },
   {
@@ -276,7 +297,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.021,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.63
    }
   },
   {
@@ -287,7 +309,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.02,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.16
    }
   },
   {
@@ -298,7 +321,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0199,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.36
    }
   },
   {
@@ -309,7 +333,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0199,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.38
    }
   },
   {
@@ -320,7 +345,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0183,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.08
    }
   },
   {
@@ -331,7 +357,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.42
    }
   },
   {
@@ -342,7 +369,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.36
    }
   },
   {
@@ -353,7 +381,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.42
    }
   },
   {
@@ -364,7 +393,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0194,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.17
    }
   },
   {
@@ -375,7 +405,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0214,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.87
    }
   },
   {
@@ -386,7 +417,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.4
    }
   },
   {
@@ -397,7 +429,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0184,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.27
    }
   },
   {
@@ -408,7 +441,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0197,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.15
    }
   },
   {
@@ -419,7 +453,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0222,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.11
    }
   },
   {
@@ -430,7 +465,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0193,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
@@ -441,7 +477,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0188,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.26
    }
   },
   {
@@ -452,7 +489,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0213,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.49
    }
   },
   {
@@ -463,7 +501,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.65
    }
   },
   {
@@ -474,7 +513,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0217,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.69
    }
   },
   {
@@ -485,7 +525,8 @@
    "failure": "timeout",
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 11.27
    }
   },
   {
@@ -496,7 +537,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0212,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.62
    }
   },
   {
@@ -507,7 +549,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.31
    }
   },
   {
@@ -518,7 +561,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.39
    }
   },
   {
@@ -529,7 +573,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0228,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.57
    }
   },
   {
@@ -540,7 +585,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0187,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.67
    }
   },
   {
@@ -551,7 +597,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0229,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.39
    }
   },
   {
@@ -562,18 +609,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0223,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.68
    }
   },
   {
    "seed": 100049,
    "target_object": "none",
-   "success": false,
-   "steps": 73,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 93,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0245,
-    "pressed": 0.0
+    "pressed": 1.0,
+    "peak_press_force_n": 8.1
    }
   },
   {
@@ -584,7 +633,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0189,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.97
    }
   },
   {
@@ -595,18 +645,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
    "seed": 100052,
    "target_object": "none",
-   "success": false,
-   "steps": 89,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 109,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0246,
-    "pressed": 0.0
+    "pressed": 1.0,
+    "peak_press_force_n": 7.73
    }
   },
   {
@@ -617,7 +669,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0209,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.17
    }
   },
   {
@@ -628,7 +681,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0227,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.6
    }
   },
   {
@@ -639,7 +693,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0218,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.17
    }
   },
   {
@@ -650,7 +705,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0214,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.26
    }
   },
   {
@@ -661,7 +717,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06
    }
   },
   {
@@ -672,18 +729,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0189,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 7.27
    }
   },
   {
    "seed": 100059,
    "target_object": "none",
-   "success": false,
-   "steps": 91,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 115,
+   "failure": null,
    "metrics": {
-    "max_button_depth_m": 0.0247,
-    "pressed": 0.0
+    "max_button_depth_m": 0.0248,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.02
    }
   },
   {
@@ -694,7 +753,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 6.12
    }
   },
   {
@@ -705,7 +765,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0225,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.26
    }
   },
   {
@@ -716,7 +777,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0228,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.54
    }
   },
   {
@@ -727,7 +789,8 @@
    "failure": "hand_collision",
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 0.0
+    "pressed": 0.0,
+    "peak_press_force_n": 31.36
    }
   },
   {
@@ -738,7 +801,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0232,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 5.98
    }
   },
   {
@@ -749,7 +813,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.43
    }
   },
   {
@@ -760,7 +825,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0223,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.56
    }
   },
   {
@@ -771,7 +837,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0199,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.19
    }
   },
   {
@@ -782,7 +849,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0223,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.52
    }
   },
   {
@@ -793,7 +861,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.2
    }
   },
   {
@@ -804,7 +873,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.022,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.01
    }
   },
   {
@@ -815,7 +885,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 6.98
    }
   },
   {
@@ -826,7 +897,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0223,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.96
    }
   },
   {
@@ -837,7 +909,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0178,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.15
    }
   },
   {
@@ -848,18 +921,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.92
    }
   },
   {
    "seed": 100075,
    "target_object": "none",
-   "success": false,
-   "steps": 97,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 115,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0241,
-    "pressed": 0.0
+    "pressed": 1.0,
+    "peak_press_force_n": 6.18
    }
   },
   {
@@ -870,7 +945,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.33
    }
   },
   {
@@ -881,7 +957,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0209,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.98
    }
   },
   {
@@ -892,7 +969,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0225,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.09
    }
   },
   {
@@ -903,7 +981,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0234,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.7
    }
   },
   {
@@ -914,7 +993,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0187,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.24
    }
   },
   {
@@ -925,7 +1005,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06
    }
   },
   {
@@ -936,7 +1017,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0183,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.67
    }
   },
   {
@@ -947,7 +1029,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0202,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.28
    }
   },
   {
@@ -958,7 +1041,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0194,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.15
    }
   },
   {
@@ -969,7 +1053,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.32
    }
   },
   {
@@ -980,7 +1065,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0194,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.28
    }
   },
   {
@@ -991,7 +1077,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.71
    }
   },
   {
@@ -1002,7 +1089,8 @@
    "failure": "timeout",
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 6.85
    }
   },
   {
@@ -1013,7 +1101,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0199,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.02
    }
   },
   {
@@ -1024,7 +1113,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0216,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.37
    }
   },
   {
@@ -1035,7 +1125,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0197,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.15
    }
   },
   {
@@ -1046,7 +1137,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.32
    }
   },
   {
@@ -1057,7 +1149,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.018,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.31
    }
   },
   {
@@ -1068,7 +1161,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.017,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.34
    }
   },
   {
@@ -1079,7 +1173,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.38
    }
   },
   {
@@ -1090,7 +1185,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.97
    }
   },
   {
@@ -1101,7 +1197,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0227,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.21
    }
   },
   {
@@ -1112,7 +1209,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.021,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.34
    }
   },
   {
@@ -1123,7 +1221,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 7.96
    }
   },
   {
@@ -1134,7 +1233,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0215,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.95
    }
   },
   {
@@ -1145,7 +1245,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.95
    }
   },
   {
@@ -1156,7 +1257,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.55
    }
   },
   {
@@ -1167,7 +1269,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.96
    }
   },
   {
@@ -1178,7 +1281,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0189,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.27
    }
   },
   {
@@ -1189,7 +1293,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0208,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.31
    }
   },
   {
@@ -1200,7 +1305,8 @@
    "failure": "timeout",
    "metrics": {
     "max_button_depth_m": 0.0201,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.99
    }
   },
   {
@@ -1211,7 +1317,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0188,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.23
    }
   },
   {
@@ -1222,7 +1329,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.11
    }
   },
   {
@@ -1233,7 +1341,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.021,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.07
    }
   },
   {
@@ -1244,7 +1353,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0232,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 6.56
    }
   },
   {
@@ -1255,7 +1365,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.13
    }
   },
   {
@@ -1266,7 +1377,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0215,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.42
    }
   },
   {
@@ -1277,7 +1389,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0216,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.3
    }
   },
   {
@@ -1288,7 +1401,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0229,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.94
    }
   },
   {
@@ -1299,7 +1413,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.71
    }
   },
   {
@@ -1310,7 +1425,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0231,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 5.26
    }
   },
   {
@@ -1321,7 +1437,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.35
    }
   },
   {
@@ -1332,7 +1449,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0185,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.41
    }
   },
   {
@@ -1343,7 +1461,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0204,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.14
    }
   },
   {
@@ -1354,7 +1473,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0199,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.46
    }
   },
   {
@@ -1365,7 +1485,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.15
    }
   },
   {
@@ -1376,7 +1497,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.022,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.17
    }
   },
   {
@@ -1387,7 +1509,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0204,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.11
    }
   },
   {
@@ -1398,7 +1521,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0237,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.49
    }
   },
   {
@@ -1409,7 +1533,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.27
    }
   },
   {
@@ -1420,7 +1545,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0223,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.09
    }
   },
   {
@@ -1431,7 +1557,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0184,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.28
    }
   },
   {
@@ -1442,7 +1569,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.37
    }
   },
   {
@@ -1453,7 +1581,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.022,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.51
    }
   },
   {
@@ -1464,7 +1593,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0208,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.56
    }
   },
   {
@@ -1475,7 +1605,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0208,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.14
    }
   },
   {
@@ -1486,7 +1617,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0186,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.93
    }
   },
   {
@@ -1497,7 +1629,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0217,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.25
    }
   },
   {
@@ -1508,7 +1641,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.021,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.33
    }
   },
   {
@@ -1519,7 +1653,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0225,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.73
    }
   },
   {
@@ -1530,18 +1665,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0194,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.3
    }
   },
   {
    "seed": 100137,
    "target_object": "none",
-   "success": false,
-   "steps": 91,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 114,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0241,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 7.99
    }
   },
   {
@@ -1552,7 +1689,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0225,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.37
    }
   },
   {
@@ -1563,7 +1701,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.34
    }
   },
   {
@@ -1574,7 +1713,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0202,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.05
    }
   },
   {
@@ -1585,7 +1725,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0209,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.35
    }
   },
   {
@@ -1596,7 +1737,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.22
    }
   },
   {
@@ -1607,7 +1749,8 @@
    "failure": "timeout",
    "metrics": {
     "max_button_depth_m": 0.0222,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.7
    }
   },
   {
@@ -1618,7 +1761,8 @@
    "failure": "hand_collision",
    "metrics": {
     "max_button_depth_m": 0.0232,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 9.23
    }
   },
   {
@@ -1629,7 +1773,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0234,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 5.26
    }
   },
   {
@@ -1640,7 +1785,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.02
    }
   },
   {
@@ -1651,7 +1797,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0216,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.17
    }
   },
   {
@@ -1662,7 +1809,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.04
    }
   },
   {
@@ -1673,7 +1821,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.65
    }
   },
   {
@@ -1684,7 +1833,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
@@ -1695,7 +1845,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0215,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.66
    }
   },
   {
@@ -1706,7 +1857,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0176,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.94
    }
   },
   {
@@ -1717,7 +1869,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0228,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.73
    }
   },
   {
@@ -1728,7 +1881,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0211,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.22
    }
   },
   {
@@ -1739,7 +1893,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 9.26
    }
   },
   {
@@ -1750,7 +1905,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0227,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.68
    }
   },
   {
@@ -1761,7 +1917,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.9
    }
   },
   {
@@ -1772,18 +1929,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.019,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.99
    }
   },
   {
    "seed": 100159,
    "target_object": "none",
-   "success": false,
-   "steps": 90,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 109,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0247,
-    "pressed": 0.0
+    "pressed": 1.0,
+    "peak_press_force_n": 11.0
    }
   },
   {
@@ -1794,7 +1953,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0222,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.11
    }
   },
   {
@@ -1805,7 +1965,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0221,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.14
    }
   },
   {
@@ -1816,7 +1977,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.6
    }
   },
   {
@@ -1827,7 +1989,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.022,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.49
    }
   },
   {
@@ -1838,7 +2001,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0193,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.25
    }
   },
   {
@@ -1849,7 +2013,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0211,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.4
    }
   },
   {
@@ -1860,7 +2025,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0187,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.46
    }
   },
   {
@@ -1871,7 +2037,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0187,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.1
    }
   },
   {
@@ -1882,7 +2049,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0219,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.27
    }
   },
   {
@@ -1893,7 +2061,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0207,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.37
    }
   },
   {
@@ -1904,7 +2073,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.01
    }
   },
   {
@@ -1915,7 +2085,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0239,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 7.69
    }
   },
   {
@@ -1926,7 +2097,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0186,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.99
    }
   },
   {
@@ -1937,7 +2109,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0212,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.11
    }
   },
   {
@@ -1948,7 +2121,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0222,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.29
    }
   },
   {
@@ -1959,7 +2133,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0209,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.11
    }
   },
   {
@@ -1970,7 +2145,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0188,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.08
    }
   },
   {
@@ -1981,7 +2157,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0205,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.96
    }
   },
   {
@@ -1992,7 +2169,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0203,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.2
    }
   },
   {
@@ -2003,7 +2181,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0189,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.37
    }
   },
   {
@@ -2014,7 +2193,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0197,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.07
    }
   },
   {
@@ -2025,7 +2205,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0224,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 3.08
    }
   },
   {
@@ -2036,7 +2217,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0197,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.25
    }
   },
   {
@@ -2047,18 +2229,20 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.019,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.79
    }
   },
   {
    "seed": 100184,
    "target_object": "none",
-   "success": false,
-   "steps": 88,
-   "failure": "button_overpressed",
+   "success": true,
+   "steps": 106,
+   "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0247,
-    "pressed": 0.0
+    "pressed": 1.0,
+    "peak_press_force_n": 9.31
    }
   },
   {
@@ -2069,7 +2253,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0206,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.63
    }
   },
   {
@@ -2080,7 +2265,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0212,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.21
    }
   },
   {
@@ -2091,7 +2277,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0215,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.43
    }
   },
   {
@@ -2102,7 +2289,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0236,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.82
    }
   },
   {
@@ -2113,7 +2301,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0212,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 0.97
    }
   },
   {
@@ -2124,7 +2313,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0195,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.83
    }
   },
   {
@@ -2135,7 +2325,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0213,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.18
    }
   },
   {
@@ -2146,7 +2337,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0209,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.16
    }
   },
   {
@@ -2157,7 +2349,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0211,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.37
    }
   },
   {
@@ -2168,7 +2361,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0237,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 4.22
    }
   },
   {
@@ -2179,7 +2373,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0226,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.63
    }
   },
   {
@@ -2190,7 +2385,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0182,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 2.76
    }
   },
   {
@@ -2201,7 +2397,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0216,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.04
    }
   },
   {
@@ -2212,7 +2409,8 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.0198,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.15
    }
   },
   {
@@ -2223,12 +2421,13 @@
    "failure": null,
    "metrics": {
     "max_button_depth_m": 0.019,
-    "pressed": 1.0
+    "pressed": 1.0,
+    "peak_press_force_n": 1.87
    }
   }
  ],
  "code": {
-  "commit": "402be3a665b7b86eaff4d93072a19310bc8c85f0",
+  "commit": "f4148c80510cdadc8f814f16dcd18b87a62bfb56",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"

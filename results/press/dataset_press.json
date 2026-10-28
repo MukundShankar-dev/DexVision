@@ -1,6 +1,6 @@
 {
  "code": {
-  "commit": "7d466f8ec3175e0a7d70b202ffd64326f462c8a6",
+  "commit": "f4148c80510cdadc8f814f16dcd18b87a62bfb56",
   "dirty": false,
   "platform": "Linux-x86_64",
   "mujoco": "3.9.0"
@@ -33,7 +33,6 @@
    "release_steps": 10
   },
   "failure": {
-   "max_depth_m": 0.024,
    "hand_collision_bodies": [
     "fixture_wall",
     "tray_left",
@@ -60,8 +59,8 @@
     110000
    ],
    "test": [
-    200000,
-    210000
+    210000,
+    220000
    ]
   },
   "test_budget": 3
@@ -109,35 +108,34 @@
  ],
  "attempted": 1000,
  "kept": {
-  "successes": 941,
+  "successes": 981,
   "n": 1000,
   "ci95": [
-   0.9246,
-   0.954
+   0.9705,
+   0.9878
   ]
  },
  "kept_by_object": {
   "none": {
-   "successes": 941,
+   "successes": 981,
    "n": 1000,
    "ci95": [
-    0.9246,
-    0.954
+    0.9705,
+    0.9878
    ]
   }
  },
  "dropped": {
-  "button_overpressed": 41,
-  "timeout": 14,
+  "timeout": 15,
   "hand_collision": 4
  },
- "transitions": 98701,
+ "transitions": 103010,
  "steps_per_episode": {
   "min": 72,
   "median": 103.0,
   "max": 150
  },
- "files_sha256": "786df315359f64d77c9748134cd0b9466fbd187dc4a9ba7d3374a69fd8c8bb47",
+ "files_sha256": "c180d054bbb48baa3e2a663bf282b43ab7b4a9d973c6588d16601ce0e9c236b7",
  "replay_check": {
   "episodes": 200,
   "matched": 200
