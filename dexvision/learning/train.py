@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 import math
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -31,10 +31,12 @@ def load_method_config(path: Path = METHOD_CONFIG) -> dict:
     return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
 
 
-def build_model(method: str, obs_dim: int, action_dim: int, config: Mapping) -> nn.Module:
+def build_model(method: str, obs_dim: int, action_dim: int, config: Mapping,
+                cameras: Sequence[str] = ()) -> nn.Module:
     if method not in MODELS:
         raise KeyError(f"Unknown method '{method}'. Available: {sorted(MODELS)}")
-    return MODELS[method](obs_dim, action_dim, config["horizons"], config[method])
+    return MODELS[method](obs_dim, action_dim, config["horizons"], config[method],
+                          cameras=cameras, vision=config.get("vision"))
 
 
 @dataclass
@@ -49,6 +51,7 @@ class Trained:
     config: dict
     step: int
     record: dict = field(default_factory=dict)  # dataset hash, provenance, skill
+    cameras: tuple[str, ...] = ()  # image inputs, besides the fields
 
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,17 +60,20 @@ class Trained:
             "obs_norm": self.obs_norm.state(), "action_norm": self.action_norm.state(),
             "obs_dim": len(self.obs_norm.low), "action_dim": len(self.action_norm.low),
             "model": self.model.state_dict(), "step": self.step, "record": self.record,
+            "cameras": list(self.cameras),
         }, path)
 
     @classmethod
     def load(cls, path: Path, device: str = "cpu") -> Trained:
         data = torch.load(path, map_location=device, weights_only=False)
-        model = build_model(data["method"], data["obs_dim"], data["action_dim"], data["config"])
+        cameras = tuple(data.get("cameras", ()))  # checkpoints from before V2 have none
+        model = build_model(data["method"], data["obs_dim"], data["action_dim"], data["config"],
+                            cameras)
         model.load_state_dict(data["model"])
         model.to(device).eval()
         return cls(data["method"], model, Normalizer.from_state(data["obs_norm"]),
                    Normalizer.from_state(data["action_norm"]), tuple(data["fields"]),
-                   data["config"], data["step"], data["record"])
+                   data["config"], data["step"], data["record"], cameras)
 
 
 def ema_decay(step: int, power: float, max_decay: float) -> float:
@@ -117,8 +123,12 @@ def train(
                               device=device)
     obs_index = torch.as_tensor(windows.obs_index, device=device)
     action_index = torch.as_tensor(windows.action_index, device=device)
+    # images stay in host memory (uint8); each batch is gathered there and copied over
+    images = {c: torch.from_numpy(frames) for c, frames in windows.images.items()}
+    image_index = torch.as_tensor(windows.obs_index)
 
-    model = build_model(method, observations.shape[1], actions.shape[1], config).to(device)
+    model = build_model(method, observations.shape[1], actions.shape[1], config,
+                        windows.cameras).to(device)
     ema = copy.deepcopy(model).eval().requires_grad_(False)
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg["learning_rate"],
                                   betas=tuple(cfg["adam_betas"]), weight_decay=cfg["weight_decay"])
@@ -126,12 +136,16 @@ def train(
         optimizer, lambda s: lr_factor(s, cfg["warmup_steps"], steps))
     trained = Trained(method, ema, obs_norm, action_norm, windows.fields, dict(config), 0,
                       {**(record or {}), "code": code_version(), "seed": seed,
-                       "episodes": windows.n_episodes, "windows": len(windows)})
+                       "episodes": windows.n_episodes, "windows": len(windows)},
+                      windows.cameras)
 
     model.train()
     for step in range(1, steps + 1):
-        i = torch.randint(len(windows), (cfg["batch_size"],), generator=batches).to(device)
-        loss = model.loss(observations[obs_index[i]], actions[action_index[i]])
+        rows = torch.randint(len(windows), (cfg["batch_size"],), generator=batches)
+        i = rows.to(device)
+        batch_images = {c: frames[image_index[rows]].to(device, non_blocking=True)
+                        for c, frames in images.items()} or None
+        loss = model.loss(observations[obs_index[i]], actions[action_index[i]], batch_images)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()

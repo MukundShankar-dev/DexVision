@@ -32,3 +32,14 @@ diffusion:
 # whole 16-step action chunk from the same 2 observations with a mean-squared error.
 mlp:
   hidden_dims: [512, 512, 512]
+
+# Image encoder, used only by policies that observe cameras (perception track, docs/PLAN.md V2);
+# state-based models build no encoder and are unchanged by this section. One small ResNet-style
+# CNN per camera with GroupNorm and spatial-softmax keypoints, trained end to end, following
+# Chi et al. 2023 (who used a full ResNet-18); sized for 96 px images.
+vision:
+  crop_px: 88                 # random crop while training, centre crop while acting (96 -> 88)
+  channels: [32, 64, 128]     # stem stride 2, then one residual block per width (stride 2 after the first)
+  group_norm_groups: 8
+  keypoints: 32               # spatial-softmax keypoints -> 64 numbers per camera
+  feature_dim: 64             # per camera per observation step, after a linear projection

@@ -1,19 +1,22 @@
 """Diffusion Policy (Chi et al. 2023), CNN variant, written in-house.
 
 A 1-D temporal UNet denoises an action chunk [Tp, A]. It is conditioned (FiLM) on the diffusion
-step and on the flattened observation history [To * D]. Training is DDPM with epsilon
-prediction; sampling is deterministic DDIM given the initial noise.
+step and on the flattened observation history [To * D], to which image features are appended
+per step when the model has cameras (``dexvision/learning/vision.py``). Training is DDPM with
+epsilon prediction; sampling is deterministic DDIM given the initial noise.
 All tensors here are in normalized units ([-1, 1] on the training range).
 """
 
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import torch
 import torch.nn.functional as F
 from torch import nn
+
+from dexvision.learning.vision import CameraEncoders
 
 
 def squared_cosine_alphas_cumprod(timesteps: int, s: float = 0.008) -> torch.Tensor:
@@ -122,34 +125,46 @@ class DiffusionModel(nn.Module):
 
     name = "diffusion"
 
-    def __init__(self, obs_dim: int, action_dim: int, horizons: Mapping, config: Mapping) -> None:
+    def __init__(self, obs_dim: int, action_dim: int, horizons: Mapping, config: Mapping,
+                 cameras: Sequence[str] = (), vision: Mapping | None = None) -> None:
         super().__init__()
         self.obs_horizon, self.pred_horizon = horizons["observation"], horizons["prediction"]
         self.action_dim = action_dim
+        image_dim = int(vision["feature_dim"]) * len(cameras) if cameras else 0
         self.net = ConditionalUnet1D(
-            action_dim, obs_dim * self.obs_horizon, list(config["down_dims"]),
+            action_dim, (obs_dim + image_dim) * self.obs_horizon, list(config["down_dims"]),
             config["kernel_size"], config["group_norm_groups"], config["step_embedding_dim"],
         )
+        if cameras:  # built after the UNet, so a model without cameras is initialized as before
+            self.vision = CameraEncoders(cameras, vision)
         self.train_timesteps = int(config["train_timesteps"])
         self.inference_steps = int(config["inference_steps"])
         self.register_buffer(
             "alphas_cumprod", squared_cosine_alphas_cumprod(self.train_timesteps).float()
         )
 
-    def loss(self, obs: torch.Tensor, actions: torch.Tensor) -> torch.Tensor:
+    def condition(self, obs: torch.Tensor, images: Mapping | None = None) -> torch.Tensor:
+        """obs [B, To, D], images {camera: [B, To, H, W, 3] uint8} -> [B, To * (D + F)]"""
+        if hasattr(self, "vision"):
+            obs = torch.cat([obs, self.vision(images)], dim=-1)
+        return obs.flatten(1)
+
+    def loss(self, obs: torch.Tensor, actions: torch.Tensor, images: Mapping | None = None
+             ) -> torch.Tensor:
         """obs [B, To, D], actions [B, Tp, A] (normalized) -> scalar DDPM loss."""
         b = actions.shape[0]
         noise = torch.randn_like(actions)
         t = torch.randint(0, self.train_timesteps, (b,), device=actions.device)
         a = self.alphas_cumprod[t].view(b, 1, 1)
         noisy = a.sqrt() * actions + (1 - a).sqrt() * noise
-        return F.mse_loss(self.net(noisy, t, obs.flatten(1)), noise)
+        return F.mse_loss(self.net(noisy, t, self.condition(obs, images)), noise)
 
     @torch.no_grad()
-    def predict(self, obs: torch.Tensor, generator: torch.Generator | None = None) -> torch.Tensor:
+    def predict(self, obs: torch.Tensor, generator: torch.Generator | None = None,
+                images: Mapping | None = None) -> torch.Tensor:
         """obs [B, To, D] -> action chunk [B, Tp, A] by DDIM (eta = 0) with clipped x0."""
         b = obs.shape[0]
-        cond = obs.flatten(1)
+        cond = self.condition(obs, images)
         x = torch.randn((b, self.pred_horizon, self.action_dim), generator=generator,
                         device="cpu").to(obs.device)
         stride = self.train_timesteps // self.inference_steps
