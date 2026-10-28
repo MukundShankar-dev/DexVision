@@ -1,8 +1,7 @@
 # Status
 
-**Active checkpoint:** V1 — cameras and image observations (`docs/PLAN.md`).
-**State:** cameras, rig, tests and measurements done; awaiting owner review of
-sample frames and the resolution choice.
+**Active checkpoint:** V2 — image encoder (`docs/PLAN.md`). V1 approved
+(96 px, shadows on). **State:** encoder, tests and timing done; awaiting review.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -52,6 +51,14 @@ Place details (spec, baselines, gate) are in `configs/tasks/place.yaml`,
   46 ms with 1024 (same image: 0.26/255 mean difference), 19 ms without
   shadows; 6 workers give about 63 steps/s. Laptop (Metal): 13 ms.
 - 96 vs 128 px renders at the same speed; storage is a few GB per skill.
+
+## V2 (`dexvision/learning/vision.py`, `vision:` in `configs/learning/method.yaml`)
+
+- Per-camera CNN (GroupNorm, 32 spatial-softmax keypoints, 64 features),
+  88 px random crop in training, centre crop when acting; both methods.
+- State-only models build no encoder: training is byte-identical to d510134.
+- Desktop, 60k steps with two cameras: Diffusion 102 min, MLP-BC 78 min.
+  Acting on CPU: 81 ms (Diffusion) and 4 ms per inference, every 8 steps.
 
 ## Caveats
 
