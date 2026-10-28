@@ -129,8 +129,70 @@ using the expert, or more data. Method changes follow `AGENTS.md` §3.
 Order: reach, push, press, place. Each repeats R2–R6 with no method
 changes. Only the task spec and expert are new.
 
+## V — Perception (draft, for owner review)
+
+Goal: replace the privileged simulator state with camera images. The policy
+keeps what a real robot measures itself (hand joint positions and velocities,
+palm and fingertip poses) and the instruction (`goal_position`). It loses
+`object_*` and `button_position`, and must see those instead.
+
+Rules carried over:
+- The vision method is a **new method** (`AGENTS.md` §3): the same Diffusion
+  Policy (horizons, UNet, training settings) plus one image encoder, shared
+  by every skill. State-based results stay as they are, as the ceiling.
+- Each skill gets a vision variant of its spec (only the observation list
+  changes) with its own new test seed range, written before looking.
+- The camera setup is fixed before training and never tuned to make a policy
+  pass (as physics is, rule 5).
+
+### V1 — Cameras and image observations
+
+- Two fixed cameras chosen to see the whole work area, the hand and the
+  wall: the existing front-left view and one from the opposite side. A wrist
+  camera is left out at first (simpler; revisit if occlusion by the hand
+  proves to be the main failure).
+- RGB, 96 × 96, rendered from the simulation after each step (measured, not
+  privileged: what a camera would see).
+- Demos store images alongside the state fields, so the state and vision
+  tracks train on the same episodes. Images are uint8, compressed.
+- **Measure:** render time per frame on an idle GPU (about 30 ms while the
+  GPU was training), and dataset size per skill.
+- **Tests:** images are deterministic per seed; rendering does not change the
+  simulation (state is bit-identical with and without cameras); the camera
+  poses never change between episodes.
+
+**Pass:** the owner looks at sample frames from every skill and agrees the
+cameras show what the task needs (object, goal marker, button).
+
+### V2 — Vision method (method only)
+
+- `dexvision/learning/vision.py`: a small ResNet-style encoder per camera
+  (GroupNorm, spatial softmax keypoints), trained end to end from scratch,
+  following Chi et al. 2023. Random-crop augmentation during training only.
+  Its features join the proprioception vector that conditions the UNet.
+- MLP-BC gets the same encoder, so the comparison stays like for like.
+- **Tests:** shapes; overfits a tiny image dataset; deterministic on CPU.
+- **Measure:** training time for 60k steps on the desktop. If it is far over
+  about 3 hours per skill, propose a smaller encoder before going on.
+
+**Pass:** tests pass; hyperparameters are written once for every skill.
+
+### V3 — Pick from images (closely supervised, as R2–R6)
+
+- Spec `pick` vision variant, new test range; baselines on val: the
+  state-based Diffusion policy (ceiling), and the vision policy with images
+  blanked to their training mean (must collapse, as the hidden-input checks
+  did).
+- Gate written before training, against the state-based result.
+- Train, select on val, one ledgered test per method.
+
+### V4+ — Press, push, place from images
+
+Same procedure, one skill per checkpoint. Reach needs no perception (its
+goal is an instruction), so it is not redone.
+
 ## Later (not planned in detail yet)
 
-- Perception: an image-conditioned Diffusion Policy with the same method
-  plus an image encoder.
+- Visual randomization (lighting, textures, camera jitter) once the plain
+  vision track works.
 - Skill composition.
