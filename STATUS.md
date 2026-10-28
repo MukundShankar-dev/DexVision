@@ -43,14 +43,10 @@ Place details (spec, baselines, gate) are in `configs/tasks/place.yaml`,
 
 ## V1 (`configs/cameras.yaml`, `dexvision/sim/cameras.py`)
 
-- Two fixed cameras, `policy_right` and `policy_left`: a mirrored pair 0.52 m
-  from the work area, 40° down. Adding them leaves every skill's expert
-  rollout bit-identical. The goal marker and decals are not rendered.
-- Desktop rendering is software (WSL: llvmpipe; D3D12 to the 5070 Ti was
-  slower, 160 ms). Both cameras: 68 ms per step with a 4096 px shadow map,
-  46 ms with 1024 (same image: 0.26/255 mean difference), 19 ms without
-  shadows; 6 workers give about 63 steps/s. Laptop (Metal): 13 ms.
-- 96 vs 128 px renders at the same speed; storage is a few GB per skill.
+- Mirrored pair `policy_right`/`policy_left`, 96 px RGB, shadows on (1024 px
+  map); goal marker hidden. Physics bit-identical with the cameras added.
+- Desktop renders in software (WSL llvmpipe): 46 ms per step for both
+  cameras, about 63 steps/s with 6 workers. Laptop (Metal): 13 ms.
 
 ## V2 (`dexvision/learning/vision.py`, `vision:` in `configs/learning/method.yaml`)
 
