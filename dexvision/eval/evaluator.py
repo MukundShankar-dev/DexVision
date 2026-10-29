@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
@@ -20,6 +21,9 @@ from dexvision.sim.cameras import CameraConfig, CameraRig
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks.features import observation_dict
 
+# Builds a policy inside a worker process: a module-level function or functools.partial of one.
+PolicyFactory = Callable[[Workcell], Policy]
+CHUNK = 10  # seeds per worker job; progress is reported per finished chunk
 
 @dataclass(frozen=True)
 class EpisodeResult:
@@ -105,6 +109,57 @@ def _result(task, context, seed: int, success: bool, steps: int, failure: str | 
                          phase)
 
 
+def _run_seeds(job: tuple[PolicyFactory, object, list[int]]) -> list[EpisodeResult]:
+    """Worker: its own simulator, policy and cameras. One torch thread per worker, so N workers
+    use N cores instead of fighting over them."""
+    import torch
+
+    factory, task, seeds = job
+    torch.set_num_threads(1)
+    workcell = Workcell()
+    policy = factory(workcell)
+    rig = camera_rig(workcell, task.spec.cameras)
+    try:
+        return [run_episode(workcell, task, policy, seed, rig=rig) for seed in seeds]
+    finally:
+        if rig:
+            rig.close()
+
+
+def _run_serial(workcell, task, policy, seeds, split, video_dir, n_videos, on_episode
+                ) -> list[EpisodeResult]:
+    recorder = VideoRecorder(workcell) if video_dir and n_videos else None
+    rig = camera_rig(workcell, task.spec.cameras)
+    episodes = []
+    for index, seed in enumerate(seeds):
+        record = recorder if recorder and index < n_videos else None
+        result = run_episode(workcell, task, policy, seed, record, rig)
+        if record:
+            outcome = "success" if result.success else result.failure
+            record.save(video_dir / f"{task.spec.skill}_{policy.name}_{split}_{seed}_{outcome}.mp4",
+                        fps=1.0 / workcell.control_dt)
+        episodes.append(result)
+        if on_episode:
+            on_episode(episodes, len(seeds))
+    if recorder:
+        recorder.close()
+    if rig:
+        rig.close()
+    return episodes
+
+
+def _run_parallel(task, seeds, workers, policy_factory, on_episode) -> list[EpisodeResult]:
+    jobs = [(policy_factory, task, list(seeds[i:i + CHUNK])) for i in range(0, len(seeds), CHUNK)]
+    episodes = []
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        for chunk in pool.map(_run_seeds, jobs):  # in seed order
+            for result in chunk:
+                episodes.append(result)
+                if on_episode:
+                    on_episode(episodes, len(seeds))
+    return episodes
+
+
 def evaluate(
     workcell: Workcell,
     task,
@@ -117,33 +172,27 @@ def evaluate(
     ledger_path: Path = DEFAULT_LEDGER,
     policy_info: dict[str, object] | None = None,
     on_episode: Callable[[list[EpisodeResult], int], None] | None = None,
+    workers: int = 1,
+    policy_factory: PolicyFactory | None = None,
 ) -> EvalReport:
     """Run ``n_episodes`` on the first seeds of ``split``. Test runs are budgeted and logged.
 
     ``on_episode(episodes_so_far, n_episodes)`` is called after every episode (progress output).
+    With ``workers`` > 1, episodes run in that many processes, each building its policy with
+    ``policy_factory``; every episode is seeded, so the results equal a serial run's.
     """
     skill = task.spec.skill
     seeds = task.spec.seeds(split, n_episodes)
     if split == "test":
         check_test_budget(skill, policy.name, task.spec.test_budget, task.spec.splits["test"],
                           ledger_path)
-    recorder = VideoRecorder(workcell) if video_dir and n_videos else None
-    rig = camera_rig(workcell, task.spec.cameras)
-    episodes = []
-    for index, seed in enumerate(seeds):
-        record = recorder if recorder and index < n_videos else None
-        result = run_episode(workcell, task, policy, seed, record, rig)
-        if record:
-            outcome = "success" if result.success else result.failure
-            record.save(video_dir / f"{skill}_{policy.name}_{split}_{seed}_{outcome}.mp4",
-                        fps=1.0 / workcell.control_dt)
-        episodes.append(result)
-        if on_episode:
-            on_episode(episodes, len(seeds))
-    if recorder:
-        recorder.close()
-    if rig:
-        rig.close()
+    if workers > 1:
+        if policy_factory is None or n_videos:
+            raise ValueError("Parallel evaluation needs a policy_factory and records no videos")
+        episodes = _run_parallel(task, seeds, workers, policy_factory, on_episode)
+    else:
+        episodes = _run_serial(workcell, task, policy, seeds, split, video_dir, n_videos,
+                               on_episode)
 
     grouped = defaultdict(list)
     failures = defaultdict(int)

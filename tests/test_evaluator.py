@@ -1,4 +1,5 @@
 from dataclasses import replace
+from functools import partial
 
 import pytest
 import yaml
@@ -46,6 +47,21 @@ def test_progress_callback_sees_every_episode(workcell, tmp_path):
                       on_episode=lambda episodes, total: calls.append((list(episodes), total)))
     assert [(len(episodes), total) for episodes, total in calls] == [(1, 3), (2, 3), (3, 3)]
     assert calls[-1][0] == report.episodes
+
+
+def _random_policy(workcell):
+    return make_policy("random", workcell.action_space, "pick")
+
+
+def test_parallel_evaluation_matches_serial(workcell, tmp_path):
+    task, ledger = short_task(15), tmp_path / "ledger.jsonl"
+    serial = evaluate(workcell, task, _random_policy(workcell), "val", 12, ledger_path=ledger)
+    calls = []
+    parallel = evaluate(workcell, task, _random_policy(workcell), "val", 12, ledger_path=ledger,
+                        workers=2, policy_factory=partial(_random_policy),
+                        on_episode=lambda episodes, total: calls.append(len(episodes)))
+    assert parallel.episodes == serial.episodes
+    assert calls == list(range(1, 13))
 
 
 def test_test_runs_are_ledgered_and_budgeted(workcell, tmp_path):

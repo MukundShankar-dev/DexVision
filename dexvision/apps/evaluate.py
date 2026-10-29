@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from functools import partial
 from pathlib import Path
 
 from dexvision import REPO_ROOT
@@ -26,8 +27,32 @@ from dexvision.data.demos import DemoRecorder, load_data_config, noise_std_vecto
 from dexvision.eval.evaluator import evaluate
 from dexvision.learning.policy import load_learned_policy
 from dexvision.policies import POLICIES, make_policy
+from dexvision.policies.base import Policy
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
+
+
+def build_policy(task_name: str, policy_name: str | None, checkpoint: Path | None,
+                 blank: tuple[str, ...], dart_noise: bool, workcell: Workcell
+                 ) -> tuple[Policy, dict]:
+    """The policy the arguments describe, and its info for the report. Module level, so worker
+    processes can build their own copy."""
+    task = make_task(task_name)
+    info = {}
+    if checkpoint:
+        policy, info = load_learned_policy(checkpoint, task.spec, blank=blank)
+    else:
+        policy = make_policy(policy_name, workcell.action_space, task.spec.skill)
+    if dart_noise:
+        noise = noise_std_vector(load_data_config(task_name)["noise_std"])
+        name = policy.name
+        policy = DemoRecorder(policy, workcell.action_space, noise)
+        policy.name = f"{name}_dart"
+    return policy, info
+
+
+def _policy_only(*args) -> Policy:
+    return build_policy(*args)[0]
 
 
 def main() -> None:
@@ -45,6 +70,8 @@ def main() -> None:
                         help="execute actions with the task's DART noise (val only)")
     parser.add_argument("--blank", nargs="+", default=(), metavar="CAMERA",
                         help="replace these cameras' images with the training mean (val only)")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="parallel processes, one torch thread each (no videos)")
     parser.add_argument("--progress-every", type=int, default=20, metavar="N",
                         help="print a progress line every N episodes (0: never)")
     args = parser.parse_args()
@@ -52,19 +79,13 @@ def main() -> None:
         parser.error("--dart-noise is a robustness measurement on val, not a test result")
     if args.blank and (args.split != "val" or not args.checkpoint):
         parser.error("--blank is a diagnostic for a trained vision policy on val")
+    if args.workers > 1 and args.videos:
+        parser.error("videos are recorded in a single process; drop --workers")
 
     workcell = Workcell()
     task = make_task(args.task)
-    info = {}
-    if args.checkpoint:
-        policy, info = load_learned_policy(args.checkpoint, task.spec, blank=args.blank)
-    else:
-        policy = make_policy(args.policy, workcell.action_space, task.spec.skill)
-    if args.dart_noise:
-        noise = noise_std_vector(load_data_config(args.task)["noise_std"])
-        name = policy.name
-        policy = DemoRecorder(policy, workcell.action_space, noise)
-        policy.name = f"{name}_dart"
+    spec = (args.task, args.policy, args.checkpoint, tuple(args.blank), args.dart_noise)
+    policy, info = build_policy(*spec, workcell)
     print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes",
           flush=True)
     started = time.perf_counter()
@@ -78,7 +99,8 @@ def main() -> None:
                   f"min left", flush=True)
 
     report = evaluate(workcell, task, policy, args.split, args.episodes, video_dir=args.video_dir,
-                      n_videos=args.videos, policy_info=info, on_episode=progress)
+                      n_videos=args.videos, policy_info=info, on_episode=progress,
+                      workers=args.workers, policy_factory=partial(_policy_only, *spec))
     elapsed = time.perf_counter() - started
 
     out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}_{args.split}.json"
