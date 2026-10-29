@@ -104,6 +104,11 @@ class PickTask:
 
     phase = staticmethod(pick_phase)
 
+    def grid_axes(self) -> tuple[tuple[str, float, float], ...]:
+        """(metric, low, high) of the reset range, for success by start position."""
+        return tuple((f"start_{axis}_m", c - h, c + h)
+                     for axis, c, h in zip("xy", self._center, self._half_extent, strict=True))
+
     def episode_metrics(self) -> dict[str, float]:
         """Outcome-related measurements, and the start pose for breakdowns by position."""
         return {

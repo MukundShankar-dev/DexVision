@@ -31,17 +31,14 @@ def phases(episodes: Sequence[Mapping]) -> dict[str, int]:
                         for e in episodes).most_common())
 
 
-def position_grid(episodes: Sequence[Mapping], center_xy: Sequence[float],
-                  half_extent_xy: Sequence[float], bins: int = 3) -> list[list[Cell]]:
-    """Success by start position: ``bins`` x ``bins`` cells over the reset area.
-    Rows run along x (index 0 = smallest x), columns along y."""
+def position_grid(episodes: Sequence[Mapping], axes: Sequence[tuple[str, float, float]],
+                  bins: int = 3) -> list[list[Cell]]:
+    """Success by start position: ``bins`` x ``bins`` cells over the reset range. ``axes`` is
+    two (metric, low, high); rows run along the first (index 0 = lowest), columns the second."""
     counts = np.zeros((bins, bins, 2), dtype=int)
     for e in episodes:
-        cell = []
-        for axis, key in enumerate(("start_x_m", "start_y_m")):
-            low = center_xy[axis] - half_extent_xy[axis]
-            fraction = (e["metrics"][key] - low) / (2 * half_extent_xy[axis])
-            cell.append(int(np.clip(fraction * bins, 0, bins - 1)))
+        cell = [int(np.clip((e["metrics"][key] - low) / (high - low) * bins, 0, bins - 1))
+                for key, low, high in axes]
         counts[cell[0], cell[1]] += (int(e["success"]), 1)
     return [[Cell(int(s), int(n)) for s, n in row] for row in counts]
 

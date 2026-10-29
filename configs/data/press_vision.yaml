@@ -1,0 +1,16 @@
+# Press demonstrations with camera images (docs/PLAN.md, V4). The same expert, seeds and noise as
+# configs/data/press.yaml; the files also hold the policy cameras' images as obs/rgb/<camera>.
+# Generated on x86-64 (the desktop); MuJoCo is not bit-identical across arm64 and x86-64, so the
+# kept/dropped seeds may differ slightly from the state dataset's. The expert acts on the state
+# spec (task: press), so button_* are recorded too: the vision policy never sees them, but the
+# perception probe uses button_position as its label.
+task: press
+policy: expert
+split: train
+episodes: 1000
+cameras: [policy_right, policy_left]
+
+noise_std:                     # as configs/data/press.yaml
+  translation_m: 0.002
+  rotation_rad: 0.01
+  targets_rad: 0.05

@@ -1,0 +1,25 @@
+# Press from images (docs/PLAN.md, V4). The press spec with the privileged button observations
+# replaced by the two policy cameras (configs/cameras.yaml). Reset, success, failure and horizon
+# come from press.yaml unchanged. Written before any vision policy exists.
+extends: press
+
+# What a policy may observe: what the hand measures itself, plus the camera images. The button's
+# position must be read from the images. button_depth is dropped too (owner decision 2026-10-29):
+# it is a sensor in the button, not on the robot; whether the press went in must come from the
+# images and the hand's own joints. The success predicate still measures it.
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+cameras: [policy_right, policy_left]    # rgb/<camera>, [96, 96, 3] uint8, after each step
+
+# train and val are press's: the same demonstration seeds (configs/data/press_vision.yaml), and
+# the state and vision policies are compared seed by seed on val. The test range is new and
+# disjoint from every earlier one.
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [310000, 320000]

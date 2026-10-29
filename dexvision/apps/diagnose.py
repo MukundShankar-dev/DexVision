@@ -16,7 +16,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from dexvision.eval.diagnose import metric_summary, paired, phases, position_grid
-from dexvision.tasks.spec import load_task_spec
+from dexvision.tasks import make_task
 
 
 def _rate(k: int, n: int, lo: float, hi: float) -> str:
@@ -32,7 +32,8 @@ def main() -> None:
 
     report = json.loads(args.report.read_text(encoding="utf-8"))
     episodes = report["episodes"]
-    spec = load_task_spec(report.get("task", report["skill"]))
+    task = make_task(report.get("task", report["skill"]))
+    spec = task.spec
     o = report["overall"]
     print(f"{spec.name} / {report['policy']} / {report['split']}: "
           f"{_rate(o['successes'], o['n'], *o['ci95'])}")
@@ -46,12 +47,12 @@ def main() -> None:
     for name, rate in report["by_object"].items():
         print(f"  {name:15s} {_rate(rate['successes'], rate['n'], *rate['ci95'])}")
 
-    reset = spec.raw.get("reset", {})
-    if "object_center_xy_m" in reset and "start_x_m" in episodes[0]["metrics"]:
-        grid = position_grid(episodes, reset["object_center_xy_m"],
-                             reset["object_half_extent_xy_m"])
+    axes = task.grid_axes() if hasattr(task, "grid_axes") else ()
+    if axes and all(key in episodes[0]["metrics"] for key, _, _ in axes):
+        grid = position_grid(episodes, axes)
         result["position_grid"] = [[asdict(c) for c in row] for row in grid]
-        print("\nBy start position (rows: x low to high, columns: y low to high):")
+        rows, columns = (key.removeprefix("start_").removesuffix("_m") for key, _, _ in axes)
+        print(f"\nBy start position (rows: {rows} low to high, columns: {columns} low to high):")
         for row in grid:
             print("  " + "   ".join(f"{c.successes:3d}/{c.n:<3d}" for c in row))
 

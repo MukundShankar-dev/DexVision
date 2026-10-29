@@ -1,0 +1,13 @@
+# Held-out press demonstrations with images on val seeds, for diagnostics only: the perception
+# probe's and the offline action error's evaluation frames. Never trained on. Val seeds have
+# unlimited use (AGENTS.md section 2).
+task: press
+policy: expert
+split: val
+episodes: 100
+cameras: [policy_right, policy_left]
+
+noise_std:                     # as configs/data/press.yaml
+  translation_m: 0.002
+  rotation_rad: 0.01
+  targets_rad: 0.05

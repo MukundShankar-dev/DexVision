@@ -1,6 +1,6 @@
 """Perception probe and offline action error (docs/PLAN.md, V3; dexvision/eval/probe.py).
 
-    # before training: can the encoder architecture read object position and identity at all?
+    # before training: can the encoder architecture read the target's position (and identity)?
     python -m dexvision.apps.probe --task pick_vision --device cuda \
         --train-data datasets/pick/pick_vision --val-data datasets/pick/pick_vision_val
     # after training: what did a policy's encoder learn, and how well does it fit held-out demos?
@@ -32,6 +32,7 @@ from dexvision.eval.probe import (
     offline_action_error,
     probe_frames,
     probe_report,
+    probe_target,
 )
 from dexvision.learning.train import Trained, load_method_config
 from dexvision.provenance import code_version
@@ -58,7 +59,7 @@ def main() -> None:
     args = parser.parse_args()
 
     spec = load_task_spec(args.task)
-    objects = list(spec.raw["objects"])
+    target = probe_target(spec)
     trained = Trained.load(args.checkpoint, args.device) if args.checkpoint else None
     cameras = trained.cameras if trained else spec.cameras
     started = time.perf_counter()
@@ -70,7 +71,7 @@ def main() -> None:
     if trained:
         result["checkpoint"] = str(args.checkpoint)
         result["offline_action_error"] = offline_action_error(
-            trained, val_episodes, args.offline_windows, args.seed, args.device)
+            trained, val_episodes, args.offline_windows, args.seed, args.device, target=target)
         print(f"Offline action error (normalized units), {trained.method}:")
         for bucket, row in result["offline_action_error"].items():
             print(f"  {bucket:7s} {row}")
@@ -78,20 +79,20 @@ def main() -> None:
     if cameras:
         if args.train_data is None:
             parser.error("a probe needs --train-data")
-        train = load_probe_frames(_paths(args.train_data), cameras, objects)
-        val = probe_frames(val_episodes, cameras, objects)
+        train = load_probe_frames(_paths(args.train_data), cameras, target)
+        val = probe_frames(val_episodes, cameras, target)
         print(f"Probe frames: {len(train.position)} train, {len(val.position)} val", flush=True)
         if trained:
             name = "frozen"
             features = {split: frozen_features(trained.model.vision, frames.images, args.device)
                         for split, frames in (("train", train), ("val", val))}
-            model = FeatureProbe(features["train"].shape[1], len(objects))
+            model = FeatureProbe(features["train"].shape[1], len(target.classes))
 
             def inputs_for(split):
                 return lambda rows: features[split][rows.to(args.device)]
         else:
             name = "scratch"
-            model = ScratchProbe(cameras, load_method_config()["vision"], len(objects))
+            model = ScratchProbe(cameras, load_method_config()["vision"], len(target.classes))
 
             def inputs_for(split):
                 frames = train if split == "train" else val
@@ -99,7 +100,7 @@ def main() -> None:
                                      for c, x in frames.images.items()}
         scale = fit_probe(model, inputs_for("train"), train, steps=args.steps, batch=args.batch,
                           lr=args.lr, device=args.device, seed=args.seed)
-        result[f"probe_{name}"] = probe_report(model, inputs_for("val"), val, scale)
+        result[f"probe_{name}"] = probe_report(model, inputs_for("val"), val, scale, target)
         print(f"Probe ({name}) on val frames:")
         for bucket, row in result[f"probe_{name}"].items():
             print(f"  {bucket:7s} {row}")

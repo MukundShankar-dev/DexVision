@@ -10,7 +10,7 @@ from dexvision.data.demos import generate, load_data_config, load_episode
 from dexvision.eval.diagnose import metric_summary, paired, phases, position_grid
 from dexvision.eval.evaluator import camera_rig, run_episode
 from dexvision.eval.probe import (
-    BUCKETS,
+    ProbeTarget,
     ScratchProbe,
     fit_probe,
     frame_buckets,
@@ -18,6 +18,7 @@ from dexvision.eval.probe import (
     offline_action_error,
     probe_frames,
     probe_report,
+    probe_target,
 )
 from dexvision.eval.stats import mcnemar_exact
 from dexvision.learning.policy import LearnedPolicy
@@ -26,6 +27,7 @@ from dexvision.policies import make_policy
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 from dexvision.tasks.pick import pick_phase
+from dexvision.tasks.press import press_phase
 from dexvision.tasks.spec import load_task_spec
 
 
@@ -56,18 +58,22 @@ def test_a_variant_replaces_only_the_keys_it_names(tmp_path):
     assert "extends" not in variant.raw
 
 
-def test_pick_vision_sees_no_object_state_and_has_its_own_test_seeds():
-    vision, state = load_task_spec("pick_vision"), load_task_spec("pick")
-    assert not [f for f in vision.observation if f.startswith("object_")]
-    assert vision.cameras and vision.skill == "pick"
+@pytest.mark.parametrize(("name", "privileged"), [("pick_vision", ("object_",)),
+                                                   ("press_vision", ("button_",))])
+def test_vision_specs_see_no_privileged_state_and_have_their_own_test_seeds(name, privileged):
+    vision, state = load_task_spec(name), load_task_spec(name.removesuffix("_vision"))
+    assert not [f for f in vision.observation if f.startswith(privileged)]
+    assert set(vision.observation) <= set(state.observation)
+    assert vision.cameras and vision.skill == state.skill
     assert vision.raw["success"] == state.raw["success"]
+    assert vision.raw["reset"] == state.raw["reset"]
     assert (vision.splits["train"], vision.splits["val"]) == (state.splits["train"],
                                                               state.splits["val"])
     start, stop = vision.splits["test"]
-    for name in TASK_NAMES:
-        if name != "pick_vision":
-            other_start, other_stop = load_task_spec(name).splits["test"]
-            assert stop <= other_start or other_stop <= start, name
+    for other in TASK_NAMES:
+        if other != name:
+            other_start, other_stop = load_task_spec(other).splits["test"]
+            assert stop <= other_start or other_stop <= start, other
 
 
 # --- pick phases and metrics --------------------------------------------------------------------
@@ -84,6 +90,38 @@ def test_pick_vision_sees_no_object_state_and_has_its_own_test_seeds():
 ])
 def test_pick_phase_is_the_furthest_stage_reached(success, failure, metrics, phase):
     assert pick_phase(success, failure, metrics) == phase
+
+
+@pytest.mark.parametrize(("success", "failure", "metrics", "phase"), [
+    (True, None, {}, "success"),
+    (False, "hand_collision", {}, "hand_collision"),
+    (False, "timeout", {"first_contact_step": -1}, "no_contact"),
+    (False, "timeout", {"first_contact_step": 9, "max_held_steps": 0}, "touched_not_pressed"),
+    (False, "timeout", {"first_contact_step": 9, "max_held_steps": 3, "pressed": 0.0},
+     "pressed_not_held"),
+    (False, "timeout", {"first_contact_step": 9, "max_held_steps": 5, "pressed": 1.0},
+     "held_not_released"),
+])
+def test_press_phase_is_the_furthest_stage_reached(success, failure, metrics, phase):
+    assert press_phase(success, failure, metrics) == phase
+
+
+def test_press_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
+    task = make_task("press")
+    expert = run_episode(workcell, task, make_policy("expert", workcell.action_space, "press"),
+                         100001)
+    assert expert.success and expert.phase == "success"
+    m = expert.metrics
+    assert 0 < m["first_contact_step"] < expert.steps
+    assert m["max_held_steps"] >= task.press_steps and m["min_fingertip_button_m"] < 0.02
+    (_, low_y, high_y), (_, low_z, high_z) = task.grid_axes()
+    assert low_y <= m["start_y_m"] <= high_y and low_z <= m["start_z_m"] <= high_z
+
+    task.spec = replace(task.spec, horizon_steps=10)
+    zero = run_episode(workcell, task, make_policy("zero", workcell.action_space, "press"), 100001)
+    assert zero.phase == "no_contact" and zero.metrics["max_held_steps"] == 0
+    assert (zero.metrics["start_y_m"], zero.metrics["start_z_m"]) == (m["start_y_m"],
+                                                                      m["start_z_m"])
 
 
 def test_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
@@ -173,7 +211,7 @@ def test_breakdowns_count_phases_cells_and_medians():
                 episode(1, False, "no_contact", -0.09, 0.05, 0.0),
                 episode(2, False, "contact_no_grasp", -0.03, 0.05, 0.04)]
     assert phases(episodes) == {"success": 1, "no_contact": 1, "contact_no_grasp": 1}
-    grid = position_grid(episodes, (-0.06, 0.0), (0.04, 0.06))
+    grid = position_grid(episodes, (("start_x_m", -0.10, -0.02), ("start_y_m", -0.06, 0.06)))
     assert (grid[0][0].successes, grid[0][0].n) == (1, 1)
     assert (grid[0][2].n, grid[2][2].n, grid[1][1].n) == (1, 1, 0)
     summary = metric_summary(episodes, ["shift_before_grasp_m", "first_grasp_step"])
@@ -229,6 +267,9 @@ def test_keypoints_lie_in_the_crop():
     assert points.abs().max() <= 1.0
 
 
+SQUARES = ProbeTarget("object_position", "lifted", ("a", "b"))
+
+
 def labelled_squares(n_episodes, seed=0):
     """Square episodes with probe labels: the square is 'the object', fingertips far away; the
     object lifts in the last step of each episode."""
@@ -245,9 +286,19 @@ def labelled_squares(n_episodes, seed=0):
 
 def test_frame_buckets():
     e = labelled_squares(1)[0]
-    np.testing.assert_array_equal(frame_buckets(e), [0, 0, 0, 0, 0, 2])
+    np.testing.assert_array_equal(frame_buckets(e, SQUARES), [0, 0, 0, 0, 0, 2])
     e["obs/fingertip_positions"][2] = np.tile(e["obs/object_position"][2], 5)
-    assert BUCKETS[frame_buckets(e)[2]] == "near"
+    assert SQUARES.buckets[frame_buckets(e, SQUARES)[2]] == "near"
+
+
+def test_press_probe_target_buckets_by_button_depth():
+    target = probe_target(load_task_spec("press_vision"))
+    assert (target.position, target.buckets, target.classes) == (
+        "button_position", ("far", "near", "pressed"), ())
+    e = {"obs/button_position": np.zeros((4, 3)), "obs/button_depth": np.array([0, 0, 0.01, 0]),
+         "obs/fingertip_positions": np.full((4, 15), 9.0)}
+    e["obs/fingertip_positions"][1, :3] = 0.01
+    np.testing.assert_array_equal(frame_buckets(e, target), [0, 1, 2, 0])
 
 
 def test_probe_frames_from_files_match_in_memory(tmp_path):
@@ -256,26 +307,27 @@ def test_probe_frames_from_files_match_in_memory(tmp_path):
     for i, e in enumerate(episodes):
         paths.append(tmp_path / f"episode_{i:06d}.npz")
         np.savez_compressed(paths[-1], **e)
-    a = probe_frames(episodes, ("cam",), ["a", "b"])
-    b = load_probe_frames(paths, ("cam",), ["a", "b"])
+    a = probe_frames(episodes, ("cam",), SQUARES)
+    b = load_probe_frames(paths, ("cam",), SQUARES)
     for field in ("position", "object_index", "bucket"):
         np.testing.assert_array_equal(getattr(a, field), getattr(b, field))
     np.testing.assert_array_equal(a.images["cam"], b.images["cam"])
 
 
-def test_scratch_probe_reads_position_from_images():
-    objects = ["a", "b"]
-    train_frames = probe_frames(labelled_squares(40), ("cam",), objects)
-    val_frames = probe_frames(labelled_squares(10, seed=1), ("cam",), objects)
-    model = ScratchProbe(("cam",), tiny_config()["vision"], len(objects))
+@pytest.mark.parametrize("target", [SQUARES, ProbeTarget("object_position", "lifted")])
+def test_scratch_probe_reads_position_from_images(target):
+    train_frames = probe_frames(labelled_squares(40), ("cam",), target)
+    val_frames = probe_frames(labelled_squares(10, seed=1), ("cam",), target)
+    model = ScratchProbe(("cam",), tiny_config()["vision"], len(target.classes))
 
     def inputs(frames):
         return lambda rows: {"cam": torch.as_tensor(frames.images["cam"][rows.numpy()])}
 
     scale = fit_probe(model, inputs(train_frames), train_frames, steps=400, batch=32, lr=3e-3,
                       device="cpu", seed=0)
-    report = probe_report(model, inputs(val_frames), val_frames, scale)["all"]
+    report = probe_report(model, inputs(val_frames), val_frames, scale, target)["all"]
     assert report["frames"] == 60
+    assert ("object_accuracy" in report) == bool(target.classes)
     assert report["position_error_cm_mean"] < 0.35 * report["mean_guess_error_cm"], report
 
 
@@ -283,7 +335,7 @@ def test_offline_action_error_is_small_on_training_data():
     episodes = labelled_squares(12)
     w = windows(episodes)
     trained = train("mlp", w, tiny_config(steps=600), seed=0)
-    report = offline_action_error(trained, episodes, 50, seed=0)
+    report = offline_action_error(trained, episodes, 50, seed=0, target=SQUARES)
     assert set(report) >= {"all", "far"} and report["all"]["windows"] == 50
     untrained = train("mlp", w, tiny_config(), steps=1, seed=0)
     before = offline_action_error(untrained, episodes, 50, seed=0)["all"]["all"]
