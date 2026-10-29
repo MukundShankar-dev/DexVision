@@ -39,6 +39,15 @@ def test_report_counts_unique_seeds_with_intervals(workcell, tmp_path):
     assert not (tmp_path / "ledger.jsonl").exists()  # val runs are not ledgered
 
 
+def test_progress_callback_sees_every_episode(workcell, tmp_path):
+    zero = make_policy("zero", workcell.action_space, "pick")
+    calls = []
+    report = evaluate(workcell, short_task(), zero, "val", 3, ledger_path=tmp_path / "ledger.jsonl",
+                      on_episode=lambda episodes, total: calls.append((list(episodes), total)))
+    assert [(len(episodes), total) for episodes, total in calls] == [(1, 3), (2, 3), (3, 3)]
+    assert calls[-1][0] == report.episodes
+
+
 def test_test_runs_are_ledgered_and_budgeted(workcell, tmp_path):
     ledger = tmp_path / "ledger.jsonl"
     task, policy = short_task(), make_policy("zero", workcell.action_space, "pick")

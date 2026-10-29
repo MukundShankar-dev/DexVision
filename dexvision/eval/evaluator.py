@@ -7,6 +7,7 @@ Counting rules (AGENTS.md rule 7): one seed is one unique episode, every rate ca
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
@@ -115,8 +116,12 @@ def evaluate(
     n_videos: int = 0,
     ledger_path: Path = DEFAULT_LEDGER,
     policy_info: dict[str, object] | None = None,
+    on_episode: Callable[[list[EpisodeResult], int], None] | None = None,
 ) -> EvalReport:
-    """Run ``n_episodes`` on the first seeds of ``split``. Test runs are budgeted and logged."""
+    """Run ``n_episodes`` on the first seeds of ``split``. Test runs are budgeted and logged.
+
+    ``on_episode(episodes_so_far, n_episodes)`` is called after every episode (progress output).
+    """
     skill = task.spec.skill
     seeds = task.spec.seeds(split, n_episodes)
     if split == "test":
@@ -133,6 +138,8 @@ def evaluate(
             record.save(video_dir / f"{skill}_{policy.name}_{split}_{seed}_{outcome}.mp4",
                         fps=1.0 / workcell.control_dt)
         episodes.append(result)
+        if on_episode:
+            on_episode(episodes, len(seeds))
     if recorder:
         recorder.close()
     if rig:

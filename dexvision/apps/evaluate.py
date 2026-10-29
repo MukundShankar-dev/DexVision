@@ -45,6 +45,8 @@ def main() -> None:
                         help="execute actions with the task's DART noise (val only)")
     parser.add_argument("--blank", nargs="+", default=(), metavar="CAMERA",
                         help="replace these cameras' images with the training mean (val only)")
+    parser.add_argument("--progress-every", type=int, default=20, metavar="N",
+                        help="print a progress line every N episodes (0: never)")
     args = parser.parse_args()
     if args.dart_noise and args.split != "val":
         parser.error("--dart-noise is a robustness measurement on val, not a test result")
@@ -63,10 +65,20 @@ def main() -> None:
         name = policy.name
         policy = DemoRecorder(policy, workcell.action_space, noise)
         policy.name = f"{name}_dart"
-    print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes")
+    print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes",
+          flush=True)
     started = time.perf_counter()
-    report = evaluate(workcell, task, policy, args.split, args.episodes,
-                      video_dir=args.video_dir, n_videos=args.videos, policy_info=info)
+
+    def progress(episodes, total):
+        if args.progress_every and len(episodes) % args.progress_every == 0:
+            done = len(episodes)
+            elapsed = time.perf_counter() - started
+            print(f"  {done}/{total} episodes, {sum(e.success for e in episodes)} successes, "
+                  f"{elapsed / done:.1f} s/episode, ~{elapsed / done * (total - done) / 60:.0f} "
+                  f"min left", flush=True)
+
+    report = evaluate(workcell, task, policy, args.split, args.episodes, video_dir=args.video_dir,
+                      n_videos=args.videos, policy_info=info, on_episode=progress)
     elapsed = time.perf_counter() - started
 
     out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}_{args.split}.json"

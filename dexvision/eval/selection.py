@@ -33,7 +33,13 @@ def _evaluate_one(job: tuple[str, str, str, int, str]) -> dict:
     torch.set_num_threads(1)  # one process per checkpoint; keep them from oversubscribing
     task = make_task(task_name)
     policy, info = load_learned_policy(Path(checkpoint), task.spec)
-    report = evaluate(Workcell(), task, policy, split, n_episodes, policy_info=info)
+    def progress(episodes, total):
+        if len(episodes) % 50 == 0:
+            print(f"  {Path(checkpoint).stem}: {len(episodes)}/{total} episodes, "
+                  f"{sum(e.success for e in episodes)} successes", flush=True)
+
+    report = evaluate(Workcell(), task, policy, split, n_episodes, policy_info=info,
+                      on_episode=progress)
     Path(out).write_text(json.dumps(report.to_dict(), indent=1) + "\n", encoding="utf-8")
     o = report.overall
     return {"checkpoint": info["checkpoint"], "step": info["step"], "successes": o.successes,
