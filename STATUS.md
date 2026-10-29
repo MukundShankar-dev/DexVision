@@ -2,7 +2,7 @@
 
 **Active checkpoint:** V3 — pick from images (`docs/PLAN.md`). V1 and V2
 approved. **State:** spec, diagnostics, data, baselines and probe done; gate
-proposed, awaiting approval. No vision policy trained yet.
+approved; training next.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -54,7 +54,7 @@ set was made on arm64, 13 seeds differ in kept/dropped, code reproduces).
 - Diagnostics: `apps.diagnose`, `apps.probe`, `apps.keypoint_video`,
   `apps.evaluate --blank` (`docs/PLAN.md` V3 table).
 
-**Proposed gate (not yet approved).** A vision policy passes if its single
+**Gate (approved by the owner 2026-10-29, before any training).** A vision policy passes if its single
 200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), every object
 ≥ 60%, and on val with both cameras blanked it succeeds ≤ 10% (otherwise it
 is not using the images and the result does not count).
