@@ -1,6 +1,8 @@
 # Pick demonstrations with camera images (docs/PLAN.md, V3). The same expert, seeds and noise as
-# configs/data/pick.yaml, so the episodes are the state track's episodes (rendering only reads the
-# simulation); the files also hold the policy cameras' images as obs/rgb/<camera>. The expert
+# configs/data/pick.yaml; the files also hold the policy cameras' images as obs/rgb/<camera>.
+# Rendering only reads the simulation, but the state dataset was generated on arm64 and this one
+# on x86-64, where MuJoCo is not bit-identical: 13 of 1000 seeds were kept in one and not the
+# other (measured 2026-10-29; the same code reproduces this dataset on x86-64). The expert
 # acts on the state spec (task: pick), so object_* are recorded too: the vision policy never sees
 # them, but the perception probe uses them as labels.
 task: pick

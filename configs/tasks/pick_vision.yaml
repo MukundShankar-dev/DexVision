@@ -13,8 +13,8 @@ observation:
   - fingertip_positions
 cameras: [policy_right, policy_left]    # rgb/<camera>, [96, 96, 3] uint8, after each step
 
-# train and val are pick's, so the state and vision policies are trained on the same episodes
-# and compared seed by seed. The test range is new and disjoint from every earlier one.
+# train and val are pick's: the same demonstration seeds (configs/data/pick_vision.yaml), and
+# the state and vision policies are compared seed by seed on val. The test range is new and disjoint from every earlier one.
 splits:
   train: [0, 100000]
   val: [100000, 110000]

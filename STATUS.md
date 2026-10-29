@@ -1,7 +1,8 @@
 # Status
 
-**Active checkpoint:** V2 — image encoder (`docs/PLAN.md`). V1 approved
-(96 px, shadows on). **State:** encoder, tests and timing done; awaiting review.
+**Active checkpoint:** V3 — pick from images (`docs/PLAN.md`). V1 and V2
+approved. **State:** spec, diagnostics, data, baselines and probe done; gate
+proposed, awaiting approval. No vision policy trained yet.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -41,20 +42,37 @@ seed). MLP-BC fails press on both seeds and place on seed 1. Diagnostics (val, s
 Place details (spec, baselines, gate) are in `configs/tasks/place.yaml`,
 `results/place/` and the commit history.
 
-## V1 (`configs/cameras.yaml`, `dexvision/sim/cameras.py`)
+## V1–V2 (cameras, encoder)
 
-- Mirrored pair `policy_right`/`policy_left`, 96 px RGB, shadows on (1024 px
-  map); goal marker hidden. Physics bit-identical with the cameras added.
-- Desktop renders in software (WSL llvmpipe): 46 ms per step for both
-  cameras, about 63 steps/s with 6 workers. Laptop (Metal): 13 ms.
+- `policy_right`/`policy_left`, 96 px RGB, shadows on, goal marker hidden;
+  physics bit-identical with cameras. Per-camera CNN, 32 spatial-softmax
+  keypoints, 88 px random crop; both methods. 60k steps: 102 / 78 min.
 
-## V2 (`dexvision/learning/vision.py`, `vision:` in `configs/learning/method.yaml`)
+## V3 — pick_vision (val, 200 episodes; details in `results/pick_vision/`)
 
-- Per-camera CNN (GroupNorm, 32 spatial-softmax keypoints, 64 features),
-  88 px random crop in training, centre crop when acting; both methods.
-- State-only models build no encoder: training is byte-identical to d510134.
-- Desktop, 60k steps with two cameras: Diffusion 102 min, MLP-BC 78 min.
-  Acting on CPU: 81 ms (Diffusion) and 4 ms per inference, every 8 steps.
+Spec `configs/tasks/pick_vision.yaml`: pick without `object_*`, plus both
+cameras; test seeds 300000–310000. Demos: 982/1000 kept (x86-64; the state
+set was made on arm64, 13 seeds differ in kept/dropped, code reproduces).
+
+| Baseline | Success |
+|---|---|
+| zero, random | 0/200, 0/200 [0, 1.9%] |
+| expert (state, same seeds) | 200/200 |
+| state Diffusion / MLP-BC (ceiling) | 197/200 / 200/200 |
+
+- **Probe** (encoder trained alone, 8210 val frames from 98 val episodes):
+  object position error 0.22 cm mean (0.35 p90; mean guess 4.9 cm), object
+  identity 100%; with the hand near: 0.22 cm; object lifted: 0.26 cm. The
+  images hold what pick needs at 96 px.
+- **State failures:** Diffusion's 3 all `lifted_not_held` (pucks, 2 heavy).
+- Diagnostics per run: phase reached, by object and start cell, metric
+  medians, paired McNemar vs state, offline action error, blank-camera val
+  runs, keypoint videos (`python -m dexvision.apps.diagnose|probe|keypoint_video`).
+
+**Proposed gate (not yet approved).** A vision policy passes if its single
+200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), every object
+≥ 60%, and on val with both cameras blanked it succeeds ≤ 10% (otherwise it
+is not using the images and the result does not count).
 
 ## Caveats
 

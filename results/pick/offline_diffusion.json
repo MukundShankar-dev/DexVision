@@ -1,0 +1,50 @@
+{
+ "task": "pick",
+ "code": {
+  "commit": "e8209dfaddbf2ca970c20cdf6bdc0258347523e5",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "None",
+ "val_data": "datasets/pick/pick_vision_val",
+ "val_episodes": 98,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/pick/diffusion_seed0/step_060000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.0466,
+   "translation": 0.0999,
+   "rotation": 0.2354,
+   "fingers": 0.0103
+  },
+  "far": {
+   "windows": 1611,
+   "all": 0.0504,
+   "translation": 0.1115,
+   "rotation": 0.2344,
+   "fingers": 0.0136
+  },
+  "near": {
+   "windows": 1219,
+   "all": 0.0509,
+   "translation": 0.1239,
+   "rotation": 0.2331,
+   "fingers": 0.0126
+  },
+  "lifted": {
+   "windows": 1170,
+   "all": 0.037,
+   "translation": 0.0589,
+   "rotation": 0.2392,
+   "fingers": 0.0034
+  }
+ }
+}

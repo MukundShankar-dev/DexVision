@@ -188,8 +188,8 @@ cameras show what the task needs (object, goal marker, button).
 
 - Spec `pick_vision`: the `pick` spec with `object_*` removed from the
   observations and the two cameras added; same train and val seeds (so the
-  state and vision policies are compared on identical episodes), new test
-  range. Demos are the same expert episodes as the state track, with images.
+  state and vision policies are compared seed by seed on val), new test
+  range. Demos use the state track's expert, seeds and noise, with images.
 - Gate written before training, against the state-based result.
 - Train, select on val, one ledgered test per method.
 

@@ -1,0 +1,53 @@
+{
+ "task": "pick_vision",
+ "code": {
+  "commit": "e8209dfaddbf2ca970c20cdf6bdc0258347523e5",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/pick/pick_vision",
+ "val_data": "datasets/pick/pick_vision_val",
+ "val_episodes": 98,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "probe_scratch": {
+  "all": {
+   "frames": 8210,
+   "position_error_cm_mean": 0.22,
+   "position_error_cm_median": 0.18,
+   "position_error_cm_p90": 0.35,
+   "mean_guess_error_cm": 4.91,
+   "object_accuracy": 1.0
+  },
+  "far": {
+   "frames": 3249,
+   "position_error_cm_mean": 0.18,
+   "position_error_cm_median": 0.16,
+   "position_error_cm_p90": 0.29,
+   "mean_guess_error_cm": 4.42,
+   "object_accuracy": 1.0
+  },
+  "near": {
+   "frames": 2505,
+   "position_error_cm_mean": 0.22,
+   "position_error_cm_median": 0.19,
+   "position_error_cm_p90": 0.37,
+   "mean_guess_error_cm": 4.54,
+   "object_accuracy": 1.0
+  },
+  "lifted": {
+   "frames": 2456,
+   "position_error_cm_mean": 0.26,
+   "position_error_cm_median": 0.21,
+   "position_error_cm_p90": 0.42,
+   "mean_guess_error_cm": 5.93,
+   "object_accuracy": 1.0
+  }
+ }
+}
