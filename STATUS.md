@@ -30,23 +30,12 @@ approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 | place, seed 0 | 182 | 194 | goal: 6 and 13 (expert, mean goal: 8) |
 | place, seed 1 | 164 (fails: lower bound 76%, light puck 13/28) | 193 | |
 
-Diffusion passes push, press and place on both seeds (pick and reach: one
-seed). MLP-BC fails press on both seeds and place on seed 1. Diagnostics (val, scripts in `runs/` on the desktop):
-- Press: MLP-BC presses, starts to pull back, and stalls at ~8 mm depth.
-  There the demos push in (59%) or pull out (41%), told apart only by hand
-  speed; slowed down, the regression averages them to ~0 and stays stuck.
-- Push, back of hand (106/114 vs 83/114): 25 of 35 MLP-BC failures stop
-  2.0-2.5 cm from the goal (tolerance 2 cm) and hover. Demos near the goal
-  are equally mixed for every face, so that is not the cause. Open.
+Diffusion passes every skill (push, press, place on two seeds). MLP-BC fails
+press (stalls half-pressed: regression averages push-in and pull-out demos)
+and place seed 1. Open: MLP-BC push back-of-hand stalls 2.0–2.5 cm short.
 
-Place details (spec, baselines, gate) are in `configs/tasks/place.yaml`,
-`results/place/` and the commit history.
-
-## V1–V2 (cameras, encoder)
-
-- `policy_right`/`policy_left`, 96 px RGB, shadows on, goal marker hidden;
-  physics bit-identical with cameras. Per-camera CNN, 32 spatial-softmax
-  keypoints, 88 px random crop; both methods. 60k steps: 102 / 78 min.
+**V1–V2:** two 96 px cameras (`configs/cameras.yaml`), per-camera CNN with
+32 keypoints (`vision:` in `configs/learning/method.yaml`).
 
 ## V3 — pick_vision (val, 200 episodes; details in `results/pick_vision/`)
 
@@ -60,14 +49,10 @@ set was made on arm64, 13 seeds differ in kept/dropped, code reproduces).
 | expert (state, same seeds) | 200/200 |
 | state Diffusion / MLP-BC (ceiling) | 197/200 / 200/200 |
 
-- **Probe** (encoder trained alone, 8210 val frames from 98 val episodes):
-  object position error 0.22 cm mean (0.35 p90; mean guess 4.9 cm), object
-  identity 100%; with the hand near: 0.22 cm; object lifted: 0.26 cm. The
-  images hold what pick needs at 96 px.
-- **State failures:** Diffusion's 3 all `lifted_not_held` (pucks, 2 heavy).
-- Diagnostics per run: phase reached, by object and start cell, metric
-  medians, paired McNemar vs state, offline action error, blank-camera val
-  runs, keypoint videos (`python -m dexvision.apps.diagnose|probe|keypoint_video`).
+- **Probe** (encoder alone, 8210 val frames): position error 0.22 cm mean
+  (mean guess 4.9 cm), 0.26 cm with the object in hand; identity 100%.
+- Diagnostics: `apps.diagnose`, `apps.probe`, `apps.keypoint_video`,
+  `apps.evaluate --blank` (`docs/PLAN.md` V3 table).
 
 **Proposed gate (not yet approved).** A vision policy passes if its single
 200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), every object
