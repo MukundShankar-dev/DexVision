@@ -1,0 +1,90 @@
+{
+ "report": "results/pick_vision/mlp_val.json",
+ "phases": {
+  "success": 200
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 18,
+    "n": 18
+   },
+   {
+    "successes": 24,
+    "n": 24
+   },
+   {
+    "successes": 20,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 24,
+    "n": 24
+   },
+   {
+    "successes": 22,
+    "n": 22
+   },
+   {
+    "successes": 25,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 26,
+    "n": 26
+   },
+   {
+    "successes": 14,
+    "n": 14
+   },
+   {
+    "successes": 27,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.0754,
+   "failure": null
+  },
+  "max_hand_table_force_n": {
+   "success": 21.5,
+   "failure": null
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": null
+  },
+  "first_contact_step": {
+   "success": 40.0,
+   "failure": null
+  },
+  "first_grasp_step": {
+   "success": 47.0,
+   "failure": null
+  },
+  "min_grasp_xy_m": {
+   "success": 0.0194,
+   "failure": null
+  },
+  "shift_before_grasp_m": {
+   "success": 0.0086,
+   "failure": null
+  }
+ },
+ "paired": {
+  "against": "results/pick/mlp_val_phases.json",
+  "both": 200,
+  "only_this": 0,
+  "only_reference": 0,
+  "neither": 0,
+  "p_value": 1.0,
+  "reference_only_seeds": [],
+  "reference_only_phases": {}
+ }
+}

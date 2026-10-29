@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** V3 — pick from images (`docs/PLAN.md`). V1 and V2
-approved. **State:** spec, diagnostics, data, baselines and probe done; gate
-approved; training next.
+approved. **State:** trained, tested once per method; both pass the gate;
+awaiting owner sign-off.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -37,27 +37,25 @@ and place seed 1. Open: MLP-BC push back-of-hand stalls 2.0–2.5 cm short.
 **V1–V2:** two 96 px cameras (`configs/cameras.yaml`), per-camera CNN with
 32 keypoints (`vision:` in `configs/learning/method.yaml`).
 
-## V3 — pick_vision (val, 200 episodes; details in `results/pick_vision/`)
+## V3 — pick_vision (details in `results/pick_vision/`)
 
-Spec `configs/tasks/pick_vision.yaml`: pick without `object_*`, plus both
-cameras; test seeds 300000–310000. Demos: 982/1000 kept (x86-64; the state
-set was made on arm64, 13 seeds differ in kept/dropped, code reproduces).
+Spec: pick without `object_*`, plus both cameras; test seeds 300000–310000.
+Demos 982/1000 (x86-64). Gate (approved 2026-10-29, before training): test
+lower bound ≥ 80%, every object ≥ 60%, both cameras blanked ≤ 10% on val.
 
-| Baseline | Success |
-|---|---|
-| zero, random | 0/200, 0/200 [0, 1.9%] |
-| expert (state, same seeds) | 200/200 |
-| state Diffusion / MLP-BC (ceiling) | 197/200 / 200/200 |
+| 200 episodes | Diffusion | MLP-BC |
+|---|---|---|
+| **Test (ledgered)** | **189** [90.4, 96.9%], worst puck_light 23/29 | **200** [98.1, 100%] |
+| Val | 191 (state: 197; zero, random: 0) | 200 (state: 200) |
+| Val, both cameras blanked | 0 | 0 |
+| Val, only `policy_left` / only `policy_right` | 178 / 0 | 16 / 37 |
 
-- **Probe** (encoder alone, 8210 val frames): position error 0.22 cm mean
-  (mean guess 4.9 cm), 0.26 cm with the object in hand; identity 100%.
-- Diagnostics: `apps.diagnose`, `apps.probe`, `apps.keypoint_video`,
-  `apps.evaluate --blank` (`docs/PLAN.md` V3 table).
-
-**Gate (approved by the owner 2026-10-29, before any training).** A vision policy passes if its single
-200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), every object
-≥ 60%, and on val with both cameras blanked it succeeds ≤ 10% (otherwise it
-is not using the images and the result does not count).
+**Both pass.** Diffusion relies on `policy_left` alone; MLP-BC needs both.
+Paired with state on val: Diffusion 188 both, 9 only state, 3 only vision
+(McNemar p = 0.15). Its 9 failures all touch the object (5 dropped before
+0.5 s), with no start-position cluster; keypoint videos reproduce all 9.
+Probe (object position from frozen features): scratch 0.22 cm, Diffusion
+0.67, MLP-BC 0.91 (mean guess 4.9). Offline action error 0.048 (state 0.047).
 
 ## Caveats
 

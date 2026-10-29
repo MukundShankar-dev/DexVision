@@ -1,0 +1,109 @@
+{
+ "report": "results/pick_vision/diffusion_val.json",
+ "phases": {
+  "success": 191,
+  "lifted_not_held": 5,
+  "contact_no_grasp": 2,
+  "grasped_not_lifted": 1,
+  "fell_off_table": 1
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 16,
+    "n": 18
+   },
+   {
+    "successes": 23,
+    "n": 24
+   },
+   {
+    "successes": 20,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 22,
+    "n": 24
+   },
+   {
+    "successes": 21,
+    "n": 22
+   },
+   {
+    "successes": 24,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 25,
+    "n": 26
+   },
+   {
+    "successes": 14,
+    "n": 14
+   },
+   {
+    "successes": 26,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.0751,
+   "failure": 0.0534
+  },
+  "max_hand_table_force_n": {
+   "success": 23.9,
+   "failure": 21.5
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 1.0
+  },
+  "first_contact_step": {
+   "success": 40.0,
+   "failure": 41.0
+  },
+  "first_grasp_step": {
+   "success": 49.0,
+   "failure": 47.0
+  },
+  "min_grasp_xy_m": {
+   "success": 0.0194,
+   "failure": 0.0132
+  },
+  "shift_before_grasp_m": {
+   "success": 0.0103,
+   "failure": 0.0089
+  }
+ },
+ "paired": {
+  "against": "results/pick/diffusion_val_phases.json",
+  "both": 188,
+  "only_this": 3,
+  "only_reference": 9,
+  "neither": 0,
+  "p_value": 0.14599609375,
+  "reference_only_seeds": [
+   100016,
+   100039,
+   100079,
+   100104,
+   100117,
+   100135,
+   100139,
+   100149,
+   100164
+  ],
+  "reference_only_phases": {
+   "lifted_not_held": 5,
+   "contact_no_grasp": 2,
+   "grasped_not_lifted": 1,
+   "fell_off_table": 1
+  }
+ }
+}

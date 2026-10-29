@@ -1,0 +1,84 @@
+{
+ "task": "pick_vision",
+ "code": {
+  "commit": "6397c2c676e724e479fdf4581442a6d5cafc5cbf",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/pick/pick_vision",
+ "val_data": "datasets/pick/pick_vision_val",
+ "val_episodes": 98,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/pick_vision/diffusion_seed0/step_060000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.048,
+   "translation": 0.1021,
+   "rotation": 0.2375,
+   "fingers": 0.0115
+  },
+  "far": {
+   "windows": 1611,
+   "all": 0.051,
+   "translation": 0.1138,
+   "rotation": 0.2319,
+   "fingers": 0.0144
+  },
+  "near": {
+   "windows": 1219,
+   "all": 0.0512,
+   "translation": 0.1248,
+   "rotation": 0.2361,
+   "fingers": 0.0124
+  },
+  "lifted": {
+   "windows": 1170,
+   "all": 0.0406,
+   "translation": 0.0622,
+   "rotation": 0.2465,
+   "fingers": 0.0065
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 8210,
+   "position_error_cm_mean": 0.67,
+   "position_error_cm_median": 0.54,
+   "position_error_cm_p90": 1.2,
+   "mean_guess_error_cm": 4.91,
+   "object_accuracy": 0.979
+  },
+  "far": {
+   "frames": 3249,
+   "position_error_cm_mean": 0.56,
+   "position_error_cm_median": 0.48,
+   "position_error_cm_p90": 0.97,
+   "mean_guess_error_cm": 4.42,
+   "object_accuracy": 0.992
+  },
+  "near": {
+   "frames": 2505,
+   "position_error_cm_mean": 0.61,
+   "position_error_cm_median": 0.51,
+   "position_error_cm_p90": 1.05,
+   "mean_guess_error_cm": 4.54,
+   "object_accuracy": 0.981
+  },
+  "lifted": {
+   "frames": 2456,
+   "position_error_cm_mean": 0.89,
+   "position_error_cm_median": 0.71,
+   "position_error_cm_p90": 1.58,
+   "mean_guess_error_cm": 5.93,
+   "object_accuracy": 0.96
+  }
+ }
+}
