@@ -30,6 +30,7 @@ class TaskSpecError(ValueError):
 
 @dataclass(frozen=True)
 class TaskSpec:
+    name: str  # the spec file's stem: the skill, or a variant of it such as pick_vision
     skill: str
     observation: tuple[str, ...]
     horizon_steps: int
@@ -37,6 +38,7 @@ class TaskSpec:
     test_budget: int
     raw: Mapping[str, Any]  # the full YAML, for skill-specific sections
     path: Path
+    cameras: tuple[str, ...] = ()  # policy cameras rendered as rgb/<camera> observations
 
     def seeds(self, split: str, n: int) -> range:
         """The first ``n`` episode seeds of ``split``. Seeds are never shared across splits."""
@@ -55,6 +57,10 @@ def load_task_spec(skill_or_path: str | Path) -> TaskSpec:
     if not path.is_file():
         raise TaskSpecError(f"Task spec not found: {path}")
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if "extends" in raw:
+        # a variant: the base spec's top-level keys, with the variant's keys replacing them
+        base = load_task_spec(path.with_name(f"{raw['extends']}.yaml")).raw
+        raw = {**base, **{k: v for k, v in raw.items() if k != "extends"}}
     splits = {name: tuple(int(v) for v in raw["splits"][name]) for name in SPLITS}
     ordered = sorted(splits.values())
     for (_, stop), (start, _) in zip(ordered, ordered[1:], strict=False):
@@ -63,6 +69,7 @@ def load_task_spec(skill_or_path: str | Path) -> TaskSpec:
     if any(start >= stop for start, stop in ordered):
         raise TaskSpecError(f"Empty seed split in {path}.")
     return TaskSpec(
+        name=path.stem,
         skill=str(raw["skill"]),
         observation=tuple(raw["observation"]),
         horizon_steps=int(raw["horizon_steps"]),
@@ -70,4 +77,5 @@ def load_task_spec(skill_or_path: str | Path) -> TaskSpec:
         test_budget=int(raw["test_budget"]),
         raw=raw,
         path=path,
+        cameras=tuple(raw.get("cameras", ())),
     )

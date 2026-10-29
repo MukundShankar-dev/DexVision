@@ -12,6 +12,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
 import torch
 import yaml
 from torch import nn
@@ -52,6 +53,8 @@ class Trained:
     step: int
     record: dict = field(default_factory=dict)  # dataset hash, provenance, skill
     cameras: tuple[str, ...] = ()  # image inputs, besides the fields
+    # per camera, the training images' mean [H, W, 3] uint8: the stand-in for a blanked camera
+    image_mean: dict[str, np.ndarray] = field(default_factory=dict)
 
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -61,6 +64,7 @@ class Trained:
             "obs_dim": len(self.obs_norm.low), "action_dim": len(self.action_norm.low),
             "model": self.model.state_dict(), "step": self.step, "record": self.record,
             "cameras": list(self.cameras),
+            **({"image_mean": self.image_mean} if self.image_mean else {}),
         }, path)
 
     @classmethod
@@ -73,7 +77,8 @@ class Trained:
         model.to(device).eval()
         return cls(data["method"], model, Normalizer.from_state(data["obs_norm"]),
                    Normalizer.from_state(data["action_norm"]), tuple(data["fields"]),
-                   data["config"], data["step"], data["record"], cameras)
+                   data["config"], data["step"], data["record"], cameras,
+                   data.get("image_mean", {}))
 
 
 def ema_decay(step: int, power: float, max_decay: float) -> float:
@@ -137,7 +142,9 @@ def train(
     trained = Trained(method, ema, obs_norm, action_norm, windows.fields, dict(config), 0,
                       {**(record or {}), "code": code_version(), "seed": seed,
                        "episodes": windows.n_episodes, "windows": len(windows)},
-                      windows.cameras)
+                      windows.cameras,
+                      {c: np.round(f.mean(axis=0, dtype=np.float64)).astype(np.uint8)
+                       for c, f in windows.images.items()})
 
     model.train()
     for step in range(1, steps + 1):

@@ -7,7 +7,7 @@ Counting rules (AGENTS.md rule 7): one seed is one unique episode, every rate ca
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 from dexvision.eval.ledger import DEFAULT_LEDGER, append_test_run, check_test_budget
@@ -15,6 +15,7 @@ from dexvision.eval.stats import wilson_interval
 from dexvision.eval.video import VideoRecorder
 from dexvision.policies.base import Policy
 from dexvision.provenance import code_version
+from dexvision.sim.cameras import CameraConfig, CameraRig
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks.features import observation_dict
 
@@ -27,6 +28,7 @@ class EpisodeResult:
     steps: int
     failure: str | None
     metrics: dict[str, float]
+    phase: str | None = None  # how far the episode got, for tasks that define phases
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,7 @@ class Rate:
 
 @dataclass(frozen=True)
 class EvalReport:
+    task: str  # the spec's name, e.g. pick or pick_vision
     skill: str
     policy: str
     split: str
@@ -58,29 +61,47 @@ class EvalReport:
         return asdict(self)
 
 
+def camera_rig(workcell: Workcell, cameras) -> CameraRig | None:
+    """A rig rendering ``cameras`` (names from configs/cameras.yaml), or None for no cameras."""
+    return CameraRig(workcell, replace(CameraConfig.load(), cameras=tuple(cameras))) if cameras \
+        else None
+
+
 def run_episode(
-    workcell: Workcell, task, policy: Policy, seed: int, recorder: VideoRecorder | None = None
+    workcell: Workcell, task, policy: Policy, seed: int, recorder: VideoRecorder | None = None,
+    rig: CameraRig | None = None,
 ) -> EpisodeResult:
+    """One episode. With a ``rig``, the policy also observes ``rgb/<camera>`` images rendered
+    from the state it acts on."""
     context, observation = task.reset(workcell, seed)
     policy.reset(context, seed)
     if recorder:
         recorder.capture()
     fields = task.spec.observation
+
+    def observe(observation) -> dict:
+        observed = observation_dict(fields, observation, context)
+        if rig:
+            observed.update({f"rgb/{name}": image for name, image in rig.render().items()})
+        return observed
+
     for step in range(1, task.spec.horizon_steps + 1):
-        action = policy.act(observation_dict(fields, observation, context))
+        action = policy.act(observe(observation))
         observation = workcell.step(action)
         check = task.check(observation, workcell.contacts())
         if recorder:
             recorder.capture()
         if check.success or check.failure:
-            return EpisodeResult(
-                seed, context.target_object or "none", check.success, step, check.failure,
-                task.episode_metrics(),
-            )
-    return EpisodeResult(
-        seed, context.target_object or "none", False, task.spec.horizon_steps, "timeout",
-        task.episode_metrics(),
-    )
+            return _result(task, context, seed, check.success, step, check.failure)
+    return _result(task, context, seed, False, task.spec.horizon_steps, "timeout")
+
+
+def _result(task, context, seed: int, success: bool, steps: int, failure: str | None
+            ) -> EpisodeResult:
+    metrics = task.episode_metrics()
+    phase = task.phase(success, failure, metrics) if hasattr(task, "phase") else None
+    return EpisodeResult(seed, context.target_object or "none", success, steps, failure, metrics,
+                         phase)
 
 
 def evaluate(
@@ -102,10 +123,11 @@ def evaluate(
         check_test_budget(skill, policy.name, task.spec.test_budget, task.spec.splits["test"],
                           ledger_path)
     recorder = VideoRecorder(workcell) if video_dir and n_videos else None
+    rig = camera_rig(workcell, task.spec.cameras)
     episodes = []
     for index, seed in enumerate(seeds):
         record = recorder if recorder and index < n_videos else None
-        result = run_episode(workcell, task, policy, seed, record)
+        result = run_episode(workcell, task, policy, seed, record, rig)
         if record:
             outcome = "success" if result.success else result.failure
             record.save(video_dir / f"{skill}_{policy.name}_{split}_{seed}_{outcome}.mp4",
@@ -113,6 +135,8 @@ def evaluate(
         episodes.append(result)
     if recorder:
         recorder.close()
+    if rig:
+        rig.close()
 
     grouped = defaultdict(list)
     failures = defaultdict(int)
@@ -121,6 +145,7 @@ def evaluate(
         if result.failure:
             failures[result.failure] += 1
     report = EvalReport(
+        task=task.spec.name,
         skill=skill,
         policy=policy.name,
         split=split,
@@ -133,7 +158,7 @@ def evaluate(
     )
     if split == "test":
         append_test_run(
-            {"skill": skill, "policy": policy.name, "n": report.overall.n,
+            {"task": task.spec.name, "skill": skill, "policy": policy.name, "n": report.overall.n,
              "successes": report.overall.successes, "ci95": report.overall.ci95,
              "seeds": [seeds.start, seeds.stop], "code": report.code,
              "policy_info": report.policy_info},

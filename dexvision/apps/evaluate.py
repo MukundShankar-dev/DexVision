@@ -9,6 +9,9 @@ count against the task's test budget and are logged in results/test_ledger.jsonl
 
 --dart-noise executes every action with the DART noise from configs/data/<task>.yaml, to measure
 how robust a policy (usually the expert) is to small execution errors. Val split only.
+
+--blank CAMERA [CAMERA ...] replaces those cameras' images with the training-mean image, to
+measure how much a vision policy relies on each camera. Val split only.
 """
 
 from __future__ import annotations
@@ -24,12 +27,12 @@ from dexvision.eval.evaluator import evaluate
 from dexvision.learning.policy import load_learned_policy
 from dexvision.policies import POLICIES, make_policy
 from dexvision.sim.workcell import Workcell
-from dexvision.tasks import TASKS, make_task
+from dexvision.tasks import TASK_NAMES, make_task
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--task", choices=sorted(TASKS), required=True)
+    parser.add_argument("--task", choices=TASK_NAMES, required=True)
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--policy", choices=sorted(POLICIES))
     source.add_argument("--checkpoint", type=Path, help="a trained model from apps.train")
@@ -40,17 +43,21 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--dart-noise", action="store_true",
                         help="execute actions with the task's DART noise (val only)")
+    parser.add_argument("--blank", nargs="+", default=(), metavar="CAMERA",
+                        help="replace these cameras' images with the training mean (val only)")
     args = parser.parse_args()
     if args.dart_noise and args.split != "val":
         parser.error("--dart-noise is a robustness measurement on val, not a test result")
+    if args.blank and (args.split != "val" or not args.checkpoint):
+        parser.error("--blank is a diagnostic for a trained vision policy on val")
 
     workcell = Workcell()
     task = make_task(args.task)
     info = {}
     if args.checkpoint:
-        policy, info = load_learned_policy(args.checkpoint, task.spec)
+        policy, info = load_learned_policy(args.checkpoint, task.spec, blank=args.blank)
     else:
-        policy = make_policy(args.policy, workcell.action_space, args.task)
+        policy = make_policy(args.policy, workcell.action_space, task.spec.skill)
     if args.dart_noise:
         noise = noise_std_vector(load_data_config(args.task)["noise_std"])
         name = policy.name

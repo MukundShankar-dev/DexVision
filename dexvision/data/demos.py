@@ -3,6 +3,7 @@
 Each kept episode is one compressed ``episode_<seed>.npz`` holding, for T control steps:
 
     obs/<field>       [T, d]   the declared observation field before step t's action
+    obs/rgb/<camera>  [T, H, W, 3] uint8, when the data config lists ``cameras``
     action            [T, 26]  the clean expert action, clipped by ``ActionSpace.clip`` (the label)
     executed_action   [T, 26]  action + noise, exactly what was sent to ``Workcell.step``
     seed, success, steps, target_object, failure   scalars
@@ -16,7 +17,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict
 from pathlib import Path
 
@@ -24,7 +26,7 @@ import numpy as np
 import yaml
 
 from dexvision import REPO_ROOT
-from dexvision.eval.evaluator import EpisodeResult, Rate, run_episode
+from dexvision.eval.evaluator import EpisodeResult, Rate, camera_rig, run_episode
 from dexvision.policies.base import Policy
 from dexvision.provenance import code_version
 from dexvision.sim.workcell import (
@@ -139,18 +141,14 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def generate(
-    workcell: Workcell, task, expert: Policy, config: Mapping, out_dir: Path,
-    progress=None,
-) -> dict:
-    """Roll out ``expert`` on the first ``config['episodes']`` seeds of ``config['split']``,
-    keep the successes in ``out_dir`` and return the manifest (also written to the directory)."""
-    out_dir.mkdir(parents=True, exist_ok=False)
+def _record(workcell: Workcell, task, expert: Policy, config: Mapping, out_dir: Path,
+            seeds: Sequence[int], progress=None) -> tuple[list[EpisodeResult], dict[str, str]]:
+    """Roll out ``seeds`` in order; save the successes. -> results, {file name: SHA-256}."""
     recorder = DemoRecorder(expert, workcell.action_space, noise_std_vector(config["noise_std"]))
-    seeds = task.spec.seeds(config["split"], int(config["episodes"]))
+    rig = camera_rig(workcell, config.get("cameras", ()))
     results, files = [], {}
     for seed in seeds:
-        result = run_episode(workcell, task, recorder, seed)
+        result = run_episode(workcell, task, recorder, seed, rig=rig)
         results.append(result)
         if result.success:
             path = out_dir / f"episode_{seed:06d}.npz"
@@ -158,6 +156,50 @@ def generate(
             files[path.name] = _sha256(path)
         if progress:
             progress(len(results), len(seeds), result)
+    if rig:
+        rig.close()
+    return results, files
+
+
+def _record_in_worker(job: tuple[Mapping, str, list[int]]
+                      ) -> tuple[list[EpisodeResult], dict[str, str]]:
+    from dexvision.policies import make_policy
+    from dexvision.tasks import make_task
+
+    config, out_dir, seeds = job
+    workcell = Workcell()
+    expert = make_policy(config["policy"], workcell.action_space, config["task"])
+    return _record(workcell, make_task(config["task"]), expert, config, Path(out_dir), seeds)
+
+
+def generate(
+    workcell: Workcell, task, expert: Policy, config: Mapping, out_dir: Path,
+    progress=None, workers: int = 1,
+) -> dict:
+    """Roll out ``expert`` on the first ``config['episodes']`` seeds of ``config['split']``,
+    keep the successes in ``out_dir`` and return the manifest (also written to the directory).
+
+    With ``workers`` > 1, chunks of seeds run in separate processes, each building its own
+    workcell, task and expert from the config. Every episode depends only on its seed, so the
+    files are the same either way."""
+    out_dir.mkdir(parents=True, exist_ok=False)
+    seeds = list(task.spec.seeds(config["split"], int(config["episodes"])))
+    if workers <= 1:
+        results, files = _record(workcell, task, expert, config, out_dir, seeds, progress)
+    else:
+        chunks = [seeds[i:i + 20] for i in range(0, len(seeds), 20)]
+        results, files = [], {}
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            jobs = [pool.submit(_record_in_worker, (dict(config), str(out_dir), chunk))
+                    for chunk in chunks]
+            for job in as_completed(jobs):
+                chunk_results, chunk_files = job.result()
+                results.extend(chunk_results)
+                files.update(chunk_files)
+                if progress:
+                    progress(len(results), len(seeds), chunk_results[-1])
+        results.sort(key=lambda r: r.seed)
+        files = dict(sorted(files.items()))
     manifest = build_manifest(task, expert, config, results, files)
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", "utf-8")
     return manifest

@@ -4,13 +4,16 @@ Each inference predicts Tp actions from the last To observations; the first ``ex
 actions are executed before predicting again. Sampling noise comes from a generator seeded with
 the episode seed, so evaluation is reproducible. The policy has no skill-specific code. A policy
 trained with cameras also reads ``rgb/<camera>`` images ([H, W, 3] uint8) from the observation.
+
+``blank`` names cameras whose images are replaced by the training-mean image, to measure how much
+the policy relies on each camera (a diagnostic on val, never a result).
 """
 
 from __future__ import annotations
 
 import hashlib
 from collections import deque
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import numpy as np
@@ -24,9 +27,14 @@ from dexvision.tasks.spec import TaskSpec
 
 
 class LearnedPolicy:
-    def __init__(self, trained: Trained, device: str = "cpu", name: str | None = None) -> None:
+    def __init__(self, trained: Trained, device: str = "cpu", name: str | None = None,
+                 blank: Sequence[str] = ()) -> None:
+        unknown = set(blank) - set(trained.cameras)
+        if unknown:
+            raise ValueError(f"Cannot blank {sorted(unknown)}: the policy uses {trained.cameras}")
         self.trained = trained
-        self.name = name or trained.method
+        self._blank = tuple(blank)
+        self.name = name or "_".join([trained.method, *(f"blank-{c}" for c in self._blank)])
         self._device = device
         horizons = trained.config["horizons"]
         self._obs_horizon, self._execution = horizons["observation"], horizons["execution"]
@@ -40,7 +48,8 @@ class LearnedPolicy:
 
     def act(self, observation: Mapping[str, np.ndarray]) -> np.ndarray:
         obs = observation_vector(self.trained.fields, observation)
-        images = {c: np.asarray(observation[f"rgb/{c}"]) for c in self.trained.cameras}
+        images = {c: self.trained.image_mean[c] if c in self._blank
+                  else np.asarray(observation[f"rgb/{c}"]) for c in self.trained.cameras}
         self._history.append(obs)
         self._image_history.append(images)
         while len(self._history) < self._obs_horizon:  # episode start: repeat the first
@@ -63,7 +72,7 @@ class LearnedPolicy:
         return t.action_norm.decode(chunk)[: self._execution]
 
 
-def load_learned_policy(path: Path, spec: TaskSpec, device: str = "cpu"
+def load_learned_policy(path: Path, spec: TaskSpec, device: str = "cpu", blank: Sequence[str] = ()
                         ) -> tuple[LearnedPolicy, dict[str, object]]:
     """Load a checkpoint for ``spec``'s skill. Refuses checkpoints trained for another skill or
     on other observation fields. Returns the policy and its provenance for the report."""
@@ -74,6 +83,8 @@ def load_learned_policy(path: Path, spec: TaskSpec, device: str = "cpu"
                          f"not {spec.skill!r}")
     if trained.fields != spec.observation:
         raise ValueError(f"{path} observes {trained.fields}, the task declares {spec.observation}")
+    if trained.cameras != spec.cameras:
+        raise ValueError(f"{path} uses cameras {trained.cameras}, the task declares {spec.cameras}")
     try:
         shown = str(path.relative_to(REPO_ROOT))
     except ValueError:
@@ -84,5 +95,6 @@ def load_learned_policy(path: Path, spec: TaskSpec, device: str = "cpu"
         "method": trained.method,
         "step": trained.step,
         "training": trained.record,
+        **({"blanked_cameras": list(blank)} if blank else {}),
     }
-    return LearnedPolicy(trained, device), info
+    return LearnedPolicy(trained, device, blank=blank), info

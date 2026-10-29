@@ -186,12 +186,30 @@ cameras show what the task needs (object, goal marker, button).
 
 ### V3 — Pick from images (closely supervised, as R2–R6)
 
-- Spec `pick` vision variant, new test range; baselines on val: the
-  state-based Diffusion policy (ceiling), and the vision policy with images
-  blanked to their training mean (must collapse, as the hidden-input checks
-  did).
+- Spec `pick_vision`: the `pick` spec with `object_*` removed from the
+  observations and the two cameras added; same train and val seeds (so the
+  state and vision policies are compared on identical episodes), new test
+  range. Demos are the same expert episodes as the state track, with images.
 - Gate written before training, against the state-based result.
 - Train, select on val, one ledgered test per method.
+
+**Diagnostics, built and checked before training.** The evals must say *why*
+a policy fails, not only how often. Each question gets its own measurement:
+
+| Question | Measurement |
+|---|---|
+| Do 96 px images hold the object's position and shape at all? | Perception probe: the same encoder trained alone to predict object position (cm error) and shape (accuracy) on val frames, split by episode phase (before contact, during grasp). Runs before policy training. |
+| Did the policy's encoder learn it? | The same probe on the trained policy's frozen encoder features, compared with the above. |
+| Does the policy use the images, and which camera? | Val with both cameras, then each camera alone, replaced by the training-mean image. |
+| Where in the task does it fail? | Every episode gets a measured phase: no contact, contact without grasp, grasped but not lifted, lifted but not held 0.5 s, object knocked off. Plus continuous metrics: closest grasp-point-to-object distance, how far the object was pushed before the grasp, first contact and grasp steps. |
+| Is it vision-specific? | Paired comparison with the state policy on the same val seeds: both / only state / only vision / neither, exact McNemar test. |
+| Is it localized? | Success by object and by start position (3 × 3 grid over the reset area), with CIs. |
+| Learning or closed loop? | Offline action error on held-out val-seed demos, image vs state policy. Low offline error with low success points to compounding errors (DAgger territory). |
+| What is it looking at? | Videos of failures with the 32 keypoints of each camera drawn on the policy's frames. |
+
+All of these run on val. The phase labels use only the success predicate's
+own pieces (contact, opposition grasp, lift, dwell), so they add no new
+thresholds.
 
 ### V4+ — Press, push, place from images
 

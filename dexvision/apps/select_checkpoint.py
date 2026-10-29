@@ -15,12 +15,12 @@ from pathlib import Path
 
 from dexvision import REPO_ROOT
 from dexvision.eval.selection import evaluate_checkpoints, select
-from dexvision.tasks import TASKS
+from dexvision.tasks import TASK_NAMES
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--task", choices=sorted(TASKS), required=True)
+    parser.add_argument("--task", choices=TASK_NAMES, required=True)
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))

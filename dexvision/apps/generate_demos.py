@@ -1,6 +1,7 @@
 """Generate expert demonstrations for a skill and check that they replay.
 
     python -m dexvision.apps.generate_demos --config pick --verify 50
+    python -m dexvision.apps.generate_demos --config pick_vision --workers 6
 
 Episodes go to datasets/<task>/<config name>/ (untracked). The manifest's summary, without the
 per-file hashes, is copied to results/<task>/dataset_<config name>.json (tracked).
@@ -25,6 +26,7 @@ def main() -> None:
     parser.add_argument("--config", default="pick", help="name in configs/data/ or a path")
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--verify", type=int, default=50, help="replay the first N kept episodes")
+    parser.add_argument("--workers", type=int, default=1, help="processes rolling out seeds")
     args = parser.parse_args()
 
     config = load_data_config(args.config)
@@ -35,12 +37,12 @@ def main() -> None:
     expert = make_policy(config["policy"], workcell.action_space, config["task"])
 
     def progress(done: int, total: int, result) -> None:
-        if done % 100 == 0 or done == total:
+        if done % 100 == 0 or done == total or args.workers > 1:
             print(f"  {done}/{total} episodes", flush=True)
 
     print(f"Generating {config['episodes']} {config['task']} episodes into {out}")
     started = time.perf_counter()
-    manifest = generate(workcell, task, expert, config, out, progress)
+    manifest = generate(workcell, task, expert, config, out, progress, args.workers)
     kept = manifest["kept"]
     print(f"Kept {kept['successes']}/{kept['n']}, 95% CI [{kept['ci95'][0]:.1%}, "
           f"{kept['ci95'][1]:.1%}]; dropped {manifest['dropped']}; "
