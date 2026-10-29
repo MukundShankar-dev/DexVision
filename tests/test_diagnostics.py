@@ -14,6 +14,7 @@ from dexvision.eval.probe import (
     ScratchProbe,
     fit_probe,
     frame_buckets,
+    load_probe_frames,
     offline_action_error,
     probe_frames,
     probe_report,
@@ -247,6 +248,19 @@ def test_frame_buckets():
     np.testing.assert_array_equal(frame_buckets(e), [0, 0, 0, 0, 0, 2])
     e["obs/fingertip_positions"][2] = np.tile(e["obs/object_position"][2], 5)
     assert BUCKETS[frame_buckets(e)[2]] == "near"
+
+
+def test_probe_frames_from_files_match_in_memory(tmp_path):
+    episodes = labelled_squares(3)
+    paths = []
+    for i, e in enumerate(episodes):
+        paths.append(tmp_path / f"episode_{i:06d}.npz")
+        np.savez_compressed(paths[-1], **e)
+    a = probe_frames(episodes, ("cam",), ["a", "b"])
+    b = load_probe_frames(paths, ("cam",), ["a", "b"])
+    for field in ("position", "object_index", "bucket"):
+        np.testing.assert_array_equal(getattr(a, field), getattr(b, field))
+    np.testing.assert_array_equal(a.images["cam"], b.images["cam"])
 
 
 def test_scratch_probe_reads_position_from_images():

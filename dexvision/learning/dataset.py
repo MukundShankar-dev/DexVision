@@ -81,4 +81,22 @@ class DemoWindows:
     def from_directory(cls, directory: Path, fields: Sequence[str], obs_horizon: int,
                        pred_horizon: int, cameras: Sequence[str] = ()) -> DemoWindows:
         paths = sorted(Path(directory).glob("episode_*.npz"))
-        return cls([load_episode(p) for p in paths], fields, obs_horizon, pred_horizon, cameras)
+        windows = cls([load_episode(p, images=False) for p in paths], fields, obs_horizon,
+                      pred_horizon)
+        # the frames are gigabytes: fill preallocated arrays one episode at a time, so memory
+        # peaks at the frames themselves rather than twice that
+        windows.cameras = tuple(cameras)
+        windows.images = {}
+        for camera in windows.cameras:
+            start = 0
+            for path in paths:
+                with np.load(path, allow_pickle=False) as data:
+                    frames = data[f"obs/rgb/{camera}"]
+                if camera not in windows.images:
+                    windows.images[camera] = np.empty((len(windows.observations),
+                                                       *frames.shape[1:]), np.uint8)
+                windows.images[camera][start:start + len(frames)] = frames
+                start += len(frames)
+            if start != len(windows.observations):
+                raise ValueError("Image and action lengths differ")
+        return windows

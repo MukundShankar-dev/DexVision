@@ -142,3 +142,15 @@ def test_policy_reads_its_camera_images():
     policy.reset(None, 0)
     with pytest.raises(KeyError):
         policy.act({"phase": np.zeros(1)})
+
+
+def test_windows_from_files_match_windows_in_memory(tmp_path):
+    episodes = square_episodes(3, 5)
+    for i, e in enumerate(episodes):
+        np.savez_compressed(tmp_path / f"episode_{i:06d}.npz", **e)
+    loaded = DemoWindows.from_directory(tmp_path, FIELDS, 2, 16, CAMERAS)
+    expected = windows(episodes)
+    assert loaded.cameras == CAMERAS
+    np.testing.assert_array_equal(loaded.images["cam"], expected.images["cam"])
+    np.testing.assert_array_equal(loaded.observations, expected.observations)
+    np.testing.assert_array_equal(loaded.obs_index, expected.obs_index)

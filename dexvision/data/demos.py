@@ -112,9 +112,11 @@ class ReplayPolicy:
         return action
 
 
-def load_episode(path: Path) -> dict[str, np.ndarray]:
+def load_episode(path: Path, images: bool = True) -> dict[str, np.ndarray]:
+    """All arrays of one episode file; without the ``obs/rgb/*`` frames if not ``images``."""
     with np.load(path, allow_pickle=False) as data:
-        return {key: data[key] for key in data.files}
+        return {key: data[key] for key in data.files
+                if images or not key.startswith("obs/rgb/")}
 
 
 def replay_matches(workcell: Workcell, task, episode: Mapping[str, np.ndarray]) -> bool:

@@ -28,6 +28,7 @@ from dexvision.eval.probe import (
     ScratchProbe,
     fit_probe,
     frozen_features,
+    load_probe_frames,
     offline_action_error,
     probe_frames,
     probe_report,
@@ -37,14 +38,14 @@ from dexvision.provenance import code_version
 from dexvision.tasks import TASK_NAMES, load_task_spec
 
 
-def _load(directory: Path) -> list[dict]:
-    return [load_episode(p) for p in sorted(Path(directory).glob("episode_*.npz"))]
+def _paths(directory: Path) -> list[Path]:
+    return sorted(Path(directory).glob("episode_*.npz"))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--task", choices=TASK_NAMES, required=True)
-    parser.add_argument("--train-data", type=Path, required=True)
+    parser.add_argument("--train-data", type=Path, default=None, help="needed for a probe")
     parser.add_argument("--val-data", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--device", default="cpu")
@@ -61,7 +62,7 @@ def main() -> None:
     trained = Trained.load(args.checkpoint, args.device) if args.checkpoint else None
     cameras = trained.cameras if trained else spec.cameras
     started = time.perf_counter()
-    val_episodes = _load(args.val_data)
+    val_episodes = [load_episode(p) for p in _paths(args.val_data)]
     result: dict = {"task": spec.name, "code": code_version(), "train_data": str(args.train_data),
                     "val_data": str(args.val_data), "val_episodes": len(val_episodes),
                     "settings": {k: getattr(args, k) for k in
@@ -75,7 +76,9 @@ def main() -> None:
             print(f"  {bucket:7s} {row}")
 
     if cameras:
-        train = probe_frames(_load(args.train_data), cameras, objects)
+        if args.train_data is None:
+            parser.error("a probe needs --train-data")
+        train = load_probe_frames(_paths(args.train_data), cameras, objects)
         val = probe_frames(val_episodes, cameras, objects)
         print(f"Probe frames: {len(train.position)} train, {len(val.position)} val", flush=True)
         if trained:

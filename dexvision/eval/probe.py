@@ -22,12 +22,14 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
 
+from dexvision.data.demos import load_episode
 from dexvision.learning.dataset import DemoWindows
 from dexvision.learning.train import Trained
 from dexvision.learning.vision import CameraEncoders
@@ -67,6 +69,30 @@ def probe_frames(episodes: Sequence[Mapping[str, np.ndarray]], cameras: Sequence
                                      for e in episodes]),
         bucket=np.concatenate([frame_buckets(e) for e in episodes]),
     )
+
+
+def load_probe_frames(paths: Sequence[Path], cameras: Sequence[str], objects: Sequence[str]
+                      ) -> ProbeFrames:
+    """``probe_frames`` of episode files, filled into preallocated arrays one episode at a time
+    so that memory peaks at the frames themselves (gigabytes for a full dataset)."""
+    lengths = []
+    for path in paths:
+        with np.load(path) as data:
+            lengths.append(len(data["action"]))
+    first = load_episode(paths[0])
+    images = {c: np.empty((sum(lengths), *first[f"obs/rgb/{c}"].shape[1:]), np.uint8)
+              for c in cameras}
+    position, object_index, bucket = np.empty((sum(lengths), 3)), [], []
+    start = 0
+    for path, n in zip(paths, lengths, strict=True):
+        one = probe_frames([load_episode(path)], cameras, objects)
+        for c in cameras:
+            images[c][start:start + n] = one.images[c]
+        position[start:start + n] = one.position
+        object_index.append(one.object_index)
+        bucket.append(one.bucket)
+        start += n
+    return ProbeFrames(images, position, np.concatenate(object_index), np.concatenate(bucket))
 
 
 class ScratchProbe(nn.Module):
