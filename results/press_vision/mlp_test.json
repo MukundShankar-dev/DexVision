@@ -1,0 +1,3663 @@
+{
+ "task": "press_vision",
+ "skill": "press",
+ "policy": "mlp",
+ "split": "test",
+ "overall": {
+  "successes": 92,
+  "n": 200,
+  "ci95": [
+   0.3923,
+   0.5292
+  ]
+ },
+ "by_object": {
+  "none": {
+   "successes": 92,
+   "n": 200,
+   "ci95": [
+    0.3923,
+    0.5292
+   ]
+  }
+ },
+ "failures": {
+  "timeout": 108
+ },
+ "episodes": [
+  {
+   "seed": 310000,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.13,
+    "first_contact_step": 55,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0696,
+    "start_z_m": 0.124
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310001,
+   "target_object": "none",
+   "success": true,
+   "steps": 96,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0207,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.84,
+    "first_contact_step": 66,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0502,
+    "start_z_m": 0.2261
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310002,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0252,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.18,
+    "first_contact_step": 40,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0027,
+    "start_z_m": 0.2062
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310003,
+   "target_object": "none",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.23,
+    "first_contact_step": 57,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0755,
+    "start_z_m": 0.1701
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310004,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0237,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.65,
+    "first_contact_step": 46,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0164,
+    "start_z_m": 0.1282
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310005,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.98,
+    "first_contact_step": 56,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": 0.0916,
+    "start_z_m": 0.2132
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310006,
+   "target_object": "none",
+   "success": true,
+   "steps": 104,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0225,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.67,
+    "first_contact_step": 69,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0627,
+    "start_z_m": 0.2447
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310007,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0258,
+    "pressed": 1.0,
+    "peak_press_force_n": 9.03,
+    "first_contact_step": 65,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0137,
+    "start_y_m": 0.0982,
+    "start_z_m": 0.2242
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310008,
+   "target_object": "none",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.41,
+    "first_contact_step": 62,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0922,
+    "start_z_m": 0.19
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310009,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.86,
+    "first_contact_step": 73,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": 0.0445,
+    "start_z_m": 0.2715
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310010,
+   "target_object": "none",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.28,
+    "first_contact_step": 53,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0369,
+    "start_z_m": 0.2225
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310011,
+   "target_object": "none",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0222,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.01,
+    "first_contact_step": 58,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0481,
+    "start_z_m": 0.2175
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310012,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0231,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.1,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0135,
+    "start_z_m": 0.157
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310013,
+   "target_object": "none",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0236,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.49,
+    "first_contact_step": 49,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0162,
+    "start_z_m": 0.175
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310014,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.31,
+    "first_contact_step": 56,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0839,
+    "start_z_m": 0.1909
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310015,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0217,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 59,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.005,
+    "start_z_m": 0.2551
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310016,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0226,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.9,
+    "first_contact_step": 66,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": -0.0596,
+    "start_z_m": 0.2568
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310017,
+   "target_object": "none",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0243,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.29,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": 0.0028,
+    "start_z_m": 0.2115
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310018,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0245,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.04,
+    "first_contact_step": 48,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0751,
+    "start_z_m": 0.1565
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310019,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.43,
+    "first_contact_step": 63,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.074,
+    "start_z_m": 0.1631
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310020,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.75,
+    "first_contact_step": 44,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0163,
+    "start_z_m": 0.1327
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310021,
+   "target_object": "none",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.97,
+    "first_contact_step": 55,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0723,
+    "start_z_m": 0.2327
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310022,
+   "target_object": "none",
+   "success": true,
+   "steps": 96,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.022,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.93,
+    "first_contact_step": 66,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0509,
+    "start_z_m": 0.219
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310023,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0257,
+    "pressed": 1.0,
+    "peak_press_force_n": 9.28,
+    "first_contact_step": 48,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0138,
+    "start_y_m": -0.0281,
+    "start_z_m": 0.2538
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310024,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.04,
+    "first_contact_step": 58,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0758,
+    "start_z_m": 0.2534
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310025,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0237,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.56,
+    "first_contact_step": 49,
+    "max_held_steps": 14,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.1034,
+    "start_z_m": 0.2313
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310026,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0216,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 49,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0878,
+    "start_z_m": 0.1326
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310027,
+   "target_object": "none",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0221,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06,
+    "first_contact_step": 55,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0559,
+    "start_z_m": 0.1506
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310028,
+   "target_object": "none",
+   "success": true,
+   "steps": 97,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0201,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.81,
+    "first_contact_step": 68,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0425,
+    "start_z_m": 0.2143
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310029,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.0,
+    "first_contact_step": 65,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0196,
+    "start_z_m": 0.2639
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310030,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0226,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.79,
+    "first_contact_step": 60,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0974,
+    "start_z_m": 0.2088
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310031,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.023,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.04,
+    "first_contact_step": 60,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0485,
+    "start_z_m": 0.2599
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310032,
+   "target_object": "none",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.9,
+    "first_contact_step": 44,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.015,
+    "start_y_m": 0.0929,
+    "start_z_m": 0.1779
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310033,
+   "target_object": "none",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.1,
+    "first_contact_step": 46,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.038,
+    "start_z_m": 0.1444
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310034,
+   "target_object": "none",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0237,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.85,
+    "first_contact_step": 54,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0793,
+    "start_z_m": 0.1706
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310035,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0236,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.35,
+    "first_contact_step": 58,
+    "max_held_steps": 15,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0233,
+    "start_z_m": 0.279
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310036,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0216,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 43,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0151,
+    "start_y_m": 0.1091,
+    "start_z_m": 0.1665
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310037,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.83,
+    "first_contact_step": 50,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0149,
+    "start_y_m": -0.0137,
+    "start_z_m": 0.2637
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310038,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.81,
+    "first_contact_step": 46,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0508,
+    "start_z_m": 0.1952
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310039,
+   "target_object": "none",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0243,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.81,
+    "first_contact_step": 45,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0115,
+    "start_z_m": 0.2147
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310040,
+   "target_object": "none",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.61,
+    "first_contact_step": 54,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0385,
+    "start_z_m": 0.1577
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310041,
+   "target_object": "none",
+   "success": true,
+   "steps": 95,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.5,
+    "first_contact_step": 63,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.028,
+    "start_z_m": 0.1872
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310042,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.0,
+    "first_contact_step": 55,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0743,
+    "start_z_m": 0.2524
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310043,
+   "target_object": "none",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.14,
+    "first_contact_step": 54,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0188,
+    "start_z_m": 0.2548
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310044,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.95,
+    "first_contact_step": 55,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0043,
+    "start_z_m": 0.1851
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310045,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0242,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.34,
+    "first_contact_step": 46,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0548,
+    "start_z_m": 0.1207
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310046,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.41,
+    "first_contact_step": 67,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0516,
+    "start_z_m": 0.2568
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310047,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0253,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.93,
+    "first_contact_step": 66,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.101,
+    "start_z_m": 0.2675
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310048,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0245,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.72,
+    "first_contact_step": 39,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0141,
+    "start_z_m": 0.1453
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310049,
+   "target_object": "none",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.32,
+    "first_contact_step": 49,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0759,
+    "start_z_m": 0.1917
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310050,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.05,
+    "first_contact_step": 58,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0168,
+    "start_z_m": 0.2632
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310051,
+   "target_object": "none",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0212,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.86,
+    "first_contact_step": 52,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0517,
+    "start_z_m": 0.1434
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310052,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0246,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.13,
+    "first_contact_step": 55,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0818,
+    "start_z_m": 0.219
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310053,
+   "target_object": "none",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0199,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.8,
+    "first_contact_step": 51,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": -0.0529,
+    "start_z_m": 0.2085
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310054,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0229,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.67,
+    "first_contact_step": 50,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0813,
+    "start_z_m": 0.1739
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310055,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.025,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.16,
+    "first_contact_step": 55,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0981,
+    "start_z_m": 0.2129
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310056,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0242,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.41,
+    "first_contact_step": 58,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.094,
+    "start_z_m": 0.2058
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310057,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.18,
+    "first_contact_step": 69,
+    "max_held_steps": 14,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.1089,
+    "start_z_m": 0.1247
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310058,
+   "target_object": "none",
+   "success": true,
+   "steps": 104,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0238,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.16,
+    "first_contact_step": 71,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0205,
+    "start_z_m": 0.2616
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310059,
+   "target_object": "none",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.15,
+    "first_contact_step": 49,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0403,
+    "start_z_m": 0.2103
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310060,
+   "target_object": "none",
+   "success": true,
+   "steps": 96,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0214,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 65,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0703,
+    "start_z_m": 0.1673
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310061,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.24,
+    "first_contact_step": 53,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0652,
+    "start_z_m": 0.2254
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310062,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0252,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.9,
+    "first_contact_step": 62,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": -0.062,
+    "start_z_m": 0.2781
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310063,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0263,
+    "pressed": 1.0,
+    "peak_press_force_n": 10.21,
+    "first_contact_step": 54,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0269,
+    "start_z_m": 0.2592
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310064,
+   "target_object": "none",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.2,
+    "first_contact_step": 50,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.037,
+    "start_z_m": 0.2044
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310065,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0266,
+    "pressed": 1.0,
+    "peak_press_force_n": 10.56,
+    "first_contact_step": 63,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0139,
+    "start_y_m": -0.0852,
+    "start_z_m": 0.1327
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310066,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0213,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.86,
+    "first_contact_step": 53,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0525,
+    "start_z_m": 0.2024
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310067,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0225,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.62,
+    "first_contact_step": 59,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0278,
+    "start_z_m": 0.2014
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310068,
+   "target_object": "none",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0197,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.79,
+    "first_contact_step": 52,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": 0.0781,
+    "start_z_m": 0.1794
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310069,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0253,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.15,
+    "first_contact_step": 63,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0486,
+    "start_z_m": 0.2624
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310070,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0218,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 57,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0326,
+    "start_z_m": 0.1322
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310071,
+   "target_object": "none",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0217,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 59,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0909,
+    "start_z_m": 0.2031
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310072,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.17,
+    "first_contact_step": 53,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.1032,
+    "start_z_m": 0.1459
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310073,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0266,
+    "pressed": 1.0,
+    "peak_press_force_n": 10.98,
+    "first_contact_step": 46,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0139,
+    "start_y_m": -0.0658,
+    "start_z_m": 0.1604
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310074,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.15,
+    "first_contact_step": 55,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0258,
+    "start_z_m": 0.1316
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310075,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0235,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.39,
+    "first_contact_step": 49,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0684,
+    "start_z_m": 0.1492
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310076,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0213,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 56,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0114,
+    "start_z_m": 0.1405
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310077,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0259,
+    "pressed": 1.0,
+    "peak_press_force_n": 10.07,
+    "first_contact_step": 65,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.1014,
+    "start_z_m": 0.2585
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310078,
+   "target_object": "none",
+   "success": true,
+   "steps": 128,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0199,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.8,
+    "first_contact_step": 58,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0705,
+    "start_z_m": 0.2387
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310079,
+   "target_object": "none",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0216,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 56,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0737,
+    "start_z_m": 0.1684
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310080,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0255,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.63,
+    "first_contact_step": 64,
+    "max_held_steps": 18,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": -0.1088,
+    "start_z_m": 0.2144
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310081,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0231,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.48,
+    "first_contact_step": 59,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": -0.0744,
+    "start_z_m": 0.2705
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310082,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0243,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.12,
+    "first_contact_step": 66,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0189,
+    "start_z_m": 0.248
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310083,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0223,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.16,
+    "first_contact_step": 43,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.1005,
+    "start_z_m": 0.1294
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310084,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0259,
+    "pressed": 1.0,
+    "peak_press_force_n": 9.0,
+    "first_contact_step": 46,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": 0.0988,
+    "start_z_m": 0.1954
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310085,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0243,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.83,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0461,
+    "start_z_m": 0.2377
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310086,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.16,
+    "first_contact_step": 58,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0575,
+    "start_z_m": 0.2614
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310087,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.0,
+    "first_contact_step": 56,
+    "max_held_steps": 14,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": 0.0446,
+    "start_z_m": 0.2781
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310088,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0236,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.35,
+    "first_contact_step": 46,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0081,
+    "start_z_m": 0.1799
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310089,
+   "target_object": "none",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0231,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.3,
+    "first_contact_step": 60,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.003,
+    "start_z_m": 0.1727
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310090,
+   "target_object": "none",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.13,
+    "first_contact_step": 47,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0749,
+    "start_z_m": 0.1537
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310091,
+   "target_object": "none",
+   "success": true,
+   "steps": 136,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.028,
+    "pressed": 1.0,
+    "peak_press_force_n": 14.06,
+    "first_contact_step": 63,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0133,
+    "start_y_m": -0.0924,
+    "start_z_m": 0.1499
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310092,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.48,
+    "first_contact_step": 55,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0078,
+    "start_z_m": 0.2631
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310093,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.11,
+    "first_contact_step": 54,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.066,
+    "start_z_m": 0.1897
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310094,
+   "target_object": "none",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.023,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.43,
+    "first_contact_step": 47,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0262,
+    "start_z_m": 0.1486
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310095,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.81,
+    "first_contact_step": 50,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0121,
+    "start_z_m": 0.1585
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310096,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0231,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.06,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0751,
+    "start_z_m": 0.2504
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310097,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.025,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.55,
+    "first_contact_step": 57,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0335,
+    "start_z_m": 0.1902
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310098,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.61,
+    "first_contact_step": 49,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0658,
+    "start_z_m": 0.1296
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310099,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.35,
+    "first_contact_step": 75,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0877,
+    "start_z_m": 0.2697
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310100,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0214,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.86,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0841,
+    "start_z_m": 0.127
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310101,
+   "target_object": "none",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.1,
+    "first_contact_step": 61,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0249,
+    "start_z_m": 0.244
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310102,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.76,
+    "first_contact_step": 73,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0664,
+    "start_z_m": 0.2505
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310103,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0253,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.71,
+    "first_contact_step": 55,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0221,
+    "start_z_m": 0.228
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310104,
+   "target_object": "none",
+   "success": true,
+   "steps": 97,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0222,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.1,
+    "first_contact_step": 65,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0722,
+    "start_z_m": 0.1977
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310105,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.25,
+    "first_contact_step": 54,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0448,
+    "start_z_m": 0.1571
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310106,
+   "target_object": "none",
+   "success": true,
+   "steps": 97,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0226,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.61,
+    "first_contact_step": 67,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0453,
+    "start_z_m": 0.249
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310107,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.54,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0921,
+    "start_z_m": 0.2544
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310108,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.027,
+    "pressed": 1.0,
+    "peak_press_force_n": 11.65,
+    "first_contact_step": 55,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0137,
+    "start_y_m": 0.1095,
+    "start_z_m": 0.13
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310109,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0247,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.14,
+    "first_contact_step": 73,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0858,
+    "start_z_m": 0.2488
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310110,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0223,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.39,
+    "first_contact_step": 59,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0796,
+    "start_z_m": 0.1774
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310111,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0229,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.65,
+    "first_contact_step": 53,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0878,
+    "start_z_m": 0.2106
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310112,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0205,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.83,
+    "first_contact_step": 60,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0163,
+    "start_z_m": 0.2309
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310113,
+   "target_object": "none",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.4,
+    "first_contact_step": 48,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": -0.0114,
+    "start_z_m": 0.1577
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310114,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0218,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.89,
+    "first_contact_step": 47,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0562,
+    "start_z_m": 0.141
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310115,
+   "target_object": "none",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.05,
+    "first_contact_step": 49,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0121,
+    "start_z_m": 0.2234
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310116,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0256,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.8,
+    "first_contact_step": 80,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0929,
+    "start_z_m": 0.2637
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310117,
+   "target_object": "none",
+   "success": true,
+   "steps": 95,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0237,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.61,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0569,
+    "start_z_m": 0.2295
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310118,
+   "target_object": "none",
+   "success": true,
+   "steps": 102,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0221,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06,
+    "first_contact_step": 70,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0664,
+    "start_z_m": 0.2047
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310119,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0253,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.26,
+    "first_contact_step": 47,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0742,
+    "start_z_m": 0.2361
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310120,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0211,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.85,
+    "first_contact_step": 67,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0607,
+    "start_z_m": 0.2226
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310121,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.4,
+    "first_contact_step": 55,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": -0.0544,
+    "start_z_m": 0.223
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310122,
+   "target_object": "none",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.3,
+    "first_contact_step": 49,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0266,
+    "start_z_m": 0.1469
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310123,
+   "target_object": "none",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0205,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.83,
+    "first_contact_step": 52,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0447,
+    "start_z_m": 0.1836
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310124,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.81,
+    "first_contact_step": 54,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0031,
+    "start_z_m": 0.1885
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310125,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.13,
+    "first_contact_step": 64,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.034,
+    "start_z_m": 0.2733
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310126,
+   "target_object": "none",
+   "success": true,
+   "steps": 90,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.31,
+    "first_contact_step": 60,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0105,
+    "start_z_m": 0.2596
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310127,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0226,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.89,
+    "first_contact_step": 48,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0297,
+    "start_z_m": 0.1742
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310128,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0235,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.91,
+    "first_contact_step": 46,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0563,
+    "start_z_m": 0.2212
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310129,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.38,
+    "first_contact_step": 56,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0548,
+    "start_z_m": 0.1857
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310130,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.22,
+    "first_contact_step": 60,
+    "max_held_steps": 14,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0593,
+    "start_z_m": 0.1287
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310131,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.022,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.89,
+    "first_contact_step": 57,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0861,
+    "start_z_m": 0.1389
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310132,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0248,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.12,
+    "first_contact_step": 63,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0304,
+    "start_z_m": 0.2598
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310133,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0285,
+    "pressed": 1.0,
+    "peak_press_force_n": 15.18,
+    "first_contact_step": 56,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0132,
+    "start_y_m": -0.0886,
+    "start_z_m": 0.1522
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310134,
+   "target_object": "none",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0241,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.11,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0329,
+    "start_z_m": 0.2203
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310135,
+   "target_object": "none",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0238,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.44,
+    "first_contact_step": 50,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0384,
+    "start_z_m": 0.1427
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310136,
+   "target_object": "none",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.55,
+    "first_contact_step": 45,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0703,
+    "start_z_m": 0.167
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310137,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0219,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 46,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0711,
+    "start_z_m": 0.1365
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310138,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0222,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.02,
+    "first_contact_step": 48,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0127,
+    "start_z_m": 0.1726
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310139,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0229,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.57,
+    "first_contact_step": 58,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0528,
+    "start_z_m": 0.2523
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310140,
+   "target_object": "none",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.19,
+    "first_contact_step": 47,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0159,
+    "start_z_m": 0.1504
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310141,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0251,
+    "pressed": 1.0,
+    "peak_press_force_n": 8.18,
+    "first_contact_step": 57,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": 0.0574,
+    "start_z_m": 0.2352
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310142,
+   "target_object": "none",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.29,
+    "first_contact_step": 55,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0859,
+    "start_z_m": 0.1811
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310143,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0262,
+    "pressed": 1.0,
+    "peak_press_force_n": 9.67,
+    "first_contact_step": 39,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0139,
+    "start_y_m": 0.0151,
+    "start_z_m": 0.1844
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310144,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.43,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0924,
+    "start_z_m": 0.1878
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310145,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0237,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.62,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0147,
+    "start_y_m": 0.0408,
+    "start_z_m": 0.2498
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310146,
+   "target_object": "none",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0229,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.62,
+    "first_contact_step": 54,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0195,
+    "start_z_m": 0.2215
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310147,
+   "target_object": "none",
+   "success": true,
+   "steps": 95,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.97,
+    "first_contact_step": 61,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.1085,
+    "start_z_m": 0.1796
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310148,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0217,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 56,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0809,
+    "start_z_m": 0.1351
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310149,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0226,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.12,
+    "first_contact_step": 55,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0164,
+    "start_z_m": 0.1609
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310150,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0199,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.8,
+    "first_contact_step": 59,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0371,
+    "start_z_m": 0.2107
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310151,
+   "target_object": "none",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0245,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.15,
+    "first_contact_step": 54,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0672,
+    "start_z_m": 0.1802
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310152,
+   "target_object": "none",
+   "success": true,
+   "steps": 102,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0229,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.83,
+    "first_contact_step": 69,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.1094,
+    "start_z_m": 0.1538
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310153,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.023,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.14,
+    "first_contact_step": 48,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0112,
+    "start_z_m": 0.1435
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310154,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0225,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.66,
+    "first_contact_step": 67,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0288,
+    "start_z_m": 0.2272
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310155,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0209,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.84,
+    "first_contact_step": 59,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0149,
+    "start_y_m": 0.0853,
+    "start_z_m": 0.1752
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310156,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.021,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.84,
+    "first_contact_step": 51,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0394,
+    "start_z_m": 0.195
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310157,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0221,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.06,
+    "first_contact_step": 47,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": -0.0629,
+    "start_z_m": 0.1212
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310158,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.43,
+    "first_contact_step": 51,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0148,
+    "start_y_m": 0.0508,
+    "start_z_m": 0.2354
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310159,
+   "target_object": "none",
+   "success": true,
+   "steps": 65,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.0,
+    "first_contact_step": 38,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0525,
+    "start_z_m": 0.1517
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310160,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0223,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.21,
+    "first_contact_step": 69,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0059,
+    "start_z_m": 0.2673
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310161,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0234,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.32,
+    "first_contact_step": 74,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0574,
+    "start_z_m": 0.2603
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310162,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.69,
+    "first_contact_step": 66,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0746,
+    "start_z_m": 0.2478
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310163,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.08,
+    "first_contact_step": 49,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0475,
+    "start_z_m": 0.1754
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310164,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0225,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.63,
+    "first_contact_step": 43,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0046,
+    "start_z_m": 0.173
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310165,
+   "target_object": "none",
+   "success": true,
+   "steps": 102,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.39,
+    "first_contact_step": 71,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": 0.0157,
+    "start_z_m": 0.2315
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310166,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0212,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.86,
+    "first_contact_step": 51,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0306,
+    "start_z_m": 0.1834
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310167,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0265,
+    "pressed": 1.0,
+    "peak_press_force_n": 10.37,
+    "first_contact_step": 60,
+    "max_held_steps": 16,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": -0.104,
+    "start_z_m": 0.2188
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310168,
+   "target_object": "none",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.022,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.89,
+    "first_contact_step": 47,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.06,
+    "start_z_m": 0.1575
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310169,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0252,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.85,
+    "first_contact_step": 54,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": 0.0921,
+    "start_z_m": 0.2236
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310170,
+   "target_object": "none",
+   "success": true,
+   "steps": 101,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0239,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.92,
+    "first_contact_step": 69,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0892,
+    "start_z_m": 0.2094
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310171,
+   "target_object": "none",
+   "success": true,
+   "steps": 71,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0195,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.79,
+    "first_contact_step": 41,
+    "max_held_steps": 7,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.059,
+    "start_z_m": 0.1638
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310172,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0254,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.99,
+    "first_contact_step": 55,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0293,
+    "start_z_m": 0.2496
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310173,
+   "target_object": "none",
+   "success": true,
+   "steps": 129,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0277,
+    "pressed": 1.0,
+    "peak_press_force_n": 12.3,
+    "first_contact_step": 56,
+    "max_held_steps": 13,
+    "min_fingertip_button_m": 0.0137,
+    "start_y_m": -0.1083,
+    "start_z_m": 0.1576
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310174,
+   "target_object": "none",
+   "success": true,
+   "steps": 96,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0233,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.14,
+    "first_contact_step": 66,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0192,
+    "start_z_m": 0.2501
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310175,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0236,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.48,
+    "first_contact_step": 58,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0048,
+    "start_z_m": 0.2154
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310176,
+   "target_object": "none",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.24,
+    "first_contact_step": 54,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0354,
+    "start_z_m": 0.1419
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310177,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0227,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.16,
+    "first_contact_step": 60,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0354,
+    "start_z_m": 0.2443
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310178,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0219,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.88,
+    "first_contact_step": 52,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": 0.0839,
+    "start_z_m": 0.1867
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310179,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0216,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 53,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0273,
+    "start_z_m": 0.1844
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310180,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0223,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.5,
+    "first_contact_step": 57,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0759,
+    "start_z_m": 0.1901
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310181,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0245,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.17,
+    "first_contact_step": 61,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": 0.0123,
+    "start_z_m": 0.1955
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310182,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.36,
+    "first_contact_step": 49,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0303,
+    "start_z_m": 0.1334
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310183,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0231,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.6,
+    "first_contact_step": 57,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.1068,
+    "start_z_m": 0.1233
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310184,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0235,
+    "pressed": 1.0,
+    "peak_press_force_n": 4.13,
+    "first_contact_step": 74,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.087,
+    "start_z_m": 0.2793
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310185,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 7.14,
+    "first_contact_step": 61,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": -0.0904,
+    "start_z_m": 0.2483
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310186,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0218,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.89,
+    "first_contact_step": 57,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0366,
+    "start_z_m": 0.1759
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310187,
+   "target_object": "none",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0217,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.87,
+    "first_contact_step": 59,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": 0.0094,
+    "start_z_m": 0.2384
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310188,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0223,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.12,
+    "first_contact_step": 49,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.0343,
+    "start_z_m": 0.1595
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310189,
+   "target_object": "none",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0216,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.89,
+    "first_contact_step": 50,
+    "max_held_steps": 8,
+    "min_fingertip_button_m": 0.0145,
+    "start_y_m": -0.0895,
+    "start_z_m": 0.1845
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310190,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0238,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.32,
+    "first_contact_step": 56,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0141,
+    "start_y_m": -0.0112,
+    "start_z_m": 0.2097
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310191,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0244,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.86,
+    "first_contact_step": 49,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0353,
+    "start_z_m": 0.2002
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310192,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0214,
+    "pressed": 1.0,
+    "peak_press_force_n": 0.86,
+    "first_contact_step": 51,
+    "max_held_steps": 9,
+    "min_fingertip_button_m": 0.0144,
+    "start_y_m": -0.0213,
+    "start_z_m": 0.1662
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310193,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0277,
+    "pressed": 1.0,
+    "peak_press_force_n": 12.94,
+    "first_contact_step": 62,
+    "max_held_steps": 15,
+    "min_fingertip_button_m": 0.0133,
+    "start_y_m": -0.1025,
+    "start_z_m": 0.2256
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310194,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0224,
+    "pressed": 1.0,
+    "peak_press_force_n": 1.73,
+    "first_contact_step": 43,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0146,
+    "start_y_m": -0.0631,
+    "start_z_m": 0.1651
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310195,
+   "target_object": "none",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0232,
+    "pressed": 1.0,
+    "peak_press_force_n": 3.5,
+    "first_contact_step": 52,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": -0.0145,
+    "start_z_m": 0.1752
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310196,
+   "target_object": "none",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.0256,
+    "pressed": 1.0,
+    "peak_press_force_n": 9.0,
+    "first_contact_step": 56,
+    "max_held_steps": 11,
+    "min_fingertip_button_m": 0.0139,
+    "start_y_m": -0.0114,
+    "start_z_m": 0.251
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310197,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0228,
+    "pressed": 1.0,
+    "peak_press_force_n": 2.45,
+    "first_contact_step": 60,
+    "max_held_steps": 12,
+    "min_fingertip_button_m": 0.0142,
+    "start_y_m": 0.0918,
+    "start_z_m": 0.2086
+   },
+   "phase": "held_not_released"
+  },
+  {
+   "seed": 310198,
+   "target_object": "none",
+   "success": true,
+   "steps": 68,
+   "failure": null,
+   "metrics": {
+    "max_button_depth_m": 0.024,
+    "pressed": 1.0,
+    "peak_press_force_n": 5.56,
+    "first_contact_step": 39,
+    "max_held_steps": 10,
+    "min_fingertip_button_m": 0.0143,
+    "start_y_m": 0.065,
+    "start_z_m": 0.1744
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 310199,
+   "target_object": "none",
+   "success": false,
+   "steps": 150,
+   "failure": "timeout",
+   "metrics": {
+    "max_button_depth_m": 0.0249,
+    "pressed": 1.0,
+    "peak_press_force_n": 6.99,
+    "first_contact_step": 66,
+    "max_held_steps": 19,
+    "min_fingertip_button_m": 0.014,
+    "start_y_m": -0.1078,
+    "start_z_m": 0.226
+   },
+   "phase": "held_not_released"
+  }
+ ],
+ "code": {
+  "commit": "75d5b49e4ddb5b717ddb875f4379761d0f5e0d5b",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {
+  "checkpoint": "runs/press_vision/mlp_seed0/step_030000.pt",
+  "checkpoint_sha256": "036984d3039552c2442c53c4d5fa3903ee5ee4e1e3ff76f9bd3d20e40f27c72b",
+  "method": "mlp",
+  "step": 30000,
+  "training": {
+   "skill": "press",
+   "task": "press_vision",
+   "dataset": "datasets/press/press_vision",
+   "dataset_files_sha256": "c4beb069a1de7175c82a2eac0b7363fb92169ff2a0d33fba05cbb166b297bdad",
+   "dataset_code": {
+    "commit": "aa65aa8a66e80d3fd666b1dbf317045fcfe7a84e",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "steps_override": null,
+   "code": {
+    "commit": "75d5b49e4ddb5b717ddb875f4379761d0f5e0d5b",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "seed": 0,
+   "episodes": 989,
+   "windows": 95973
+  }
+ }
+}

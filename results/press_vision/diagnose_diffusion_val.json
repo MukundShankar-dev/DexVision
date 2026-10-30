@@ -1,0 +1,93 @@
+{
+ "report": "results/press_vision/diffusion_val.json",
+ "phases": {
+  "success": 196,
+  "held_not_released": 4
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 29,
+    "n": 29
+   },
+   {
+    "successes": 15,
+    "n": 16
+   },
+   {
+    "successes": 22,
+    "n": 22
+   }
+  ],
+  [
+   {
+    "successes": 19,
+    "n": 19
+   },
+   {
+    "successes": 34,
+    "n": 34
+   },
+   {
+    "successes": 18,
+    "n": 18
+   }
+  ],
+  [
+   {
+    "successes": 26,
+    "n": 26
+   },
+   {
+    "successes": 18,
+    "n": 18
+   },
+   {
+    "successes": 15,
+    "n": 18
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_button_depth_m": {
+   "success": 0.0216,
+   "failure": 0.022949999999999998
+  },
+  "pressed": {
+   "success": 1.0,
+   "failure": 1.0
+  },
+  "peak_press_force_n": {
+   "success": 0.915,
+   "failure": 3.6750000000000003
+  },
+  "first_contact_step": {
+   "success": 59.0,
+   "failure": 70.5
+  },
+  "max_held_steps": {
+   "success": 10.0,
+   "failure": 12.5
+  },
+  "min_fingertip_button_m": {
+   "success": 0.0145,
+   "failure": 0.014499999999999999
+  }
+ },
+ "paired": {
+  "against": "results/press/diffusion_val_phases.json",
+  "both": 194,
+  "only_this": 2,
+  "only_reference": 3,
+  "neither": 1,
+  "p_value": 1.0,
+  "reference_only_seeds": [
+   100054,
+   100179,
+   100194
+  ],
+  "reference_only_phases": {
+   "held_not_released": 3
+  }
+ }
+}
