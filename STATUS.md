@@ -1,8 +1,7 @@
 # Status
 
 **Active checkpoint:** V4 — press from images (`docs/PLAN.md`). **State:**
-spec, diagnostics, data, baselines and probe done; gate proposed, awaiting
-owner approval before training.
+spec, diagnostics, data, baselines and probe done; gate approved; training.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
@@ -57,7 +56,7 @@ button, not on the robot; owner decision), plus both cameras; test seeds
 - Evaluator now pools workers (`--workers`, identical episodes, ~5× faster)
   and prints progress.
 
-**Gate (proposed, not yet approved).** The same as V3: a vision policy
+**Gate (approved by the owner 2026-10-29 — "Continue" in reply to the proposal — before any training).** The same as V3: a vision policy
 passes if its single 200-episode test run has Wilson lower bound ≥ 80%
 (≥ 170/200), and on val with both cameras blanked it succeeds ≤ 10%.
 
