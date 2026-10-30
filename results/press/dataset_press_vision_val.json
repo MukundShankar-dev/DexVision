@@ -1,0 +1,150 @@
+{
+ "code": {
+  "commit": "aa65aa8a66e80d3fd666b1dbf317045fcfe7a84e",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "config": {
+  "task": "press",
+  "policy": "expert",
+  "split": "val",
+  "episodes": 100,
+  "cameras": [
+   "policy_right",
+   "policy_left"
+  ],
+  "noise_std": {
+   "translation_m": 0.002,
+   "rotation_rad": 0.01,
+   "targets_rad": 0.05
+  }
+ },
+ "task_spec": {
+  "skill": "press",
+  "reset": {
+   "hand_jitter_m": [
+    0.04,
+    0.06,
+    0.04
+   ],
+   "button_y_m": [
+    -0.11,
+    0.11
+   ],
+   "button_z_m": [
+    0.12,
+    0.28
+   ]
+  },
+  "horizon_steps": 150,
+  "success": {
+   "press_depth_m": 0.015,
+   "press_steps": 5,
+   "release_depth_m": 0.003,
+   "release_steps": 10
+  },
+  "failure": {
+   "hand_collision_bodies": [
+    "fixture_wall",
+    "tray_left",
+    "tray_right",
+    "table"
+   ]
+  },
+  "observation": [
+   "palm_position",
+   "palm_rotation6d",
+   "grasp_position",
+   "hand_qpos",
+   "hand_qvel",
+   "fingertip_positions",
+   "button_depth",
+   "button_position"
+  ],
+  "splits": {
+   "train": [
+    0,
+    100000
+   ],
+   "val": [
+    100000,
+    110000
+   ],
+   "test": [
+    220000,
+    230000
+   ]
+  },
+  "test_budget": 3
+ },
+ "expert_config": {
+  "gains": {
+   "position": 0.6,
+   "orientation": 0.5
+  },
+  "tip_offset_m": [
+   0.011,
+   0.0,
+   0.0
+  ],
+  "standoff_m": 0.03,
+  "depth_target_m": 0.018,
+  "depth_gain": 1.0,
+  "max_press_step_m": 0.003,
+  "pressed_depth_m": 0.0155,
+  "hold_steps": 5,
+  "position_tolerance_m": 0.005,
+  "settle_steps": 10,
+  "point_posture": {
+   "FFJ3": 0.0,
+   "FFJ0": 0.0,
+   "MFJ3": 1.5,
+   "MFJ0": 2.0,
+   "RFJ3": 1.5,
+   "RFJ0": 2.0,
+   "LFJ3": 1.5,
+   "LFJ0": 2.0,
+   "THJ5": 0.5,
+   "THJ4": 1.2,
+   "THJ1": 1.0
+  }
+ },
+ "seeds": [
+  100000,
+  100100
+ ],
+ "attempted": 100,
+ "kept": {
+  "successes": 99,
+  "n": 100,
+  "ci95": [
+   0.9455,
+   0.9982
+  ]
+ },
+ "kept_by_object": {
+  "none": {
+   "successes": 99,
+   "n": 100,
+   "ci95": [
+    0.9455,
+    0.9982
+   ]
+  }
+ },
+ "dropped": {
+  "hand_collision": 1
+ },
+ "transitions": 9875,
+ "steps_per_episode": {
+  "min": 72,
+  "median": 96.0,
+  "max": 145
+ },
+ "files_sha256": "70000efa08d8d10cb2069bd051e88f2fb599b377a89ac0d5320eafdf4e4ad991",
+ "replay_check": {
+  "episodes": 20,
+  "matched": 20
+ }
+}

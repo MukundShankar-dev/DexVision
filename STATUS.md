@@ -1,10 +1,10 @@
 # Status
 
-**Active checkpoint:** V3 — pick from images (`docs/PLAN.md`). V1 and V2
-approved. **State:** trained, tested once per method; both pass the gate;
-awaiting owner sign-off.
+**Active checkpoint:** V4 — press from images (`docs/PLAN.md`). **State:**
+spec, diagnostics, data, baselines and probe done; gate proposed, awaiting
+owner approval before training.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
-approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
+approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
 
 ## Shared protocol (every skill)
@@ -29,33 +29,37 @@ approved 2026-10-28). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 | press, seed 1 | 129 | 196 | |
 | place, seed 0 | 182 | 194 | goal: 6 and 13 (expert, mean goal: 8) |
 | place, seed 1 | 164 (fails: lower bound 76%, light puck 13/28) | 193 | |
+| pick from images | 200 | 189 | both cameras blanked: 0 and 0 |
 
 Diffusion passes every skill (push, press, place on two seeds). MLP-BC fails
 press (stalls half-pressed: regression averages push-in and pull-out demos)
 and place seed 1. Open: MLP-BC push back-of-hand stalls 2.0–2.5 cm short.
 
-**V1–V2:** two 96 px cameras (`configs/cameras.yaml`), per-camera CNN with
-32 keypoints (`vision:` in `configs/learning/method.yaml`).
+**Vision (V1–V3):** two 96 px cameras, per-camera CNN with 32 keypoints
+(`vision:` in `configs/learning/method.yaml`). Pick from images: details in
+`results/pick_vision/`; Diffusion relies on `policy_left` alone (178/200
+with only it, 0/200 without it), MLP-BC needs both.
 
-## V3 — pick_vision (details in `results/pick_vision/`)
+## V4 — press_vision (val, 200 episodes; details in `results/press_vision/`)
 
-Spec: pick without `object_*`, plus both cameras; test seeds 300000–310000.
-Demos 982/1000 (x86-64). Gate (approved 2026-10-29, before training): test
-lower bound ≥ 80%, every object ≥ 60%, both cameras blanked ≤ 10% on val.
+Spec: press without `button_position` and `button_depth` (a sensor in the
+button, not on the robot; owner decision), plus both cameras; test seeds
+310000–320000. Demos 989/1000 kept, replay 50/50; val demos 99/100.
 
-| 200 episodes | Diffusion | MLP-BC |
+| Baseline (val) | Success | Phases of failures |
 |---|---|---|
-| **Test (ledgered)** | **189** [90.4, 96.9%], worst puck_light 23/29 | **200** [98.1, 100%] |
-| Val | 191 (state: 197; zero, random: 0) | 200 (state: 200) |
-| Val, both cameras blanked | 0 | 0 |
-| Val, only `policy_left` / only `policy_right` | 178 / 0 | 16 / 37 |
+| zero, random | 0/200, 0/200 [0, 1.9%] | random: 130 hand collisions |
+| expert (state) | 200/200 | |
+| state Diffusion / MLP-BC (ceiling) | 197 / 165 | all held but not released |
 
-**Both pass.** Diffusion relies on `policy_left` alone; MLP-BC needs both.
-Paired with state on val: Diffusion 188 both, 9 only state, 3 only vision
-(McNemar p = 0.15). Its 9 failures all touch the object (5 dropped before
-0.5 s), with no start-position cluster; keypoint videos reproduce all 9.
-Probe (object position from frozen features): scratch 0.22 cm, Diffusion
-0.67, MLP-BC 0.91 (mean guess 4.9). Offline action error 0.048 (state 0.047).
+- **Probe** (encoder alone, 9875 val frames): button position error 0.10 cm
+  mean (mean guess 7.0 cm), 0.14 cm while pressed.
+- Evaluator now pools workers (`--workers`, identical episodes, ~5× faster)
+  and prints progress.
+
+**Gate (proposed, not yet approved).** The same as V3: a vision policy
+passes if its single 200-episode test run has Wilson lower bound ≥ 80%
+(≥ 170/200), and on val with both cameras blanked it succeeds ≤ 10%.
 
 ## Caveats
 

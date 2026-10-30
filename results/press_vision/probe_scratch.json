@@ -1,0 +1,49 @@
+{
+ "task": "press_vision",
+ "code": {
+  "commit": "aa65aa8a66e80d3fd666b1dbf317045fcfe7a84e",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/press/press_vision",
+ "val_data": "datasets/press/press_vision_val",
+ "val_episodes": 99,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "probe_scratch": {
+  "all": {
+   "frames": 9875,
+   "position_error_cm_mean": 0.1,
+   "position_error_cm_median": 0.09,
+   "position_error_cm_p90": 0.17,
+   "mean_guess_error_cm": 6.98
+  },
+  "far": {
+   "frames": 4337,
+   "position_error_cm_mean": 0.09,
+   "position_error_cm_median": 0.08,
+   "position_error_cm_p90": 0.15,
+   "mean_guess_error_cm": 7.03
+  },
+  "near": {
+   "frames": 3436,
+   "position_error_cm_mean": 0.1,
+   "position_error_cm_median": 0.09,
+   "position_error_cm_p90": 0.16,
+   "mean_guess_error_cm": 7.0
+  },
+  "pressed": {
+   "frames": 2102,
+   "position_error_cm_mean": 0.14,
+   "position_error_cm_median": 0.12,
+   "position_error_cm_p90": 0.25,
+   "mean_guess_error_cm": 6.83
+  }
+ }
+}
