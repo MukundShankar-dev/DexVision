@@ -27,6 +27,7 @@ from dexvision.policies import make_policy
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 from dexvision.tasks.pick import pick_phase
+from dexvision.tasks.place import place_phase
 from dexvision.tasks.press import press_phase
 from dexvision.tasks.push import push_phase
 from dexvision.tasks.spec import load_task_spec
@@ -61,7 +62,8 @@ def test_a_variant_replaces_only_the_keys_it_names(tmp_path):
 
 @pytest.mark.parametrize(("name", "privileged"), [("pick_vision", ("object_",)),
                                                    ("press_vision", ("button_",)),
-                                                   ("push_vision", ("object_",))])
+                                                   ("push_vision", ("object_",)),
+                                                   ("place_vision", ("object_",))])
 def test_vision_specs_see_no_privileged_state_and_have_their_own_test_seeds(name, privileged):
     vision, state = load_task_spec(name), load_task_spec(name.removesuffix("_vision"))
     assert not [f for f in vision.observation if f.startswith(privileged)]
@@ -159,6 +161,44 @@ def test_push_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
     assert zero.metrics["final_goal_distance_m"] == pytest.approx(m["push_distance_m"], abs=1e-3)
     assert (zero.metrics["start_x_m"], zero.metrics["start_y_m"]) == (m["start_x_m"],
                                                                       m["start_y_m"])
+
+
+PLACED = {"first_contact_step": 9, "carried": 1.0, "reached_goal": 1.0, "set_down_at_goal": 1.0}
+
+
+@pytest.mark.parametrize(("success", "failure", "metrics", "phase"), [
+    (True, None, {}, "success"),
+    (False, "object_fell_off_table", {}, "fell_off_table"),
+    (False, "hand_collision", {}, "hand_collision"),
+    (False, "timeout", {"first_contact_step": -1}, "no_contact"),
+    (False, "timeout", {"first_contact_step": 9, "carried": 0.0}, "contact_not_lifted"),
+    (False, "timeout", {**PLACED, "reached_goal": 0.0}, "carried_not_at_goal"),
+    (False, "timeout", {**PLACED, "set_down_at_goal": 0.0}, "at_goal_not_set_down"),
+    (False, "timeout", {**PLACED, "max_dwell_steps": 0}, "set_down_not_released"),
+    (False, "timeout", {**PLACED, "max_dwell_steps": 4}, "released_not_held"),
+])
+def test_place_phase_is_the_furthest_stage_reached(success, failure, metrics, phase):
+    assert place_phase(success, failure, metrics) == phase
+
+
+def test_place_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
+    task = make_task("place")
+    expert = run_episode(workcell, task, make_policy("expert", workcell.action_space, "place"),
+                         100001)
+    assert expert.success and expert.phase == "success"
+    m = expert.metrics
+    assert 0 < m["first_contact_step"] < expert.steps
+    assert m["carried"] and m["reached_goal"] and m["set_down_at_goal"]
+    assert m["max_dwell_steps"] == task.dwell_steps
+    assert m["final_goal_distance_m"] <= task.tolerance_xy_m
+    (_, low_x, high_x), (_, low_y, high_y) = task.grid_axes()
+    assert low_x <= m["start_x_m"] <= high_x and low_y <= m["start_y_m"] <= high_y
+
+    task.spec = replace(task.spec, horizon_steps=10)
+    zero = run_episode(workcell, task, make_policy("zero", workcell.action_space, "place"), 100001)
+    assert zero.phase == "no_contact" and not zero.metrics["carried"]
+    assert zero.metrics["final_goal_distance_m"] == pytest.approx(m["goal_distance_m"], abs=1e-3)
+    assert (zero.metrics["goal_x_m"], zero.metrics["goal_y_m"]) == (m["goal_x_m"], m["goal_y_m"])
 
 
 def test_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
@@ -336,6 +376,12 @@ def test_press_probe_target_buckets_by_button_depth():
          "obs/fingertip_positions": np.full((4, 15), 9.0)}
     e["obs/fingertip_positions"][1, :3] = 0.01
     np.testing.assert_array_equal(frame_buckets(e, target), [0, 1, 2, 0])
+
+
+def test_place_probe_target_is_the_lifted_object():
+    target = probe_target(load_task_spec("place_vision"))
+    assert (target.position, target.buckets) == ("object_position", ("far", "near", "lifted"))
+    assert target.classes == tuple(load_task_spec("place").raw["objects"])
 
 
 def test_push_probe_target_buckets_by_horizontal_displacement():

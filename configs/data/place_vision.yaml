@@ -1,0 +1,16 @@
+# Place demonstrations with camera images (docs/PLAN.md, V6). The same expert, seeds and noise as
+# configs/data/place.yaml; the files also hold the policy cameras' images as obs/rgb/<camera>.
+# Generated on x86-64 (the desktop); MuJoCo is not bit-identical across arm64 and x86-64, so the
+# kept/dropped seeds may differ slightly from the state dataset's. The expert acts on the state
+# spec (task: place), so object_* are recorded too: the vision policy never sees them, but the
+# perception probe uses object_position as its label.
+task: place
+policy: expert
+split: train
+episodes: 1000
+cameras: [policy_right, policy_left]
+
+noise_std:                     # as configs/data/place.yaml
+  translation_m: 0.002
+  rotation_rad: 0.01
+  targets_rad: 0.05

@@ -1,9 +1,9 @@
 """Perception probes and offline action error (docs/PLAN.md, V3 diagnostics).
 
-A probe asks whether images hold what the task needs: the target's position (pick: the object,
-press: the button face) and, when there are several objects, which one it is. Labels are the
-simulator's state recorded in the demos (privileged, used only to measure, never shown to a
-policy). Two probes share the same evaluation:
+A probe asks whether images hold what the task needs: the target's position (pick, push,
+place: the object; press: the button face) and, when there are several objects, which one it
+is. Labels are the simulator's state recorded in the demos (privileged, used only to measure,
+never shown to a policy). Two probes share the same evaluation:
 
 - ``scratch``: the policy's encoder architecture trained alone, supervised on the labels. What
   the cameras and resolution allow at best, before any policy is trained.
@@ -12,9 +12,9 @@ policy). Two probes share the same evaluation:
 
 Frames are reported in three buckets, because the hand hides the target as it reaches it:
 ``far`` (every fingertip more than 5 cm from the target), ``near``, and the target moved by the
-hand (pick ``lifted``: more than 1 cm above where it started; press ``pressed``: more than 3 mm
-in; push ``pushed``: more than 1 cm from where it started, horizontally). The thresholds only
-group the report.
+hand (pick and place ``lifted``: more than 1 cm above where it started; press ``pressed``: more
+than 3 mm in; push ``pushed``: more than 1 cm from where it started, horizontally). The
+thresholds only group the report.
 
 ``offline_action_error`` scores a trained policy's predicted action chunk against the expert's
 on held-out demo windows. Low offline error with low closed-loop success points to compounding
@@ -71,7 +71,7 @@ class ProbeTarget:
 
 def probe_target(spec) -> ProbeTarget:
     """The probe target of a task spec's skill."""
-    if spec.skill == "pick":
+    if spec.skill in ("pick", "place"):
         return ProbeTarget("object_position", "lifted", tuple(spec.raw["objects"]))
     if spec.skill == "push":
         return ProbeTarget("object_position", "pushed", tuple(spec.raw["objects"]))

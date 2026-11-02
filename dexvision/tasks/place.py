@@ -18,7 +18,32 @@ def tilt(orientation_wxyz: np.ndarray) -> float:
     return float(np.arccos(np.clip(up_z, -1.0, 1.0)))
 
 
+def place_phase(success: bool, failure: str | None, metrics: dict[str, float]) -> str:
+    """How far an episode got, from the success predicate's own pieces (no new thresholds):
+    hand on the object, carried (lifted), over the goal, set down resting there, released and
+    left for the dwell."""
+    if success:
+        return "success"
+    if failure == "object_fell_off_table":
+        return "fell_off_table"
+    if failure == "hand_collision":
+        return "hand_collision"
+    if metrics["first_contact_step"] < 0:
+        return "no_contact"
+    if not metrics["carried"]:
+        return "contact_not_lifted"
+    if not metrics["reached_goal"]:
+        return "carried_not_at_goal"
+    if not metrics["set_down_at_goal"]:
+        return "at_goal_not_set_down"
+    if metrics["max_dwell_steps"] == 0:
+        return "set_down_not_released"
+    return "released_not_held"
+
+
 class PlaceTask:
+    phase = staticmethod(place_phase)
+
     def __init__(self, spec: TaskSpec) -> None:
         self.spec = spec
         reset, success, failure = spec.raw["reset"], spec.raw["success"], spec.raw["failure"]
@@ -60,6 +85,13 @@ class PlaceTask:
         self.max_lift_m = 0.0
         self.landing_speed_mps = -1.0  # set when it first touches the table after a carry
         self.goal_distance_m = float(np.linalg.norm(xy - start[:2]))
+        self._start_xy = start[:2].copy()
+        self._step = 0
+        self.first_contact_step = -1
+        self.reached_goal = False
+        self.set_down_at_goal = False
+        self.max_dwell_steps = 0
+        self.final_goal_distance_m = self.goal_distance_m
         return self._context, observation
 
     def check(self, observation: Observation, contacts: tuple[Contact, ...]) -> StepCheck:
@@ -74,6 +106,7 @@ class PlaceTask:
         qualifies = self._carried and self.at_rest_on_goal(state.position, state.orientation,
                                                            touching)
         self._dwell = self._dwell + 1 if qualifies else 0
+        self._track(state, touching)
         failure = None
         if state.position[2] < self.min_object_z_m:
             failure = "object_fell_off_table"
@@ -92,7 +125,40 @@ class PlaceTask:
         released = not any(is_hand(b) for b in touching)
         return near and resting and released
 
+    def _track(self, state, touching: set[str]) -> None:
+        """Diagnostic measurements for failure analysis; they never affect the outcome. The
+        predicate's pieces are recorded once the object has been carried."""
+        self._step += 1
+        self.max_dwell_steps = max(self.max_dwell_steps, self._dwell)
+        if self.first_contact_step < 0 and any(is_hand(b) for b in touching):
+            self.first_contact_step = self._step
+        goal = self._context.goal_position
+        self.final_goal_distance_m = float(np.linalg.norm(state.position[:2] - goal[:2]))
+        if self._carried:
+            near = self.final_goal_distance_m <= self.tolerance_xy_m
+            self.reached_goal = self.reached_goal or near
+            # resting on the goal, held or not
+            self.set_down_at_goal = self.set_down_at_goal or (
+                near and self.at_rest_on_goal(state.position, state.orientation, set()))
+
+    def grid_axes(self) -> tuple[tuple[str, float, float], ...]:
+        """(metric, low, high) of the reset range, for success by start position."""
+        return tuple((f"start_{axis}_m", c - h, c + h)
+                     for axis, c, h in zip("xy", self._center, self._half_extent, strict=True))
+
     def episode_metrics(self) -> dict[str, float]:
+        """Outcome-related measurements, and the reset's start and goal for breakdowns."""
+        goal = self._context.goal_position
         return {"max_lift_m": round(self.max_lift_m, 4),
                 "landing_speed_mps": round(self.landing_speed_mps, 3),  # -1: never set down
-                "goal_distance_m": round(self.goal_distance_m, 4)}  # from the reset
+                "goal_distance_m": round(self.goal_distance_m, 4),  # from the reset
+                "first_contact_step": self.first_contact_step,
+                "carried": float(self._carried),
+                "reached_goal": float(self.reached_goal),
+                "set_down_at_goal": float(self.set_down_at_goal),
+                "max_dwell_steps": self.max_dwell_steps,
+                "final_goal_distance_m": round(self.final_goal_distance_m, 4),
+                "start_x_m": round(float(self._start_xy[0]), 4),
+                "start_y_m": round(float(self._start_xy[1]), 4),
+                "goal_x_m": round(float(goal[0]), 4),
+                "goal_y_m": round(float(goal[1]), 4)}

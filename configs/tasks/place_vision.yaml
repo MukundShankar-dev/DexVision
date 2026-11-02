@@ -1,0 +1,26 @@
+# Place from images (docs/PLAN.md, V6). The place spec with the privileged object_* observations
+# replaced by the two policy cameras (configs/cameras.yaml). Objects, reset, success, failure and
+# horizon come from place.yaml unchanged. Written before any vision policy exists.
+extends: place
+
+# What a policy may observe: what the hand measures itself, the goal (an instruction, as in
+# place.yaml), plus the camera images. The object's pose, velocity, shape and size must be read
+# from the images. The goal marker is hidden from the policy cameras (configs/cameras.yaml): the
+# goal arrives only as goal_position.
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - goal_position
+cameras: [policy_right, policy_left]    # rgb/<camera>, [96, 96, 3] uint8, after each step
+
+# train and val are place's: the same demonstration seeds (configs/data/place_vision.yaml), and
+# the state and vision policies are compared seed by seed on val. The test range is new and
+# disjoint from every earlier one.
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [330000, 340000]
