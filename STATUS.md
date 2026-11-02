@@ -1,7 +1,7 @@
 # Status
 
 **Active checkpoint:** V5 — push from images (`docs/PLAN.md`). **State:**
-spec, phases, data, baselines and probe done; gate proposed, not approved.
+spec, phases, data, baselines and probe done; gate approved; training.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -57,7 +57,7 @@ demos 100/100.
 - The object starts within ±2 × ±3 cm of a fixed spot, so a policy that
   never sees it still succeeds 37% (state Diffusion, object hidden).
 
-**Gate (proposed, not approved).** A vision policy passes if (1) its single
+**Gate (approved by the owner 2026-11-02, before any training).** A vision policy passes if (1) its single
 200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), and (2) on
 val, blanking both cameras makes it significantly worse: exact McNemar
 p < 0.01 on the 200 paired seeds. (V3/V4 used "blanked ≤ 10%"; here a
