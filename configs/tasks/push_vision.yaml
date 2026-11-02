@@ -1,0 +1,25 @@
+# Push from images (docs/PLAN.md, V5). The push spec with the privileged object_* observations
+# replaced by the two policy cameras (configs/cameras.yaml). Objects, reset, success, failure and
+# horizon come from push.yaml unchanged. Written before any vision policy exists.
+extends: push
+
+# What a policy may observe: what the hand measures itself, the goal (an instruction, as in
+# push.yaml), plus the camera images. The object's pose, velocity, shape and size must be read
+# from the images. The goal marker is visual only and appears in the images too.
+observation:
+  - palm_position
+  - palm_rotation6d
+  - grasp_position
+  - hand_qpos
+  - hand_qvel
+  - fingertip_positions
+  - goal_position
+cameras: [policy_right, policy_left]    # rgb/<camera>, [96, 96, 3] uint8, after each step
+
+# train and val are push's: the same demonstration seeds (configs/data/push_vision.yaml), and
+# the state and vision policies are compared seed by seed on val. The test range is new and
+# disjoint from every earlier one.
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [320000, 330000]

@@ -13,7 +13,8 @@ policy). Two probes share the same evaluation:
 Frames are reported in three buckets, because the hand hides the target as it reaches it:
 ``far`` (every fingertip more than 5 cm from the target), ``near``, and the target moved by the
 hand (pick ``lifted``: more than 1 cm above where it started; press ``pressed``: more than 3 mm
-in). The thresholds only group the report.
+in; push ``pushed``: more than 1 cm from where it started, horizontally). The thresholds only
+group the report.
 
 ``offline_action_error`` scores a trained policy's predicted action chunk against the expert's
 on held-out demo windows. Low offline error with low closed-loop success points to compounding
@@ -40,6 +41,7 @@ from dexvision.sim.workcell import ACTUATOR_TARGETS, ROTATION, TRANSLATION
 NEAR_M = 0.05  # fingertip to target
 LIFTED_M = 0.01  # object above its start height
 PRESSED_M = 0.003  # button depth; press.yaml's release depth
+PUSHED_M = 0.01  # object's horizontal distance from its start
 
 
 @dataclass(frozen=True)
@@ -59,6 +61,8 @@ class ProbeTarget:
         if self.moved == "pressed":
             return episode["obs/button_depth"].reshape(-1) > PRESSED_M
         position = episode[f"obs/{self.position}"]
+        if self.moved == "pushed":
+            return np.linalg.norm(position[:, :2] - position[0, :2], axis=1) > PUSHED_M
         return position[:, 2] > position[0, 2] + LIFTED_M
 
     def class_index(self, episode: Mapping[str, np.ndarray]) -> int:
@@ -69,6 +73,8 @@ def probe_target(spec) -> ProbeTarget:
     """The probe target of a task spec's skill."""
     if spec.skill == "pick":
         return ProbeTarget("object_position", "lifted", tuple(spec.raw["objects"]))
+    if spec.skill == "push":
+        return ProbeTarget("object_position", "pushed", tuple(spec.raw["objects"]))
     if spec.skill == "press":
         return ProbeTarget("button_position", "pressed")
     raise ValueError(f"No probe target for {spec.skill}")

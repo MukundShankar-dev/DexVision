@@ -28,6 +28,7 @@ from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 from dexvision.tasks.pick import pick_phase
 from dexvision.tasks.press import press_phase
+from dexvision.tasks.push import push_phase
 from dexvision.tasks.spec import load_task_spec
 
 
@@ -59,7 +60,8 @@ def test_a_variant_replaces_only_the_keys_it_names(tmp_path):
 
 
 @pytest.mark.parametrize(("name", "privileged"), [("pick_vision", ("object_",)),
-                                                   ("press_vision", ("button_",))])
+                                                   ("press_vision", ("button_",)),
+                                                   ("push_vision", ("object_",))])
 def test_vision_specs_see_no_privileged_state_and_have_their_own_test_seeds(name, privileged):
     vision, state = load_task_spec(name), load_task_spec(name.removesuffix("_vision"))
     assert not [f for f in vision.observation if f.startswith(privileged)]
@@ -122,6 +124,41 @@ def test_press_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
     assert zero.phase == "no_contact" and zero.metrics["max_held_steps"] == 0
     assert (zero.metrics["start_y_m"], zero.metrics["start_z_m"]) == (m["start_y_m"],
                                                                       m["start_z_m"])
+
+
+@pytest.mark.parametrize(("success", "failure", "metrics", "phase"), [
+    (True, None, {}, "success"),
+    (False, "object_fell_off_table", {}, "fell_off_table"),
+    (False, "hand_collision", {}, "hand_collision"),
+    (False, "timeout", {"first_contact_step": -1}, "no_contact"),
+    (False, "timeout", {"first_contact_step": 9, "max_dwell_steps": 3}, "at_goal_not_held"),
+    (False, "timeout", {"first_contact_step": 9, "max_dwell_steps": 0, "tipped_or_lifted": 1.0},
+     "tipped_or_lifted"),
+    (False, "timeout", {"first_contact_step": 9, "max_dwell_steps": 0, "tipped_or_lifted": 0.0},
+     "not_at_goal"),
+])
+def test_push_phase_is_the_furthest_stage_reached(success, failure, metrics, phase):
+    assert push_phase(success, failure, metrics) == phase
+
+
+def test_push_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
+    task = make_task("push")
+    expert = run_episode(workcell, task, make_policy("expert", workcell.action_space, "push"),
+                         100001)
+    assert expert.success and expert.phase == "success"
+    m = expert.metrics
+    assert 0 < m["first_contact_step"] < expert.steps
+    assert m["max_dwell_steps"] == task.dwell_steps and not m["tipped_or_lifted"]
+    assert m["final_goal_distance_m"] <= task.tolerance_xy_m
+    (_, low_x, high_x), (_, low_y, high_y) = task.grid_axes()
+    assert low_x <= m["start_x_m"] <= high_x and low_y <= m["start_y_m"] <= high_y
+
+    task.spec = replace(task.spec, horizon_steps=10)
+    zero = run_episode(workcell, task, make_policy("zero", workcell.action_space, "push"), 100001)
+    assert zero.phase == "no_contact" and zero.metrics["max_dwell_steps"] == 0
+    assert zero.metrics["final_goal_distance_m"] == pytest.approx(m["push_distance_m"], abs=1e-3)
+    assert (zero.metrics["start_x_m"], zero.metrics["start_y_m"]) == (m["start_x_m"],
+                                                                      m["start_y_m"])
 
 
 def test_expert_and_zero_episodes_get_consistent_phase_metrics(workcell):
@@ -297,6 +334,18 @@ def test_press_probe_target_buckets_by_button_depth():
         "button_position", ("far", "near", "pressed"), ())
     e = {"obs/button_position": np.zeros((4, 3)), "obs/button_depth": np.array([0, 0, 0.01, 0]),
          "obs/fingertip_positions": np.full((4, 15), 9.0)}
+    e["obs/fingertip_positions"][1, :3] = 0.01
+    np.testing.assert_array_equal(frame_buckets(e, target), [0, 1, 2, 0])
+
+
+def test_push_probe_target_buckets_by_horizontal_displacement():
+    target = probe_target(load_task_spec("push_vision"))
+    assert (target.position, target.buckets) == ("object_position", ("far", "near", "pushed"))
+    assert target.classes == tuple(load_task_spec("push").raw["objects"])
+    position = np.zeros((4, 3))
+    position[2] = [0.02, 0.0, 0.0]  # pushed 2 cm
+    position[3] = [0.0, 0.0, 0.05]  # lifted, not pushed
+    e = {"obs/object_position": position, "obs/fingertip_positions": np.full((4, 15), 9.0)}
     e["obs/fingertip_positions"][1, :3] = 0.01
     np.testing.assert_array_equal(frame_buckets(e, target), [0, 1, 2, 0])
 

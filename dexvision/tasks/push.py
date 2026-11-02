@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from dexvision.sim.workcell import Contact, Observation, Placement, Workcell
-from dexvision.tasks.contacts import is_hand
+from dexvision.tasks.contacts import bodies_touching, is_hand
 from dexvision.tasks.features import TaskContext
 from dexvision.tasks.spec import StepCheck, TaskSpec
 
@@ -20,7 +20,28 @@ def push_qualifies(position: np.ndarray, goal: np.ndarray, start_z: float, toler
     return near and resting
 
 
+def push_phase(success: bool, failure: str | None, metrics: dict[str, float]) -> str:
+    """How far an episode got, from the success predicate's own pieces (no new thresholds):
+    hand on the object, then the object at the goal and resting, then held there for the dwell.
+    An episode that never reached the goal is split by whether the object stayed resting."""
+    if success:
+        return "success"
+    if failure == "object_fell_off_table":
+        return "fell_off_table"
+    if failure == "hand_collision":
+        return "hand_collision"
+    if metrics["first_contact_step"] < 0:
+        return "no_contact"
+    if metrics["max_dwell_steps"] > 0:
+        return "at_goal_not_held"
+    if metrics["tipped_or_lifted"]:
+        return "tipped_or_lifted"
+    return "not_at_goal"
+
+
 class PushTask:
+    phase = staticmethod(push_phase)
+
     def __init__(self, spec: TaskSpec) -> None:
         self.spec = spec
         reset, success, failure = spec.raw["reset"], spec.raw["success"], spec.raw["failure"]
@@ -56,6 +77,12 @@ class PushTask:
         self.min_goal_distance_m = distance
         self.push_angle_rad = angle
         self.max_height_change = 0.0
+        self.push_distance_m = distance
+        self._start_xy = start[:2].copy()
+        self._step = 0
+        self.first_contact_step = -1
+        self.max_dwell_steps = 0
+        self.final_goal_distance_m = distance
         return self._context, observation
 
     def check(self, observation: Observation, contacts: tuple[Contact, ...]) -> StepCheck:
@@ -69,6 +96,7 @@ class PushTask:
         qualifies = push_qualifies(position, context.goal_position, self._start_z,
                                    self.tolerance_xy_m, self.max_height_change_m)
         self._dwell = self._dwell + 1 if qualifies else 0
+        self._track(position, contacts)
         failure = None
         if position[2] < self.min_object_z_m:
             failure = "object_fell_off_table"
@@ -80,7 +108,31 @@ class PushTask:
             failure = "hand_collision"
         return StepCheck(qualifies, self._dwell >= self.dwell_steps and not failure, failure)
 
+    def _track(self, position: np.ndarray, contacts: tuple[Contact, ...]) -> None:
+        """Diagnostic measurements for failure analysis; they never affect the outcome."""
+        self._step += 1
+        self.max_dwell_steps = max(self.max_dwell_steps, self._dwell)
+        touching = bodies_touching(contacts, self._context.target_object)
+        if self.first_contact_step < 0 and any(is_hand(b) for b in touching):
+            self.first_contact_step = self._step
+        self.final_goal_distance_m = float(
+            np.linalg.norm(position[:2] - self._context.goal_position[:2]))
+
+    def grid_axes(self) -> tuple[tuple[str, float, float], ...]:
+        """(metric, low, high) of the reset range, for success by start position."""
+        return tuple((f"start_{axis}_m", c - h, c + h)
+                     for axis, c, h in zip("xy", self._center, self._half_extent, strict=True))
+
     def episode_metrics(self) -> dict[str, float]:
+        """Outcome-related measurements, and the reset's start and goal for breakdowns."""
         return {"min_goal_distance_m": round(self.min_goal_distance_m, 4),
+                "final_goal_distance_m": round(self.final_goal_distance_m, 4),
                 "max_height_change_m": round(self.max_height_change, 4),
-                "push_angle_deg": round(math.degrees(self.push_angle_rad), 1)}  # from the reset
+                # the success predicate's resting condition was broken at some step
+                "tipped_or_lifted": float(self.max_height_change > self.max_height_change_m),
+                "first_contact_step": self.first_contact_step,
+                "max_dwell_steps": self.max_dwell_steps,
+                "push_angle_deg": round(math.degrees(self.push_angle_rad), 1),  # from the reset
+                "push_distance_m": round(self.push_distance_m, 4),
+                "start_x_m": round(float(self._start_xy[0]), 4),
+                "start_y_m": round(float(self._start_xy[1]), 4)}
