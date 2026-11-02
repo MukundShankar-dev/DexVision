@@ -1,0 +1,53 @@
+{
+ "task": "place_vision",
+ "code": {
+  "commit": "d16cf558085ae2460fbcef29053d5cad7f02e075",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/place/place_vision",
+ "val_data": "datasets/place/place_vision_val",
+ "val_episodes": 85,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "probe_scratch": {
+  "all": {
+   "frames": 14959,
+   "position_error_cm_mean": 0.36,
+   "position_error_cm_median": 0.31,
+   "position_error_cm_p90": 0.61,
+   "mean_guess_error_cm": 6.29,
+   "object_accuracy": 0.998
+  },
+  "far": {
+   "frames": 3794,
+   "position_error_cm_mean": 0.35,
+   "position_error_cm_median": 0.28,
+   "position_error_cm_p90": 0.6,
+   "mean_guess_error_cm": 5.94,
+   "object_accuracy": 1.0
+  },
+  "near": {
+   "frames": 4320,
+   "position_error_cm_mean": 0.38,
+   "position_error_cm_median": 0.34,
+   "position_error_cm_p90": 0.64,
+   "mean_guess_error_cm": 6.2,
+   "object_accuracy": 0.997
+  },
+  "lifted": {
+   "frames": 6845,
+   "position_error_cm_mean": 0.35,
+   "position_error_cm_median": 0.31,
+   "position_error_cm_p90": 0.59,
+   "mean_guess_error_cm": 6.55,
+   "object_accuracy": 0.998
+  }
+ }
+}
