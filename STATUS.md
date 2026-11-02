@@ -1,9 +1,10 @@
 # Status
 
-**Active checkpoint:** V4 — press from images (`docs/PLAN.md`). **State:**
-trained, selected, tested once per method; owner signed off 2026-10-30.
+**Active checkpoint:** V5 — push from images (`docs/PLAN.md`). **State:**
+spec, phases, data, baselines and probe done; gate proposed, not approved.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
-approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
+approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
+(approved 2026-10-30). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
 
 ## Shared protocol (every skill)
@@ -12,9 +13,8 @@ approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29). Tags: `le
   and MLP-BC, 60k steps, checkpoints every 10k, desktop RTX 5070 Ti.
 - **Selection:** the most val successes on the first 200 val seeds, ties to
   the later step. Then one ledgered 200-episode test run per method.
-- **Platform:** results are evaluated on the desktop (Linux x86-64); MuJoCo
-  is not bit-identical across arm64 and x86-64.
-- **Test budget:** 3 runs per (skill, method, test seed range).
+- **Platform:** desktop (Linux x86-64); MuJoCo differs slightly on arm64.
+  Test budget: 3 runs per (skill, method, test seed range).
 
 ## Results (test, 200 episodes each; details in `results/` and git history)
 
@@ -36,29 +36,33 @@ averages push-in and pull-out demos) and place seed 1. Open: MLP-BC push
 back-of-hand stalls 2.0–2.5 cm short. Vision: two 96 px cameras, per-camera
 CNN with 32 keypoints; on pick, Diffusion relies on `policy_left` alone.
 
-## V4 — press_vision (details in `results/press_vision/`)
+## V5 — push_vision (val, 200 episodes; details in `results/push_vision/`)
 
-Spec: press without `button_position` and `button_depth` (owner decision),
-plus both cameras; test seeds 310000–320000. Demos 989/1000, replay 50/50.
+Spec: push without `object_*` (pose, velocity, shape, size), plus both
+cameras; `goal_position` stays (the instruction; the marker is hidden from
+the cameras). Test seeds 320000–330000. Demos 982/1000, replay 50/50; val
+demos 100/100.
 
-**Gate (approved by the owner 2026-10-29 — "Continue" in reply to the
-proposal — before any training):** test Wilson lower bound ≥ 80%
-(≥ 170/200), and val with both cameras blanked ≤ 10%.
-
-| 200 episodes each | Diffusion | MLP-BC |
+| Baseline (val) | Success | Phases of failures |
 |---|---|---|
-| test (one run each) | **194 [93.6, 98.6%] passes** | **92 [39.2, 52.9%] fails** |
-| val, selected step | 196 (60k) | 93 (30k; 60k: 36) |
-| val, both cameras / only left / only right | 3 / 57 / 56 | 0 / 2 / 0 |
-| val ceiling: same method on state | 197 | 165 |
-| probe, frozen encoder, button error (scratch 0.10 cm) | 0.15 cm | 0.20 cm |
+| zero | 0 [0, 1.9%] | all no contact |
+| random | 5 [1.1, 5.7%] | 79 no contact, 66 not at goal, 35 tipped |
+| expert (state) | 200 | |
+| state Diffusion / MLP-BC (ceiling) | 192 / 185 | mostly at goal not held, not at goal |
+| same, object_* hidden (R7) | 73 / 47 | |
 
-Baselines on val: zero 0, random 0, expert 200. Every failure of both
-methods is "held, not released" except one Diffusion test seed (pressed,
-not held). Diffusion vs its state twin: 194 both, p = 1. MLP-BC vs its
-state twin: 84 lost, 12 gained, p = 2e-14. Its encoder finds the button
-(0.20 cm), so the likely cause is the regression averaging push-in and
-pull-out, worse than on state. Unlike pick, Diffusion needs both cameras.
+- **Probe** (scratch encoder, 7722 val frames): object position error
+  0.17 cm mean (mean guess 3.0 cm), 0.20 cm while pushed; object identity
+  100%.
+- The object starts within ±2 × ±3 cm of a fixed spot, so a policy that
+  never sees it still succeeds 37% (state Diffusion, object hidden).
+
+**Gate (proposed, not approved).** A vision policy passes if (1) its single
+200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), and (2) on
+val, blanking both cameras makes it significantly worse: exact McNemar
+p < 0.01 on the 200 paired seeds. (V3/V4 used "blanked ≤ 10%"; here a
+policy that ignores the object can reach 37%, so that bar could fail a
+policy that does use its cameras.)
 
 ## Caveats
 

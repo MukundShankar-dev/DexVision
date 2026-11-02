@@ -1,0 +1,53 @@
+{
+ "task": "push_vision",
+ "code": {
+  "commit": "f31c9c7b2207d57e9f2daf90e59d9e48ca97e43c",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/push/push_vision",
+ "val_data": "datasets/push/push_vision_val",
+ "val_episodes": 100,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "probe_scratch": {
+  "all": {
+   "frames": 7722,
+   "position_error_cm_mean": 0.17,
+   "position_error_cm_median": 0.15,
+   "position_error_cm_p90": 0.31,
+   "mean_guess_error_cm": 2.98,
+   "object_accuracy": 1.0
+  },
+  "far": {
+   "frames": 3556,
+   "position_error_cm_mean": 0.16,
+   "position_error_cm_median": 0.14,
+   "position_error_cm_p90": 0.27,
+   "mean_guess_error_cm": 2.39,
+   "object_accuracy": 1.0
+  },
+  "near": {
+   "frames": 979,
+   "position_error_cm_mean": 0.15,
+   "position_error_cm_median": 0.14,
+   "position_error_cm_p90": 0.25,
+   "mean_guess_error_cm": 2.33,
+   "object_accuracy": 1.0
+  },
+  "pushed": {
+   "frames": 3187,
+   "position_error_cm_mean": 0.2,
+   "position_error_cm_median": 0.16,
+   "position_error_cm_p90": 0.37,
+   "mean_guess_error_cm": 3.85,
+   "object_accuracy": 1.0
+  }
+ }
+}
