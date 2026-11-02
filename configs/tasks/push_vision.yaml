@@ -5,7 +5,8 @@ extends: push
 
 # What a policy may observe: what the hand measures itself, the goal (an instruction, as in
 # push.yaml), plus the camera images. The object's pose, velocity, shape and size must be read
-# from the images. The goal marker is visual only and appears in the images too.
+# from the images. The goal marker is hidden from the policy cameras (configs/cameras.yaml): the
+# goal arrives only as goal_position.
 observation:
   - palm_position
   - palm_rotation6d
