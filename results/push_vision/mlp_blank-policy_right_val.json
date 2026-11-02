@@ -1,0 +1,4092 @@
+{
+ "task": "push_vision",
+ "skill": "push",
+ "policy": "mlp_blank-policy_right",
+ "split": "val",
+ "overall": {
+  "successes": 9,
+  "n": 200,
+  "ci95": [
+   0.0239,
+   0.0833
+  ]
+ },
+ "by_object": {
+  "block_large": {
+   "successes": 4,
+   "n": 50,
+   "ci95": [
+    0.0315,
+    0.1884
+   ]
+  },
+  "block_small": {
+   "successes": 2,
+   "n": 47,
+   "ci95": [
+    0.0117,
+    0.1425
+   ]
+  },
+  "cylinder_short": {
+   "successes": 2,
+   "n": 50,
+   "ci95": [
+    0.011,
+    0.1346
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 1,
+   "n": 53,
+   "ci95": [
+    0.0033,
+    0.0994
+   ]
+  }
+ },
+ "failures": {
+  "hand_collision": 69,
+  "timeout": 113,
+  "object_fell_off_table": 9
+ },
+ "episodes": [
+  {
+   "seed": 100000,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 81,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0558,
+    "final_goal_distance_m": 0.0558,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 31.3,
+    "push_distance_m": 0.0558,
+    "start_x_m": -0.115,
+    "start_y_m": -0.0019
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100001,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 63,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0611,
+    "final_goal_distance_m": 0.0611,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -28.3,
+    "push_distance_m": 0.0611,
+    "start_x_m": -0.0859,
+    "start_y_m": 0.0226
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100002,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0568,
+    "final_goal_distance_m": 0.0588,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 38,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 25.1,
+    "push_distance_m": 0.0631,
+    "start_x_m": -0.0822,
+    "start_y_m": 0.0104
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100003,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0329,
+    "final_goal_distance_m": 0.0329,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 80,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -48.7,
+    "push_distance_m": 0.0726,
+    "start_x_m": -0.1191,
+    "start_y_m": 0.0142
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100004,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0319,
+    "final_goal_distance_m": 0.0321,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 74,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -63.8,
+    "push_distance_m": 0.0569,
+    "start_x_m": -0.1192,
+    "start_y_m": 0.0082
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100005,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0629,
+    "final_goal_distance_m": 0.071,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 43,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 3.6,
+    "push_distance_m": 0.0713,
+    "start_x_m": -0.0999,
+    "start_y_m": 0.0191
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100006,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 69,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0546,
+    "final_goal_distance_m": 0.0926,
+    "max_height_change_m": 0.0046,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 66,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 2.7,
+    "push_distance_m": 0.0546,
+    "start_x_m": -0.0947,
+    "start_y_m": 0.0057
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100007,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0351,
+    "final_goal_distance_m": 0.0391,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 31,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 1.7,
+    "push_distance_m": 0.0732,
+    "start_x_m": -0.1106,
+    "start_y_m": 0.0258
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100008,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0687,
+    "final_goal_distance_m": 0.0687,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -8.0,
+    "push_distance_m": 0.0687,
+    "start_x_m": -0.081,
+    "start_y_m": 0.0
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100009,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 75,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0615,
+    "final_goal_distance_m": 0.0615,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -27.3,
+    "push_distance_m": 0.0615,
+    "start_x_m": -0.1007,
+    "start_y_m": 0.0045
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100010,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0753,
+    "final_goal_distance_m": 0.0753,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 53,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 56.9,
+    "push_distance_m": 0.0765,
+    "start_x_m": -0.081,
+    "start_y_m": -0.0171
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100011,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 106,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0548,
+    "final_goal_distance_m": 0.0548,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 87,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -81.3,
+    "push_distance_m": 0.0679,
+    "start_x_m": -0.1158,
+    "start_y_m": 0.0012
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100012,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0273,
+    "final_goal_distance_m": 0.0273,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 116,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -72.8,
+    "push_distance_m": 0.0658,
+    "start_x_m": -0.1099,
+    "start_y_m": -0.0298
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100013,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0275,
+    "final_goal_distance_m": 0.0275,
+    "max_height_change_m": 0.0023,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 117,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -87.2,
+    "push_distance_m": 0.0526,
+    "start_x_m": -0.0821,
+    "start_y_m": -0.0138
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100014,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0389,
+    "final_goal_distance_m": 0.0391,
+    "max_height_change_m": 0.0012,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 118,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -53.1,
+    "push_distance_m": 0.066,
+    "start_x_m": -0.1001,
+    "start_y_m": 0.0073
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100015,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0272,
+    "final_goal_distance_m": 0.0272,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 73,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -76.9,
+    "push_distance_m": 0.06,
+    "start_x_m": -0.1053,
+    "start_y_m": 0.0203
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100016,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 172,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0083,
+    "final_goal_distance_m": 0.1535,
+    "max_height_change_m": 0.0956,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 43,
+    "max_dwell_steps": 8,
+    "push_angle_deg": 82.2,
+    "push_distance_m": 0.0662,
+    "start_x_m": -0.0978,
+    "start_y_m": 0.0193
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100017,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 60,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.051,
+    "final_goal_distance_m": 0.051,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 3.2,
+    "push_distance_m": 0.051,
+    "start_x_m": -0.096,
+    "start_y_m": -0.0012
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100018,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0286,
+    "final_goal_distance_m": 0.0286,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 89,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -57.6,
+    "push_distance_m": 0.0637,
+    "start_x_m": -0.1128,
+    "start_y_m": 0.0111
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100019,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 65,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0694,
+    "final_goal_distance_m": 0.0694,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -12.0,
+    "push_distance_m": 0.0694,
+    "start_x_m": -0.1078,
+    "start_y_m": -0.0114
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100020,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0783,
+    "final_goal_distance_m": 0.0783,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -30.8,
+    "push_distance_m": 0.0783,
+    "start_x_m": -0.103,
+    "start_y_m": -0.0106
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100021,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 74,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0617,
+    "final_goal_distance_m": 0.0617,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -24.4,
+    "push_distance_m": 0.0617,
+    "start_x_m": -0.0899,
+    "start_y_m": -0.0024
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100022,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0482,
+    "final_goal_distance_m": 0.0487,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 25,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 31.0,
+    "push_distance_m": 0.0729,
+    "start_x_m": -0.1058,
+    "start_y_m": 0.0001
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100023,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.032,
+    "final_goal_distance_m": 0.032,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 85,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -81.2,
+    "push_distance_m": 0.0527,
+    "start_x_m": -0.1162,
+    "start_y_m": -0.0016
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100024,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0258,
+    "final_goal_distance_m": 0.0258,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 77,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -78.7,
+    "push_distance_m": 0.0595,
+    "start_x_m": -0.1067,
+    "start_y_m": 0.0101
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100025,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0442,
+    "final_goal_distance_m": 0.0442,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 162,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -82.0,
+    "push_distance_m": 0.0743,
+    "start_x_m": -0.1122,
+    "start_y_m": -0.025
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100026,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 67,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0596,
+    "final_goal_distance_m": 0.0596,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 28.5,
+    "push_distance_m": 0.0596,
+    "start_x_m": -0.1045,
+    "start_y_m": -0.0215
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100027,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 81,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0644,
+    "final_goal_distance_m": 0.0644,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 18.2,
+    "push_distance_m": 0.0644,
+    "start_x_m": -0.1051,
+    "start_y_m": -0.0147
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100028,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0725,
+    "final_goal_distance_m": 0.0734,
+    "max_height_change_m": 0.0011,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 167,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -55.3,
+    "push_distance_m": 0.0738,
+    "start_x_m": -0.1031,
+    "start_y_m": -0.012
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100029,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0503,
+    "final_goal_distance_m": 0.0503,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 41.3,
+    "push_distance_m": 0.0503,
+    "start_x_m": -0.1167,
+    "start_y_m": 0.0062
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100030,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 68,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0629,
+    "final_goal_distance_m": 0.0629,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -24.6,
+    "push_distance_m": 0.0629,
+    "start_x_m": -0.1172,
+    "start_y_m": 0.0069
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100031,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0588,
+    "final_goal_distance_m": 0.0589,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 175,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -51.4,
+    "push_distance_m": 0.0595,
+    "start_x_m": -0.0881,
+    "start_y_m": -0.0185
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100032,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 113,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0095,
+    "final_goal_distance_m": 0.1521,
+    "max_height_change_m": 0.0586,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 8,
+    "push_angle_deg": 73.4,
+    "push_distance_m": 0.053,
+    "start_x_m": -0.1125,
+    "start_y_m": 0.0089
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100033,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0266,
+    "final_goal_distance_m": 0.0274,
+    "max_height_change_m": 0.0017,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 113,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -53.8,
+    "push_distance_m": 0.062,
+    "start_x_m": -0.114,
+    "start_y_m": 0.0005
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100034,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 63,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0545,
+    "final_goal_distance_m": 0.0545,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -7.3,
+    "push_distance_m": 0.0545,
+    "start_x_m": -0.0875,
+    "start_y_m": 0.003
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100035,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 102,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0532,
+    "final_goal_distance_m": 0.0716,
+    "max_height_change_m": 0.0123,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 83,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 36.9,
+    "push_distance_m": 0.0532,
+    "start_x_m": -0.1186,
+    "start_y_m": 0.007
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100036,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0656,
+    "final_goal_distance_m": 0.0656,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 89.7,
+    "push_distance_m": 0.0656,
+    "start_x_m": -0.0902,
+    "start_y_m": -0.0279
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100037,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 65,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0612,
+    "final_goal_distance_m": 0.0612,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 29.2,
+    "push_distance_m": 0.0612,
+    "start_x_m": -0.1021,
+    "start_y_m": -0.0227
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100038,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0215,
+    "final_goal_distance_m": 0.0223,
+    "max_height_change_m": 0.0011,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 27,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 20.2,
+    "push_distance_m": 0.0692,
+    "start_x_m": -0.1178,
+    "start_y_m": 0.0244
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100039,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0351,
+    "final_goal_distance_m": 0.0359,
+    "max_height_change_m": 0.001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 88,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -70.5,
+    "push_distance_m": 0.0605,
+    "start_x_m": -0.1144,
+    "start_y_m": -0.0049
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100040,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0019,
+    "final_goal_distance_m": 0.0123,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 50,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 88.6,
+    "push_distance_m": 0.0711,
+    "start_x_m": -0.116,
+    "start_y_m": 0.0264
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100041,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 69,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0573,
+    "final_goal_distance_m": 0.0573,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 56.7,
+    "push_distance_m": 0.0573,
+    "start_x_m": -0.087,
+    "start_y_m": -0.0177
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100042,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0264,
+    "final_goal_distance_m": 0.0271,
+    "max_height_change_m": 0.0025,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 121,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -74.7,
+    "push_distance_m": 0.0751,
+    "start_x_m": -0.1043,
+    "start_y_m": -0.0076
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100043,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0506,
+    "final_goal_distance_m": 0.0506,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 192,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -43.0,
+    "push_distance_m": 0.0507,
+    "start_x_m": -0.0805,
+    "start_y_m": -0.0172
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100044,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0507,
+    "final_goal_distance_m": 0.0507,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 64.3,
+    "push_distance_m": 0.0507,
+    "start_x_m": -0.1,
+    "start_y_m": -0.027
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100045,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 78,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0654,
+    "final_goal_distance_m": 0.0654,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 30.1,
+    "push_distance_m": 0.0654,
+    "start_x_m": -0.0949,
+    "start_y_m": -0.0261
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100046,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 93,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.004,
+    "final_goal_distance_m": 0.1327,
+    "max_height_change_m": 0.0923,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 47,
+    "max_dwell_steps": 9,
+    "push_angle_deg": 78.7,
+    "push_distance_m": 0.0679,
+    "start_x_m": -0.0805,
+    "start_y_m": 0.0201
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100047,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0659,
+    "final_goal_distance_m": 0.0719,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 84,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 22.6,
+    "push_distance_m": 0.0661,
+    "start_x_m": -0.117,
+    "start_y_m": 0.0102
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100048,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0266,
+    "final_goal_distance_m": 0.0276,
+    "max_height_change_m": 0.0023,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 113,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -57.0,
+    "push_distance_m": 0.0578,
+    "start_x_m": -0.1136,
+    "start_y_m": -0.0117
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100049,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0343,
+    "final_goal_distance_m": 0.0407,
+    "max_height_change_m": 0.0064,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 45,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 64.9,
+    "push_distance_m": 0.073,
+    "start_x_m": -0.0883,
+    "start_y_m": -0.0028
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100050,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 90,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0634,
+    "final_goal_distance_m": 0.0662,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 84,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 4.4,
+    "push_distance_m": 0.0634,
+    "start_x_m": -0.0892,
+    "start_y_m": 0.0127
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100051,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 180,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0709,
+    "final_goal_distance_m": 0.1028,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 156,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -40.5,
+    "push_distance_m": 0.0709,
+    "start_x_m": -0.1172,
+    "start_y_m": 0.0197
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100052,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0497,
+    "final_goal_distance_m": 0.0497,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 126,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -54.1,
+    "push_distance_m": 0.0742,
+    "start_x_m": -0.0988,
+    "start_y_m": 0.0095
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100053,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.025,
+    "final_goal_distance_m": 0.0252,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 128,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -82.7,
+    "push_distance_m": 0.0728,
+    "start_x_m": -0.1036,
+    "start_y_m": -0.0133
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100054,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0042,
+    "final_goal_distance_m": 0.0381,
+    "max_height_change_m": 0.0047,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 49,
+    "max_dwell_steps": 8,
+    "push_angle_deg": 89.7,
+    "push_distance_m": 0.0795,
+    "start_x_m": -0.1002,
+    "start_y_m": 0.0257
+   },
+   "phase": "at_goal_not_held"
+  },
+  {
+   "seed": 100055,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.04,
+    "final_goal_distance_m": 0.0401,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 34,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 10.2,
+    "push_distance_m": 0.0613,
+    "start_x_m": -0.1065,
+    "start_y_m": 0.0287
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100056,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0751,
+    "final_goal_distance_m": 0.085,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 60,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 19.9,
+    "push_distance_m": 0.0753,
+    "start_x_m": -0.1127,
+    "start_y_m": -0.0001
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100057,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0244,
+    "final_goal_distance_m": 0.0244,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 74,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -47.7,
+    "push_distance_m": 0.0522,
+    "start_x_m": -0.0864,
+    "start_y_m": 0.025
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100058,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0609,
+    "final_goal_distance_m": 0.0609,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 83.8,
+    "push_distance_m": 0.0609,
+    "start_x_m": -0.0882,
+    "start_y_m": -0.0066
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100059,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.024,
+    "final_goal_distance_m": 0.0245,
+    "max_height_change_m": 0.0015,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 74,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -72.2,
+    "push_distance_m": 0.0532,
+    "start_x_m": -0.0839,
+    "start_y_m": 0.021
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100060,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 70,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0102,
+    "final_goal_distance_m": 0.0133,
+    "max_height_change_m": 0.0026,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 44,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 74.1,
+    "push_distance_m": 0.0655,
+    "start_x_m": -0.0883,
+    "start_y_m": 0.0296
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100061,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 51,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.015,
+    "final_goal_distance_m": 0.015,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 24,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 37.0,
+    "push_distance_m": 0.0771,
+    "start_x_m": -0.102,
+    "start_y_m": 0.0262
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100062,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 117,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0587,
+    "final_goal_distance_m": 0.0682,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 86,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 24.0,
+    "push_distance_m": 0.0587,
+    "start_x_m": -0.0936,
+    "start_y_m": -0.012
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100063,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0261,
+    "final_goal_distance_m": 0.0262,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 64,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -77.1,
+    "push_distance_m": 0.0611,
+    "start_x_m": -0.0819,
+    "start_y_m": 0.0267
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100064,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.037,
+    "final_goal_distance_m": 0.0372,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 29,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 25.4,
+    "push_distance_m": 0.0575,
+    "start_x_m": -0.0889,
+    "start_y_m": 0.0241
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100065,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0628,
+    "final_goal_distance_m": 0.0633,
+    "max_height_change_m": 0.0009,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 137,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -60.0,
+    "push_distance_m": 0.0783,
+    "start_x_m": -0.0908,
+    "start_y_m": 0.004
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100066,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 67,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0096,
+    "final_goal_distance_m": 0.0146,
+    "max_height_change_m": 0.0102,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 40,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 74.1,
+    "push_distance_m": 0.0546,
+    "start_x_m": -0.111,
+    "start_y_m": 0.0167
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100067,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0387,
+    "final_goal_distance_m": 0.0387,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 97,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -32.2,
+    "push_distance_m": 0.0579,
+    "start_x_m": -0.0978,
+    "start_y_m": -0.0088
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100068,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 67,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0511,
+    "final_goal_distance_m": 0.0511,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 5.7,
+    "push_distance_m": 0.0511,
+    "start_x_m": -0.0874,
+    "start_y_m": -0.0291
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100069,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0097,
+    "final_goal_distance_m": 0.0143,
+    "max_height_change_m": 0.003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 43,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 73.4,
+    "push_distance_m": 0.0697,
+    "start_x_m": -0.0855,
+    "start_y_m": 0.015
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100070,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.059,
+    "final_goal_distance_m": 0.1057,
+    "max_height_change_m": 0.0178,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 66,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -2.5,
+    "push_distance_m": 0.059,
+    "start_x_m": -0.0949,
+    "start_y_m": 0.0133
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100071,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 116,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0137,
+    "final_goal_distance_m": 0.1253,
+    "max_height_change_m": 0.0942,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 45,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 87.6,
+    "push_distance_m": 0.0644,
+    "start_x_m": -0.1021,
+    "start_y_m": 0.0017
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100072,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 125,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0648,
+    "final_goal_distance_m": 0.1247,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 84,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -37.1,
+    "push_distance_m": 0.0648,
+    "start_x_m": -0.1021,
+    "start_y_m": 0.0201
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100073,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0304,
+    "final_goal_distance_m": 0.0304,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 77,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -53.5,
+    "push_distance_m": 0.0584,
+    "start_x_m": -0.1061,
+    "start_y_m": 0.0288
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100074,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0163,
+    "final_goal_distance_m": 0.0163,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 25,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 40.0,
+    "push_distance_m": 0.0633,
+    "start_x_m": -0.1037,
+    "start_y_m": 0.027
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100075,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 70,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0778,
+    "final_goal_distance_m": 0.0778,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -7.6,
+    "push_distance_m": 0.0778,
+    "start_x_m": -0.1,
+    "start_y_m": -0.0164
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100076,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 72,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0626,
+    "final_goal_distance_m": 0.0626,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 16.0,
+    "push_distance_m": 0.0626,
+    "start_x_m": -0.0822,
+    "start_y_m": -0.0268
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100077,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0346,
+    "final_goal_distance_m": 0.0356,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 27,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 45.0,
+    "push_distance_m": 0.0722,
+    "start_x_m": -0.0884,
+    "start_y_m": 0.0048
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100078,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0388,
+    "final_goal_distance_m": 0.0388,
+    "max_height_change_m": 0.0028,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 146,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -76.2,
+    "push_distance_m": 0.0679,
+    "start_x_m": -0.0969,
+    "start_y_m": -0.023
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100079,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0725,
+    "final_goal_distance_m": 0.0731,
+    "max_height_change_m": 0.0018,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 175,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -66.8,
+    "push_distance_m": 0.0755,
+    "start_x_m": -0.0986,
+    "start_y_m": -0.015
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100080,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 102,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0694,
+    "final_goal_distance_m": 0.0694,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 23.5,
+    "push_distance_m": 0.0694,
+    "start_x_m": -0.1145,
+    "start_y_m": -0.0037
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100081,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.039,
+    "final_goal_distance_m": 0.0392,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 30,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 8.4,
+    "push_distance_m": 0.0789,
+    "start_x_m": -0.1033,
+    "start_y_m": 0.0231
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100082,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0531,
+    "final_goal_distance_m": 0.0531,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 53.8,
+    "push_distance_m": 0.0531,
+    "start_x_m": -0.1165,
+    "start_y_m": -0.0212
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100083,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0697,
+    "final_goal_distance_m": 0.0748,
+    "max_height_change_m": 0.0014,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 51,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 61.8,
+    "push_distance_m": 0.0703,
+    "start_x_m": -0.1052,
+    "start_y_m": -0.0244
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100084,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0237,
+    "final_goal_distance_m": 0.1016,
+    "max_height_change_m": 0.007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 47,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 65.8,
+    "push_distance_m": 0.0782,
+    "start_x_m": -0.094,
+    "start_y_m": 0.0295
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100085,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0431,
+    "final_goal_distance_m": 0.0434,
+    "max_height_change_m": 0.001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 26,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 22.4,
+    "push_distance_m": 0.0662,
+    "start_x_m": -0.1147,
+    "start_y_m": 0.0198
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100086,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.029,
+    "final_goal_distance_m": 0.0295,
+    "max_height_change_m": 0.002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 117,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -80.4,
+    "push_distance_m": 0.0755,
+    "start_x_m": -0.0954,
+    "start_y_m": -0.0011
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100087,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0605,
+    "final_goal_distance_m": 0.0726,
+    "max_height_change_m": 0.01,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 71,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -10.0,
+    "push_distance_m": 0.0605,
+    "start_x_m": -0.0917,
+    "start_y_m": 0.0265
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100088,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 64,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0641,
+    "final_goal_distance_m": 0.0641,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 8.4,
+    "push_distance_m": 0.0641,
+    "start_x_m": -0.1059,
+    "start_y_m": -0.0208
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100089,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0383,
+    "final_goal_distance_m": 0.0383,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 90,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -35.1,
+    "push_distance_m": 0.0624,
+    "start_x_m": -0.1135,
+    "start_y_m": 0.0001
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100090,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 85,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0646,
+    "final_goal_distance_m": 0.0646,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 13.5,
+    "push_distance_m": 0.0646,
+    "start_x_m": -0.1157,
+    "start_y_m": 0.0013
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100091,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0669,
+    "final_goal_distance_m": 0.0669,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 81.2,
+    "push_distance_m": 0.0669,
+    "start_x_m": -0.0833,
+    "start_y_m": -0.0215
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100092,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0316,
+    "final_goal_distance_m": 0.0316,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 120,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -47.7,
+    "push_distance_m": 0.0704,
+    "start_x_m": -0.1134,
+    "start_y_m": -0.0027
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100093,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 185,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0202,
+    "final_goal_distance_m": 0.0902,
+    "max_height_change_m": 0.0048,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 50,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 52.2,
+    "push_distance_m": 0.0548,
+    "start_x_m": -0.0992,
+    "start_y_m": 0.0142
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100094,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0299,
+    "final_goal_distance_m": 0.0299,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 101,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -89.8,
+    "push_distance_m": 0.0748,
+    "start_x_m": -0.0916,
+    "start_y_m": -0.0113
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100095,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 72,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0666,
+    "final_goal_distance_m": 0.0666,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -3.3,
+    "push_distance_m": 0.0666,
+    "start_x_m": -0.0856,
+    "start_y_m": -0.0279
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100096,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0523,
+    "final_goal_distance_m": 0.0591,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 58,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 13.5,
+    "push_distance_m": 0.0536,
+    "start_x_m": -0.087,
+    "start_y_m": 0.0104
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100097,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0607,
+    "final_goal_distance_m": 0.067,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -0.7,
+    "push_distance_m": 0.0696,
+    "start_x_m": -0.1024,
+    "start_y_m": 0.0217
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100098,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0674,
+    "final_goal_distance_m": 0.0795,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 55,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -5.0,
+    "push_distance_m": 0.0753,
+    "start_x_m": -0.0847,
+    "start_y_m": 0.0131
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100099,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0247,
+    "final_goal_distance_m": 0.0254,
+    "max_height_change_m": 0.001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 75,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -78.7,
+    "push_distance_m": 0.0524,
+    "start_x_m": -0.1048,
+    "start_y_m": 0.0189
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100100,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0272,
+    "final_goal_distance_m": 0.0273,
+    "max_height_change_m": 0.001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 104,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -73.8,
+    "push_distance_m": 0.0598,
+    "start_x_m": -0.1124,
+    "start_y_m": -0.0092
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100101,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0688,
+    "final_goal_distance_m": 0.0688,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -13.9,
+    "push_distance_m": 0.0688,
+    "start_x_m": -0.0866,
+    "start_y_m": 0.0207
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100102,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 104,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0778,
+    "final_goal_distance_m": 0.0941,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 98,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -6.1,
+    "push_distance_m": 0.0778,
+    "start_x_m": -0.1045,
+    "start_y_m": 0.0266
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100103,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 147,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0243,
+    "final_goal_distance_m": 0.1293,
+    "max_height_change_m": 0.0415,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 44,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 70.7,
+    "push_distance_m": 0.0728,
+    "start_x_m": -0.1167,
+    "start_y_m": -0.0058
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100104,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0264,
+    "final_goal_distance_m": 0.0264,
+    "max_height_change_m": 0.0009,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 102,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -82.3,
+    "push_distance_m": 0.0788,
+    "start_x_m": -0.1065,
+    "start_y_m": -0.0021
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100105,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0342,
+    "final_goal_distance_m": 0.0342,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 109,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -43.9,
+    "push_distance_m": 0.0589,
+    "start_x_m": -0.0823,
+    "start_y_m": 0.0164
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100106,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.032,
+    "final_goal_distance_m": 0.0321,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 24,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 10.4,
+    "push_distance_m": 0.0676,
+    "start_x_m": -0.0877,
+    "start_y_m": 0.0286
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100107,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0745,
+    "final_goal_distance_m": 0.0831,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 68,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 38.5,
+    "push_distance_m": 0.0745,
+    "start_x_m": -0.0931,
+    "start_y_m": -0.0256
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100108,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0523,
+    "final_goal_distance_m": 0.0525,
+    "max_height_change_m": 0.0017,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 125,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -55.6,
+    "push_distance_m": 0.0719,
+    "start_x_m": -0.107,
+    "start_y_m": -0.0068
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100109,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 80,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0592,
+    "final_goal_distance_m": 0.0592,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 40.9,
+    "push_distance_m": 0.0592,
+    "start_x_m": -0.1049,
+    "start_y_m": -0.0129
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100110,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0269,
+    "final_goal_distance_m": 0.0277,
+    "max_height_change_m": 0.0014,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 103,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -57.7,
+    "push_distance_m": 0.0753,
+    "start_x_m": -0.1038,
+    "start_y_m": 0.0195
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100111,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0645,
+    "final_goal_distance_m": 0.0657,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 100,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 48.0,
+    "push_distance_m": 0.0645,
+    "start_x_m": -0.1046,
+    "start_y_m": -0.0121
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100112,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.029,
+    "final_goal_distance_m": 0.029,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 73,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -75.0,
+    "push_distance_m": 0.0579,
+    "start_x_m": -0.1026,
+    "start_y_m": 0.0159
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100113,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 70,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0774,
+    "final_goal_distance_m": 0.0774,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -39.0,
+    "push_distance_m": 0.0774,
+    "start_x_m": -0.099,
+    "start_y_m": 0.0139
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100114,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0325,
+    "final_goal_distance_m": 0.0325,
+    "max_height_change_m": 0.0027,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 129,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -63.1,
+    "push_distance_m": 0.0669,
+    "start_x_m": -0.1107,
+    "start_y_m": -0.0201
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100115,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0317,
+    "final_goal_distance_m": 0.0322,
+    "max_height_change_m": 0.0022,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 133,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -52.4,
+    "push_distance_m": 0.069,
+    "start_x_m": -0.1177,
+    "start_y_m": -0.0069
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100116,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 108,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.072,
+    "final_goal_distance_m": 0.0836,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 99,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -0.8,
+    "push_distance_m": 0.072,
+    "start_x_m": -0.1072,
+    "start_y_m": 0.0284
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100117,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0343,
+    "final_goal_distance_m": 0.0343,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 23,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 22.7,
+    "push_distance_m": 0.0703,
+    "start_x_m": -0.0877,
+    "start_y_m": 0.0159
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100118,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.029,
+    "final_goal_distance_m": 0.0298,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 97,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -61.0,
+    "push_distance_m": 0.0513,
+    "start_x_m": -0.1005,
+    "start_y_m": -0.023
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100119,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0559,
+    "final_goal_distance_m": 0.0559,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 85.6,
+    "push_distance_m": 0.0559,
+    "start_x_m": -0.1032,
+    "start_y_m": -0.0052
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100120,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 180,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0221,
+    "final_goal_distance_m": 0.0252,
+    "max_height_change_m": 0.0031,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 41,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 69.9,
+    "push_distance_m": 0.0546,
+    "start_x_m": -0.107,
+    "start_y_m": 0.0237
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100121,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0266,
+    "final_goal_distance_m": 0.0267,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 96,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -37.1,
+    "push_distance_m": 0.0519,
+    "start_x_m": -0.1091,
+    "start_y_m": -0.007
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100122,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0245,
+    "final_goal_distance_m": 0.0256,
+    "max_height_change_m": 0.0019,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 111,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -57.3,
+    "push_distance_m": 0.0572,
+    "start_x_m": -0.0983,
+    "start_y_m": -0.0047
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100123,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 81,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0698,
+    "final_goal_distance_m": 0.0698,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 16.1,
+    "push_distance_m": 0.0698,
+    "start_x_m": -0.087,
+    "start_y_m": -0.0264
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100124,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 87,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0726,
+    "final_goal_distance_m": 0.0903,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 83,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -2.3,
+    "push_distance_m": 0.0726,
+    "start_x_m": -0.1047,
+    "start_y_m": 0.02
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100125,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0316,
+    "final_goal_distance_m": 0.032,
+    "max_height_change_m": 0.0019,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 136,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -68.8,
+    "push_distance_m": 0.0651,
+    "start_x_m": -0.0926,
+    "start_y_m": -0.0119
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100126,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0401,
+    "final_goal_distance_m": 0.0401,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 51,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 40.5,
+    "push_distance_m": 0.0517,
+    "start_x_m": -0.107,
+    "start_y_m": 0.0126
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100127,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 71,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0733,
+    "final_goal_distance_m": 0.0733,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 2.7,
+    "push_distance_m": 0.0733,
+    "start_x_m": -0.1196,
+    "start_y_m": -0.0033
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100128,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 70,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0736,
+    "final_goal_distance_m": 0.0736,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -9.2,
+    "push_distance_m": 0.0736,
+    "start_x_m": -0.0937,
+    "start_y_m": -0.0103
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100129,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.061,
+    "final_goal_distance_m": 0.0613,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 177,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -35.0,
+    "push_distance_m": 0.0618,
+    "start_x_m": -0.1129,
+    "start_y_m": -0.0254
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100130,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.05,
+    "final_goal_distance_m": 0.05,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 72.9,
+    "push_distance_m": 0.05,
+    "start_x_m": -0.0919,
+    "start_y_m": -0.0182
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100131,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 99,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0683,
+    "final_goal_distance_m": 0.0739,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 81,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 0.8,
+    "push_distance_m": 0.0683,
+    "start_x_m": -0.1007,
+    "start_y_m": 0.0097
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100132,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0318,
+    "final_goal_distance_m": 0.0318,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 73,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -77.7,
+    "push_distance_m": 0.0513,
+    "start_x_m": -0.1098,
+    "start_y_m": 0.0142
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100133,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0281,
+    "final_goal_distance_m": 0.0282,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 104,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -48.6,
+    "push_distance_m": 0.0585,
+    "start_x_m": -0.0885,
+    "start_y_m": -0.0119
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100134,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0522,
+    "final_goal_distance_m": 0.0522,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 39.1,
+    "push_distance_m": 0.0522,
+    "start_x_m": -0.1096,
+    "start_y_m": -0.0202
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100135,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 154,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0735,
+    "final_goal_distance_m": 0.0735,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 85.0,
+    "push_distance_m": 0.0735,
+    "start_x_m": -0.1152,
+    "start_y_m": -0.0268
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100136,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0708,
+    "final_goal_distance_m": 0.0708,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 17.8,
+    "push_distance_m": 0.0708,
+    "start_x_m": -0.0956,
+    "start_y_m": -0.0249
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100137,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 68,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0501,
+    "final_goal_distance_m": 0.0612,
+    "max_height_change_m": 0.0046,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 55,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -8.4,
+    "push_distance_m": 0.0501,
+    "start_x_m": -0.1188,
+    "start_y_m": 0.0266
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100138,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0295,
+    "final_goal_distance_m": 0.0306,
+    "max_height_change_m": 0.0026,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 98,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -79.5,
+    "push_distance_m": 0.0653,
+    "start_x_m": -0.0866,
+    "start_y_m": 0.0021
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100139,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0357,
+    "final_goal_distance_m": 0.0363,
+    "max_height_change_m": 0.0012,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 121,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -77.4,
+    "push_distance_m": 0.0745,
+    "start_x_m": -0.097,
+    "start_y_m": -0.0126
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100140,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 77,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.072,
+    "final_goal_distance_m": 0.072,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -35.6,
+    "push_distance_m": 0.072,
+    "start_x_m": -0.1152,
+    "start_y_m": 0.01
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100141,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.032,
+    "final_goal_distance_m": 0.0324,
+    "max_height_change_m": 0.0007,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 112,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -64.9,
+    "push_distance_m": 0.0525,
+    "start_x_m": -0.0946,
+    "start_y_m": -0.0117
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100142,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.074,
+    "final_goal_distance_m": 0.0796,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 78,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 35.4,
+    "push_distance_m": 0.074,
+    "start_x_m": -0.1132,
+    "start_y_m": -0.0249
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100143,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0663,
+    "final_goal_distance_m": 0.0663,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 33.7,
+    "push_distance_m": 0.0663,
+    "start_x_m": -0.1105,
+    "start_y_m": -0.008
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100144,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.061,
+    "final_goal_distance_m": 0.0614,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 43.5,
+    "push_distance_m": 0.0624,
+    "start_x_m": -0.0888,
+    "start_y_m": -0.0116
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100145,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 82,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.003,
+    "final_goal_distance_m": 0.1321,
+    "max_height_change_m": 0.065,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 8,
+    "push_angle_deg": 80.5,
+    "push_distance_m": 0.0568,
+    "start_x_m": -0.0865,
+    "start_y_m": 0.0212
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100146,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 67,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0783,
+    "final_goal_distance_m": 0.0783,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -25.0,
+    "push_distance_m": 0.0783,
+    "start_x_m": -0.1115,
+    "start_y_m": -0.0211
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100147,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 66,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0631,
+    "final_goal_distance_m": 0.0631,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -24.2,
+    "push_distance_m": 0.0631,
+    "start_x_m": -0.0973,
+    "start_y_m": 0.0101
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100148,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 61,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0583,
+    "final_goal_distance_m": 0.0583,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -8.6,
+    "push_distance_m": 0.0583,
+    "start_x_m": -0.1175,
+    "start_y_m": -0.009
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100149,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0337,
+    "final_goal_distance_m": 0.0359,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 93,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -55.5,
+    "push_distance_m": 0.0534,
+    "start_x_m": -0.117,
+    "start_y_m": -0.0215
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100150,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0299,
+    "final_goal_distance_m": 0.0301,
+    "max_height_change_m": 0.0012,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 116,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -71.2,
+    "push_distance_m": 0.054,
+    "start_x_m": -0.101,
+    "start_y_m": -0.0106
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100151,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0345,
+    "final_goal_distance_m": 0.0345,
+    "max_height_change_m": 0.0066,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 45,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 85.2,
+    "push_distance_m": 0.0748,
+    "start_x_m": -0.0857,
+    "start_y_m": 0.005
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100152,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 125,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0533,
+    "final_goal_distance_m": 0.1175,
+    "max_height_change_m": 0.0005,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 101,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -43.1,
+    "push_distance_m": 0.0533,
+    "start_x_m": -0.0887,
+    "start_y_m": 0.0275
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100153,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0167,
+    "final_goal_distance_m": 0.0881,
+    "max_height_change_m": 0.0133,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 49,
+    "max_dwell_steps": 6,
+    "push_angle_deg": 51.2,
+    "push_distance_m": 0.0502,
+    "start_x_m": -0.0888,
+    "start_y_m": 0.0114
+   },
+   "phase": "at_goal_not_held"
+  },
+  {
+   "seed": 100154,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 64,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0527,
+    "final_goal_distance_m": 0.0527,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -3.0,
+    "push_distance_m": 0.0527,
+    "start_x_m": -0.0885,
+    "start_y_m": -0.0018
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100155,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0692,
+    "final_goal_distance_m": 0.0748,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 63,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 24.1,
+    "push_distance_m": 0.0696,
+    "start_x_m": -0.0986,
+    "start_y_m": -0.0014
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100156,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 70,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0526,
+    "final_goal_distance_m": 0.0526,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -21.5,
+    "push_distance_m": 0.0526,
+    "start_x_m": -0.0814,
+    "start_y_m": -0.0023
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100157,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 78,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0691,
+    "final_goal_distance_m": 0.0691,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 22.2,
+    "push_distance_m": 0.0691,
+    "start_x_m": -0.1162,
+    "start_y_m": -0.0239
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100158,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0774,
+    "final_goal_distance_m": 0.0774,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -84.1,
+    "push_distance_m": 0.0774,
+    "start_x_m": -0.0902,
+    "start_y_m": -0.0294
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100159,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 179,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0171,
+    "final_goal_distance_m": 0.1612,
+    "max_height_change_m": 0.0715,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 65.6,
+    "push_distance_m": 0.0759,
+    "start_x_m": -0.0958,
+    "start_y_m": -0.007
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100160,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 117,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0717,
+    "final_goal_distance_m": 0.0765,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 101,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 7.6,
+    "push_distance_m": 0.0717,
+    "start_x_m": -0.1008,
+    "start_y_m": 0.0038
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100161,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0246,
+    "final_goal_distance_m": 0.0251,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 90,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -82.8,
+    "push_distance_m": 0.0671,
+    "start_x_m": -0.1039,
+    "start_y_m": 0.0077
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100162,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 180,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0107,
+    "final_goal_distance_m": 0.0532,
+    "max_height_change_m": 0.0169,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 43,
+    "max_dwell_steps": 1,
+    "push_angle_deg": 77.3,
+    "push_distance_m": 0.0594,
+    "start_x_m": -0.1141,
+    "start_y_m": -0.0299
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100163,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0312,
+    "final_goal_distance_m": 0.0313,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 25,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 51.6,
+    "push_distance_m": 0.0627,
+    "start_x_m": -0.0863,
+    "start_y_m": 0.0101
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100164,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 103,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0521,
+    "final_goal_distance_m": 0.087,
+    "max_height_change_m": 0.0015,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 76,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -19.6,
+    "push_distance_m": 0.0521,
+    "start_x_m": -0.0829,
+    "start_y_m": -0.0256
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100165,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.056,
+    "final_goal_distance_m": 0.0602,
+    "max_height_change_m": 0.0042,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 78.3,
+    "push_distance_m": 0.0603,
+    "start_x_m": -0.0803,
+    "start_y_m": -0.0054
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100166,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0704,
+    "final_goal_distance_m": 0.0805,
+    "max_height_change_m": 0.0015,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 84,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -35.7,
+    "push_distance_m": 0.0731,
+    "start_x_m": -0.0975,
+    "start_y_m": 0.0059
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100167,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0312,
+    "final_goal_distance_m": 0.0313,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 75,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -46.3,
+    "push_distance_m": 0.0582,
+    "start_x_m": -0.093,
+    "start_y_m": 0.0248
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100168,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0364,
+    "final_goal_distance_m": 0.0364,
+    "max_height_change_m": 0.0008,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 112,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -40.6,
+    "push_distance_m": 0.0737,
+    "start_x_m": -0.1097,
+    "start_y_m": 0.0027
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100169,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 70,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0729,
+    "final_goal_distance_m": 0.0729,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -17.9,
+    "push_distance_m": 0.0729,
+    "start_x_m": -0.093,
+    "start_y_m": 0.0256
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100170,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0278,
+    "final_goal_distance_m": 0.0278,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 78,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -79.0,
+    "push_distance_m": 0.0591,
+    "start_x_m": -0.0956,
+    "start_y_m": 0.0089
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100171,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 181,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0549,
+    "final_goal_distance_m": 0.0657,
+    "max_height_change_m": 0.0042,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 79.8,
+    "push_distance_m": 0.0658,
+    "start_x_m": -0.0811,
+    "start_y_m": -0.0211
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100172,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 64,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0546,
+    "final_goal_distance_m": 0.0546,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 25.2,
+    "push_distance_m": 0.0546,
+    "start_x_m": -0.1189,
+    "start_y_m": -0.0142
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100173,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 66,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0623,
+    "final_goal_distance_m": 0.0623,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -23.6,
+    "push_distance_m": 0.0623,
+    "start_x_m": -0.091,
+    "start_y_m": 0.0243
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100174,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 180,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0116,
+    "final_goal_distance_m": 0.1466,
+    "max_height_change_m": 0.0688,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 46,
+    "max_dwell_steps": 1,
+    "push_angle_deg": 68.9,
+    "push_distance_m": 0.0615,
+    "start_x_m": -0.0974,
+    "start_y_m": -0.006
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100175,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0286,
+    "final_goal_distance_m": 0.0288,
+    "max_height_change_m": 0.0013,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 90,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -64.9,
+    "push_distance_m": 0.0738,
+    "start_x_m": -0.1156,
+    "start_y_m": 0.0171
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100176,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 70,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0074,
+    "final_goal_distance_m": 0.0139,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 45,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 79.3,
+    "push_distance_m": 0.0631,
+    "start_x_m": -0.1195,
+    "start_y_m": 0.025
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100177,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 91,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0652,
+    "final_goal_distance_m": 0.0689,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 1.8,
+    "push_distance_m": 0.0652,
+    "start_x_m": -0.0856,
+    "start_y_m": 0.0125
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100178,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0288,
+    "final_goal_distance_m": 0.0288,
+    "max_height_change_m": 0.0003,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 74,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -83.9,
+    "push_distance_m": 0.0726,
+    "start_x_m": -0.0937,
+    "start_y_m": 0.0242
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100179,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0067,
+    "final_goal_distance_m": 0.0075,
+    "max_height_change_m": 0.0064,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 47,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 76.7,
+    "push_distance_m": 0.0779,
+    "start_x_m": -0.1039,
+    "start_y_m": 0.0236
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100180,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0293,
+    "final_goal_distance_m": 0.0293,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 77,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -65.5,
+    "push_distance_m": 0.0616,
+    "start_x_m": -0.1081,
+    "start_y_m": 0.0192
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100181,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 180,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.056,
+    "final_goal_distance_m": 0.0603,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 179,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 51.5,
+    "push_distance_m": 0.056,
+    "start_x_m": -0.1,
+    "start_y_m": -0.0149
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100182,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 62,
+   "failure": null,
+   "metrics": {
+    "min_goal_distance_m": 0.0193,
+    "final_goal_distance_m": 0.0194,
+    "max_height_change_m": 0.01,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 39,
+    "max_dwell_steps": 10,
+    "push_angle_deg": 71.6,
+    "push_distance_m": 0.0548,
+    "start_x_m": -0.111,
+    "start_y_m": -0.0153
+   },
+   "phase": "success"
+  },
+  {
+   "seed": 100183,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 92,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0591,
+    "final_goal_distance_m": 0.0591,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -10.7,
+    "push_distance_m": 0.0591,
+    "start_x_m": -0.1117,
+    "start_y_m": -0.026
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100184,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 115,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0694,
+    "final_goal_distance_m": 0.0718,
+    "max_height_change_m": 0.0011,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 115,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 10.4,
+    "push_distance_m": 0.0694,
+    "start_x_m": -0.0972,
+    "start_y_m": -0.0087
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100185,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 180,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0181,
+    "final_goal_distance_m": 0.1106,
+    "max_height_change_m": 0.0168,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 48,
+    "max_dwell_steps": 1,
+    "push_angle_deg": 56.9,
+    "push_distance_m": 0.0542,
+    "start_x_m": -0.1129,
+    "start_y_m": -0.0116
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100186,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0591,
+    "final_goal_distance_m": 0.0591,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -47.5,
+    "push_distance_m": 0.0591,
+    "start_x_m": -0.0965,
+    "start_y_m": -0.0274
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100187,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 71,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0628,
+    "final_goal_distance_m": 0.0628,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -16.2,
+    "push_distance_m": 0.0628,
+    "start_x_m": -0.0873,
+    "start_y_m": -0.0217
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100188,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0289,
+    "final_goal_distance_m": 0.0289,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 66,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -88.4,
+    "push_distance_m": 0.0604,
+    "start_x_m": -0.0837,
+    "start_y_m": 0.0228
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100189,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0589,
+    "final_goal_distance_m": 0.0638,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 77,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 26.7,
+    "push_distance_m": 0.0603,
+    "start_x_m": -0.0908,
+    "start_y_m": 0.003
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100190,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0722,
+    "final_goal_distance_m": 0.0722,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 20.0,
+    "push_distance_m": 0.0722,
+    "start_x_m": -0.0857,
+    "start_y_m": -0.0181
+   },
+   "phase": "no_contact"
+  },
+  {
+   "seed": 100191,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 71,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0509,
+    "final_goal_distance_m": 0.0537,
+    "max_height_change_m": 0.0002,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 70,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 48.8,
+    "push_distance_m": 0.0509,
+    "start_x_m": -0.0801,
+    "start_y_m": -0.0205
+   },
+   "phase": "hand_collision"
+  },
+  {
+   "seed": 100192,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0654,
+    "final_goal_distance_m": 0.097,
+    "max_height_change_m": 0.0006,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 77,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -49.5,
+    "push_distance_m": 0.0695,
+    "start_x_m": -0.0958,
+    "start_y_m": 0.0227
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100193,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0408,
+    "final_goal_distance_m": 0.0408,
+    "max_height_change_m": 0.0004,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 73,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -87.1,
+    "push_distance_m": 0.0734,
+    "start_x_m": -0.1103,
+    "start_y_m": 0.016
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100194,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 146,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "min_goal_distance_m": 0.0316,
+    "final_goal_distance_m": 0.0998,
+    "max_height_change_m": 0.0588,
+    "tipped_or_lifted": 1.0,
+    "first_contact_step": 42,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 89.4,
+    "push_distance_m": 0.076,
+    "start_x_m": -0.094,
+    "start_y_m": 0.0242
+   },
+   "phase": "fell_off_table"
+  },
+  {
+   "seed": 100195,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0782,
+    "final_goal_distance_m": 0.1002,
+    "max_height_change_m": 0.0015,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 102,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 10.6,
+    "push_distance_m": 0.0782,
+    "start_x_m": -0.0906,
+    "start_y_m": 0.0021
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100196,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0502,
+    "final_goal_distance_m": 0.0502,
+    "max_height_change_m": 0.0001,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 192,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -58.7,
+    "push_distance_m": 0.0509,
+    "start_x_m": -0.0855,
+    "start_y_m": -0.0191
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100197,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0745,
+    "final_goal_distance_m": 0.1208,
+    "max_height_change_m": 0.0035,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 40,
+    "max_dwell_steps": 0,
+    "push_angle_deg": 61.9,
+    "push_distance_m": 0.0745,
+    "start_x_m": -0.0899,
+    "start_y_m": -0.0276
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100198,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 200,
+   "failure": "timeout",
+   "metrics": {
+    "min_goal_distance_m": 0.0306,
+    "final_goal_distance_m": 0.0318,
+    "max_height_change_m": 0.0025,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": 100,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -73.5,
+    "push_distance_m": 0.0705,
+    "start_x_m": -0.0853,
+    "start_y_m": 0.0145
+   },
+   "phase": "not_at_goal"
+  },
+  {
+   "seed": 100199,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 72,
+   "failure": "hand_collision",
+   "metrics": {
+    "min_goal_distance_m": 0.0644,
+    "final_goal_distance_m": 0.0644,
+    "max_height_change_m": 0.0,
+    "tipped_or_lifted": 0.0,
+    "first_contact_step": -1,
+    "max_dwell_steps": 0,
+    "push_angle_deg": -3.6,
+    "push_distance_m": 0.0644,
+    "start_x_m": -0.0817,
+    "start_y_m": -0.0106
+   },
+   "phase": "hand_collision"
+  }
+ ],
+ "code": {
+  "commit": "ddf41d1213ef47c7c3e4d00c71b72c3af02fbeae",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {
+  "checkpoint": "runs/push_vision/mlp_seed0/step_060000.pt",
+  "checkpoint_sha256": "69583a01f4d74f02f20d6d4d34ef799bd3e41bb5bd9668002fa1ddce6d464015",
+  "method": "mlp",
+  "step": 60000,
+  "training": {
+   "skill": "push",
+   "task": "push_vision",
+   "dataset": "datasets/push/push_vision",
+   "dataset_files_sha256": "b249bed042004fd4ed53cfa07fe59c2b73ad77c4e30f42f7a7e402ca498d3fd0",
+   "dataset_code": {
+    "commit": "f31c9c7b2207d57e9f2daf90e59d9e48ca97e43c",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "steps_override": null,
+   "code": {
+    "commit": "ddf41d1213ef47c7c3e4d00c71b72c3af02fbeae",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "seed": 0,
+   "episodes": 982,
+   "windows": 76232
+  },
+  "blanked_cameras": [
+   "policy_right"
+  ]
+ }
+}

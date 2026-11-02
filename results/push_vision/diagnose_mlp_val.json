@@ -1,0 +1,105 @@
+{
+ "report": "results/push_vision/mlp_val.json",
+ "phases": {
+  "success": 188,
+  "not_at_goal": 12
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 17,
+    "n": 18
+   },
+   {
+    "successes": 22,
+    "n": 24
+   },
+   {
+    "successes": 17,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 22,
+    "n": 24
+   },
+   {
+    "successes": 22,
+    "n": 22
+   },
+   {
+    "successes": 22,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 26,
+    "n": 26
+   },
+   {
+    "successes": 14,
+    "n": 14
+   },
+   {
+    "successes": 26,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "min_goal_distance_m": {
+   "success": 0.0132,
+   "failure": 0.0222
+  },
+  "final_goal_distance_m": {
+   "success": 0.0132,
+   "failure": 0.02225
+  },
+  "max_height_change_m": {
+   "success": 0.0007,
+   "failure": 0.0005499999999999999
+  },
+  "tipped_or_lifted": {
+   "success": 0.0,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 40.0,
+   "failure": 42.5
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "push_angle_deg": {
+   "success": -0.75,
+   "failure": -65.2
+  },
+  "push_distance_m": {
+   "success": 0.06455,
+   "failure": 0.06235
+  }
+ },
+ "paired": {
+  "against": "results/push/mlp_val_phases.json",
+  "both": 178,
+  "only_this": 10,
+  "only_reference": 7,
+  "neither": 5,
+  "p_value": 0.629058837890625,
+  "reference_only_seeds": [
+   100025,
+   100054,
+   100073,
+   100103,
+   100139,
+   100176,
+   100188
+  ],
+  "reference_only_phases": {
+   "not_at_goal": 7
+  }
+ }
+}

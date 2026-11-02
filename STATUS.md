@@ -1,7 +1,7 @@
 # Status
 
 **Active checkpoint:** V5 — push from images (`docs/PLAN.md`). **State:**
-spec, phases, data, baselines and probe done; gate approved; training.
+trained, selected, tested once per method; awaiting owner sign-off.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -30,6 +30,7 @@ approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press
 | place, seed 1 | 164 (fails: lower bound 76%, light puck 13/28) | 193 | |
 | pick from images | 200 | 189 | both cameras blanked: 0 and 0 |
 | press from images | 92 (fails: lower bound 39%) | 194 | both cameras blanked: 0 and 3 |
+| push from images | 184 | 195 | both cameras blanked: 9 and 59 |
 
 Diffusion passes every skill. MLP-BC fails press (state and images: it
 averages push-in and pull-out demos) and place seed 1. Open: MLP-BC push
@@ -40,29 +41,29 @@ CNN with 32 keypoints; on pick, Diffusion relies on `policy_left` alone.
 
 Spec: push without `object_*` (pose, velocity, shape, size), plus both
 cameras; `goal_position` stays (the instruction; the marker is hidden from
-the cameras). Test seeds 320000–330000. Demos 982/1000, replay 50/50; val
-demos 100/100.
+the cameras). Test seeds 320000–330000. Demos 982/1000, replay 50/50.
 
-| Baseline (val) | Success | Phases of failures |
+Val baselines: zero 0, random 5 [1.1, 5.7%], expert 200; state Diffusion /
+MLP-BC 192 / 185, and 73 / 47 with `object_*` hidden (R7): the object starts
+within ±2 × ±3 cm of a fixed spot, so ignoring it still succeeds ~37%.
+
+**Gate (approved by the owner 2026-11-02, before any training).** (1) Test
+Wilson lower bound ≥ 80% (≥ 170/200); (2) on val, blanking both cameras is
+significantly worse, exact McNemar p < 0.01 on 200 paired seeds. ("Blanked
+≤ 10%" from V3/V4 could fail a policy that uses its cameras, given 37%.)
+
+| 200 episodes each | Diffusion | MLP-BC |
 |---|---|---|
-| zero | 0 [0, 1.9%] | all no contact |
-| random | 5 [1.1, 5.7%] | 79 no contact, 66 not at goal, 35 tipped |
-| expert (state) | 200 | |
-| state Diffusion / MLP-BC (ceiling) | 192 / 185 | mostly at goal not held, not at goal |
-| same, object_* hidden (R7) | 73 / 47 | |
+| test (one run each) | **195 [94.3, 98.9%] passes** | **184 [87.4, 95.0%] passes** |
+| val, selected step | 192 (60k) | 188 (60k) |
+| val, both cameras blanked (paired p) | 59 (1e-37) | 9 (3e-54) |
+| val, only left / only right | 194 / 65 | 9 / 141 |
+| vs state twin on val (paired p) | 187 both, 5/5 (p = 1) | 178 both, 10/7 (p = 0.63) |
+| probe, frozen, object error / identity (scratch 0.17 cm / 100%) | 0.44 cm / 95% | 0.43 cm / 97% |
 
-- **Probe** (scratch encoder, 7722 val frames): object position error
-  0.17 cm mean (mean guess 3.0 cm), 0.20 cm while pushed; object identity
-  100%.
-- The object starts within ±2 × ±3 cm of a fixed spot, so a policy that
-  never sees it still succeeds 37% (state Diffusion, object hidden).
-
-**Gate (approved by the owner 2026-11-02, before any training).** A vision policy passes if (1) its single
-200-episode test run has Wilson lower bound ≥ 80% (≥ 170/200), and (2) on
-val, blanking both cameras makes it significantly worse: exact McNemar
-p < 0.01 on the 200 paired seeds. (V3/V4 used "blanked ≤ 10%"; here a
-policy that ignores the object can reach 37%, so that bar could fail a
-policy that does use its cameras.)
+Failures: Diffusion mixes at-goal-not-held and short pushes; MLP-BC's are
+almost all pushes stopped 2.0–2.5 cm short, mostly sideways (|angle| > 45°),
+the stall seen on state. Each method leans on a different single camera.
 
 ## Caveats
 
