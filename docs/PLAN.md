@@ -216,8 +216,151 @@ thresholds.
 Same procedure, one skill per checkpoint. Reach needs no perception (its
 goal is an instruction), so it is not redone.
 
-## Later (not planned in detail yet)
+## A — Appearance variation (draft, for owner review)
 
-- Visual randomization (lighting, textures, camera jitter) once the plain
-  vision track works.
-- Skill composition.
+**Why.** The end goal is a library of reusable skills that a specialized
+LLM strings together through tool calls. A skill used as a tool runs in
+scenes nobody recorded demos in. Today every training and test frame has the
+same lighting, the same grey table and the same colour per object. So V3–V6
+show the skills work in one scene, not that they are reusable. This track
+varies lighting, the table and its surroundings, and object and button
+appearance, measures what that does to the existing policies, and then
+trains on it.
+
+**Scope.** Lighting, table and surroundings, and object and button
+appearance. Camera pose jitter and distractor objects are left out (see
+"After A").
+
+### What varies, and how
+
+Everything is drawn once per episode at reset, from its own random stream
+`default_rng([seed, 2])`. Stream 1 is the task's (target and goal), and the
+workcell's stream places objects. So a seed's physical episode (object, pose,
+goal, hand jitter) is identical with and without variation. That makes every
+comparison paired, seed by seed, against the V3–V6 results.
+
+| Factor | Parameters (proposed ranges, fixed before any evaluation) |
+|---|---|
+| Key light (directional) | direction: azimuth anywhere, elevation 40–85°; brightness 0.4–1.0; colour tint ±15% per channel (warm to cool) |
+| Fill and ambient | fill brightness 0–0.5; ambient 0.05–0.35; specular 0–0.3; shadows always on (they show height) |
+| Table top and wall | any hue, saturation 0–0.35, value 0.15–0.75; 70% of episodes add a texture from the bank (below), tinted, at a random scale |
+| Trays, floor, sky | same scheme, drawn independently |
+| Object | any hue, saturation 0.2–1, value 0.25–0.95; 50% add a texture from the bank; shininess and specularity in small ranges |
+| Button | as the object |
+
+- **Texture bank:** 16 procedural textures (noise, stripes as wood grain,
+  checker, speckle at several scales). They are generated from a fixed seed
+  and added to the model once at load with `MjSpec`, so no image files are
+  added. 12 are used for training. 4 are held out and appear only in val and
+  test, so results can show whether a policy handles textures it never saw.
+- **Implementation:** at reset only, the code writes material colours, the
+  material's texture index and the light parameters, and nothing else.
+  Physics never reads these values.
+- **Unchanged:** the camera poses, the hidden goal marker, the geometry and
+  everything physical.
+
+**Rules carried over.**
+- Rule 1 (no state writes mid-episode) holds: nothing changes after reset.
+- These ranges are treated like physics (rule 5): set once with a reason,
+  never tuned to make a policy pass. The reason is "plausible indoor scenes",
+  not "what the policy can handle".
+- Measured cases where an object ends up nearly the same colour as the table
+  are kept, not filtered out. Success is reported by object–table contrast
+  instead.
+
+### Decisions for the owner
+
+1. **Object colour: fully random (recommended) or jittered around today's
+   colours.**
+   - Today colour is how a policy can tell objects apart, including the
+     light puck from the heavy one, which differ only slightly in size (3.0 cm
+     radius × 1.2 cm vs 2.6 × 1.6 cm).
+   - Fully random colour forces identity to come from shape, as on a real
+     robot, where mass is invisible. That may expose MLP-BC's heavy-puck
+     weakness in Diffusion too.
+   - For the LLM interface, colour should not be the identity handle the
+     skill depends on. The caller names the target by position (see "After
+     A"), so this costs nothing there.
+2. **Held-out textures in val and test (recommended), or the full bank
+   everywhere.**
+3. **Variation level per skill spec:** `appearance: nominal | varied` in the
+   task spec. Each varied spec gets a new test seed range, written down
+   before looking: 340000–380000, 10000 per skill.
+
+### A1 — Appearance variation in the simulator (no training)
+
+- `configs/appearance.yaml` holds the ranges above.
+- `dexvision/sim/appearance.py` draws and applies one appearance per
+  episode, with a `nominal` mode that is exactly today's scene.
+- The evaluator, demo generation and `view_workcell` get the spec's mode,
+  and `evaluate --appearance varied` sets it for one run.
+- **Tests:**
+  - Physics is bit-identical: same seed and actions, different appearances,
+    identical state trajectory.
+  - Nominal mode renders exactly today's frames.
+  - Appearance is deterministic per seed and differs across seeds.
+  - Nothing changes after reset.
+  - Held-out textures never appear in train seeds.
+- **Measure:** render time per step with variation vs nominal (it should
+  be the same).
+
+**Pass:** the owner reviews a contact sheet of about 40 varied frames per
+skill from both policy cameras and agrees the scenes are plausible and the
+task stays visible to a person.
+
+### A2 — How robust are the V3–V6 policies? (eval-first, no training)
+
+This runs the existing policies on val with varied appearance and paired
+seeds, before training anything new. The questions the evals must answer:
+
+| Question | Measurement |
+|---|---|
+| How much does varied appearance hurt? | Diffusion and MLP-BC from V3–V6, all factors on: paired with nominal on the same 200 val seeds (McNemar), failure phases. |
+| Which factor hurts? | One factor at a time: lighting only, table only, objects only. |
+| Where does it hurt? | Success binned by key-light brightness, by object–table contrast, by training vs held-out texture, and by object. |
+| Is the information still in the pixels? | The scratch probe (object position, identity) trained and tested on varied frames. In particular: can the two pucks still be told apart at 96 px without colour? |
+| What does the encoder track? | Keypoint videos of varied failures. |
+| Sanity | The state expert is still 200/200, and appearance cannot reach it. |
+
+**Pass:** the measurements are reported. The A3 gate is written from them
+and approved before any training.
+
+### A3+ — Train on varied scenes, one skill per checkpoint
+
+- Same demos, same seeds, same expert. Only the rendering is varied, so the
+  dataset changes and the method does not. `method.yaml` is untouched, and
+  random crop is still the only augmentation.
+  - Adding colour-jitter augmentation would be a method change, re-run on
+    every skill. It is held back unless A3 shows varied data is not enough.
+- Pick first, closely supervised, then press, push and place.
+- **Reported per skill:**
+  - test on varied scenes (one ledgered run per method);
+  - val on varied and on nominal scenes (did robustness cost nominal
+    performance?);
+  - the A2 diagnostics again.
+- **Storage:** about 2.4 GB of image demos for the four skills on the desktop
+  (it has 831 GB free). The nominal V3–V6 datasets can be deleted, since
+  they are reproducible from the seeds.
+
+### After A (toward skills as LLM tools; not planned in detail)
+
+What a skill needs before an LLM can call it as a tool, roughly in order:
+
+1. **Start anywhere a previous skill could leave things:** a hand pose not at
+   neutral, or an object already in hand. This needs reset distributions
+   widened to the end states of the other skills.
+2. **Knows when it is done:** today the evaluator's privileged success
+   predicate ends an episode. A tool must report done or failed itself,
+   from what it observes (a learned or measured termination signal), so
+   the caller can react to failures.
+3. **Target as an argument:** with distractor objects on the table, the
+   caller says which one, as a position hint (`target_position`, like
+   `goal_position`) that a perception or VLM layer on the LLM side supplies.
+4. **Composition harness:** a scripted sequencer chaining tools, such as
+   pick then place, or push then press, evaluated as whole tasks. This is
+   eval-first, before any LLM.
+5. **LLM orchestrator:** tool schemas (name, arguments, preconditions, done
+   and failure reports) over the same harness. `AGENTS.md` lists language
+   orchestration as out of scope until requested, so it gets updated when we
+   get there.
+- Camera pose jitter belongs with step 1 or with a real-camera setup.
