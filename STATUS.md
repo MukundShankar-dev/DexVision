@@ -1,7 +1,7 @@
 # Status
 
 **Active checkpoint:** V6 — place from images (`docs/PLAN.md`). **State:**
-data and val baselines done, gate approved; training not yet launched.
+trained, selected, tested once per method; awaiting owner sign-off.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30); V5, push from images (approved 2026-11-02). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -31,27 +31,35 @@ approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press
 | pick from images | 200 | 189 | both cameras blanked: 0 and 0 |
 | press from images | 92 (fails: lower bound 39%) | 194 | both cameras blanked: 0 and 3 |
 | push from images | 184 | 195 | both cameras blanked: 9 and 59 |
+| place from images | 163 (fails: lower bound 76%, heavy puck 10/32) | 183 | both cameras blanked: 1 and 13 |
 
 Diffusion passes every skill. MLP-BC fails press (state and images: it
-averages push-in and pull-out demos) and place seed 1. Open: MLP-BC push
+averages push-in and pull-out demos), place seed 1 and place from images. Open: MLP-BC push
 back-of-hand stalls 2.0–2.5 cm short (state and images). Vision: two 96 px cameras, per-camera
 CNN with 32 keypoints; on pick, Diffusion relies on `policy_left` alone.
 
 ## V6 — place_vision (val, 200 episodes; details in `results/place_vision/`)
 
-Spec: place without `object_*` (pose, velocity, shape, size), plus both
-cameras; `goal_position` stays (the marker is hidden from the cameras).
-Test seeds 330000–340000. Demos kept 878/1000 (147,622 transitions), val 85/100.
-
+Spec: place without `object_*`, plus both cameras; `goal_position` stays
+(marker hidden from the cameras). Test seeds 330000–340000. Demos 878/1000.
 Val baselines: zero 0, random 0, expert 200; state Diffusion / MLP-BC
-193 / 177, and 11 / 3 with `object_*` hidden. Scratch-encoder probe: object
-error 0.36 cm, identity 99.8%.
+193 / 177, 11 / 3 with `object_*` hidden. Scratch probe 0.36 cm / 99.8%.
 
-**Gate (approved by the owner 2026-11-02, before any training).** (1) Test
-Wilson lower bound ≥ 80% (≥ 170/200); (2) on val, blanking both cameras is
-significantly worse, exact McNemar p < 0.01 on 200 paired seeds.
+**Gate (approved 2026-11-02, before training):** test Wilson lower bound
+≥ 80%, and both-cameras-blanked significantly worse on val (McNemar p < 0.01).
 
-Run: `runs/v6_train.sh` on the desktop (owner launches it overnight).
+| 200 episodes each | Diffusion | MLP-BC |
+|---|---|---|
+| test (one run each) | **183 [86.8, 94.6%] passes** | **163 [75.5, 86.3%] fails** |
+| val, selected step | 180 (60k) | 156 (50k) |
+| val, both cameras blanked (paired p) | 13 (1e-50) | 1 (4e-47) |
+| val, only left / only right | 16 / 177 | 104 / 11 |
+| vs state twin on val (paired p) | 173 both, 7/20 (p = 0.019) | 147 both, 9/30 (p = 0.001) |
+| probe, frozen, object error / identity | 1.17 cm / 84% | 0.96 cm / 94% |
+
+MLP-BC fails on the heavy puck (10/32 test): carried to the goal, never set
+down (27 of 37 test failures), as on state. Diffusion's failures span all
+phases. Diffusion leans on `policy_left`, MLP-BC on `policy_right`.
 
 ## Caveats
 

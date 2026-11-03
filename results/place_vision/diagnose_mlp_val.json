@@ -1,0 +1,144 @@
+{
+ "report": "results/place_vision/mlp_val.json",
+ "phases": {
+  "success": 156,
+  "at_goal_not_set_down": 34,
+  "set_down_not_released": 6,
+  "released_not_held": 3,
+  "hand_collision": 1
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 15,
+    "n": 18
+   },
+   {
+    "successes": 19,
+    "n": 24
+   },
+   {
+    "successes": 11,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 23,
+    "n": 24
+   },
+   {
+    "successes": 15,
+    "n": 22
+   },
+   {
+    "successes": 19,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 20,
+    "n": 26
+   },
+   {
+    "successes": 11,
+    "n": 14
+   },
+   {
+    "successes": 23,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.1017,
+   "failure": 0.09765
+  },
+  "landing_speed_mps": {
+   "success": 0.006,
+   "failure": 0.22249999999999998
+  },
+  "goal_distance_m": {
+   "success": 0.0895,
+   "failure": 0.08745
+  },
+  "first_contact_step": {
+   "success": 39.0,
+   "failure": 37.5
+  },
+  "carried": {
+   "success": 1.0,
+   "failure": 1.0
+  },
+  "reached_goal": {
+   "success": 1.0,
+   "failure": 1.0
+  },
+  "set_down_at_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "final_goal_distance_m": {
+   "success": 0.007549999999999999,
+   "failure": 0.0046
+  },
+  "goal_x_m": {
+   "success": -0.09395,
+   "failure": -0.0806
+  },
+  "goal_y_m": {
+   "success": 0.00445,
+   "failure": -0.0414
+  }
+ },
+ "paired": {
+  "against": "results/place/mlp_val_phases.json",
+  "both": 147,
+  "only_this": 9,
+  "only_reference": 30,
+  "neither": 14,
+  "p_value": 0.0010650196345523,
+  "reference_only_seeds": [
+   100003,
+   100004,
+   100011,
+   100021,
+   100032,
+   100034,
+   100038,
+   100040,
+   100046,
+   100072,
+   100076,
+   100077,
+   100081,
+   100089,
+   100094,
+   100095,
+   100114,
+   100120,
+   100123,
+   100126,
+   100133,
+   100136,
+   100152,
+   100153,
+   100159,
+   100161,
+   100167,
+   100174,
+   100176,
+   100178
+  ],
+  "reference_only_phases": {
+   "at_goal_not_set_down": 25,
+   "set_down_not_released": 5
+  }
+ }
+}

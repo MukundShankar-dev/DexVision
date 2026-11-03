@@ -1,0 +1,140 @@
+{
+ "report": "results/place_vision/diffusion_val.json",
+ "phases": {
+  "success": 180,
+  "contact_not_lifted": 6,
+  "released_not_held": 3,
+  "fell_off_table": 3,
+  "at_goal_not_set_down": 3,
+  "set_down_not_released": 3,
+  "carried_not_at_goal": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 15,
+    "n": 18
+   },
+   {
+    "successes": 23,
+    "n": 24
+   },
+   {
+    "successes": 18,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 21,
+    "n": 24
+   },
+   {
+    "successes": 22,
+    "n": 22
+   },
+   {
+    "successes": 22,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 24,
+    "n": 26
+   },
+   {
+    "successes": 11,
+    "n": 14
+   },
+   {
+    "successes": 24,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.09395,
+   "failure": 0.09085
+  },
+  "landing_speed_mps": {
+   "success": 0.012,
+   "failure": 0.008
+  },
+  "goal_distance_m": {
+   "success": 0.08855,
+   "failure": 0.0807
+  },
+  "first_contact_step": {
+   "success": 40.0,
+   "failure": 39.0
+  },
+  "carried": {
+   "success": 1.0,
+   "failure": 1.0
+  },
+  "reached_goal": {
+   "success": 1.0,
+   "failure": 1.0
+  },
+  "set_down_at_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "final_goal_distance_m": {
+   "success": 0.0083,
+   "failure": 0.0519
+  },
+  "goal_x_m": {
+   "success": -0.0908,
+   "failure": -0.0983
+  },
+  "goal_y_m": {
+   "success": -0.00965,
+   "failure": -0.007299999999999999
+  }
+ },
+ "paired": {
+  "against": "results/place/diffusion_val_phases.json",
+  "both": 173,
+  "only_this": 7,
+  "only_reference": 20,
+  "neither": 0,
+  "p_value": 0.0191572904586792,
+  "reference_only_seeds": [
+   100016,
+   100038,
+   100070,
+   100090,
+   100095,
+   100098,
+   100107,
+   100109,
+   100117,
+   100118,
+   100135,
+   100137,
+   100139,
+   100147,
+   100149,
+   100154,
+   100156,
+   100162,
+   100167,
+   100195
+  ],
+  "reference_only_phases": {
+   "contact_not_lifted": 6,
+   "released_not_held": 3,
+   "fell_off_table": 3,
+   "at_goal_not_set_down": 3,
+   "set_down_not_released": 3,
+   "carried_not_at_goal": 2
+  }
+ }
+}

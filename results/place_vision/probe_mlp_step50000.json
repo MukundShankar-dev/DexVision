@@ -1,0 +1,84 @@
+{
+ "task": "place_vision",
+ "code": {
+  "commit": "d16cf558085ae2460fbcef29053d5cad7f02e075",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/place/place_vision",
+ "val_data": "datasets/place/place_vision_val",
+ "val_episodes": 85,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/place_vision/mlp_seed0/step_050000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.0463,
+   "translation": 0.1111,
+   "rotation": 0.154,
+   "fingers": 0.0204
+  },
+  "far": {
+   "windows": 1005,
+   "all": 0.0505,
+   "translation": 0.1301,
+   "rotation": 0.1807,
+   "fingers": 0.0191
+  },
+  "near": {
+   "windows": 1153,
+   "all": 0.064,
+   "translation": 0.1211,
+   "rotation": 0.1653,
+   "fingers": 0.0402
+  },
+  "lifted": {
+   "windows": 1842,
+   "all": 0.0329,
+   "translation": 0.0944,
+   "rotation": 0.1324,
+   "fingers": 0.0088
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 14959,
+   "position_error_cm_mean": 0.96,
+   "position_error_cm_median": 0.82,
+   "position_error_cm_p90": 1.69,
+   "mean_guess_error_cm": 6.29,
+   "object_accuracy": 0.942
+  },
+  "far": {
+   "frames": 3794,
+   "position_error_cm_mean": 0.92,
+   "position_error_cm_median": 0.73,
+   "position_error_cm_p90": 1.7,
+   "mean_guess_error_cm": 5.94,
+   "object_accuracy": 0.916
+  },
+  "near": {
+   "frames": 4320,
+   "position_error_cm_mean": 0.98,
+   "position_error_cm_median": 0.86,
+   "position_error_cm_p90": 1.7,
+   "mean_guess_error_cm": 6.2,
+   "object_accuracy": 0.933
+  },
+  "lifted": {
+   "frames": 6845,
+   "position_error_cm_mean": 0.97,
+   "position_error_cm_median": 0.84,
+   "position_error_cm_p90": 1.68,
+   "mean_guess_error_cm": 6.55,
+   "object_accuracy": 0.962
+  }
+ }
+}
