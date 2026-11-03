@@ -1,7 +1,7 @@
 # Status
 
 **Active checkpoint:** V6 — place from images (`docs/PLAN.md`). **State:**
-trained, selected, tested once per method; awaiting owner sign-off.
+trained, selected, tested once per method; owner signed off 2026-11-03.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30); V5, push from images (approved 2026-11-02). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
