@@ -1,7 +1,8 @@
 """Render the policy cameras (configs/cameras.yaml) from the current simulation state.
 
 Rendering only reads the state: it never changes `MjData`, so a run with cameras is the same run
-as one without.
+as one without. With an appearance sampler (dexvision/sim/appearance.py), each episode's lights,
+colours and textures are applied to the rendered scene, never to the model.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ import numpy as np
 import yaml
 
 from dexvision import REPO_ROOT
+from dexvision.sim.appearance import Appearance, AppearanceSampler
 from dexvision.sim.workcell import Workcell
 
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "cameras.yaml"
@@ -36,9 +38,12 @@ class CameraConfig:
 class CameraRig:
     """Offscreen renderer for the policy cameras of one workcell."""
 
-    def __init__(self, workcell: Workcell, config: CameraConfig | None = None) -> None:
+    def __init__(self, workcell: Workcell, config: CameraConfig | None = None,
+                 appearance: AppearanceSampler | None = None) -> None:
         self.config = config or CameraConfig.load()
         self._workcell = workcell
+        self.sampler = appearance
+        self.appearance: Appearance | None = None
         size = self.config.size_px
         # the shadow map size is read once, when the rendering context is made
         quality = workcell.model.vis.quality
@@ -54,12 +59,18 @@ class CameraRig:
             if mujoco.mj_name2id(workcell.model, mujoco.mjtObj.mjOBJ_CAMERA, name) < 0:
                 raise ValueError(f"no camera named {name!r} in the workcell model")
 
+    def start_episode(self, seed: int) -> None:
+        """Draw episode ``seed``'s appearance (nothing without a sampler). Call after reset."""
+        self.appearance = self.sampler.draw(seed) if self.sampler else None
+
     def render(self) -> dict[str, np.ndarray]:
         """Camera name -> [size_px, size_px, 3] uint8 RGB of the current state."""
         images = {}
         for name in self.config.cameras:
             self._renderer.update_scene(self._workcell.data, camera=name,
                                         scene_option=self._option)
+            if self.appearance:
+                self.sampler.apply(self.appearance, self._renderer.scene)
             images[name] = self._renderer.render().copy()
         return images
 

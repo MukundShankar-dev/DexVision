@@ -3,7 +3,8 @@
 Each kept episode is one compressed ``episode_<seed>.npz`` holding, for T control steps:
 
     obs/<field>       [T, d]   the declared observation field before step t's action
-    obs/rgb/<camera>  [T, H, W, 3] uint8, when the data config lists ``cameras``
+    obs/rgb/<camera>  [T, H, W, 3] uint8, when the data config lists ``cameras`` (rendered with
+                      the config's ``appearance`` factors varied, if any)
     action            [T, 26]  the clean expert action, clipped by ``ActionSpace.clip`` (the label)
     executed_action   [T, 26]  action + noise, exactly what was sent to ``Workcell.step``
     seed, success, steps, target_object, failure   scalars
@@ -147,7 +148,8 @@ def _record(workcell: Workcell, task, expert: Policy, config: Mapping, out_dir: 
             seeds: Sequence[int], progress=None) -> tuple[list[EpisodeResult], dict[str, str]]:
     """Roll out ``seeds`` in order; save the successes. -> results, {file name: SHA-256}."""
     recorder = DemoRecorder(expert, workcell.action_space, noise_std_vector(config["noise_std"]))
-    rig = camera_rig(workcell, config.get("cameras", ()))
+    rig = camera_rig(workcell, config.get("cameras", ()), config.get("appearance", ()),
+                     task.spec.splits["train"])
     results, files = [], {}
     for seed in seeds:
         result = run_episode(workcell, task, recorder, seed, rig=rig)

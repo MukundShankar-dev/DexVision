@@ -239,12 +239,12 @@ workcell's stream places objects. So a seed's physical episode (object, pose,
 goal, hand jitter) is identical with and without variation. That makes every
 comparison paired, seed by seed, against the V3–V6 results.
 
-| Factor | Parameters (proposed ranges, fixed before any evaluation) |
+| Factor | Parameters (exact ranges in `configs/appearance.yaml`; each includes today's scene) |
 |---|---|
 | Key light (directional) | direction: azimuth anywhere, elevation 40–85°; brightness 0.4–1.0; colour tint ±15% per channel (warm to cool) |
-| Fill and ambient | fill brightness 0–0.5; ambient 0.05–0.35; specular 0–0.3; shadows always on (they show height) |
-| Table top and wall | any hue, saturation 0–0.35, value 0.15–0.75; 70% of episodes add a texture from the bank (below), tinted, at a random scale |
-| Trays, floor, sky | same scheme, drawn independently |
+| Fill, camera light and ambient | fill brightness 0.2–0.8; camera light 0.1–0.5; ambient 0.05–0.35; specular 0–0.5; shadows always on (they show height) |
+| Table top and wall | any hue, saturation 0–0.35, value 0.15–0.75; 70% of episodes add a texture from the bank (below), tinted by that colour |
+| Trays, floor | same scheme, drawn independently (the sky is not in view of the policy cameras) |
 | Object | any hue, saturation 0.2–1, value 0.25–0.95; 50% add a texture from the bank; shininess and specularity in small ranges |
 | Button | as the object |
 
@@ -253,9 +253,11 @@ comparison paired, seed by seed, against the V3–V6 results.
   and added to the model once at load with `MjSpec`, so no image files are
   added. 12 are used for training. 4 are held out and appear only in val and
   test, so results can show whether a policy handles textures it never saw.
-- **Implementation:** at reset only, the code writes material colours, the
-  material's texture index and the light parameters, and nothing else.
-  Physics never reads these values.
+- **Implementation:** the appearance is drawn once per episode, then
+  applied to the rendered scene (`mjvScene`) just before each frame is
+  drawn. The model itself is never changed, and physics never reads the
+  scene. Each factor has its own random sub-stream, so one-factor runs share
+  their draws with the all-factor run.
 - **Unchanged:** the camera poses, the hidden goal marker, the geometry and
   everything physical.
 
@@ -291,9 +293,10 @@ comparison paired, seed by seed, against the V3–V6 results.
 
 - `configs/appearance.yaml` holds the ranges above.
 - `dexvision/sim/appearance.py` draws and applies one appearance per
-  episode, with a `nominal` mode that is exactly today's scene.
-- The evaluator, demo generation and `view_workcell` get the spec's mode,
-  and `evaluate --appearance varied` sets it for one run.
+  episode. No factors (the default) is exactly today's scene.
+- Task specs and data configs take `appearance: [lighting, surfaces,
+  objects]`. `evaluate --appearance FACTOR...` overrides it for one val run,
+  and `apps/appearance_sheet` makes the contact sheets.
 - **Tests:**
   - Physics is bit-identical: same seed and actions, different appearances,
     identical state trajectory.

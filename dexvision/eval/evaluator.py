@@ -17,6 +17,7 @@ from dexvision.eval.stats import wilson_interval
 from dexvision.eval.video import VideoRecorder
 from dexvision.policies.base import Policy
 from dexvision.provenance import code_version
+from dexvision.sim.appearance import AppearanceSampler
 from dexvision.sim.cameras import CameraConfig, CameraRig
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks.features import observation_dict
@@ -34,6 +35,7 @@ class EpisodeResult:
     failure: str | None
     metrics: dict[str, float]
     phase: str | None = None  # how far the episode got, for tasks that define phases
+    appearance: dict | None = None  # varied appearance: light, textures, contrast (diagnostics)
 
 
 @dataclass(frozen=True)
@@ -61,15 +63,25 @@ class EvalReport:
     episodes: list[EpisodeResult] = field(repr=False)
     code: dict[str, object]
     policy_info: dict[str, object] = field(default_factory=dict)  # e.g. checkpoint path and hash
+    appearance: tuple[str, ...] = ()  # varied appearance factors; () is the nominal scene
 
     def to_dict(self) -> dict:
         return asdict(self)
 
 
-def camera_rig(workcell: Workcell, cameras) -> CameraRig | None:
-    """A rig rendering ``cameras`` (names from configs/cameras.yaml), or None for no cameras."""
-    return CameraRig(workcell, replace(CameraConfig.load(), cameras=tuple(cameras))) if cameras \
-        else None
+def camera_rig(workcell: Workcell, cameras, appearance=(), train_seeds=(0, 0)
+               ) -> CameraRig | None:
+    """A rig rendering ``cameras`` (names from configs/cameras.yaml), or None for no cameras.
+    ``appearance`` lists the varied factors; held-out textures never show in ``train_seeds``."""
+    if not cameras:
+        return None
+    sampler = AppearanceSampler(workcell.model, appearance, train_seeds) if appearance else None
+    return CameraRig(workcell, replace(CameraConfig.load(), cameras=tuple(cameras)), sampler)
+
+
+def spec_rig(workcell: Workcell, spec) -> CameraRig | None:
+    """The rig a task spec declares: its cameras and appearance."""
+    return camera_rig(workcell, spec.cameras, spec.appearance, spec.splits["train"])
 
 
 def run_episode(
@@ -80,6 +92,8 @@ def run_episode(
     from the state it acts on."""
     context, observation = task.reset(workcell, seed)
     policy.reset(context, seed)
+    if rig:
+        rig.start_episode(seed)
     if recorder:
         recorder.capture()
     fields = task.spec.observation
@@ -97,16 +111,18 @@ def run_episode(
         if recorder:
             recorder.capture()
         if check.success or check.failure:
-            return _result(task, context, seed, check.success, step, check.failure)
-    return _result(task, context, seed, False, task.spec.horizon_steps, "timeout")
+            return _result(task, context, seed, check.success, step, check.failure, rig)
+    return _result(task, context, seed, False, task.spec.horizon_steps, "timeout", rig)
 
 
-def _result(task, context, seed: int, success: bool, steps: int, failure: str | None
-            ) -> EpisodeResult:
+def _result(task, context, seed: int, success: bool, steps: int, failure: str | None,
+            rig: CameraRig | None) -> EpisodeResult:
     metrics = task.episode_metrics()
     phase = task.phase(success, failure, metrics) if hasattr(task, "phase") else None
+    appearance = rig.sampler.describe(rig.appearance, context.target_object) \
+        if rig and rig.appearance else None
     return EpisodeResult(seed, context.target_object or "none", success, steps, failure, metrics,
-                         phase)
+                         phase, appearance)
 
 
 def _run_seeds(job: tuple[PolicyFactory, object, list[int]]) -> list[EpisodeResult]:
@@ -118,7 +134,7 @@ def _run_seeds(job: tuple[PolicyFactory, object, list[int]]) -> list[EpisodeResu
     torch.set_num_threads(1)
     workcell = Workcell()
     policy = factory(workcell)
-    rig = camera_rig(workcell, task.spec.cameras)
+    rig = spec_rig(workcell, task.spec)
     try:
         return [run_episode(workcell, task, policy, seed, rig=rig) for seed in seeds]
     finally:
@@ -129,7 +145,7 @@ def _run_seeds(job: tuple[PolicyFactory, object, list[int]]) -> list[EpisodeResu
 def _run_serial(workcell, task, policy, seeds, split, video_dir, n_videos, on_episode
                 ) -> list[EpisodeResult]:
     recorder = VideoRecorder(workcell) if video_dir and n_videos else None
-    rig = camera_rig(workcell, task.spec.cameras)
+    rig = spec_rig(workcell, task.spec)
     episodes = []
     for index, seed in enumerate(seeds):
         record = recorder if recorder and index < n_videos else None
@@ -211,6 +227,7 @@ def evaluate(
         episodes=episodes,
         code=code_version(),
         policy_info=dict(policy_info or {}),
+        appearance=task.spec.appearance,
     )
     if split == "test":
         append_test_run(

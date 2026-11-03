@@ -21,7 +21,7 @@ import numpy as np
 import torch
 
 from dexvision import REPO_ROOT
-from dexvision.eval.evaluator import camera_rig, run_episode
+from dexvision.eval.evaluator import run_episode, spec_rig
 from dexvision.learning.policy import LearnedPolicy, load_learned_policy
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
@@ -84,7 +84,7 @@ def main() -> None:
     if not policy.trained.cameras:
         parser.error("the checkpoint has no cameras")
     recorder = KeypointRecorder(policy)
-    rig = camera_rig(workcell, task.spec.cameras)
+    rig = spec_rig(workcell, task.spec)
     for seed in args.seeds:
         result = run_episode(workcell, task, recorder, seed, rig=rig)
         outcome = "success" if result.success else (result.phase or result.failure)

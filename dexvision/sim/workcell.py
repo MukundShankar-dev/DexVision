@@ -29,6 +29,7 @@ import numpy as np
 import yaml
 
 from dexvision import REPO_ROOT
+from dexvision.sim.appearance import add_texture_bank
 
 DEFAULT_CONFIG = REPO_ROOT / "configs" / "workcell.yaml"
 OBJECT_IDS = (
@@ -145,7 +146,12 @@ class Workcell:
         model_path = (config_path.parent / config["model"]).resolve()
         if not model_path.is_file():
             raise WorkcellError(f"MuJoCo model not found: {model_path}")
-        self.model = mujoco.MjModel.from_xml_path(str(model_path))
+        # The appearance texture bank is visual only: physics is identical to the bare XML's
+        # (tests/test_appearance.py).
+        self.model_path = model_path
+        spec = mujoco.MjSpec.from_file(str(model_path))
+        add_texture_bank(spec)
+        self.model = spec.compile()
         self.data = mujoco.MjData(self.model)
         self._control = config["control"]
         self._hand = config["hand"]

@@ -12,6 +12,10 @@ how robust a policy (usually the expert) is to small execution errors. Val split
 
 --blank CAMERA [CAMERA ...] replaces those cameras' images with the training-mean image, to
 measure how much a vision policy relies on each camera. Val split only.
+
+--appearance FACTOR [FACTOR ...] renders the cameras with those appearance factors varied
+(configs/appearance.yaml) instead of the spec's own, to measure how robust a vision policy is to
+scenes it was not trained on. Val split only.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from dataclasses import replace
 from functools import partial
 from pathlib import Path
 
@@ -28,6 +33,7 @@ from dexvision.eval.evaluator import evaluate
 from dexvision.learning.policy import load_learned_policy
 from dexvision.policies import POLICIES, make_policy
 from dexvision.policies.base import Policy
+from dexvision.sim.appearance import FACTORS
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 
@@ -70,6 +76,8 @@ def main() -> None:
                         help="execute actions with the task's DART noise (val only)")
     parser.add_argument("--blank", nargs="+", default=(), metavar="CAMERA",
                         help="replace these cameras' images with the training mean (val only)")
+    parser.add_argument("--appearance", nargs="+", choices=FACTORS, default=None,
+                        metavar="FACTOR", help=f"vary these of {FACTORS} (val only)")
     parser.add_argument("--workers", type=int, default=1,
                         help="parallel processes, one torch thread each (no videos)")
     parser.add_argument("--progress-every", type=int, default=20, metavar="N",
@@ -79,14 +87,22 @@ def main() -> None:
         parser.error("--dart-noise is a robustness measurement on val, not a test result")
     if args.blank and (args.split != "val" or not args.checkpoint):
         parser.error("--blank is a diagnostic for a trained vision policy on val")
+    if args.appearance and args.split != "val":
+        parser.error("--appearance is a robustness measurement on val, not a test result")
     if args.workers > 1 and args.videos:
         parser.error("videos are recorded in a single process; drop --workers")
 
     workcell = Workcell()
     task = make_task(args.task)
+    suffix = ""
+    if args.appearance:
+        if not task.spec.cameras:
+            parser.error(f"{args.task} observes no cameras; appearance cannot reach the policy")
+        task.spec = replace(task.spec, appearance=tuple(args.appearance))
+        suffix = "_appearance-" + "-".join(task.spec.appearance)
     spec = (args.task, args.policy, args.checkpoint, tuple(args.blank), args.dart_noise)
     policy, info = build_policy(*spec, workcell)
-    print(f"Evaluating {policy.name} on {args.task}/{args.split}: {args.episodes} episodes",
+    print(f"Evaluating {policy.name}{suffix} on {args.task}/{args.split}: {args.episodes} episodes",
           flush=True)
     started = time.perf_counter()
 
@@ -103,7 +119,7 @@ def main() -> None:
                       workers=args.workers, policy_factory=partial(_policy_only, *spec))
     elapsed = time.perf_counter() - started
 
-    out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}_{args.split}.json"
+    out = args.out or REPO_ROOT / "results" / args.task / f"{policy.name}{suffix}_{args.split}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report.to_dict(), indent=1) + "\n", encoding="utf-8")
     o = report.overall

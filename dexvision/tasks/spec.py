@@ -39,6 +39,7 @@ class TaskSpec:
     raw: Mapping[str, Any]  # the full YAML, for skill-specific sections
     path: Path
     cameras: tuple[str, ...] = ()  # policy cameras rendered as rgb/<camera> observations
+    appearance: tuple[str, ...] = ()  # varied factors (configs/appearance.yaml); () is nominal
 
     def seeds(self, split: str, n: int) -> range:
         """The first ``n`` episode seeds of ``split``. Seeds are never shared across splits."""
@@ -68,6 +69,9 @@ def load_task_spec(skill_or_path: str | Path) -> TaskSpec:
             raise TaskSpecError(f"Seed splits overlap in {path}.")
     if any(start >= stop for start, stop in ordered):
         raise TaskSpecError(f"Empty seed split in {path}.")
+    appearance = tuple(raw.get("appearance", ()))
+    if appearance and not raw.get("cameras"):
+        raise TaskSpecError(f"{path} varies appearance but observes no cameras.")
     return TaskSpec(
         name=path.stem,
         skill=str(raw["skill"]),
@@ -78,4 +82,5 @@ def load_task_spec(skill_or_path: str | Path) -> TaskSpec:
         raw=raw,
         path=path,
         cameras=tuple(raw.get("cameras", ())),
+        appearance=appearance,
     )

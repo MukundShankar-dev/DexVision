@@ -1,10 +1,11 @@
 # Status
 
-**Active checkpoint:** V6 — place from images (`docs/PLAN.md`). **State:**
-trained, selected, tested once per method; owner signed off 2026-11-03.
+**Active checkpoint:** A1 — appearance variation in the simulator
+(`docs/PLAN.md`, A). **State:** built and tested; awaiting owner review of
+the contact sheets. Nothing run on the desktop yet.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
-(approved 2026-10-30); V5, push from images (approved 2026-11-02). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
+(approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
 
 ## Shared protocol (every skill)
@@ -38,28 +39,21 @@ averages push-in and pull-out demos), place seed 1 and place from images. Open: 
 back-of-hand stalls 2.0–2.5 cm short (state and images). Vision: two 96 px cameras, per-camera
 CNN with 32 keypoints; on pick, Diffusion relies on `policy_left` alone.
 
-## V6 — place_vision (val, 200 episodes; details in `results/place_vision/`)
+## A1 — appearance variation (details in `docs/PLAN.md`, A)
 
-Spec: place without `object_*`, plus both cameras; `goal_position` stays
-(marker hidden from the cameras). Test seeds 330000–340000. Demos 878/1000.
-Val baselines: zero 0, random 0, expert 200; state Diffusion / MLP-BC
-193 / 177, 11 / 3 with `object_*` hidden. Scratch probe 0.36 cm / 99.8%.
+Varied per episode seed, from its own streams: lighting, table / wall /
+trays / floor (colour, 16 procedural textures, 4 held out of train seeds),
+object and button colour (fully random hue), texture and shine. Applied to
+the rendered scene only; the model is unchanged and physics is bit-identical
+(tests). Ranges: `configs/appearance.yaml`. Render cost 14.0 vs 13.7 ms per
+step (laptop). Contact sheets: `runs/appearance_sheets/<task>.png`
+(`python -m dexvision.apps.appearance_sheet --task <task> --seeds 40 --out …`).
 
-**Gate (approved 2026-11-02, before training):** test Wilson lower bound
-≥ 80%, and both-cameras-blanked significantly worse on val (McNemar p < 0.01).
+Owner decisions (2026-11-03): object colour fully random; held-out textures
+in val and test; no camera jitter.
 
-| 200 episodes each | Diffusion | MLP-BC |
-|---|---|---|
-| test (one run each) | **183 [86.8, 94.6%] passes** | **163 [75.5, 86.3%] fails** |
-| val, selected step | 180 (60k) | 156 (50k) |
-| val, both cameras blanked (paired p) | 13 (1e-50) | 1 (4e-47) |
-| val, only left / only right | 16 / 177 | 104 / 11 |
-| vs state twin on val (paired p) | 173 both, 7/20 (p = 0.019) | 147 both, 9/30 (p = 0.001) |
-| probe, frozen, object error / identity | 1.17 cm / 84% | 0.96 cm / 94% |
-
-MLP-BC fails on the heavy puck (10/32 test): carried to the goal, never set
-down (27 of 37 test failures), as on state. Diffusion's failures span all
-phases. Diffusion leans on `policy_left`, MLP-BC on `policy_right`.
+Next (A2, on the desktop): V3–V6 policies on varied val scenes, paired with
+nominal; one factor at a time; probe on varied frames.
 
 ## Caveats
 

@@ -1,0 +1,45 @@
+# Appearance variation for the policy cameras (docs/PLAN.md, A). Fixed before any evaluation and,
+# like physics, never tuned to make a policy pass: the ranges describe plausible indoor scenes and
+# include today's nominal scene. Only what the cameras see changes; physics never reads any of it.
+#
+# A task spec or data config turns factors on with `appearance: [lighting, surfaces, objects]`.
+# Each factor draws from its own random stream per episode seed, so switching one factor off
+# leaves the others' draws unchanged.
+
+lighting:
+  key_elevation_deg: [40, 85]     # directional key light; azimuth uniform over the full circle
+  key_brightness: [0.4, 1.0]      # nominal 0.7
+  fill_brightness: [0.2, 0.8]     # point light above the table, nominal 0.7
+  head_brightness: [0.1, 0.5]     # light at the camera, nominal 0.4
+  ambient: [0.05, 0.35]           # nominal 0.1
+  specular: [0.0, 0.5]            # key and fill, nominal 0.3
+  # Colour temperature, shared by the key and fill: red scaled by (1 + tint u), blue by
+  # (1 - tint u), u uniform in [-1, 1] (warm to cool).
+  tint: 0.15
+
+# Table top and wall (one draw: the same fixture), the trays (one draw) and the floor (one draw).
+# Hue is uniform; textured surfaces take a bank texture, tinted by the drawn colour.
+surfaces:
+  saturation: [0.0, 0.35]
+  value: [0.15, 0.75]
+  textured_fraction: 0.7
+
+# Each object and the button draw independently. Any hue: colour no longer tells objects apart.
+objects:
+  saturation: [0.2, 1.0]
+  value: [0.25, 0.95]
+  textured_fraction: 0.5
+  shininess: [0.0, 0.8]
+  specular: [0.1, 0.6]
+
+# Procedural greyscale textures, generated once from a fixed seed and added to the model at load.
+# The last variant of each kind is held out: it never appears in a train seed, only in val and
+# test, so results can be split by seen and unseen textures.
+texture_bank:
+  seed: 0
+  size_px: 256
+  kinds: [noise, grain, checker, speckle]
+  variants: 4
+  luminance: [0.55, 1.0]
+  surface_repeat_per_m: 5         # one tile per 20 cm on the table, wall, trays and floor
+  object_repeat_per_m: 25         # one tile per 4 cm on objects and the button
