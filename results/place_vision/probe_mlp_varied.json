@@ -1,0 +1,152 @@
+{
+ "task": "place_vision",
+ "code": {
+  "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/place/place_vision_varied",
+ "val_data": "datasets/place/place_vision_varied_val",
+ "val_episodes": 85,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/place_vision/mlp_seed0/step_050000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.1009,
+   "translation": 0.1842,
+   "rotation": 0.1791,
+   "fingers": 0.0766
+  },
+  "far": {
+   "windows": 1005,
+   "all": 0.1071,
+   "translation": 0.2998,
+   "rotation": 0.2066,
+   "fingers": 0.0632
+  },
+  "near": {
+   "windows": 1153,
+   "all": 0.1065,
+   "translation": 0.142,
+   "rotation": 0.194,
+   "fingers": 0.0881
+  },
+  "lifted": {
+   "windows": 1842,
+   "all": 0.094,
+   "translation": 0.1476,
+   "rotation": 0.1548,
+   "fingers": 0.0768
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 14959,
+   "position_error_cm_mean": 5.08,
+   "position_error_cm_median": 4.76,
+   "position_error_cm_p90": 8.43,
+   "mean_guess_error_cm": 6.29,
+   "object_accuracy": 0.273
+  },
+  "far": {
+   "frames": 3794,
+   "position_error_cm_mean": 5.13,
+   "position_error_cm_median": 4.89,
+   "position_error_cm_p90": 8.53,
+   "mean_guess_error_cm": 5.94,
+   "object_accuracy": 0.206
+  },
+  "near": {
+   "frames": 4320,
+   "position_error_cm_mean": 5.17,
+   "position_error_cm_median": 4.76,
+   "position_error_cm_p90": 8.56,
+   "mean_guess_error_cm": 6.2,
+   "object_accuracy": 0.282
+  },
+  "lifted": {
+   "frames": 6845,
+   "position_error_cm_mean": 5.0,
+   "position_error_cm_median": 4.68,
+   "position_error_cm_p90": 8.34,
+   "mean_guess_error_cm": 6.55,
+   "object_accuracy": 0.304
+  },
+  "by_object": {
+   "block_small": {
+    "frames": 2720,
+    "accuracy": 0.429,
+    "mistaken_for": {
+     "puck_heavy": 422,
+     "block_large": 365,
+     "cylinder_tall": 352,
+     "puck_light": 274,
+     "cylinder_short": 139
+    }
+   },
+   "block_large": {
+    "frames": 2141,
+    "accuracy": 0.34,
+    "mistaken_for": {
+     "block_small": 717,
+     "puck_light": 366,
+     "puck_heavy": 152,
+     "cylinder_short": 98,
+     "cylinder_tall": 79
+    }
+   },
+   "cylinder_short": {
+    "frames": 1353,
+    "accuracy": 0.251,
+    "mistaken_for": {
+     "block_large": 315,
+     "puck_light": 204,
+     "block_small": 182,
+     "cylinder_tall": 162,
+     "puck_heavy": 151
+    }
+   },
+   "cylinder_tall": {
+    "frames": 2230,
+    "accuracy": 0.224,
+    "mistaken_for": {
+     "block_small": 621,
+     "cylinder_short": 360,
+     "block_large": 328,
+     "puck_heavy": 220,
+     "puck_light": 202
+    }
+   },
+   "puck_light": {
+    "frames": 3757,
+    "accuracy": 0.186,
+    "mistaken_for": {
+     "puck_heavy": 765,
+     "block_large": 697,
+     "block_small": 577,
+     "cylinder_tall": 577,
+     "cylinder_short": 443
+    }
+   },
+   "puck_heavy": {
+    "frames": 2758,
+    "accuracy": 0.234,
+    "mistaken_for": {
+     "block_small": 1004,
+     "cylinder_short": 401,
+     "block_large": 353,
+     "puck_light": 271,
+     "cylinder_tall": 83
+    }
+   }
+  }
+ }
+}

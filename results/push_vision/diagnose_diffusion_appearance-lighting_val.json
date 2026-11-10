@@ -1,0 +1,234 @@
+{
+ "report": "results/push_vision/diffusion_appearance-lighting_val.json",
+ "phases": {
+  "success": 89,
+  "not_at_goal": 71,
+  "tipped_or_lifted": 15,
+  "no_contact": 11,
+  "at_goal_not_held": 10,
+  "fell_off_table": 4
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 3,
+    "n": 18
+   },
+   {
+    "successes": 8,
+    "n": 24
+   },
+   {
+    "successes": 6,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 12,
+    "n": 24
+   },
+   {
+    "successes": 12,
+    "n": 22
+   },
+   {
+    "successes": 13,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 11,
+    "n": 26
+   },
+   {
+    "successes": 6,
+    "n": 14
+   },
+   {
+    "successes": 18,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "min_goal_distance_m": {
+   "success": 0.0109,
+   "failure": 0.0375
+  },
+  "final_goal_distance_m": {
+   "success": 0.013,
+   "failure": 0.0509
+  },
+  "max_height_change_m": {
+   "success": 0.0015,
+   "failure": 0.0034
+  },
+  "tipped_or_lifted": {
+   "success": 0.0,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 41.0,
+   "failure": 48.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "push_angle_deg": {
+   "success": -8.0,
+   "failure": 3.2
+  },
+  "push_distance_m": {
+   "success": 0.066,
+   "failure": 0.0628
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 37,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 26,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 26,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   ">= 50": {
+    "successes": 89,
+    "n": 200
+   }
+  }
+ },
+ "paired": {
+  "against": "results/push_vision/diffusion_val.json",
+  "both": 86,
+  "only_this": 3,
+  "only_reference": 106,
+  "neither": 5,
+  "p_value": 6.653856846264573e-28,
+  "reference_only_seeds": [
+   100004,
+   100006,
+   100010,
+   100012,
+   100013,
+   100015,
+   100016,
+   100017,
+   100018,
+   100020,
+   100021,
+   100022,
+   100025,
+   100026,
+   100029,
+   100032,
+   100033,
+   100034,
+   100035,
+   100037,
+   100038,
+   100039,
+   100041,
+   100044,
+   100046,
+   100047,
+   100051,
+   100052,
+   100053,
+   100056,
+   100057,
+   100058,
+   100061,
+   100062,
+   100066,
+   100067,
+   100070,
+   100071,
+   100073,
+   100075,
+   100076,
+   100077,
+   100080,
+   100085,
+   100088,
+   100089,
+   100090,
+   100091,
+   100092,
+   100093,
+   100095,
+   100099,
+   100100,
+   100104,
+   100105,
+   100107,
+   100109,
+   100112,
+   100113,
+   100114,
+   100117,
+   100118,
+   100120,
+   100126,
+   100129,
+   100132,
+   100133,
+   100134,
+   100135,
+   100136,
+   100137,
+   100138,
+   100140,
+   100142,
+   100143,
+   100145,
+   100146,
+   100147,
+   100148,
+   100149,
+   100153,
+   100154,
+   100157,
+   100159,
+   100161,
+   100162,
+   100163,
+   100164,
+   100165,
+   100168,
+   100169,
+   100171,
+   100172,
+   100175,
+   100176,
+   100181,
+   100182,
+   100183,
+   100184,
+   100185,
+   100187,
+   100189,
+   100190,
+   100193,
+   100197,
+   100199
+  ],
+  "reference_only_phases": {
+   "not_at_goal": 69,
+   "tipped_or_lifted": 14,
+   "no_contact": 11,
+   "at_goal_not_held": 8,
+   "fell_off_table": 4
+  }
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "task": "pick_vision",
+ "code": {
+  "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/pick/pick_vision_varied",
+ "val_data": "datasets/pick/pick_vision_varied_val",
+ "val_episodes": 98,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "probe_scratch": {
+  "all": {
+   "frames": 8210,
+   "position_error_cm_mean": 0.8,
+   "position_error_cm_median": 0.66,
+   "position_error_cm_p90": 1.45,
+   "mean_guess_error_cm": 4.91,
+   "object_accuracy": 0.494
+  },
+  "far": {
+   "frames": 3249,
+   "position_error_cm_mean": 0.82,
+   "position_error_cm_median": 0.67,
+   "position_error_cm_p90": 1.51,
+   "mean_guess_error_cm": 4.42,
+   "object_accuracy": 0.458
+  },
+  "near": {
+   "frames": 2505,
+   "position_error_cm_mean": 0.74,
+   "position_error_cm_median": 0.63,
+   "position_error_cm_p90": 1.37,
+   "mean_guess_error_cm": 4.54,
+   "object_accuracy": 0.539
+  },
+  "lifted": {
+   "frames": 2456,
+   "position_error_cm_mean": 0.85,
+   "position_error_cm_median": 0.7,
+   "position_error_cm_p90": 1.45,
+   "mean_guess_error_cm": 5.93,
+   "object_accuracy": 0.495
+  },
+  "by_object": {
+   "block_small": {
+    "frames": 1354,
+    "accuracy": 0.324,
+    "mistaken_for": {
+     "block_large": 718,
+     "cylinder_short": 126,
+     "cylinder_tall": 63,
+     "puck_light": 5,
+     "puck_heavy": 3
+    }
+   },
+   "block_large": {
+    "frames": 1151,
+    "accuracy": 0.553,
+    "mistaken_for": {
+     "block_small": 263,
+     "cylinder_tall": 180,
+     "cylinder_short": 66,
+     "puck_heavy": 5,
+     "puck_light": 1
+    }
+   },
+   "cylinder_short": {
+    "frames": 880,
+    "accuracy": 0.494,
+    "mistaken_for": {
+     "block_small": 216,
+     "cylinder_tall": 124,
+     "block_large": 104,
+     "puck_light": 1
+    }
+   },
+   "cylinder_tall": {
+    "frames": 1351,
+    "accuracy": 0.452,
+    "mistaken_for": {
+     "block_small": 496,
+     "block_large": 136,
+     "cylinder_short": 109
+    }
+   },
+   "puck_light": {
+    "frames": 1818,
+    "accuracy": 0.628,
+    "mistaken_for": {
+     "puck_heavy": 647,
+     "block_large": 19,
+     "block_small": 6,
+     "cylinder_short": 4
+    }
+   },
+   "puck_heavy": {
+    "frames": 1656,
+    "accuracy": 0.479,
+    "mistaken_for": {
+     "puck_light": 854,
+     "cylinder_short": 7,
+     "block_small": 1,
+     "block_large": 1
+    }
+   }
+  }
+ }
+}

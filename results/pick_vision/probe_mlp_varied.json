@@ -1,0 +1,152 @@
+{
+ "task": "pick_vision",
+ "code": {
+  "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/pick/pick_vision_varied",
+ "val_data": "datasets/pick/pick_vision_varied_val",
+ "val_episodes": 98,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/pick_vision/mlp_seed0/step_060000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.1077,
+   "translation": 0.2184,
+   "rotation": 0.2485,
+   "fingers": 0.07
+  },
+  "far": {
+   "windows": 1611,
+   "all": 0.1205,
+   "translation": 0.3277,
+   "rotation": 0.2236,
+   "fingers": 0.0739
+  },
+  "near": {
+   "windows": 1219,
+   "all": 0.0946,
+   "translation": 0.1574,
+   "rotation": 0.2465,
+   "fingers": 0.0624
+  },
+  "lifted": {
+   "windows": 1170,
+   "all": 0.1037,
+   "translation": 0.1315,
+   "rotation": 0.2847,
+   "fingers": 0.0724
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 8210,
+   "position_error_cm_mean": 4.82,
+   "position_error_cm_median": 4.52,
+   "position_error_cm_p90": 7.8,
+   "mean_guess_error_cm": 4.91,
+   "object_accuracy": 0.205
+  },
+  "far": {
+   "frames": 3249,
+   "position_error_cm_mean": 4.49,
+   "position_error_cm_median": 4.27,
+   "position_error_cm_p90": 7.3,
+   "mean_guess_error_cm": 4.42,
+   "object_accuracy": 0.213
+  },
+  "near": {
+   "frames": 2505,
+   "position_error_cm_mean": 4.61,
+   "position_error_cm_median": 4.29,
+   "position_error_cm_p90": 7.58,
+   "mean_guess_error_cm": 4.54,
+   "object_accuracy": 0.196
+  },
+  "lifted": {
+   "frames": 2456,
+   "position_error_cm_mean": 5.46,
+   "position_error_cm_median": 5.19,
+   "position_error_cm_p90": 8.48,
+   "mean_guess_error_cm": 5.93,
+   "object_accuracy": 0.204
+  },
+  "by_object": {
+   "block_small": {
+    "frames": 1354,
+    "accuracy": 0.296,
+    "mistaken_for": {
+     "cylinder_tall": 244,
+     "puck_light": 236,
+     "puck_heavy": 215,
+     "block_large": 173,
+     "cylinder_short": 85
+    }
+   },
+   "block_large": {
+    "frames": 1151,
+    "accuracy": 0.283,
+    "mistaken_for": {
+     "block_small": 369,
+     "cylinder_tall": 180,
+     "puck_light": 124,
+     "cylinder_short": 88,
+     "puck_heavy": 64
+    }
+   },
+   "cylinder_short": {
+    "frames": 880,
+    "accuracy": 0.15,
+    "mistaken_for": {
+     "block_small": 338,
+     "cylinder_tall": 170,
+     "block_large": 148,
+     "puck_light": 46,
+     "puck_heavy": 46
+    }
+   },
+   "cylinder_tall": {
+    "frames": 1351,
+    "accuracy": 0.18,
+    "mistaken_for": {
+     "cylinder_short": 321,
+     "puck_heavy": 303,
+     "block_small": 272,
+     "puck_light": 145,
+     "block_large": 67
+    }
+   },
+   "puck_light": {
+    "frames": 1818,
+    "accuracy": 0.226,
+    "mistaken_for": {
+     "block_small": 381,
+     "cylinder_tall": 334,
+     "puck_heavy": 274,
+     "cylinder_short": 240,
+     "block_large": 179
+    }
+   },
+   "puck_heavy": {
+    "frames": 1656,
+    "accuracy": 0.103,
+    "mistaken_for": {
+     "cylinder_short": 408,
+     "block_small": 366,
+     "block_large": 254,
+     "puck_light": 238,
+     "cylinder_tall": 220
+    }
+   }
+  }
+ }
+}

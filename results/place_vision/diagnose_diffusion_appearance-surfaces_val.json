@@ -1,0 +1,288 @@
+{
+ "report": "results/place_vision/diffusion_appearance-surfaces_val.json",
+ "phases": {
+  "contact_not_lifted": 70,
+  "no_contact": 46,
+  "success": 43,
+  "hand_collision": 16,
+  "fell_off_table": 9,
+  "at_goal_not_set_down": 8,
+  "set_down_not_released": 5,
+  "carried_not_at_goal": 3
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 3,
+    "n": 18
+   },
+   {
+    "successes": 5,
+    "n": 24
+   },
+   {
+    "successes": 5,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 5,
+    "n": 24
+   },
+   {
+    "successes": 2,
+    "n": 22
+   },
+   {
+    "successes": 7,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 7,
+    "n": 26
+   },
+   {
+    "successes": 3,
+    "n": 14
+   },
+   {
+    "successes": 6,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.0903,
+   "failure": 0.0006
+  },
+  "landing_speed_mps": {
+   "success": 0.018,
+   "failure": 0.069
+  },
+  "goal_distance_m": {
+   "success": 0.0794,
+   "failure": 0.0898
+  },
+  "first_contact_step": {
+   "success": 38.0,
+   "failure": 41.0
+  },
+  "carried": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "reached_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "set_down_at_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "final_goal_distance_m": {
+   "success": 0.0101,
+   "failure": 0.0944
+  },
+  "goal_x_m": {
+   "success": -0.0934,
+   "failure": -0.0913
+  },
+  "goal_y_m": {
+   "success": 0.0222,
+   "failure": -0.0157
+  }
+ },
+ "appearance": {
+  "object-table contrast (delta E)": {
+   "20-50": {
+    "successes": 2,
+    "n": 15
+   },
+   ">= 50": {
+    "successes": 41,
+    "n": 185
+   }
+  },
+  "table": {
+   "plain": {
+    "successes": 17,
+    "n": 65
+   },
+   "training texture": {
+    "successes": 23,
+    "n": 105
+   },
+   "held-out texture": {
+    "successes": 3,
+    "n": 30
+   }
+  }
+ },
+ "paired": {
+  "against": "results/place_vision/diffusion_val.json",
+  "both": 40,
+  "only_this": 3,
+  "only_reference": 140,
+  "neither": 17,
+  "p_value": 8.743887177942738e-38,
+  "reference_only_seeds": [
+   100001,
+   100002,
+   100003,
+   100004,
+   100006,
+   100008,
+   100009,
+   100010,
+   100011,
+   100012,
+   100013,
+   100017,
+   100019,
+   100020,
+   100021,
+   100022,
+   100023,
+   100024,
+   100025,
+   100026,
+   100028,
+   100029,
+   100030,
+   100031,
+   100032,
+   100033,
+   100034,
+   100035,
+   100036,
+   100037,
+   100039,
+   100040,
+   100041,
+   100042,
+   100043,
+   100045,
+   100046,
+   100047,
+   100048,
+   100051,
+   100052,
+   100053,
+   100054,
+   100055,
+   100056,
+   100057,
+   100058,
+   100059,
+   100060,
+   100061,
+   100062,
+   100063,
+   100066,
+   100067,
+   100068,
+   100071,
+   100072,
+   100074,
+   100075,
+   100076,
+   100077,
+   100078,
+   100079,
+   100080,
+   100081,
+   100082,
+   100083,
+   100084,
+   100085,
+   100086,
+   100087,
+   100088,
+   100089,
+   100091,
+   100092,
+   100094,
+   100096,
+   100097,
+   100099,
+   100101,
+   100102,
+   100103,
+   100104,
+   100106,
+   100108,
+   100110,
+   100111,
+   100112,
+   100114,
+   100115,
+   100121,
+   100122,
+   100125,
+   100126,
+   100127,
+   100128,
+   100129,
+   100130,
+   100131,
+   100132,
+   100133,
+   100134,
+   100136,
+   100138,
+   100140,
+   100142,
+   100144,
+   100145,
+   100152,
+   100153,
+   100155,
+   100157,
+   100159,
+   100160,
+   100161,
+   100164,
+   100165,
+   100166,
+   100169,
+   100170,
+   100171,
+   100172,
+   100173,
+   100174,
+   100175,
+   100178,
+   100179,
+   100180,
+   100181,
+   100183,
+   100184,
+   100187,
+   100188,
+   100189,
+   100191,
+   100192,
+   100193,
+   100194,
+   100196,
+   100198
+  ],
+  "reference_only_phases": {
+   "contact_not_lifted": 63,
+   "no_contact": 42,
+   "hand_collision": 14,
+   "fell_off_table": 8,
+   "at_goal_not_set_down": 6,
+   "set_down_not_released": 5,
+   "carried_not_at_goal": 2
+  }
+ }
+}

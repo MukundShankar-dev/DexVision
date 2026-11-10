@@ -1,0 +1,80 @@
+{
+ "task": "press_vision",
+ "code": {
+  "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/press/press_vision_varied",
+ "val_data": "datasets/press/press_vision_varied_val",
+ "val_episodes": 99,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/press_vision/mlp_seed0/step_030000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.062,
+   "translation": 0.3098,
+   "rotation": 0.2109,
+   "fingers": 0.0025
+  },
+  "far": {
+   "windows": 1796,
+   "all": 0.067,
+   "translation": 0.3541,
+   "rotation": 0.2097,
+   "fingers": 0.0025
+  },
+  "near": {
+   "windows": 1385,
+   "all": 0.0608,
+   "translation": 0.2931,
+   "rotation": 0.2167,
+   "fingers": 0.0026
+  },
+  "pressed": {
+   "windows": 819,
+   "all": 0.0531,
+   "translation": 0.2411,
+   "rotation": 0.2036,
+   "fingers": 0.0023
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 9875,
+   "position_error_cm_mean": 4.62,
+   "position_error_cm_median": 3.67,
+   "position_error_cm_p90": 9.81,
+   "mean_guess_error_cm": 6.98
+  },
+  "far": {
+   "frames": 4337,
+   "position_error_cm_mean": 6.29,
+   "position_error_cm_median": 5.53,
+   "position_error_cm_p90": 12.23,
+   "mean_guess_error_cm": 7.03
+  },
+  "near": {
+   "frames": 3436,
+   "position_error_cm_mean": 3.34,
+   "position_error_cm_median": 2.82,
+   "position_error_cm_p90": 6.11,
+   "mean_guess_error_cm": 7.0
+  },
+  "pressed": {
+   "frames": 2102,
+   "position_error_cm_mean": 3.29,
+   "position_error_cm_median": 2.96,
+   "position_error_cm_p90": 5.4,
+   "mean_guess_error_cm": 6.83
+  }
+ }
+}

@@ -1,8 +1,8 @@
 # Status
 
 **Active checkpoint:** A2 — how robust are the V3–V6 policies to varied
-appearance (`docs/PLAN.md`, A). **State:** eval code, data configs and the
-run script are ready; nothing run on the desktop yet (waiting for it).
+appearance (`docs/PLAN.md`, A). **State:** run and reported 2026-11-10;
+awaiting owner sign-off. The A3 gate below is proposed, not yet approved.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03); A1, appearance variation (approved 2026-11-10). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -41,25 +41,37 @@ CNN with 32 keypoints; on pick, Diffusion relies on `policy_left` alone.
 
 ## A — appearance variation (details in `docs/PLAN.md`, A)
 
-A1 (done): varied per episode seed, from its own streams: lighting; table,
-wall, trays and floor (colour, 16 procedural textures, 4 held out of train
-seeds); object and button colour (fully random hue), texture and shine.
-Applied to the rendered scene only; the model is unchanged and physics is
-bit-identical (tests). Ranges: `configs/appearance.yaml`. Owner decisions:
-object colour fully random; held-out textures in val and test; no camera
-jitter. Contact sheets: `python -m dexvision.apps.appearance_sheet`.
+A1 (done): lighting, surfaces and objects (colour, texture, shine) vary per
+episode seed in the rendered scene only; physics is bit-identical (tests).
+Ranges: `configs/appearance.yaml`. Object colour is fully random; 4 of 16
+textures are held out of train seeds; no camera jitter.
 
-A2 (ready to run, val only, no training; `runs/a2_eval.sh` on the desktop):
-1. Checks on x86-64: appearance tests; pick_vision Diffusion nominal val
-   reproduces the committed result episode for episode.
-2. All factors: Diffusion and MLP-BC on all four skills, 200 val seeds,
-   paired with nominal (McNemar), phases, success by key-light brightness,
-   object–table contrast and plain / training / held-out texture.
-3. One factor at a time (Diffusion).
-4. Varied demos (`configs/data/*_vision_varied*.yaml`); scratch probe and
-   the existing encoders' frozen probes on varied frames, per object.
+A2 (val, 200 paired seeds, no training; `runs/a2_eval.sh`, desktop). Checks:
+appearance tests pass on x86-64; the unvaried pick re-run matches the
+committed result on 200/200 episodes. Successes out of 200:
 
-The A3 gate is written from these results, before any training.
+| Skill | Unvaried | Lighting | Surfaces | Objects | All (Diffusion) | All (MLP-BC) |
+|---|---|---|---|---|---|---|
+| pick | 191 | 47 | 64 | 45 | 20 | 18 (from 200) |
+| press | 196 | 137 | 70 | 48 | 8 | 6 (from 93) |
+| push | 192 | 89 | 79 | 131 | 48 | 17 (from 188) |
+| place | 180 | 38 | 43 | 102 | 27 | 2 (from 156) |
+
+- Every drop is significant (McNemar p < 1e-13). On pick and press the
+  hand mostly never touches the target. No pattern by brightness, contrast
+  or texture.
+- Existing encoders on varied frames (frozen probe): position error
+  3.1–5.2 cm, close to guessing the mean at 3.0–7.0 cm (unvaried: 0.15–1.2).
+- Scratch probe on varied frames: position 0.39–1.17 cm (unvaried
+  0.10–0.36), so position is in the pixels. Object identity mostly is not:
+  49% pick, 51% place, 29% push; the two pucks are told apart at chance.
+
+**A3 gate (proposed; pick first):** new spec `pick_vision_varied` (all
+factors, test seeds 340000–350000), trained on the 982 varied demos, method
+unchanged. Pass: Diffusion test Wilson lower bound ≥ 80% (≥ 172/200) on
+varied scenes, and both cameras blanked significantly worse on varied val
+(McNemar p < 0.01). Reported, not gated: MLP-BC; val on unvaried scenes vs
+the V3 policy; success by object and by held-out texture; the A2 probes.
 
 ## Caveats
 

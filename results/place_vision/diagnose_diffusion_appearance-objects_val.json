@@ -1,0 +1,237 @@
+{
+ "report": "results/place_vision/diffusion_appearance-objects_val.json",
+ "phases": {
+  "success": 102,
+  "contact_not_lifted": 56,
+  "no_contact": 12,
+  "set_down_not_released": 11,
+  "at_goal_not_set_down": 8,
+  "fell_off_table": 7,
+  "released_not_held": 2,
+  "hand_collision": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 9,
+    "n": 18
+   },
+   {
+    "successes": 8,
+    "n": 24
+   },
+   {
+    "successes": 11,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 13,
+    "n": 24
+   },
+   {
+    "successes": 15,
+    "n": 22
+   },
+   {
+    "successes": 17,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 13,
+    "n": 26
+   },
+   {
+    "successes": 6,
+    "n": 14
+   },
+   {
+    "successes": 10,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.09395,
+   "failure": 0.00485
+  },
+  "landing_speed_mps": {
+   "success": 0.013,
+   "failure": 0.017
+  },
+  "goal_distance_m": {
+   "success": 0.0882,
+   "failure": 0.08825
+  },
+  "first_contact_step": {
+   "success": 37.0,
+   "failure": 40.0
+  },
+  "carried": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "reached_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "set_down_at_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "final_goal_distance_m": {
+   "success": 0.00865,
+   "failure": 0.0924
+  },
+  "goal_x_m": {
+   "success": -0.08875,
+   "failure": -0.09395
+  },
+  "goal_y_m": {
+   "success": -0.016849999999999997,
+   "failure": -0.0038
+  }
+ },
+ "appearance": {
+  "object-table contrast (delta E)": {
+   "< 20": {
+    "successes": 4,
+    "n": 15
+   },
+   "20-50": {
+    "successes": 47,
+    "n": 107
+   },
+   ">= 50": {
+    "successes": 51,
+    "n": 78
+   }
+  },
+  "object": {
+   "plain": {
+    "successes": 50,
+    "n": 98
+   },
+   "training texture": {
+    "successes": 37,
+    "n": 71
+   },
+   "held-out texture": {
+    "successes": 15,
+    "n": 31
+   }
+  }
+ },
+ "paired": {
+  "against": "results/place_vision/diffusion_val.json",
+  "both": 95,
+  "only_this": 7,
+  "only_reference": 85,
+  "neither": 13,
+  "p_value": 3.8474091166397966e-18,
+  "reference_only_seeds": [
+   100001,
+   100002,
+   100003,
+   100005,
+   100006,
+   100009,
+   100010,
+   100011,
+   100012,
+   100021,
+   100024,
+   100025,
+   100028,
+   100030,
+   100031,
+   100032,
+   100033,
+   100034,
+   100037,
+   100039,
+   100040,
+   100041,
+   100046,
+   100055,
+   100056,
+   100057,
+   100058,
+   100060,
+   100061,
+   100062,
+   100063,
+   100064,
+   100067,
+   100068,
+   100072,
+   100075,
+   100078,
+   100079,
+   100080,
+   100081,
+   100087,
+   100088,
+   100100,
+   100103,
+   100104,
+   100105,
+   100108,
+   100115,
+   100120,
+   100121,
+   100126,
+   100127,
+   100129,
+   100130,
+   100131,
+   100133,
+   100134,
+   100141,
+   100142,
+   100143,
+   100144,
+   100145,
+   100148,
+   100150,
+   100151,
+   100157,
+   100159,
+   100165,
+   100168,
+   100169,
+   100171,
+   100173,
+   100174,
+   100176,
+   100177,
+   100180,
+   100183,
+   100185,
+   100186,
+   100188,
+   100190,
+   100191,
+   100193,
+   100196,
+   100199
+  ],
+  "reference_only_phases": {
+   "contact_not_lifted": 48,
+   "no_contact": 10,
+   "set_down_not_released": 8,
+   "at_goal_not_set_down": 8,
+   "fell_off_table": 7,
+   "released_not_held": 2,
+   "hand_collision": 2
+  }
+ }
+}

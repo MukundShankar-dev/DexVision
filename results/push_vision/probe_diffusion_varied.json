@@ -1,0 +1,122 @@
+{
+ "task": "push_vision",
+ "code": {
+  "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "train_data": "datasets/push/push_vision_varied",
+ "val_data": "datasets/push/push_vision_varied_val",
+ "val_episodes": 100,
+ "settings": {
+  "steps": 10000,
+  "batch": 256,
+  "lr": 0.0003,
+  "offline_windows": 4000,
+  "seed": 0
+ },
+ "checkpoint": "runs/push_vision/diffusion_seed0/step_060000.pt",
+ "offline_action_error": {
+  "all": {
+   "windows": 4000,
+   "all": 0.0775,
+   "translation": 0.2937,
+   "rotation": 0.2778,
+   "fingers": 0.015
+  },
+  "far": {
+   "windows": 1812,
+   "all": 0.0747,
+   "translation": 0.2919,
+   "rotation": 0.2295,
+   "fingers": 0.019
+  },
+  "near": {
+   "windows": 532,
+   "all": 0.0686,
+   "translation": 0.2073,
+   "rotation": 0.3165,
+   "fingers": 0.0107
+  },
+  "pushed": {
+   "windows": 1656,
+   "all": 0.0834,
+   "translation": 0.3234,
+   "rotation": 0.3182,
+   "fingers": 0.0122
+  }
+ },
+ "probe_frozen": {
+  "all": {
+   "frames": 7722,
+   "position_error_cm_mean": 3.26,
+   "position_error_cm_median": 3.09,
+   "position_error_cm_p90": 5.44,
+   "mean_guess_error_cm": 2.98,
+   "object_accuracy": 0.205
+  },
+  "far": {
+   "frames": 3556,
+   "position_error_cm_mean": 2.82,
+   "position_error_cm_median": 2.71,
+   "position_error_cm_p90": 4.66,
+   "mean_guess_error_cm": 2.39,
+   "object_accuracy": 0.202
+  },
+  "near": {
+   "frames": 979,
+   "position_error_cm_mean": 2.83,
+   "position_error_cm_median": 2.66,
+   "position_error_cm_p90": 4.52,
+   "mean_guess_error_cm": 2.33,
+   "object_accuracy": 0.18
+  },
+  "pushed": {
+   "frames": 3187,
+   "position_error_cm_mean": 3.9,
+   "position_error_cm_median": 3.85,
+   "position_error_cm_p90": 6.34,
+   "mean_guess_error_cm": 3.85,
+   "object_accuracy": 0.217
+  },
+  "by_object": {
+   "block_small": {
+    "frames": 1927,
+    "accuracy": 0.275,
+    "mistaken_for": {
+     "block_large": 730,
+     "cylinder_tall": 389,
+     "cylinder_short": 279
+    }
+   },
+   "block_large": {
+    "frames": 1500,
+    "accuracy": 0.275,
+    "mistaken_for": {
+     "cylinder_tall": 373,
+     "block_small": 358,
+     "cylinder_short": 356
+    }
+   },
+   "cylinder_short": {
+    "frames": 1921,
+    "accuracy": 0.144,
+    "mistaken_for": {
+     "block_large": 690,
+     "block_small": 535,
+     "cylinder_tall": 420
+    }
+   },
+   "cylinder_tall": {
+    "frames": 2374,
+    "accuracy": 0.155,
+    "mistaken_for": {
+     "block_large": 892,
+     "block_small": 811,
+     "cylinder_short": 304
+    }
+   }
+  }
+ }
+}

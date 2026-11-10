@@ -1,0 +1,244 @@
+{
+ "report": "results/press_vision/mlp_appearance-lighting-surfaces-objects_val.json",
+ "phases": {
+  "no_contact": 165,
+  "touched_not_pressed": 12,
+  "hand_collision": 12,
+  "success": 6,
+  "held_not_released": 5
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 0,
+    "n": 29
+   },
+   {
+    "successes": 0,
+    "n": 16
+   },
+   {
+    "successes": 1,
+    "n": 22
+   }
+  ],
+  [
+   {
+    "successes": 1,
+    "n": 19
+   },
+   {
+    "successes": 1,
+    "n": 34
+   },
+   {
+    "successes": 0,
+    "n": 18
+   }
+  ],
+  [
+   {
+    "successes": 0,
+    "n": 26
+   },
+   {
+    "successes": 1,
+    "n": 18
+   },
+   {
+    "successes": 2,
+    "n": 18
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_button_depth_m": {
+   "success": 0.0238,
+   "failure": 0.0
+  },
+  "pressed": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "peak_press_force_n": {
+   "success": 4.45,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 50.5,
+   "failure": 54.0
+  },
+  "max_held_steps": {
+   "success": 16.5,
+   "failure": 0.0
+  },
+  "min_fingertip_button_m": {
+   "success": 0.01965,
+   "failure": 0.07619999999999999
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 0,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 3,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 3,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   "< 20": {
+    "successes": 0,
+    "n": 12
+   },
+   "20-50": {
+    "successes": 2,
+    "n": 95
+   },
+   ">= 50": {
+    "successes": 4,
+    "n": 93
+   }
+  },
+  "table": {
+   "plain": {
+    "successes": 2,
+    "n": 65
+   },
+   "training texture": {
+    "successes": 3,
+    "n": 105
+   },
+   "held-out texture": {
+    "successes": 1,
+    "n": 30
+   }
+  },
+  "object": {
+   "plain": {
+    "successes": 4,
+    "n": 96
+   },
+   "training texture": {
+    "successes": 1,
+    "n": 79
+   },
+   "held-out texture": {
+    "successes": 1,
+    "n": 25
+   }
+  }
+ },
+ "paired": {
+  "against": "results/press_vision/mlp_val.json",
+  "both": 3,
+  "only_this": 3,
+  "only_reference": 90,
+  "neither": 104,
+  "p_value": 2.7088953370761237e-23,
+  "reference_only_seeds": [
+   100000,
+   100001,
+   100002,
+   100003,
+   100005,
+   100006,
+   100007,
+   100009,
+   100011,
+   100012,
+   100020,
+   100026,
+   100027,
+   100028,
+   100033,
+   100034,
+   100035,
+   100037,
+   100038,
+   100043,
+   100045,
+   100047,
+   100050,
+   100051,
+   100052,
+   100053,
+   100055,
+   100056,
+   100057,
+   100062,
+   100063,
+   100064,
+   100066,
+   100067,
+   100070,
+   100072,
+   100074,
+   100076,
+   100079,
+   100082,
+   100085,
+   100087,
+   100089,
+   100092,
+   100093,
+   100096,
+   100097,
+   100108,
+   100110,
+   100111,
+   100113,
+   100115,
+   100118,
+   100120,
+   100121,
+   100125,
+   100127,
+   100128,
+   100129,
+   100131,
+   100137,
+   100138,
+   100140,
+   100143,
+   100144,
+   100148,
+   100152,
+   100154,
+   100156,
+   100157,
+   100160,
+   100161,
+   100163,
+   100164,
+   100166,
+   100168,
+   100169,
+   100172,
+   100174,
+   100175,
+   100177,
+   100178,
+   100180,
+   100182,
+   100184,
+   100185,
+   100189,
+   100190,
+   100192,
+   100198
+  ],
+  "reference_only_phases": {
+   "no_contact": 71,
+   "touched_not_pressed": 9,
+   "hand_collision": 7,
+   "held_not_released": 3
+  }
+ }
+}

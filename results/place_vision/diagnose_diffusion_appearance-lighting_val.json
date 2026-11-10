@@ -1,0 +1,292 @@
+{
+ "report": "results/place_vision/diffusion_appearance-lighting_val.json",
+ "phases": {
+  "contact_not_lifted": 77,
+  "no_contact": 40,
+  "success": 38,
+  "fell_off_table": 18,
+  "hand_collision": 13,
+  "at_goal_not_set_down": 7,
+  "carried_not_at_goal": 3,
+  "released_not_held": 2,
+  "set_down_not_released": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 4,
+    "n": 18
+   },
+   {
+    "successes": 4,
+    "n": 24
+   },
+   {
+    "successes": 1,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 11,
+    "n": 24
+   },
+   {
+    "successes": 2,
+    "n": 22
+   },
+   {
+    "successes": 3,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 5,
+    "n": 26
+   },
+   {
+    "successes": 3,
+    "n": 14
+   },
+   {
+    "successes": 5,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.08795,
+   "failure": 0.00165
+  },
+  "landing_speed_mps": {
+   "success": 0.0125,
+   "failure": 0.032
+  },
+  "goal_distance_m": {
+   "success": 0.0847,
+   "failure": 0.08904999999999999
+  },
+  "first_contact_step": {
+   "success": 37.5,
+   "failure": 48.0
+  },
+  "carried": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "reached_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "set_down_at_goal": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "final_goal_distance_m": {
+   "success": 0.01105,
+   "failure": 0.09765
+  },
+  "goal_x_m": {
+   "success": -0.09515,
+   "failure": -0.09090000000000001
+  },
+  "goal_y_m": {
+   "success": 0.0235,
+   "failure": -0.016149999999999998
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 11,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 13,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 14,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   ">= 50": {
+    "successes": 38,
+    "n": 200
+   }
+  }
+ },
+ "paired": {
+  "against": "results/place_vision/diffusion_val.json",
+  "both": 34,
+  "only_this": 4,
+  "only_reference": 146,
+  "neither": 16,
+  "p_value": 2.91790991940877e-38,
+  "reference_only_seeds": [
+   100000,
+   100001,
+   100002,
+   100003,
+   100004,
+   100005,
+   100006,
+   100007,
+   100008,
+   100009,
+   100010,
+   100011,
+   100013,
+   100014,
+   100015,
+   100017,
+   100018,
+   100019,
+   100021,
+   100022,
+   100023,
+   100024,
+   100025,
+   100026,
+   100027,
+   100028,
+   100029,
+   100030,
+   100032,
+   100033,
+   100036,
+   100037,
+   100039,
+   100040,
+   100041,
+   100042,
+   100046,
+   100047,
+   100048,
+   100050,
+   100052,
+   100053,
+   100054,
+   100055,
+   100056,
+   100057,
+   100059,
+   100060,
+   100061,
+   100062,
+   100063,
+   100065,
+   100066,
+   100071,
+   100072,
+   100073,
+   100074,
+   100075,
+   100076,
+   100077,
+   100080,
+   100081,
+   100082,
+   100083,
+   100084,
+   100085,
+   100086,
+   100087,
+   100089,
+   100091,
+   100092,
+   100093,
+   100094,
+   100099,
+   100100,
+   100101,
+   100102,
+   100103,
+   100104,
+   100105,
+   100106,
+   100110,
+   100111,
+   100112,
+   100114,
+   100115,
+   100116,
+   100119,
+   100120,
+   100122,
+   100123,
+   100124,
+   100125,
+   100126,
+   100129,
+   100130,
+   100131,
+   100132,
+   100133,
+   100134,
+   100136,
+   100138,
+   100140,
+   100142,
+   100143,
+   100144,
+   100145,
+   100146,
+   100148,
+   100151,
+   100152,
+   100153,
+   100155,
+   100158,
+   100159,
+   100160,
+   100161,
+   100164,
+   100165,
+   100168,
+   100169,
+   100170,
+   100171,
+   100172,
+   100173,
+   100174,
+   100175,
+   100176,
+   100177,
+   100178,
+   100179,
+   100180,
+   100181,
+   100183,
+   100184,
+   100185,
+   100186,
+   100189,
+   100190,
+   100191,
+   100192,
+   100193,
+   100194,
+   100197,
+   100198,
+   100199
+  ],
+  "reference_only_phases": {
+   "contact_not_lifted": 70,
+   "no_contact": 37,
+   "fell_off_table": 16,
+   "hand_collision": 12,
+   "at_goal_not_set_down": 5,
+   "released_not_held": 2,
+   "carried_not_at_goal": 2,
+   "set_down_not_released": 2
+  }
+ }
+}

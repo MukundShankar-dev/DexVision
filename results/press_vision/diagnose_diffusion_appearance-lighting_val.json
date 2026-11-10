@@ -1,0 +1,181 @@
+{
+ "report": "results/press_vision/diffusion_appearance-lighting_val.json",
+ "phases": {
+  "success": 137,
+  "touched_not_pressed": 23,
+  "no_contact": 21,
+  "pressed_not_held": 10,
+  "held_not_released": 9
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 26,
+    "n": 29
+   },
+   {
+    "successes": 12,
+    "n": 16
+   },
+   {
+    "successes": 12,
+    "n": 22
+   }
+  ],
+  [
+   {
+    "successes": 12,
+    "n": 19
+   },
+   {
+    "successes": 21,
+    "n": 34
+   },
+   {
+    "successes": 14,
+    "n": 18
+   }
+  ],
+  [
+   {
+    "successes": 21,
+    "n": 26
+   },
+   {
+    "successes": 10,
+    "n": 18
+   },
+   {
+    "successes": 9,
+    "n": 18
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_button_depth_m": {
+   "success": 0.0222,
+   "failure": 0.0065
+  },
+  "pressed": {
+   "success": 1.0,
+   "failure": 0.0
+  },
+  "peak_press_force_n": {
+   "success": 1.47,
+   "failure": 0.75
+  },
+  "first_contact_step": {
+   "success": 60.0,
+   "failure": 73.5
+  },
+  "max_held_steps": {
+   "success": 11.0,
+   "failure": 0.0
+  },
+  "min_fingertip_button_m": {
+   "success": 0.0154,
+   "failure": 0.025
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 39,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 43,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 55,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   ">= 50": {
+    "successes": 137,
+    "n": 200
+   }
+  }
+ },
+ "paired": {
+  "against": "results/press_vision/diffusion_val.json",
+  "both": 133,
+  "only_this": 4,
+  "only_reference": 63,
+  "neither": 0,
+  "p_value": 1.1067861037383775e-14,
+  "reference_only_seeds": [
+   100002,
+   100005,
+   100010,
+   100011,
+   100018,
+   100019,
+   100021,
+   100022,
+   100029,
+   100038,
+   100041,
+   100044,
+   100049,
+   100053,
+   100055,
+   100062,
+   100064,
+   100066,
+   100071,
+   100075,
+   100081,
+   100083,
+   100084,
+   100085,
+   100089,
+   100090,
+   100093,
+   100095,
+   100100,
+   100101,
+   100102,
+   100104,
+   100106,
+   100107,
+   100110,
+   100117,
+   100125,
+   100126,
+   100129,
+   100130,
+   100131,
+   100132,
+   100134,
+   100136,
+   100138,
+   100140,
+   100151,
+   100152,
+   100154,
+   100159,
+   100161,
+   100165,
+   100171,
+   100172,
+   100174,
+   100178,
+   100181,
+   100182,
+   100184,
+   100189,
+   100190,
+   100195,
+   100197
+  ],
+  "reference_only_phases": {
+   "touched_not_pressed": 23,
+   "no_contact": 21,
+   "pressed_not_held": 10,
+   "held_not_released": 9
+  }
+ }
+}
