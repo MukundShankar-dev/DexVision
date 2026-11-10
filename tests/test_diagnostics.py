@@ -7,7 +7,13 @@ import yaml
 from test_vision import square_episodes, tiny_config, windows
 
 from dexvision.data.demos import generate, load_data_config, load_episode
-from dexvision.eval.diagnose import metric_summary, paired, phases, position_grid
+from dexvision.eval.diagnose import (
+    appearance_breakdown,
+    metric_summary,
+    paired,
+    phases,
+    position_grid,
+)
 from dexvision.eval.evaluator import camera_rig, run_episode
 from dexvision.eval.probe import (
     ProbeTarget,
@@ -267,6 +273,18 @@ def test_demos_with_cameras_store_images_and_workers_change_nothing(workcell, tm
         assert frames.dtype == np.uint8 and frames.shape[0] == len(episode["action"])
     assert "obs/object_position" in episode  # the probe's labels
 
+    # varied appearance: the same physical episodes, different pictures
+    varied_config = dict(load_data_config("pick_vision_varied"), episodes=2)
+    assert varied_config["appearance"] and varied_config["task"] == config["task"]
+    generate(workcell, task, expert, varied_config, tmp_path / "varied")
+    names = sorted(p.name for p in (tmp_path / "one").glob("episode_*.npz"))
+    assert names == sorted(p.name for p in (tmp_path / "varied").glob("episode_*.npz"))
+    varied = load_episode(tmp_path / "varied" / names[0])
+    nominal = load_episode(tmp_path / "one" / names[0])
+    for key in nominal:
+        same = np.array_equal(nominal[key], varied[key])
+        assert same != key.startswith("obs/rgb/"), key
+
 
 # --- report breakdowns --------------------------------------------------------------------------
 
@@ -294,6 +312,32 @@ def test_breakdowns_count_phases_cells_and_medians():
     summary = metric_summary(episodes, ["shift_before_grasp_m", "first_grasp_step"])
     assert summary["shift_before_grasp_m"] == {"success": 0.001, "failure": 0.02}
     assert summary["first_grasp_step"] == {"success": None, "failure": None}  # -1 is "never"
+
+
+def test_appearance_breakdown_groups_by_light_contrast_and_texture():
+    def look(success, brightness, contrast, table, table_held_out, obj):
+        return {"success": success, "appearance": {
+            "key_brightness": brightness, "object_table_delta_e": contrast,
+            "table_texture": table, "table_texture_held_out": table_held_out,
+            "object_texture": obj, "object_texture_held_out": False}}
+    episodes = [look(True, 0.45, 5.0, -1, False, -1), look(False, 0.6, 20.0, 3, True, 2),
+                look(True, 0.95, 80.0, 1, False, 2), look(False, 0.8, 49.9, 7, True, -1)]
+    out = appearance_breakdown(episodes)
+    def cells(title):
+        return {name: (c.successes, c.n) for name, c in out[title].items()}
+    assert list(out["key light brightness"]) == ["< 0.6", "0.6-0.8", ">= 0.8"]  # low to high
+    assert cells("key light brightness") == {"< 0.6": (1, 1), "0.6-0.8": (0, 1), ">= 0.8": (1, 2)}
+    assert cells("object-table contrast (delta E)") == {
+        "< 20": (1, 1), "20-50": (0, 2), ">= 50": (1, 1)}
+    assert cells("table") == {"plain": (1, 1), "training texture": (1, 1),
+                              "held-out texture": (0, 2)}
+    assert cells("object") == {"plain": (1, 2), "training texture": (1, 2)}
+    # a lighting-only run records no textures; a nominal run records nothing
+    lighting = [{"success": True, "appearance": {"key_brightness": 0.7,
+                                                 "object_table_delta_e": 30.0}}]
+    assert set(appearance_breakdown(lighting)) == {"key light brightness",
+                                                   "object-table contrast (delta E)"}
+    assert appearance_breakdown([{"success": True}, {"success": False, "appearance": None}]) == {}
 
 
 def test_paired_comparison_uses_shared_seeds_only():
@@ -420,10 +464,18 @@ def test_scratch_probe_reads_position_from_images(target):
 
     scale = fit_probe(model, inputs(train_frames), train_frames, steps=400, batch=32, lr=3e-3,
                       device="cpu", seed=0)
-    report = probe_report(model, inputs(val_frames), val_frames, scale, target)["all"]
+    full = probe_report(model, inputs(val_frames), val_frames, scale, target)
+    report = full["all"]
     assert report["frames"] == 60
     assert ("object_accuracy" in report) == bool(target.classes)
     assert report["position_error_cm_mean"] < 0.35 * report["mean_guess_error_cm"], report
+    assert ("by_object" in full) == bool(target.classes)
+    if target.classes:  # each object's accuracy and what it was mistaken for
+        assert set(full["by_object"]) == set(target.classes)
+        assert sum(row["frames"] for row in full["by_object"].values()) == 60
+        for name, row in full["by_object"].items():
+            assert name not in row["mistaken_for"]
+            assert sum(row["mistaken_for"].values()) == round((1 - row["accuracy"]) * row["frames"])
 
 
 def test_offline_action_error_is_small_on_training_data():

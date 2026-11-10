@@ -243,13 +243,16 @@ class AppearanceSampler:
                 s.specular[:] = light.specular
 
     def describe(self, appearance: Appearance, target: str | None) -> dict:
-        """Per-episode numbers for diagnostics: light, textures seen and unseen, contrast."""
+        """Per-episode numbers for diagnostics: light, textures seen and unseen, contrast.
+        ``target`` is the episode's object; None (press has no object) means the button, whose
+        backdrop, the wall, shares the table's look."""
+        target = target or "button"
         out: dict = {"factors": list(self.factors)}
         if appearance.lighting:
             out["key_brightness"] = round(appearance.lighting.key_brightness, 3)
             out["key_elevation_deg"] = round(appearance.lighting.key_elevation_deg, 1)
         for name in ("table", target):
-            look = appearance.looks.get(name) if name else None
+            look = appearance.looks.get(name)
             if look:
                 label = "table" if name == "table" else "object"
                 out[f"{label}_texture"] = look.texture

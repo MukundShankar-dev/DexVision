@@ -319,11 +319,12 @@ seeds, before training anything new. The questions the evals must answer:
 | Question | Measurement |
 |---|---|
 | How much does varied appearance hurt? | Diffusion and MLP-BC from V3–V6, all factors on: paired with nominal on the same 200 val seeds (McNemar), failure phases. |
-| Which factor hurts? | One factor at a time: lighting only, table only, objects only. |
+| Which factor hurts? | One factor at a time, Diffusion only: lighting, surfaces, objects. |
 | Where does it hurt? | Success binned by key-light brightness, by object–table contrast, by training vs held-out texture, and by object. |
-| Is the information still in the pixels? | The scratch probe (object position, identity) trained and tested on varied frames. In particular: can the two pucks still be told apart at 96 px without colour? |
+| Is the information still in the pixels? | The scratch probe (object position, identity) trained and tested on varied frames, with accuracy per object. In particular: can the two pucks still be told apart at 96 px without colour? |
+| What do the existing encoders still carry? | Frozen probes of the V3–V6 encoders on varied frames, and their offline action error on varied val demos. |
 | What does the encoder track? | Keypoint videos of varied failures. |
-| Sanity | The state expert is still 200/200, and appearance cannot reach it. |
+| Sanity | On the desktop: the appearance tests pass, and a nominal val run reproduces the committed V3 result episode for episode. |
 
 **Pass:** the measurements are reported. The A3 gate is written from them
 and approved before any training.

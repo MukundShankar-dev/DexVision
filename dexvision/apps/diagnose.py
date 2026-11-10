@@ -4,8 +4,9 @@
         --against results/pick/diffusion_val.json
 
 Prints the phase each episode reached, success by object and by start position, metric medians
-for successes and failures, and, with --against, a seed-by-seed comparison with another report
-(usually the state policy on the same val seeds). --out also writes it all as JSON.
+for successes and failures, success by appearance (for a run with varied appearance), and, with
+--against, a seed-by-seed comparison with another report (usually the state policy, or the same
+policy on the nominal scene, on the same val seeds). --out also writes it all as JSON.
 """
 
 from __future__ import annotations
@@ -15,7 +16,13 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from dexvision.eval.diagnose import metric_summary, paired, phases, position_grid
+from dexvision.eval.diagnose import (
+    appearance_breakdown,
+    metric_summary,
+    paired,
+    phases,
+    position_grid,
+)
 from dexvision.tasks import make_task
 
 
@@ -62,6 +69,16 @@ def main() -> None:
     for name, row in result["metric_medians"].items():
         cells = [f"{row[k]:.4g}" if row[k] is not None else "-" for k in ("success", "failure")]
         print(f"  {name:24s} {cells[0]:>10s} | {cells[1]:>10s}")
+
+    looks = appearance_breakdown(episodes)
+    if looks:
+        result["appearance"] = {title: {name: asdict(cell) for name, cell in cells.items()}
+                                for title, cells in looks.items()}
+        print(f"\nBy appearance (varied: {', '.join(report.get('appearance', []))}):")
+        for title, cells in looks.items():
+            print(f"  {title}")
+            for name, cell in cells.items():
+                print(f"    {name:18s} {_rate(cell.successes, cell.n, *cell.ci95)}")
 
     if args.against:
         reference = json.loads(args.against.read_text(encoding="utf-8"))

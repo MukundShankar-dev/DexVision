@@ -134,10 +134,16 @@ def replay_matches(workcell: Workcell, task, episode: Mapping[str, np.ndarray]) 
 
 
 def load_data_config(name_or_path: str | Path) -> dict:
+    """A data config by name or path. ``extends: <name>`` takes that config's top-level keys
+    (from the same directory) and replaces them with this one's, as task specs do."""
     path = Path(name_or_path)
     if not path.suffix:
         path = DATA_CONFIG_DIR / f"{name_or_path}.yaml"
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if "extends" in raw:
+        base = load_data_config(path.with_name(f"{raw['extends']}.yaml"))
+        raw = {**base, **{k: v for k, v in raw.items() if k != "extends"}}
+    return raw
 
 
 def _sha256(path: Path) -> str:

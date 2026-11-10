@@ -1,0 +1,6 @@
+# Place demonstrations with varied appearance (docs/PLAN.md, A). The same expert, seeds and
+# noise as configs/data/place_vision.yaml, so the episodes are physically the same ones; only the
+# camera images differ: lighting, surfaces and objects vary per episode (configs/appearance.yaml).
+# These are train seeds, so the held-out textures never appear.
+extends: place_vision
+appearance: [lighting, surfaces, objects]

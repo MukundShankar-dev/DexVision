@@ -23,6 +23,7 @@ errors rather than to what the model learned.
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -202,10 +203,11 @@ def fit_probe(model: nn.Module, inputs, train: ProbeFrames, *, steps: int, batch
 @torch.no_grad()
 def probe_report(model: nn.Module, inputs, frames: ProbeFrames,
                  scale: tuple[np.ndarray, np.ndarray], target: ProbeTarget, batch: int = 512
-                 ) -> dict[str, dict[str, float]]:
+                 ) -> dict[str, dict]:
     """Per bucket: frames, position error in cm (mean, median, 90th percentile), the error of
     always guessing the training mean position (the no-information reference), and class
-    accuracy when the target has classes. ``scale`` is ``fit_probe``'s return value."""
+    accuracy when the target has classes. With classes, ``by_object`` also gives each object's
+    accuracy and what it was mistaken for. ``scale`` is ``fit_probe``'s return value."""
     model.eval()
     mean, std = scale
     predicted, classes = [], []
@@ -230,6 +232,18 @@ def probe_report(model: nn.Module, inputs, frames: ProbeFrames,
         }
         if target.classes:
             report[name]["object_accuracy"] = round(float(correct[mask].mean()), 3)
+    if target.classes:
+        guessed = np.concatenate(classes).astype(int)
+        report["by_object"] = {}
+        for index, name in enumerate(target.classes):
+            mask = frames.object_index == index
+            if mask.any():
+                wrong = Counter(target.classes[c] for c in guessed[mask] if c != index)
+                report["by_object"][name] = {
+                    "frames": int(mask.sum()),
+                    "accuracy": round(float(correct[mask].mean()), 3),
+                    "mistaken_for": dict(wrong.most_common()),
+                }
     return report
 
 

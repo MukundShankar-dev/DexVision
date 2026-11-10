@@ -156,6 +156,8 @@ def test_describe_reports_light_textures_and_contrast(sampler):
     assert {"key_brightness", "table_texture", "object_texture",
             "object_table_delta_e"} <= set(out)
     assert out["object_table_delta_e"] >= 0
+    button = sampler.describe(appearance, None)  # press: no object, so the button
+    assert button["object_texture"] == appearance.looks["button"].texture
     assert delta_e((0.2, 0.3, 0.4), (0.2, 0.3, 0.4)) == 0
     assert delta_e((0, 0, 0), (1, 1, 1)) == pytest.approx(100, abs=0.5)
 

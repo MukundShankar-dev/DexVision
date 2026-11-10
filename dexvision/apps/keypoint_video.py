@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import colorsys
 from collections.abc import Mapping
+from dataclasses import replace
 from pathlib import Path
 
 import imageio.v3 as iio
@@ -23,6 +24,7 @@ import torch
 from dexvision import REPO_ROOT
 from dexvision.eval.evaluator import run_episode, spec_rig
 from dexvision.learning.policy import LearnedPolicy, load_learned_policy
+from dexvision.sim.appearance import FACTORS
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 
@@ -76,10 +78,14 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--seeds", type=int, nargs="+", required=True)
     parser.add_argument("--out-dir", type=Path, default=REPO_ROOT / "runs" / "videos")
+    parser.add_argument("--appearance", nargs="+", choices=FACTORS, default=None,
+                        metavar="FACTOR", help="vary these appearance factors, as evaluate does")
     args = parser.parse_args()
 
     workcell = Workcell()
     task = make_task(args.task)
+    if args.appearance:
+        task.spec = replace(task.spec, appearance=tuple(args.appearance))
     policy, _ = load_learned_policy(args.checkpoint, task.spec)
     if not policy.trained.cameras:
         parser.error("the checkpoint has no cameras")
@@ -88,7 +94,8 @@ def main() -> None:
     for seed in args.seeds:
         result = run_episode(workcell, task, recorder, seed, rig=rig)
         outcome = "success" if result.success else (result.phase or result.failure)
-        path = args.out_dir / f"keypoints_{task.spec.name}_{seed}_{outcome}.mp4"
+        varied = "_varied" if task.spec.appearance else ""
+        path = args.out_dir / f"keypoints_{task.spec.name}{varied}_{seed}_{outcome}.mp4"
         path.parent.mkdir(parents=True, exist_ok=True)
         iio.imwrite(path, np.stack(recorder.frames), fps=1.0 / workcell.control_dt,
                     codec="libx264", plugin="pyav")

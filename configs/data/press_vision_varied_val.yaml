@@ -1,0 +1,5 @@
+# Held-out press demonstrations with varied appearance on val seeds, for diagnostics only (the
+# perception probe's evaluation frames). Never trained on. As configs/data/press_vision_val.yaml,
+# with lighting, surfaces and objects varied; val seeds also show the held-out textures.
+extends: press_vision_val
+appearance: [lighting, surfaces, objects]
