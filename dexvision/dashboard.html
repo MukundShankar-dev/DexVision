@@ -47,6 +47,7 @@
   svg text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
   svg text.label { fill: var(--ink-2); font-size: 12px; }
   .chart { position: relative; }
+  #runs .chart { max-width: 640px; }   /* a lone run card is wide; keep its chart at reading size */
   .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
          border: 1px solid var(--axis); border-radius: 6px; padding: 6px 8px; font-size: 12px;
          white-space: nowrap; box-shadow: 0 2px 8px rgb(0 0 0 / .12); display: none; z-index: 2; }
