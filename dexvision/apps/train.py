@@ -72,7 +72,9 @@ def main() -> None:
 
     def on_checkpoint(trained) -> None:
         path = out / f"step_{trained.step:06d}.pt"
-        trained.save(path)
+        unfinished = path.with_name(path.name + ".tmp")
+        trained.save(unfinished)
+        unfinished.replace(path)  # atomic: a follower (select_checkpoint) never sees half a file
         print(f"  saved {path.name}", flush=True)
 
     train(args.method, windows, config, steps=args.steps, seed=args.seed, device=args.device,

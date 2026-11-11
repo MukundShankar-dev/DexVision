@@ -6,6 +6,7 @@ Counting rules (AGENTS.md rule 7): one seed is one unique episode, every rate ca
 
 from __future__ import annotations
 
+import multiprocessing
 from collections import defaultdict
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
@@ -25,6 +26,14 @@ from dexvision.tasks.features import observation_dict
 # Builds a policy inside a worker process: a module-level function or functools.partial of one.
 PolicyFactory = Callable[[Workcell], Policy]
 CHUNK = 10  # seeds per worker job; progress is reported per finished chunk
+
+
+def worker_pool(workers: int) -> ProcessPoolExecutor:
+    """The process pool every parallel path uses. Workers are spawned, not forked: a forked child
+    of a process that already holds an OpenGL context hangs in its own renderer on Linux, and
+    macOS and Windows spawn anyway, so every platform now runs the same way."""
+    return ProcessPoolExecutor(max_workers=workers,
+                               mp_context=multiprocessing.get_context("spawn"))
 
 @dataclass(frozen=True)
 class EpisodeResult:
@@ -167,7 +176,7 @@ def _run_serial(workcell, task, policy, seeds, split, video_dir, n_videos, on_ep
 def _run_parallel(task, seeds, workers, policy_factory, on_episode) -> list[EpisodeResult]:
     jobs = [(policy_factory, task, list(seeds[i:i + CHUNK])) for i in range(0, len(seeds), CHUNK)]
     episodes = []
-    with ProcessPoolExecutor(max_workers=workers) as pool:
+    with worker_pool(workers) as pool:
         for chunk in pool.map(_run_seeds, jobs):  # in seed order
             for result in chunk:
                 episodes.append(result)

@@ -19,7 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import as_completed
 from dataclasses import asdict
 from pathlib import Path
 
@@ -27,7 +27,7 @@ import numpy as np
 import yaml
 
 from dexvision import REPO_ROOT
-from dexvision.eval.evaluator import EpisodeResult, Rate, camera_rig, run_episode
+from dexvision.eval.evaluator import EpisodeResult, Rate, camera_rig, run_episode, worker_pool
 from dexvision.policies.base import Policy
 from dexvision.provenance import code_version
 from dexvision.sim.workcell import (
@@ -199,7 +199,7 @@ def generate(
     else:
         chunks = [seeds[i:i + 20] for i in range(0, len(seeds), 20)]
         results, files = [], {}
-        with ProcessPoolExecutor(max_workers=workers) as pool:
+        with worker_pool(workers) as pool:
             jobs = [pool.submit(_record_in_worker, (dict(config), str(out_dir), chunk))
                     for chunk in chunks]
             for job in as_completed(jobs):

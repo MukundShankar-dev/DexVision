@@ -7,7 +7,7 @@ import pytest
 from dexvision.data.demos import generate, load_data_config
 from dexvision.eval.evaluator import evaluate
 from dexvision.eval.ledger import read_ledger
-from dexvision.eval.selection import evaluate_checkpoints, select
+from dexvision.eval.selection import evaluate_checkpoints, follow, select
 from dexvision.learning.dataset import DemoWindows
 from dexvision.learning.policy import load_learned_policy
 from dexvision.learning.train import load_method_config, train
@@ -71,3 +71,23 @@ def test_parallel_checkpoint_evaluation(checkpoints):
     assert [row["step"] for row in table] == [3, 6]
     assert all(row["n"] == 1 and (root / row["report"]).is_file() for row in table)
     assert np.isin(select(table)["step"], [3, 6])
+
+
+def test_follow_evaluates_checkpoints_as_they_appear_until_every_run_is_finished(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"   # b does not exist yet: its training has not started
+    a.mkdir()
+    (a / "step_000001.pt").touch()
+    seen = []
+
+    def evaluate_one(path):
+        seen.append(path)
+        if len(seen) == 1:   # training goes on while the first checkpoint is evaluated
+            (a / "step_000002.pt").touch()
+            (a / "step_000002.pt.tmp").touch()   # a half-written file is not a checkpoint
+            b.mkdir()
+            (b / "step_000002.pt").touch()
+        return {"step": int(path.stem.split("_")[1]), "successes": 0}
+
+    tables = follow([a, b], 2, evaluate_one, poll_s=0.0)
+    assert seen[0] == a / "step_000001.pt" and len(seen) == len(set(seen)) == 3
+    assert [r["step"] for r in tables[a]] == [1, 2] and [r["step"] for r in tables[b]] == [2]
