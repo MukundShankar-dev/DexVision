@@ -90,10 +90,12 @@ class EpisodeVideos:
     The first val seed every time, so successive checkpoints are seen on the same episode. A
     camera task gets the policy's own camera frames with the encoder's keypoints drawn
     (apps/keypoint_video.py); a state task gets the viewer video (apps/evaluate.py --videos).
+    Only runs that trained in the last ``recent_s`` seconds are recorded, so starting the
+    dashboard does not replay every old run.
     """
 
-    def __init__(self, runs_root: Path, poll_s: float = 20.0) -> None:
-        self.runs_root, self.poll_s = runs_root, poll_s
+    def __init__(self, runs_root: Path, poll_s: float = 20.0, recent_s: float = 86400.0) -> None:
+        self.runs_root, self.poll_s, self.recent_s = runs_root, poll_s, recent_s
         self.out = runs_root / "dashboard"
         self.latest: dict[tuple[str, str], dict] = {}
         self._failed: set[Path] = set()
@@ -105,7 +107,8 @@ class EpisodeVideos:
         while True:
             for log in sorted(self.runs_root.glob("*/*/train_log.csv")):
                 checkpoints = sorted(log.parent.glob("step_*.pt"))
-                if checkpoints and checkpoints[-1] not in self._failed:
+                recent = time.time() - log.stat().st_mtime < self.recent_s
+                if checkpoints and recent and checkpoints[-1] not in self._failed:
                     self.record(checkpoints[-1])
             time.sleep(self.poll_s)
 
