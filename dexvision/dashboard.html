@@ -37,7 +37,7 @@
   h2 + pre { margin-top: 6px; }
   .key { display: inline-block; width: 14px; height: 0; border-top: 2px solid; border-radius: 1px;
          vertical-align: middle; margin-right: 6px; }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px 14px;
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px 14px;
            margin-top: 10px; }
   .tile .label { color: var(--ink-2); font-size: 12px; }
   .tile .value { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; }
@@ -64,16 +64,29 @@
   pre { margin: 0; font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace; color: var(--ink-2);
         white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
   .empty { color: var(--muted); }
+  .now h2 { font-size: 16px; }
+  .now .line { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; margin-top: 8px;
+               font-variant-numeric: tabular-nums; }
+  .now .line b { font-size: 16px; }
+  .now .line span { color: var(--ink-2); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+  .dot.live { background: var(--good); animation: pulse 1.6s ease-in-out infinite; }
+  .dot.idle { background: var(--muted); }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .dot.live { animation: none; } }
+  button.link { font: inherit; color: var(--series-1); background: none; border: 0; padding: 0;
+                cursor: pointer; text-decoration: underline; }
 </style>
 </head>
 <body>
 <main>
   <header>
     <h1>DexVision training</h1>
-    <label>Task <select id="task" aria-label="Task"></select></label>
+    <label>Showing <select id="task" aria-label="Task shown"></select></label>
     <span id="stamp">connecting</span>
   </header>
-  <div id="runs" class="grid"></div>
+  <div id="now" class="card now"></div>
+  <div id="runs" class="grid" style="margin-top:14px"></div>
   <section class="card">
     <h2>Val successes per checkpoint</h2>
     <p class="sub" id="val-sub">Each saved checkpoint is evaluated on the same val episodes; the bars are 95% intervals.</p>
@@ -84,7 +97,10 @@
   <section>
     <div id="videos" class="grid"></div>
   </section>
-  <section id="logs"></section>
+  <section>
+    <h2 id="logs-title" style="margin:18px 0 0"></h2>
+    <div id="logs"></div>
+  </section>
 </main>
 <script>
 "use strict";
@@ -105,6 +121,16 @@ const html = (tag, cls, text) => {
 };
 const fmtSteps = (s) => s >= 1000 ? (s / 1000) + "k" : String(s);
 const fmtLoss = (v) => v >= 0.1 ? v.toFixed(3) : v >= 0.001 ? v.toFixed(4) : v.toExponential(1);
+function fmtAgo(seconds) {
+  if (seconds < 90) return Math.max(0, Math.round(seconds)) + " s ago";
+  if (seconds < 5400) return Math.round(seconds / 60) + " min ago";
+  if (seconds < 129600) return Math.round(seconds / 3600) + " h ago";
+  return Math.round(seconds / 86400) + " days ago";
+}
+const lastStep = (run) => run.loss.length ? run.loss[run.loss.length - 1][0] : 0;
+const isDone = (run) => lastStep(run) >= run.total_steps;
+const isLive = (run, now) => !isDone(run) && now - run.updated < 180;
+const full = (n) => n.toLocaleString("en-US");
 function fmtDuration(seconds) {
   if (!isFinite(seconds) || seconds < 0) return "–";
   const m = Math.round(seconds / 60);
@@ -197,13 +223,18 @@ function runCard(run, color, now) {
   title.append(key, document.createTextNode(`${run.method} (seed ${run.seed})`));
   card.append(title);
   const last = run.loss[run.loss.length - 1];
-  const step = last ? last[0] : 0;
-  const finished = step >= run.total_steps;
-  const live = now - run.updated < 180;
-  card.append(html("p", "sub", finished ? "Training finished" : live ? "Training" : "No new steps for " + fmtDuration(now - run.updated)));
+  const step = lastStep(run);
+  const finished = isDone(run);
+  const live = isLive(run, now);
+  const status = html("p", "sub");
+  status.append(html("span", "dot " + (live ? "live" : "idle")),
+    document.createTextNode(live ? `Training now, last step logged ${fmtAgo(now - run.updated)}`
+      : finished ? `Training finished ${fmtAgo(now - run.updated)}`
+      : `Not running: stopped at step ${full(step)}, ${fmtAgo(now - run.updated)}`));
+  card.append(status);
   const tiles = html("div", "tiles");
   const tile = (label, value) => { const t = html("div", "tile"); t.append(html("div", "label", label), html("div", "value", value)); tiles.append(t); };
-  tile("Step", `${fmtSteps(step)} / ${fmtSteps(run.total_steps)}`);
+  tile("Step", `${full(step)} / ${full(run.total_steps)}`);
   tile("Loss", last ? fmtLoss(last[1]) : "–");
   tile("Steps per second", run.steps_per_s ? run.steps_per_s.toFixed(1) : "–");
   tile("Time left", finished ? "done" : run.steps_per_s && live ? fmtDuration((run.total_steps - step) / run.steps_per_s) : "–");
@@ -260,55 +291,105 @@ function valSection(runs) {
 }
 
 const shown = {};   // video url per run, so a playing video is not reloaded on every refresh
-function videoSection(runs, videosOn) {
+function videoSection(runs, state) {
   const host = $("videos");
   for (const run of runs) {
     let card = host.querySelector(`[data-run="${CSS.escape(run.name)}"]`);
     if (!card) {
       card = html("div", "card"); card.dataset.run = run.name;
-      card.append(html("h2", "", `${run.method}: newest checkpoint, first val episode`), html("p", "sub"), html("div"));
+      card.append(html("h2", "", `${run.method}: an episode played by its newest checkpoint`), html("p", "sub"), html("div"));
       host.append(card);
     }
     const [, sub, body] = card.children;
-    if (!run.video) { sub.textContent = !videosOn ? "episode videos are switched off" : run.checkpoints.length ? "recording the episode" : "no checkpoint saved yet"; continue; }
-    sub.textContent = `Step ${run.video.step.toLocaleString()}, outcome: ${run.video.outcome}`;
-    if (shown[run.name] !== run.video.url) {
-      shown[run.name] = run.video.url;
+    const v = run.video;
+    if (!v) { sub.textContent = "Episode recording is switched off (--no-videos)."; body.replaceChildren(); continue; }
+    const pending = v.state === "recording" ? `Recording the episode of step ${full(v.newest_step)} now (about a minute).`
+      : v.state === "queued" ? `The episode of step ${full(v.newest_step)} is next in line to be recorded.`
+      : v.state === "failed" ? `Recording step ${full(v.newest_step)} failed: ${v.error}` : "";
+    if (v.state === "none") {
+      const next = state.checkpoint_every, live = isLive(run, state.time) && run.steps_per_s;
+      sub.textContent = `No checkpoint saved yet. The first is saved at step ${full(next)}`
+        + (live ? `, in about ${fmtDuration((next - lastStep(run)) / run.steps_per_s)}.` : ".");
+      body.replaceChildren();
+      continue;
+    }
+    sub.textContent = (v.shown ? `Showing step ${full(v.shown.step)}, first val episode, outcome: ${v.shown.outcome}. ` : "") + pending;
+    if (v.shown && shown[run.name] !== v.shown.url) {
+      shown[run.name] = v.shown.url;
       const video = document.createElement("video");
       video.controls = true; video.loop = true; video.muted = true; video.autoplay = true; video.playsInline = true;
-      video.src = run.video.url;
+      video.src = v.shown.url;
       body.replaceChildren(video);
-    }
+    } else if (!v.shown) { delete shown[run.name]; body.replaceChildren(); }
   }
   for (const card of [...host.children]) if (!runs.some((r) => r.name === card.dataset.run)) { delete shown[card.dataset.run]; card.remove(); }
 }
 
-let chosen = null;
+// What is training right now, whichever task is shown below.
+function nowBanner(state, info) {
+  const host = $("now"); host.replaceChildren();
+  const live = info.filter((t) => t.live);
+  const title = html("h2");
+  if (!live.length) {
+    const newest = info[0];
+    title.append(html("span", "dot idle"), document.createTextNode("Nothing is training right now"));
+    host.append(title, html("p", "sub", `Most recent: ${newest.name}, last step logged ${fmtAgo(state.time - newest.updated)}.`));
+    return;
+  }
+  for (const task of live) {
+    const head = html("h2");
+    head.append(html("span", "dot live"), document.createTextNode("Training now: " + task.name));
+    host.append(head);
+    if (task.name !== chosen) {
+      const jump = html("button", "link", "show this task"); jump.type = "button";
+      jump.addEventListener("click", () => { $("task").value = task.name; chosen = task.name; refresh(); });
+      const p = html("p", "sub"); p.append(document.createTextNode(`You are looking at ${chosen}. `), jump); host.append(p);
+    }
+    for (const run of state.tasks[task.name]) {
+      const line = html("div", "line"), step = lastStep(run);
+      const text = isDone(run) ? "training finished" : isLive(run, state.time)
+        ? `${(100 * step / run.total_steps).toFixed(0)}% · ${run.steps_per_s ? run.steps_per_s.toFixed(1) : "–"} steps per second · about ${run.steps_per_s ? fmtDuration((run.total_steps - step) / run.steps_per_s) : "–"} left`
+        : `not running, last step logged ${fmtAgo(state.time - run.updated)}`;
+      line.append(html("b", "", `${run.method}: step ${full(step)} of ${full(run.total_steps)}`), html("span", "", text));
+      host.append(line);
+    }
+  }
+}
+
+let chosen = null, listed = "";
 function render(state) {
   const names = Object.keys(state.tasks);
+  if (!names.length) { $("now").replaceChildren(html("p", "empty", "No training runs found.")); return; }
+  const info = names.map((name) => ({ name, live: state.tasks[name].some((r) => isLive(r, state.time)),
+    updated: Math.max(...state.tasks[name].map((r) => r.updated)) })).sort((a, b) => b.live - a.live || b.updated - a.updated);
+  if (!chosen || !names.includes(chosen)) chosen = info[0].name;   // the live task, else the newest
   const select = $("task");
-  if (!names.length) { $("runs").replaceChildren(html("p", "empty", "No training runs found.")); return; }
-  const newest = names.reduce((a, b) => Math.max(...state.tasks[a].map((r) => r.updated)) >= Math.max(...state.tasks[b].map((r) => r.updated)) ? a : b);
-  if (select.options.length !== names.length) {
-    select.replaceChildren(...names.map((n) => { const o = html("option", "", n); o.value = n; return o; }));
-    select.value = chosen && names.includes(chosen) ? chosen : newest;
+  const labels = info.map((t) => t.name + (t.live ? "  (training now)" : `  (${fmtAgo(state.time - t.updated)})`));
+  if (labels.join("|") !== listed) {
+    listed = labels.join("|");
+    const group = (title, items) => { const g = document.createElement("optgroup"); g.label = title;
+      for (const t of items) { const o = html("option", "", labels[info.indexOf(t)]); o.value = t.name; g.append(o); }
+      return g; };
+    const live = info.filter((t) => t.live), rest = info.filter((t) => !t.live);
+    select.replaceChildren(...(live.length ? [group("Training now", live)] : []), group("Earlier runs, newest first", rest));
   }
-  chosen = select.value;
+  select.value = chosen;
+  nowBanner(state, info);
   const runs = state.tasks[chosen];
   $("runs").replaceChildren(...runs.map((run, i) => runCard(run, COLORS[i % 2], state.time)));
   valSection(runs);
-  videoSection(runs, state.videos);
+  videoSection(runs, state);
+  $("logs-title").textContent = state.logs.length ? "Logs being written now (the whole pipeline, not only the task shown)" : "";
   $("logs").replaceChildren(...state.logs.map((log) => {
-    const card = html("div", "card"); card.style.marginTop = "14px";
-    const pre = html("pre", "", log.lines.join("\n"));
-    card.append(html("h2", "", "Log: " + log.name), pre);
+    const card = html("div", "card"); card.style.marginTop = "10px";
+    card.append(html("h2", "", log.name), html("p", "sub", "last written " + fmtAgo(state.time - log.written)), html("pre", "", log.lines.join("\n")));
     return card;
   }));
 }
 
 async function refresh() {
   try {
-    const state = await (await fetch("/api/state")).json();
+    const state = await (await fetch("/api/state" + (chosen ? "?task=" + encodeURIComponent(chosen) : ""))).json();
     render(state);
     $("stamp").textContent = "updated " + new Date().toLocaleTimeString();
   } catch (error) {

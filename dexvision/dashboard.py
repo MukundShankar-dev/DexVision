@@ -19,6 +19,7 @@ import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import yaml
 
@@ -55,89 +56,131 @@ def read_run(run: Path, total_steps: int) -> dict:
             "updated": (run / "train_log.csv").stat().st_mtime}
 
 
-def recent_logs(logs: Path, lines: int = 14, within_s: float = 900.0, most: int = 4) -> list[dict]:
-    """The tails of the log files still being written (the newest first), or of the newest one
-    when none was written in the last ``within_s`` seconds."""
+def recent_logs(logs: Path, lines: int = 14, within_s: float = 300.0, most: int = 4) -> list[dict]:
+    """The tails of the log files written in the last ``within_s`` seconds, the newest first:
+    the pipeline that is running now. Older logs (finished or failed earlier) are left out."""
+    now = time.time()
     files = sorted((p for p in logs.glob("*.log") if p.is_file()),
                    key=lambda p: p.stat().st_mtime, reverse=True) if logs.is_dir() else []
-    live = [p for p in files if time.time() - p.stat().st_mtime < within_s][:most] or files[:1]
     tails = []
-    for path in live:
+    for path in [p for p in files if now - p.stat().st_mtime < within_s][:most]:
         with path.open("rb") as fh:
             fh.seek(max(0, path.stat().st_size - 20000))
             text = fh.read().decode("utf-8", errors="replace").replace("\r", "\n")
-        tails.append({"name": path.name,
+        tails.append({"name": path.name, "written": path.stat().st_mtime,
                       "lines": [x for x in text.splitlines() if x.strip()][-lines:]})
     return tails
 
 
-def collect(runs_root: Path, videos: dict | None = None) -> dict:
+def collect(runs_root: Path, videos: EpisodeVideos | None = None) -> dict:
     """Everything the page shows: {"tasks": {task: [run, ...]}, "logs": [...], "time": ...}.
-    ``videos``: the recorded episodes by (task, run), or None when recording is off."""
-    total = int(yaml.safe_load(METHOD_CONFIG.read_text(encoding="utf-8"))["training"]["steps"])
+    Each run's "video" is the recorder's status for it, or None when recording is off."""
+    training = yaml.safe_load(METHOD_CONFIG.read_text(encoding="utf-8"))["training"]
     tasks: dict[str, list[dict]] = {}
     for log in sorted(runs_root.glob("*/*/train_log.csv")):
-        run = read_run(log.parent, total)
-        run["video"] = (videos or {}).get((log.parent.parent.name, run["name"]))
+        run = read_run(log.parent, int(training["steps"]))
+        run["video"] = videos.status(log.parent) if videos else None
         tasks.setdefault(log.parent.parent.name, []).append(run)
     return {"tasks": tasks, "logs": recent_logs(runs_root / "logs"), "time": time.time(),
-            "videos": videos is not None}
+            "videos": videos is not None, "checkpoint_every": int(training["checkpoint_every"])}
 
 
 class EpisodeVideos:
-    """Records one val episode of each run's newest checkpoint, in a background thread.
+    """Records one val episode of a run's newest checkpoint, in a background thread.
 
-    The first val seed every time, so successive checkpoints are seen on the same episode. A
-    camera task gets the policy's own camera frames with the encoder's keypoints drawn
-    (apps/keypoint_video.py); a state task gets the viewer video (apps/evaluate.py --videos).
-    Only runs that trained in the last ``recent_s`` seconds are recorded, so starting the
-    dashboard does not replay every old run.
+    Recorded for the runs that are training now and for the task the page is showing
+    (``want``), one episode at a time. The first val seed every time, so successive
+    checkpoints are seen on the same episode. A camera task gets the policy's own camera frames
+    with the encoder's keypoints drawn (apps/keypoint_video.py); a state task gets the viewer
+    video (apps/evaluate.py --videos).
     """
 
-    def __init__(self, runs_root: Path, poll_s: float = 20.0, recent_s: float = 86400.0) -> None:
-        self.runs_root, self.poll_s, self.recent_s = runs_root, poll_s, recent_s
+    def __init__(self, runs_root: Path, poll_s: float = 5.0, live_s: float = 600.0) -> None:
+        self.runs_root, self.poll_s, self.live_s = runs_root, poll_s, live_s
         self.out = runs_root / "dashboard"
-        self.latest: dict[tuple[str, str], dict] = {}
-        self._failed: set[Path] = set()
+        self.wanted: str | None = None          # the task the page is showing
+        self.busy: Path | None = None           # the checkpoint being recorded now
+        self.failed: dict[Path, str] = {}
 
     def start(self) -> None:
         threading.Thread(target=self._loop, daemon=True).start()
 
+    def want(self, task: str) -> None:
+        self.wanted = task
+
+    def _directory(self, checkpoint: Path) -> Path:
+        return self.out / checkpoint.parent.parent.name / checkpoint.parent.name / checkpoint.stem
+
+    def status(self, run: Path) -> dict:
+        """What the page says about ``run``'s episode: "state" is "none" (no checkpoint yet),
+        "ready", "recording", "queued" or "failed"; "shown" is the newest recorded episode
+        (maybe of an earlier checkpoint) or None; "newest_step" is the newest checkpoint's."""
+        checkpoints = sorted(run.glob("step_*.pt"))
+        shown = None
+        for checkpoint in reversed(checkpoints):
+            files = sorted(self._directory(checkpoint).glob("*.mp4"))
+            if files:
+                relative = files[0].relative_to(self.out).as_posix()
+                shown = {"step": _step(checkpoint), "url": f"/video/{relative}",
+                         "outcome": outcome(files[0].stem)}
+                break
+        if not checkpoints:
+            return {"state": "none", "shown": None, "newest_step": None}
+        newest = checkpoints[-1]
+        state = ("ready" if shown and shown["step"] == _step(newest) else
+                 "recording" if self.busy == newest else
+                 "failed" if newest in self.failed else "queued")
+        return {"state": state, "shown": shown, "newest_step": _step(newest),
+                "error": self.failed.get(newest)}
+
+    def _targets(self) -> list[Path]:
+        """Newest checkpoints still to record: the shown task's runs first, then live runs."""
+        now, first, rest = time.time(), [], []
+        for log in sorted(self.runs_root.glob("*/*/train_log.csv")):
+            checkpoints = sorted(log.parent.glob("step_*.pt"))
+            if not checkpoints or checkpoints[-1] in self.failed \
+                    or list(self._directory(checkpoints[-1]).glob("*.mp4")):
+                continue
+            if log.parent.parent.name == self.wanted:
+                first.append(checkpoints[-1])
+            elif now - log.stat().st_mtime < self.live_s:
+                rest.append(checkpoints[-1])
+        return first + rest
+
     def _loop(self) -> None:
         while True:
-            for log in sorted(self.runs_root.glob("*/*/train_log.csv")):
-                checkpoints = sorted(log.parent.glob("step_*.pt"))
-                recent = time.time() - log.stat().st_mtime < self.recent_s
-                if checkpoints and recent and checkpoints[-1] not in self._failed:
-                    self.record(checkpoints[-1])
-            time.sleep(self.poll_s)
+            targets = self._targets()
+            if targets:
+                self.record(targets[0])
+            else:
+                time.sleep(self.poll_s)
 
     def record(self, checkpoint: Path) -> None:
-        task, run = checkpoint.parent.parent.name, checkpoint.parent.name
-        out = self.out / task / run / checkpoint.stem
-        if not list(out.glob("*.mp4")):
-            spec = load_task_spec(task)
-            out.mkdir(parents=True, exist_ok=True)
-            app = [sys.executable, "-m"]
-            if spec.cameras:
-                app += ["dexvision.apps.keypoint_video", "--task", task, "--checkpoint",
-                        str(checkpoint), "--seeds", str(spec.splits["val"][0]),
-                        "--out-dir", str(out)]
-            else:
-                app += ["dexvision.apps.evaluate", "--task", task, "--checkpoint",
-                        str(checkpoint), "--episodes", "1", "--videos", "1", "--video-dir",
-                        str(out), "--out", str(out / "report.json")]
+        task = checkpoint.parent.parent.name
+        spec = load_task_spec(task)
+        out = self._directory(checkpoint)
+        out.mkdir(parents=True, exist_ok=True)
+        app = [sys.executable, "-m"]
+        if spec.cameras:
+            app += ["dexvision.apps.keypoint_video", "--task", task, "--checkpoint",
+                    str(checkpoint), "--seeds", str(spec.splits["val"][0]), "--out-dir", str(out)]
+        else:
+            app += ["dexvision.apps.evaluate", "--task", task, "--checkpoint", str(checkpoint),
+                    "--episodes", "1", "--videos", "1", "--video-dir", str(out),
+                    "--out", str(out / "report.json")]
+        self.busy = checkpoint
+        try:
             done = subprocess.run(app, cwd=REPO_ROOT, capture_output=True, text=True,
                                   env={**os.environ, "OMP_NUM_THREADS": "1"}, check=False)
-            if done.returncode:
-                self._failed.add(checkpoint)
-                print(f"video of {checkpoint} failed:\n{done.stderr[-2000:]}", flush=True)
-                return
-        files = sorted(out.glob("*.mp4"))
-        if files:
-            self.latest[task, run] = {
-                "step": int(checkpoint.stem.rsplit("_", 1)[1]), "outcome": outcome(files[0].stem),
-                "url": f"/video/{task}/{run}/{checkpoint.stem}/{files[0].name}"}
+        finally:
+            self.busy = None
+        if done.returncode or not list(out.glob("*.mp4")):
+            self.failed[checkpoint] = (done.stderr.strip().splitlines() or ["no video written"])[-1]
+            print(f"video of {checkpoint} failed:\n{done.stderr[-2000:]}", flush=True)
+
+
+def _step(checkpoint: Path) -> int:
+    return int(checkpoint.stem.rsplit("_", 1)[1])
 
 
 def outcome(stem: str) -> str:
@@ -170,8 +213,11 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/":
             self._send(PAGE.read_bytes(), "text/html; charset=utf-8")
         elif path == "/api/state":
-            state = collect(self.runs_root, self.videos.latest if self.videos else None)
-            self._send(json.dumps(state).encode(), "application/json")
+            task = parse_qs(urlsplit(self.path).query).get("task", [""])[0]
+            if self.videos and task and (self.runs_root / task).is_dir() and "/" not in task:
+                self.videos.want(task)      # record this task's newest checkpoints on demand
+            self._send(json.dumps(collect(self.runs_root, self.videos)).encode(),
+                       "application/json")
         elif path.startswith("/video/") and self.videos:
             self._video(path.removeprefix("/video/"))
         else:

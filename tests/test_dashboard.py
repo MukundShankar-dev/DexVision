@@ -1,11 +1,13 @@
 import json
+import os
 import threading
+import time
 import urllib.error
 import urllib.request
 
 import pytest
 
-from dexvision.dashboard import collect, make_server, outcome
+from dexvision.dashboard import EpisodeVideos, collect, make_server, outcome
 
 
 @pytest.fixture
@@ -23,6 +25,8 @@ def runs(tmp_path):
     (run / "selection.json").write_text(json.dumps({"selected": {"step": 2000}}), "utf-8")
     (tmp_path / "logs").mkdir()
     (tmp_path / "logs" / "run.log").write_text("first\n\nprogress 1\rprogress 2\nlast\n", "utf-8")
+    stale = time.time() - 86400
+    os.utime(run / "train_log.csv", (stale, stale))                  # trained yesterday
     (tmp_path / "videos").mkdir()                                    # not a run: no train log
     return tmp_path
 
@@ -36,8 +40,35 @@ def test_collect_reads_loss_checkpoints_val_and_log(runs):
     assert run["checkpoints"] == [1000, 2000, 3000]
     assert [(v["step"], v["successes"]) for v in run["val"]] == [(1000, 3), (2000, 7)]
     assert run["selected"] == 2000 and run["video"] is None
-    assert state["logs"] == [{"name": "run.log",
-                              "lines": ["first", "progress 1", "progress 2", "last"]}]
+    (log,) = state["logs"]
+    assert (log["name"], log["lines"]) == ("run.log", ["first", "progress 1", "progress 2", "last"])
+    old = runs / "logs" / "finished.log"
+    old.write_text("Traceback from an earlier job\n", encoding="utf-8")
+    os.utime(old, (time.time() - 3600, time.time() - 3600))
+    assert [x["name"] for x in collect(runs)["logs"]] == ["run.log"]   # only logs being written
+
+
+def test_episode_status_says_what_is_shown_and_what_is_pending(runs):
+    videos = EpisodeVideos(runs)
+    run = runs / "pick" / "mlp_seed0"
+    assert videos.status(runs / "pick" / "nothing_seed0")["state"] == "none"
+    assert videos.status(run) == {"state": "queued", "shown": None, "newest_step": 3000,
+                                  "error": None}
+    assert videos._targets() == []                      # an old run nobody is looking at
+    videos.want("pick")
+    assert videos._targets() == [run / "step_003000.pt"]
+    earlier = runs / "dashboard" / "pick" / "mlp_seed0" / "step_002000"
+    earlier.mkdir(parents=True)
+    (earlier / "pick_mlp_val_100000_success.mp4").touch()
+    videos.busy = run / "step_003000.pt"
+    status = videos.status(run)                         # the earlier episode stays up meanwhile
+    assert status["state"] == "recording" and status["shown"] == {
+        "step": 2000, "outcome": "success",
+        "url": "/video/pick/mlp_seed0/step_002000/pick_mlp_val_100000_success.mp4"}
+    newest = runs / "dashboard" / "pick" / "mlp_seed0" / "step_003000"
+    newest.mkdir()
+    (newest / "pick_mlp_val_100000_dropped.mp4").touch()
+    assert videos.status(run)["state"] == "ready" and videos._targets() == []
 
 
 def test_video_names_give_the_outcome():
