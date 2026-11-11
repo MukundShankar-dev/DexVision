@@ -30,6 +30,7 @@ from dexvision.eval.stats import mcnemar_exact
 from dexvision.learning.policy import LearnedPolicy
 from dexvision.learning.train import Trained, train
 from dexvision.policies import make_policy
+from dexvision.sim.appearance import FACTORS
 from dexvision.sim.workcell import Workcell
 from dexvision.tasks import TASK_NAMES, make_task
 from dexvision.tasks.pick import pick_phase
@@ -80,6 +81,22 @@ def test_vision_specs_see_no_privileged_state_and_have_their_own_test_seeds(name
     assert (vision.splits["train"], vision.splits["val"]) == (state.splits["train"],
                                                               state.splits["val"])
     start, stop = vision.splits["test"]
+    for other in TASK_NAMES:
+        if other != name:
+            other_start, other_stop = load_task_spec(other).splits["test"]
+            assert stop <= other_start or other_stop <= start, other
+
+
+@pytest.mark.parametrize("name", ["pick_vision_varied"])
+def test_varied_specs_change_only_appearance_and_test_seeds(name):
+    varied, vision = load_task_spec(name), load_task_spec(name.removesuffix("_varied"))
+    assert varied.appearance == FACTORS and not vision.appearance
+    same = set(vision.raw) - {"splits"}
+    assert {k: varied.raw[k] for k in same} == {k: vision.raw[k] for k in same}
+    assert set(varied.raw) == set(vision.raw) | {"appearance"}
+    assert (varied.splits["train"], varied.splits["val"]) == (vision.splits["train"],
+                                                              vision.splits["val"])
+    start, stop = varied.splits["test"]
     for other in TASK_NAMES:
         if other != name:
             other_start, other_stop = load_task_spec(other).splits["test"]

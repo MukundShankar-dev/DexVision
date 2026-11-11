@@ -1,11 +1,12 @@
 # Status
 
-**Active checkpoint:** A2 — how robust are the V3–V6 policies to varied
-appearance (`docs/PLAN.md`, A). **State:** run and reported 2026-11-10;
-awaiting owner sign-off. The A3 gate below is proposed, not yet approved.
+**Active checkpoint:** A3, pick — train on varied appearance
+(`docs/PLAN.md`, A). **State:** gate approved 2026-11-11; spec
+`pick_vision_varied` and `runs/a3_pick.sh` are ready; nothing trained yet
+(the desktop is busy; the script also runs the baselines before training).
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
-(approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03); A1, appearance variation (approved 2026-11-10). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
+(approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03); A1, appearance variation (approved 2026-11-10); A2, robustness of the V3–V6 policies (approved 2026-11-11). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
 `press-fixed-button` (earlier specs; their test runs stay in the ledger).
 
 ## Shared protocol (every skill)
@@ -66,7 +67,7 @@ committed result on 200/200 episodes. Successes out of 200:
   0.10–0.36), so position is in the pixels. Object identity mostly is not:
   49% pick, 51% place, 29% push; the two pucks are told apart at chance.
 
-**A3 gate (proposed; pick first):** new spec `pick_vision_varied` (all
+**A3 gate (approved 2026-11-11; pick first):** spec `pick_vision_varied` (all
 factors, test seeds 340000–350000), trained on the 982 varied demos, method
 unchanged. Pass: Diffusion test Wilson lower bound ≥ 80% (≥ 172/200) on
 varied scenes, and both cameras blanked significantly worse on varied val

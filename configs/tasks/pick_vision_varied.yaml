@@ -1,0 +1,15 @@
+# Pick from images with varied appearance (docs/PLAN.md, A3). The pick_vision spec with the
+# lighting, surfaces and objects of every episode varied (configs/appearance.yaml): objects,
+# reset, success, failure, horizon, observations and cameras come from pick_vision unchanged, and
+# the physics of each seed is identical. Written before any policy is trained on varied scenes.
+extends: pick_vision
+
+appearance: [lighting, surfaces, objects]    # drawn per episode seed; rendering only
+
+# train and val are pick_vision's: the same demonstration seeds (configs/data/pick_vision_varied.yaml),
+# so policies are compared seed by seed with the unvaried ones on val. Val and test seeds also show
+# the textures held out of train seeds. The test range is new and disjoint from every earlier one.
+splits:
+  train: [0, 100000]
+  val: [100000, 110000]
+  test: [340000, 350000]
