@@ -82,7 +82,7 @@
 <main>
   <header>
     <h1>DexVision training</h1>
-    <label>Showing <select id="task" aria-label="Task shown"></select></label>
+    <label>Skill <select id="task" aria-label="Skill shown"></select></label>
     <span id="stamp">connecting</span>
   </header>
   <div id="now" class="card now"></div>
@@ -356,22 +356,20 @@ function nowBanner(state, info) {
   }
 }
 
-let chosen = null, listed = "";
+let chosen = null, listed = "";   // chosen: the task shown (the current version of one skill)
 function render(state) {
-  const names = Object.keys(state.tasks);
-  if (!names.length) { $("now").replaceChildren(html("p", "empty", "No training runs found.")); return; }
-  const info = names.map((name) => ({ name, live: state.tasks[name].some((r) => isLive(r, state.time)),
-    updated: Math.max(...state.tasks[name].map((r) => r.updated)) })).sort((a, b) => b.live - a.live || b.updated - a.updated);
-  if (!chosen || !names.includes(chosen)) chosen = info[0].name;   // the live task, else the newest
+  const skills = Object.keys(state.skills);
+  if (!skills.length) { $("now").replaceChildren(html("p", "empty", "No training runs found.")); return; }
+  state.tasks = Object.fromEntries(skills.map((k) => [state.skills[k].task, state.skills[k].runs]));
+  const info = skills.map((skill) => { const { task, runs } = state.skills[skill];
+    return { skill, name: task, live: runs.some((r) => isLive(r, state.time)), updated: Math.max(...runs.map((r) => r.updated)) };
+  }).sort((a, b) => b.live - a.live || b.updated - a.updated);
+  if (!chosen || !info.some((t) => t.name === chosen)) chosen = info[0].name;   // the live one, else the newest
   const select = $("task");
-  const labels = info.map((t) => t.name + (t.live ? "  (training now)" : `  (${fmtAgo(state.time - t.updated)})`));
+  const labels = info.map((t) => `${t.skill}: ${t.name}  (${t.live ? "training now" : fmtAgo(state.time - t.updated)})`);
   if (labels.join("|") !== listed) {
     listed = labels.join("|");
-    const group = (title, items) => { const g = document.createElement("optgroup"); g.label = title;
-      for (const t of items) { const o = html("option", "", labels[info.indexOf(t)]); o.value = t.name; g.append(o); }
-      return g; };
-    const live = info.filter((t) => t.live), rest = info.filter((t) => !t.live);
-    select.replaceChildren(...(live.length ? [group("Training now", live)] : []), group("Earlier runs, newest first", rest));
+    select.replaceChildren(...info.map((t, i) => { const o = html("option", "", labels[i]); o.value = t.name; return o; }));
   }
   select.value = chosen;
   nowBanner(state, info);

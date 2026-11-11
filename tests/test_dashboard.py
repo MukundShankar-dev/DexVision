@@ -7,7 +7,7 @@ import urllib.request
 
 import pytest
 
-from dexvision.dashboard import EpisodeVideos, collect, make_server, outcome
+from dexvision.dashboard import EpisodeVideos, collect, current_runs, make_server, outcome
 
 
 @pytest.fixture
@@ -33,7 +33,8 @@ def runs(tmp_path):
 
 def test_collect_reads_loss_checkpoints_val_and_log(runs):
     state = collect(runs)
-    (run,) = state["tasks"]["pick"]
+    assert state["skills"]["pick"]["task"] == "pick"
+    (run,) = state["skills"]["pick"]["runs"]
     assert (run["method"], run["seed"]) == ("mlp", "0")
     assert run["loss"][0] == [100, 1.0, 10.0] and len(run["loss"]) == 30
     assert run["steps_per_s"] == pytest.approx(10.0)
@@ -84,7 +85,7 @@ def test_server_serves_the_page_and_state_and_nothing_else(runs):
         with urllib.request.urlopen(base + "/", timeout=10) as reply:
             assert reply.status == 200 and b"DexVision training" in reply.read()
         with urllib.request.urlopen(base + "/api/state", timeout=10) as reply:
-            assert list(json.load(reply)["tasks"]) == ["pick"]
+            assert list(json.load(reply)["skills"]) == ["pick"]
         for path in ("/video/pick/mlp_seed0/step_001000/x.mp4", "/../AGENTS.md"):
             with pytest.raises(urllib.error.HTTPError) as error:
                 urllib.request.urlopen(base + path, timeout=10)
@@ -92,3 +93,23 @@ def test_server_serves_the_page_and_state_and_nothing_else(runs):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_only_the_current_version_of_each_skill_is_shown(runs):
+    def run(task, name, age_s):
+        directory = runs / task / name
+        directory.mkdir(parents=True)
+        (directory / "train_log.csv").write_text("step,loss,seconds\n", encoding="utf-8")
+        os.utime(directory / "train_log.csv", (time.time() - age_s,) * 2)
+        return directory
+    newer = [run("pick_vision_varied", "diffusion_seed0", 5),
+             run("pick_vision_varied", "mlp_seed1", 9)]
+    run("pick_vision_varied", "mlp_seed0", 500)        # an earlier seed of the same method
+    press = run("press_depth_limit", "mlp_seed0", 50)  # a variant whose spec is long gone
+    run("logs_like", "mlp_seed0", 1)                   # not a skill
+    current = current_runs(runs)
+    assert current == {"pick": ("pick_vision_varied", newer),
+                       "press": ("press_depth_limit", [press])}
+    state = collect(runs)
+    shown = [r["name"] for r in state["skills"]["pick"]["runs"]]
+    assert shown == ["diffusion_seed0", "mlp_seed1"]
