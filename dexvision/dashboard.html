@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DexVision training</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --series-1: #2a78d6; --series-2: #eb6834;
+    --good: #006300; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --series-1: #3987e5; --series-2: #d95926;
+      --good: #0ca30c; --critical: #e66767;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 48px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 20px; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0; font-weight: 650; }
+  h2 { font-size: 14px; margin: 0 0 2px; font-weight: 650; }
+  .sub { color: var(--ink-2); font-size: 13px; margin: 0 0 8px; }
+  select { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--axis);
+           border-radius: 6px; padding: 4px 8px; }
+  #stamp { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px;
+          padding: 14px 16px; min-width: 0; }
+  section { margin-top: 14px; }
+  .key { display: inline-block; width: 14px; height: 0; border-top: 2px solid; border-radius: 1px;
+         vertical-align: middle; margin-right: 6px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px 14px;
+           margin-top: 10px; }
+  .tile .label { color: var(--ink-2); font-size: 12px; }
+  .tile .value { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .meter { height: 8px; border-radius: 4px; background: var(--grid); margin-top: 10px; overflow: hidden; }
+  .meter > div { height: 100%; border-radius: 4px; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  svg text.label { fill: var(--ink-2); font-size: 12px; }
+  .chart { position: relative; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+         border: 1px solid var(--axis); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+         white-space: nowrap; box-shadow: 0 2px 8px rgb(0 0 0 / .12); display: none; z-index: 2; }
+  .tip b { font-variant-numeric: tabular-nums; }
+  .tip .who { color: var(--ink-2); }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin-bottom: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--grid); }
+  th { color: var(--ink-2); font-weight: 600; }
+  th:first-child, td:first-child { text-align: left; }
+  td.picked { font-weight: 650; }
+  details summary { cursor: pointer; color: var(--ink-2); font-size: 13px; margin-top: 8px; }
+  video { width: 100%; border-radius: 6px; background: #000; display: block; }
+  pre { margin: 0; font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace; color: var(--ink-2);
+        white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>DexVision training</h1>
+    <label>Task <select id="task" aria-label="Task"></select></label>
+    <span id="stamp">connecting</span>
+  </header>
+  <div id="runs" class="grid"></div>
+  <section class="card">
+    <h2>Val successes per checkpoint</h2>
+    <p class="sub" id="val-sub">Each saved checkpoint is evaluated on the same val episodes; the bars are 95% intervals.</p>
+    <div class="legend" id="val-legend"></div>
+    <div class="chart" id="val-chart"></div>
+    <details><summary>Table</summary><div id="val-table"></div></details>
+  </section>
+  <section>
+    <div id="videos" class="grid"></div>
+  </section>
+  <section class="card">
+    <h2 id="log-name">Log</h2>
+    <pre id="log" class="empty">no log yet</pre>
+  </section>
+</main>
+<script>
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const COLORS = ["var(--series-1)", "var(--series-2)"];
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, text) => {
+  const node = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+const html = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+const fmtSteps = (s) => s >= 1000 ? (s / 1000) + "k" : String(s);
+const fmtLoss = (v) => v >= 0.1 ? v.toFixed(3) : v >= 0.001 ? v.toFixed(4) : v.toExponential(1);
+function fmtDuration(seconds) {
+  if (!isFinite(seconds) || seconds < 0) return "–";
+  const m = Math.round(seconds / 60);
+  return m >= 60 ? Math.floor(m / 60) + " h " + String(m % 60).padStart(2, "0") + " min" : m + " min";
+}
+
+// A line chart with a crosshair. series: [{name, color, points: [[x, y, lo?, hi?]], dots}]
+function lineChart(host, series, opt) {
+  const W = opt.width || 560, H = opt.height || 220, m = { l: 46, r: opt.endLabels ? 96 : 12, t: 8, b: 26 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  host.replaceChildren();
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opt.label });
+  const [x0, x1] = opt.x, [y0, y1] = opt.y;
+  const ty = opt.log ? Math.log10 : (v) => v;
+  const X = (v) => m.l + (v - x0) / (x1 - x0) * iw;
+  const Y = (v) => m.t + (1 - (ty(v) - ty(y0)) / (ty(y1) - ty(y0))) * ih;
+  for (const t of opt.yTicks) {
+    svg.append(el("line", { x1: m.l, x2: m.l + iw, y1: Y(t), y2: Y(t), stroke: "var(--grid)", "stroke-width": 1 }));
+    svg.append(el("text", { x: m.l - 6, y: Y(t) + 4, "text-anchor": "end" }, opt.yFormat(t)));
+  }
+  for (const t of opt.xTicks)
+    svg.append(el("text", { x: X(t), y: H - 8, "text-anchor": "middle" }, fmtSteps(t)));
+  svg.append(el("line", { x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih, stroke: "var(--axis)", "stroke-width": 1 }));
+  const clampY = (v) => Math.min(Math.max(v, y0), y1);
+  for (const s of series) {
+    if (!s.points.length) continue;
+    if (s.dots) for (const [x, , lo, hi] of s.points)
+      svg.append(el("line", { x1: X(x), x2: X(x), y1: Y(lo), y2: Y(hi), stroke: s.color, "stroke-width": 1.5, opacity: .55 }));
+    svg.append(el("path", { d: s.points.map(([x, y], i) => (i ? "L" : "M") + X(x).toFixed(1) + " " + Y(clampY(y)).toFixed(1)).join(""),
+                            fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    if (s.dots) for (const [x, y] of s.points)
+      svg.append(el("circle", { cx: X(x), cy: Y(y), r: 4, fill: s.color, stroke: "var(--surface)", "stroke-width": 2 }));
+  }
+  if (opt.endLabels) {   // one label per line end, pushed apart when the ends are close
+    const ends = series.filter((s) => s.points.length).map((s) => {
+      const [x, y] = s.points[s.points.length - 1];
+      return { s, x: X(x), y: Y(y), at: Y(y), text: `${s.name} ${opt.yFormat(y)}` };
+    }).sort((a, b) => a.at - b.at);
+    for (let i = 1; i < ends.length; i++) if (ends[i].at - ends[i - 1].at < 14) ends[i].at = ends[i - 1].at + 14;
+    for (const e of ends) {
+      const lx = Math.min(e.x + 10, m.l + iw + 10);
+      if (Math.abs(e.at - e.y) > 1) svg.append(el("line", { x1: e.x + 5, y1: e.y, x2: lx - 2, y2: e.at, stroke: "var(--axis)", "stroke-width": 1 }));
+      svg.append(el("text", { x: lx, y: e.at + 4, class: "label" }, e.text));
+    }
+  }
+  const cross = el("line", { y1: m.t, y2: m.t + ih, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden" });
+  const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent", tabindex: 0 });
+  svg.append(cross, hit);
+  const tip = html("div", "tip");
+  host.append(svg, tip);
+  const xs = [...new Set(series.flatMap((s) => s.points.map((p) => p[0])))].sort((a, b) => a - b);
+  function show(px) {
+    if (!xs.length) return;
+    const box = svg.getBoundingClientRect();
+    const want = x0 + ((px - box.left) / box.width * W - m.l) / iw * (x1 - x0);
+    const x = xs.reduce((best, v) => Math.abs(v - want) < Math.abs(best - want) ? v : best);
+    cross.setAttribute("x1", X(x)); cross.setAttribute("x2", X(x)); cross.setAttribute("visibility", "visible");
+    tip.replaceChildren(html("div", "who", "step " + x.toLocaleString()));
+    for (const s of series) {
+      const p = s.points.find((q) => q[0] === x);
+      if (!p) continue;
+      const row = html("div");
+      const key = html("span", "key"); key.style.borderColor = s.color;
+      row.append(key, html("b", "", opt.tipFormat(p)), html("span", "who", " " + s.name));
+      tip.append(row);
+    }
+    tip.style.display = "block";
+    const left = X(x) / W * box.width;
+    tip.style.left = Math.min(left + 12, box.width - tip.offsetWidth - 4) + "px";
+    tip.style.top = "8px";
+  }
+  const hide = () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); };
+  hit.addEventListener("pointermove", (e) => show(e.clientX));
+  hit.addEventListener("pointerleave", hide);
+  hit.addEventListener("focus", () => { const b = svg.getBoundingClientRect(); show(b.right); });
+  hit.addEventListener("blur", hide);
+}
+
+function stepTicks(total) { return [0, 1, 2, 3, 4].map((i) => Math.round(total * i / 4)); }
+function logTicks(lo, hi) {
+  const ticks = [];
+  for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) ticks.push(10 ** e);
+  return ticks;
+}
+
+function runCard(run, color, now) {
+  const card = html("div", "card");
+  const title = html("h2");
+  const key = html("span", "key"); key.style.borderColor = color;
+  title.append(key, document.createTextNode(`${run.method} (seed ${run.seed})`));
+  card.append(title);
+  const last = run.loss[run.loss.length - 1];
+  const step = last ? last[0] : 0;
+  const finished = step >= run.total_steps;
+  const live = now - run.updated < 180;
+  card.append(html("p", "sub", finished ? "Training finished" : live ? "Training" : "No new steps for " + fmtDuration(now - run.updated)));
+  const tiles = html("div", "tiles");
+  const tile = (label, value) => { const t = html("div", "tile"); t.append(html("div", "label", label), html("div", "value", value)); tiles.append(t); };
+  tile("Step", `${fmtSteps(step)} / ${fmtSteps(run.total_steps)}`);
+  tile("Loss", last ? fmtLoss(last[1]) : "–");
+  tile("Steps per second", run.steps_per_s ? run.steps_per_s.toFixed(1) : "–");
+  tile("Time left", finished ? "done" : run.steps_per_s && live ? fmtDuration((run.total_steps - step) / run.steps_per_s) : "–");
+  card.append(tiles);
+  const meter = html("div", "meter"); const fill = html("div");
+  fill.style.width = (100 * step / run.total_steps).toFixed(1) + "%"; fill.style.background = color;
+  meter.append(fill); meter.setAttribute("role", "progressbar"); meter.setAttribute("aria-valuenow", Math.round(100 * step / run.total_steps));
+  card.append(meter);
+  card.append(html("p", "sub", ""));
+  const note = html("p", "sub", "Training loss, mean of each 100 steps (log scale)"); note.style.marginTop = "12px";
+  const chart = html("div", "chart");
+  card.append(note, chart);
+  if (run.loss.length > 1) {
+    const values = run.loss.map((r) => r[1]);
+    const lo = 10 ** Math.floor(Math.log10(Math.min(...values))), hi = 10 ** Math.ceil(Math.log10(Math.max(...values)));
+    lineChart(chart, [{ name: run.method, color, points: run.loss }], {
+      label: `Training loss of ${run.method}`, x: [0, run.total_steps], y: [lo, hi === lo ? lo * 10 : hi], log: true,
+      xTicks: stepTicks(run.total_steps), yTicks: logTicks(lo, hi === lo ? lo * 10 : hi),
+      yFormat: (v) => String(Number(v.toPrecision(1))), tipFormat: (p) => fmtLoss(p[1]) });
+  } else chart.append(html("p", "empty", "no steps logged yet"));
+  return card;
+}
+
+function valSection(runs) {
+  const total = Math.max(...runs.map((r) => r.total_steps));
+  const n = Math.max(0, ...runs.flatMap((r) => r.val.map((v) => v.n)));
+  const legend = $("val-legend"); legend.replaceChildren();
+  const series = runs.map((run, i) => {
+    const item = html("span"); const key = html("span", "key"); key.style.borderColor = COLORS[i % 2];
+    item.append(key, document.createTextNode(run.method)); legend.append(item);
+    return { name: run.method, color: COLORS[i % 2], dots: true,
+             points: run.val.map((v) => [v.step, v.successes, v.ci95[0] * v.n, v.ci95[1] * v.n]) };
+  });
+  if (!n) { $("val-chart").replaceChildren(html("p", "empty", "no checkpoint evaluated yet")); $("val-table").replaceChildren(); return; }
+  lineChart($("val-chart"), series, {
+    label: "Val successes per checkpoint", width: Math.max(420, $("val-chart").clientWidth), height: 260, x: [0, total], y: [0, n], endLabels: true,
+    xTicks: stepTicks(total), yTicks: [0, n / 4, n / 2, 3 * n / 4, n], yFormat: (v) => String(Math.round(v)),
+    tipFormat: (p) => `${p[1]} / ${n}` });
+  const table = html("table"); const head = html("tr"); head.append(html("th", "", "Checkpoint step"));
+  for (const run of runs) head.append(html("th", "", `${run.method}, successes of ${n}`));
+  table.append(head);
+  const steps = [...new Set(runs.flatMap((r) => r.val.map((v) => v.step)))].sort((a, b) => a - b);
+  for (const step of steps) {
+    const row = html("tr"); row.append(html("td", "", step.toLocaleString()));
+    for (const run of runs) {
+      const v = run.val.find((q) => q.step === step);
+      const cell = html("td", run.selected === step ? "picked" : "",
+        v ? `${v.successes} [${(100 * v.ci95[0]).toFixed(0)}–${(100 * v.ci95[1]).toFixed(0)}%]${run.selected === step ? "  selected" : ""}` : "–");
+      row.append(cell);
+    }
+    table.append(row);
+  }
+  $("val-table").replaceChildren(table);
+}
+
+const shown = {};   // video url per run, so a playing video is not reloaded on every refresh
+function videoSection(runs, videosOn) {
+  const host = $("videos");
+  for (const run of runs) {
+    let card = host.querySelector(`[data-run="${CSS.escape(run.name)}"]`);
+    if (!card) {
+      card = html("div", "card"); card.dataset.run = run.name;
+      card.append(html("h2", "", `${run.method}: newest checkpoint, first val episode`), html("p", "sub"), html("div"));
+      host.append(card);
+    }
+    const [, sub, body] = card.children;
+    if (!run.video) { sub.textContent = !videosOn ? "episode videos are switched off" : run.checkpoints.length ? "recording the episode" : "no checkpoint saved yet"; continue; }
+    sub.textContent = `Step ${run.video.step.toLocaleString()}, outcome: ${run.video.outcome}`;
+    if (shown[run.name] !== run.video.url) {
+      shown[run.name] = run.video.url;
+      const video = document.createElement("video");
+      video.controls = true; video.loop = true; video.muted = true; video.autoplay = true; video.playsInline = true;
+      video.src = run.video.url;
+      body.replaceChildren(video);
+    }
+  }
+  for (const card of [...host.children]) if (!runs.some((r) => r.name === card.dataset.run)) { delete shown[card.dataset.run]; card.remove(); }
+}
+
+let chosen = null;
+function render(state) {
+  const names = Object.keys(state.tasks);
+  const select = $("task");
+  if (!names.length) { $("runs").replaceChildren(html("p", "empty", "No training runs found.")); return; }
+  const newest = names.reduce((a, b) => Math.max(...state.tasks[a].map((r) => r.updated)) >= Math.max(...state.tasks[b].map((r) => r.updated)) ? a : b);
+  if (select.options.length !== names.length) {
+    select.replaceChildren(...names.map((n) => { const o = html("option", "", n); o.value = n; return o; }));
+    select.value = chosen && names.includes(chosen) ? chosen : newest;
+  }
+  chosen = select.value;
+  const runs = state.tasks[chosen];
+  $("runs").replaceChildren(...runs.map((run, i) => runCard(run, COLORS[i % 2], state.time)));
+  valSection(runs);
+  videoSection(runs, state.videos);
+  if (state.log) {
+    $("log-name").textContent = "Log: " + state.log.name;
+    const pre = $("log"); pre.className = ""; pre.textContent = state.log.lines.join("\n"); pre.scrollTop = pre.scrollHeight;
+  }
+}
+
+async function refresh() {
+  try {
+    const state = await (await fetch("/api/state")).json();
+    render(state);
+    $("stamp").textContent = "updated " + new Date().toLocaleTimeString();
+  } catch (error) {
+    $("stamp").textContent = "server not reachable; retrying";
+  }
+}
+$("task").addEventListener("change", () => { chosen = $("task").value; refresh(); });
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>
