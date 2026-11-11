@@ -36,8 +36,8 @@ def test_collect_reads_loss_checkpoints_val_and_log(runs):
     assert run["checkpoints"] == [1000, 2000, 3000]
     assert [(v["step"], v["successes"]) for v in run["val"]] == [(1000, 3), (2000, 7)]
     assert run["selected"] == 2000 and run["video"] is None
-    assert state["log"] == {"name": "run.log",
-                            "lines": ["first", "progress 1", "progress 2", "last"]}
+    assert state["logs"] == [{"name": "run.log",
+                              "lines": ["first", "progress 1", "progress 2", "last"]}]
 
 
 def test_video_names_give_the_outcome():

@@ -34,6 +34,7 @@
   .card { background: var(--surface); border: 1px solid var(--grid); border-radius: 10px;
           padding: 14px 16px; min-width: 0; }
   section { margin-top: 14px; }
+  h2 + pre { margin-top: 6px; }
   .key { display: inline-block; width: 14px; height: 0; border-top: 2px solid; border-radius: 1px;
          vertical-align: middle; margin-right: 6px; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px 14px;
@@ -82,10 +83,7 @@
   <section>
     <div id="videos" class="grid"></div>
   </section>
-  <section class="card">
-    <h2 id="log-name">Log</h2>
-    <pre id="log" class="empty">no log yet</pre>
-  </section>
+  <section id="logs"></section>
 </main>
 <script>
 "use strict";
@@ -299,10 +297,12 @@ function render(state) {
   $("runs").replaceChildren(...runs.map((run, i) => runCard(run, COLORS[i % 2], state.time)));
   valSection(runs);
   videoSection(runs, state.videos);
-  if (state.log) {
-    $("log-name").textContent = "Log: " + state.log.name;
-    const pre = $("log"); pre.className = ""; pre.textContent = state.log.lines.join("\n"); pre.scrollTop = pre.scrollHeight;
-  }
+  $("logs").replaceChildren(...state.logs.map((log) => {
+    const card = html("div", "card"); card.style.marginTop = "14px";
+    const pre = html("pre", "", log.lines.join("\n"));
+    card.append(html("h2", "", "Log: " + log.name), pre);
+    return card;
+  }));
 }
 
 async function refresh() {

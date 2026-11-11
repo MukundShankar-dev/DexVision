@@ -2,7 +2,7 @@
 
 Everything shown is read from files the pipeline already writes: ``train_log.csv`` (loss),
 ``step_*.pt`` (checkpoints), ``val_step_*.json`` and ``selection.json`` (selection on val) in
-``runs/<task>/<method>_seed<k>/``, and the newest log in ``runs/logs/``. The only thing the
+``runs/<task>/<method>_seed<k>/``, and the logs being written in ``runs/logs/``. The only thing the
 dashboard adds is one recorded val episode of each run's newest checkpoint, under
 ``runs/dashboard/``; it never writes into a run directory or ``results/``.
 """
@@ -55,20 +55,24 @@ def read_run(run: Path, total_steps: int) -> dict:
             "updated": (run / "train_log.csv").stat().st_mtime}
 
 
-def latest_log(logs: Path, lines: int = 30) -> dict | None:
-    """The tail of the most recently written log file."""
-    files = [p for p in logs.glob("*.log") if p.is_file()] if logs.is_dir() else []
-    if not files:
-        return None
-    path = max(files, key=lambda p: p.stat().st_mtime)
-    with path.open("rb") as fh:
-        fh.seek(max(0, path.stat().st_size - 20000))
-        text = fh.read().decode("utf-8", errors="replace").replace("\r", "\n")
-    return {"name": path.name, "lines": [x for x in text.splitlines() if x.strip()][-lines:]}
+def recent_logs(logs: Path, lines: int = 14, within_s: float = 900.0, most: int = 4) -> list[dict]:
+    """The tails of the log files still being written (the newest first), or of the newest one
+    when none was written in the last ``within_s`` seconds."""
+    files = sorted((p for p in logs.glob("*.log") if p.is_file()),
+                   key=lambda p: p.stat().st_mtime, reverse=True) if logs.is_dir() else []
+    live = [p for p in files if time.time() - p.stat().st_mtime < within_s][:most] or files[:1]
+    tails = []
+    for path in live:
+        with path.open("rb") as fh:
+            fh.seek(max(0, path.stat().st_size - 20000))
+            text = fh.read().decode("utf-8", errors="replace").replace("\r", "\n")
+        tails.append({"name": path.name,
+                      "lines": [x for x in text.splitlines() if x.strip()][-lines:]})
+    return tails
 
 
 def collect(runs_root: Path, videos: dict | None = None) -> dict:
-    """Everything the page shows: {"tasks": {task: [run, ...]}, "log": ..., "time": ...}.
+    """Everything the page shows: {"tasks": {task: [run, ...]}, "logs": [...], "time": ...}.
     ``videos``: the recorded episodes by (task, run), or None when recording is off."""
     total = int(yaml.safe_load(METHOD_CONFIG.read_text(encoding="utf-8"))["training"]["steps"])
     tasks: dict[str, list[dict]] = {}
@@ -76,7 +80,7 @@ def collect(runs_root: Path, videos: dict | None = None) -> dict:
         run = read_run(log.parent, total)
         run["video"] = (videos or {}).get((log.parent.parent.name, run["name"]))
         tasks.setdefault(log.parent.parent.name, []).append(run)
-    return {"tasks": tasks, "log": latest_log(runs_root / "logs"), "time": time.time(),
+    return {"tasks": tasks, "logs": recent_logs(runs_root / "logs"), "time": time.time(),
             "videos": videos is not None}
 
 
