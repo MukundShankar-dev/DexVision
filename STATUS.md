@@ -57,14 +57,10 @@ Successes out of 200:
 | push | 192 | 89 | 79 | 131 | 48 | 17 (from 188) |
 | place | 180 | 38 | 43 | 102 | 27 | 2 (from 156) |
 
-- Every drop is significant (McNemar p < 1e-13). On pick and press the
-  hand mostly never touches the target. No pattern by brightness, contrast
-  or texture.
-- Existing encoders on varied frames (frozen probe): position error
-  3.1–5.2 cm, close to guessing the mean at 3.0–7.0 cm (unvaried: 0.15–1.2).
-- Scratch probe on varied frames: position 0.39–1.17 cm (unvaried
-  0.10–0.36), so position is in the pixels. Object identity mostly is not:
-  49% pick, 51% place, 29% push; the two pucks are told apart at chance.
+- Every drop is significant (McNemar p < 1e-13); no pattern by brightness,
+  contrast or texture. Existing encoders lose the object on varied frames
+  (frozen probe 3.1–5.2 cm, the mean guess is 3.0–7.0), but a scratch probe
+  on the same frames reaches 0.39–1.17 cm: position is in the pixels.
 
 **A3 gate (approved 2026-11-11; pick first):** spec `pick_vision_varied` (all
 factors, test seeds 340000–350000), trained on the 982 varied demos, method
@@ -86,8 +82,8 @@ Selected checkpoints, successes out of 200 paired val seeds:
 | Unvaried scenes (V3 policy) | 70 (191) | 120 (200) |
 
 - **Both gate parts fail.** Varied val is far below 172/200, and blanking
-  the cameras costs Diffusion little and MLP-BC nothing: the policies
-  barely use the images.
+  the cameras costs Diffusion 19 successes and MLP-BC 8 (blind, Diffusion
+  touches the object in 102 episodes instead of 157; MLP-BC is unchanged).
 - New encoders on varied val frames (frozen probe): position error 5.2 and
   4.7 cm, the mean guess is 4.9; object identity 21% and 18%, chance is
   17%. No better than the V3 encoders (4.2 and 4.8 cm). The scratch probe
@@ -95,9 +91,15 @@ Selected checkpoints, successes out of 200 paired val seeds:
 - Diffusion failures: contact without grasp 86 of 146, no contact 43.
   Held-out object textures are no worse (10/31 against 44/169). Light puck
   1/36, heavy puck 5/34.
-- Untested explanation: each demo has one unique look, so the network can
-  tell demos apart by look and fit their actions without locating the
-  object.
+- **Training scenes** (first 200 train seeds, `--split train`): Diffusion
+  114/200, CI [50%, 64%]; MLP-BC 171/200, CI [80%, 90%]. Both are far above
+  their val scores, so the policies learned their training looks without
+  generalising; Diffusion also does not fully fit them in 60k steps.
+- **Steering** (scratch script, 40–60 val episodes; slope of palm xy at
+  step 25, before contact, against object xy): V3 policy on unvaried
+  scenes 0.96 and 0.75; new Diffusion −0.03 and 0.18; new MLP-BC −0.02 and
+  0.47; cameras blanked, about 0. The new policies barely steer to the
+  object. Blind policies still touch it because objects spread only 2–3 cm.
 
 ## Caveats
 

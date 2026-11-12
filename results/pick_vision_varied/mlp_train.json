@@ -1,0 +1,6909 @@
+{
+ "task": "pick_vision_varied",
+ "skill": "pick",
+ "policy": "mlp",
+ "split": "train",
+ "overall": {
+  "successes": 171,
+  "n": 200,
+  "ci95": [
+   0.7995,
+   0.8971
+  ]
+ },
+ "by_object": {
+  "block_large": {
+   "successes": 21,
+   "n": 24,
+   "ci95": [
+    0.69,
+    0.9566
+   ]
+  },
+  "block_small": {
+   "successes": 34,
+   "n": 38,
+   "ci95": [
+    0.7587,
+    0.9583
+   ]
+  },
+  "cylinder_short": {
+   "successes": 30,
+   "n": 31,
+   "ci95": [
+    0.8381,
+    0.9943
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 31,
+   "n": 39,
+   "ci95": [
+    0.6447,
+    0.8922
+   ]
+  },
+  "puck_heavy": {
+   "successes": 29,
+   "n": 39,
+   "ci95": [
+    0.5892,
+    0.8543
+   ]
+  },
+  "puck_light": {
+   "successes": 26,
+   "n": 29,
+   "ci95": [
+    0.7361,
+    0.9642
+   ]
+  }
+ },
+ "failures": {
+  "timeout": 27,
+  "object_fell_off_table": 2
+ },
+ "episodes": [
+  {
+   "seed": 0,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 25.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0251,
+    "shift_before_grasp_m": 0.0044,
+    "start_x_m": -0.049,
+    "start_y_m": -0.0276,
+    "start_yaw_rad": -2.8841
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.487,
+    "key_elevation_deg": 58.1,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 60.1
+   }
+  },
+  {
+   "seed": 1,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 20.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0267,
+    "shift_before_grasp_m": 0.0058,
+    "start_x_m": -0.0591,
+    "start_y_m": 0.0541,
+    "start_yaw_rad": -2.2358
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.566,
+    "key_elevation_deg": 59.4,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.3
+   }
+  },
+  {
+   "seed": 2,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 26.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 28,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0193,
+    "shift_before_grasp_m": 0.0011,
+    "start_x_m": -0.0791,
+    "start_y_m": -0.0242,
+    "start_yaw_rad": 1.9743
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.773,
+    "key_elevation_deg": 77.9,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.0
+   }
+  },
+  {
+   "seed": 3,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 20.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 41,
+    "min_grasp_xy_m": 0.0193,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0931,
+    "start_y_m": -0.0316,
+    "start_yaw_rad": 1.893
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.476,
+    "key_elevation_deg": 73.4,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 14.4
+   }
+  },
+  {
+   "seed": 4,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 32.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.0183,
+    "shift_before_grasp_m": 0.0066,
+    "start_x_m": -0.0246,
+    "start_y_m": 0.0014,
+    "start_yaw_rad": 2.9923
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.826,
+    "key_elevation_deg": 72.5,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 42.4
+   }
+  },
+  {
+   "seed": 5,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0697,
+    "max_hand_table_force_n": 27.4,
+    "max_dwell_steps": 6,
+    "first_contact_step": 40,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.013,
+    "shift_before_grasp_m": 0.0093,
+    "start_x_m": -0.0356,
+    "start_y_m": 0.037,
+    "start_yaw_rad": 0.0963
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.821,
+    "key_elevation_deg": 59.3,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 18.8
+   }
+  },
+  {
+   "seed": 6,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0777,
+    "max_hand_table_force_n": 31.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0274,
+    "shift_before_grasp_m": 0.0069,
+    "start_x_m": -0.0569,
+    "start_y_m": -0.0188,
+    "start_yaw_rad": -0.8227
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.881,
+    "key_elevation_deg": 44.2,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.4
+   }
+  },
+  {
+   "seed": 7,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 18.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0219,
+    "shift_before_grasp_m": 0.0002,
+    "start_x_m": -0.05,
+    "start_y_m": 0.0477,
+    "start_yaw_rad": 1.7322
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.81,
+    "key_elevation_deg": 60.0,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 22.1
+   }
+  },
+  {
+   "seed": 8,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0026,
+    "max_hand_table_force_n": 18.4,
+    "max_dwell_steps": 0,
+    "first_contact_step": 29,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.017,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0738,
+    "start_y_m": 0.0585,
+    "start_yaw_rad": -1.1391
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.784,
+    "key_elevation_deg": 67.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 58.1
+   }
+  },
+  {
+   "seed": 9,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 25.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0075,
+    "shift_before_grasp_m": 0.0206,
+    "start_x_m": -0.0304,
+    "start_y_m": -0.0256,
+    "start_yaw_rad": 0.6481
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.834,
+    "key_elevation_deg": 51.3,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 75.3
+   }
+  },
+  {
+   "seed": 10,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0729,
+    "max_hand_table_force_n": 10.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 50,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0381,
+    "shift_before_grasp_m": 0.0024,
+    "start_x_m": -0.0235,
+    "start_y_m": -0.0351,
+    "start_yaw_rad": 2.0637
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.446,
+    "key_elevation_deg": 71.3,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 37.9
+   }
+  },
+  {
+   "seed": 11,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0723,
+    "max_hand_table_force_n": 22.2,
+    "max_dwell_steps": 9,
+    "first_contact_step": 43,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0034,
+    "shift_before_grasp_m": 0.0038,
+    "start_x_m": -0.0897,
+    "start_y_m": -0.0001,
+    "start_yaw_rad": 0.6377
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.569,
+    "key_elevation_deg": 57.8,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 105.0
+   }
+  },
+  {
+   "seed": 12,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.01,
+    "max_hand_table_force_n": 20.4,
+    "max_dwell_steps": 0,
+    "first_contact_step": 42,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0199,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.0799,
+    "start_y_m": 0.0536,
+    "start_yaw_rad": -1.9521
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.816,
+    "key_elevation_deg": 42.5,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.4
+   }
+  },
+  {
+   "seed": 13,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "max_hand_table_force_n": 19.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 51,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.015,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0308,
+    "start_y_m": 0.0426,
+    "start_yaw_rad": 1.9542
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.631,
+    "key_elevation_deg": 74.8,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 85.5
+   }
+  },
+  {
+   "seed": 14,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 31.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.017,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.0335,
+    "start_y_m": -0.0167,
+    "start_yaw_rad": 1.2738
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.571,
+    "key_elevation_deg": 58.1,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 30.4
+   }
+  },
+  {
+   "seed": 15,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 16.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0104,
+    "shift_before_grasp_m": 0.011,
+    "start_x_m": -0.0446,
+    "start_y_m": 0.0379,
+    "start_yaw_rad": -0.9776
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.978,
+    "key_elevation_deg": 57.2,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 52.3
+   }
+  },
+  {
+   "seed": 16,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 27.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0196,
+    "shift_before_grasp_m": 0.003,
+    "start_x_m": -0.0546,
+    "start_y_m": -0.0083,
+    "start_yaw_rad": -2.5505
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.833,
+    "key_elevation_deg": 68.6,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 50.2
+   }
+  },
+  {
+   "seed": 17,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 28.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 60,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0142,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0324,
+    "start_y_m": -0.0407,
+    "start_yaw_rad": 0.3628
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.511,
+    "key_elevation_deg": 69.5,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.5
+   }
+  },
+  {
+   "seed": 18,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.073,
+    "max_hand_table_force_n": 20.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.043,
+    "shift_before_grasp_m": 0.0061,
+    "start_x_m": -0.0681,
+    "start_y_m": 0.0261,
+    "start_yaw_rad": -1.3771
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.55,
+    "key_elevation_deg": 66.7,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 45.9
+   }
+  },
+  {
+   "seed": 19,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0694,
+    "max_hand_table_force_n": 13.0,
+    "max_dwell_steps": 7,
+    "first_contact_step": 32,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0136,
+    "shift_before_grasp_m": 0.0287,
+    "start_x_m": -0.0664,
+    "start_y_m": 0.0511,
+    "start_yaw_rad": -1.4208
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.537,
+    "key_elevation_deg": 45.7,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 66.1
+   }
+  },
+  {
+   "seed": 20,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 33.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0187,
+    "shift_before_grasp_m": 0.0142,
+    "start_x_m": -0.0776,
+    "start_y_m": -0.0047,
+    "start_yaw_rad": -2.3768
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.528,
+    "key_elevation_deg": 72.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 25.9
+   }
+  },
+  {
+   "seed": 21,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0767,
+    "max_hand_table_force_n": 20.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0435,
+    "shift_before_grasp_m": 0.003,
+    "start_x_m": -0.0375,
+    "start_y_m": 0.0127,
+    "start_yaw_rad": 1.3182
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.763,
+    "key_elevation_deg": 73.3,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 59.7
+   }
+  },
+  {
+   "seed": 22,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0728,
+    "max_hand_table_force_n": 20.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0355,
+    "shift_before_grasp_m": 0.0081,
+    "start_x_m": -0.0707,
+    "start_y_m": -0.0361,
+    "start_yaw_rad": -2.5852
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.895,
+    "key_elevation_deg": 67.2,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.5
+   }
+  },
+  {
+   "seed": 23,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 20.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0332,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0445,
+    "start_y_m": 0.017,
+    "start_yaw_rad": -2.3333
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.743,
+    "key_elevation_deg": 67.3,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 43.4
+   }
+  },
+  {
+   "seed": 24,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 26.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0138,
+    "shift_before_grasp_m": 0.0146,
+    "start_x_m": -0.0736,
+    "start_y_m": -0.0114,
+    "start_yaw_rad": 0.4696
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.877,
+    "key_elevation_deg": 54.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 49.6
+   }
+  },
+  {
+   "seed": 25,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 28.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0113,
+    "shift_before_grasp_m": 0.0011,
+    "start_x_m": -0.0871,
+    "start_y_m": -0.06,
+    "start_yaw_rad": -1.7807
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.981,
+    "key_elevation_deg": 80.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.7
+   }
+  },
+  {
+   "seed": 26,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0014,
+    "max_hand_table_force_n": 15.7,
+    "max_dwell_steps": 0,
+    "first_contact_step": 47,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0414,
+    "shift_before_grasp_m": 0.0028,
+    "start_x_m": -0.0607,
+    "start_y_m": -0.0319,
+    "start_yaw_rad": -2.7168
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.701,
+    "key_elevation_deg": 50.4,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 31.1
+   }
+  },
+  {
+   "seed": 27,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 33.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0294,
+    "shift_before_grasp_m": 0.0173,
+    "start_x_m": -0.0442,
+    "start_y_m": -0.0223,
+    "start_yaw_rad": -2.3801
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.685,
+    "key_elevation_deg": 47.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 100.8
+   }
+  },
+  {
+   "seed": 28,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0764,
+    "max_hand_table_force_n": 14.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0394,
+    "shift_before_grasp_m": 0.0054,
+    "start_x_m": -0.0319,
+    "start_y_m": 0.0462,
+    "start_yaw_rad": 1.6695
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.755,
+    "key_elevation_deg": 73.8,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.3
+   }
+  },
+  {
+   "seed": 29,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 14.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0319,
+    "shift_before_grasp_m": 0.0004,
+    "start_x_m": -0.096,
+    "start_y_m": 0.0008,
+    "start_yaw_rad": 0.1209
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.669,
+    "key_elevation_deg": 82.9,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 84.5
+   }
+  },
+  {
+   "seed": 30,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 20.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 28,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.021,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0811,
+    "start_y_m": -0.0085,
+    "start_yaw_rad": -2.5618
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.457,
+    "key_elevation_deg": 51.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 32.2
+   }
+  },
+  {
+   "seed": 31,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 24.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 61,
+    "min_grasp_xy_m": 0.0105,
+    "shift_before_grasp_m": 0.0049,
+    "start_x_m": -0.0277,
+    "start_y_m": -0.0519,
+    "start_yaw_rad": 1.0853
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.645,
+    "key_elevation_deg": 68.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 101.6
+   }
+  },
+  {
+   "seed": 32,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.076,
+    "max_hand_table_force_n": 9.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 39,
+    "min_grasp_xy_m": 0.0484,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0872,
+    "start_y_m": 0.0087,
+    "start_yaw_rad": -0.772
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.893,
+    "key_elevation_deg": 47.6,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 42.0
+   }
+  },
+  {
+   "seed": 33,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 27.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0186,
+    "shift_before_grasp_m": 0.0055,
+    "start_x_m": -0.0645,
+    "start_y_m": 0.0082,
+    "start_yaw_rad": 2.5642
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.93,
+    "key_elevation_deg": 42.6,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 76.2
+   }
+  },
+  {
+   "seed": 34,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 69,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0769,
+    "max_hand_table_force_n": 17.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 30,
+    "first_grasp_step": 35,
+    "min_grasp_xy_m": 0.0357,
+    "shift_before_grasp_m": 0.0089,
+    "start_x_m": -0.0997,
+    "start_y_m": 0.0447,
+    "start_yaw_rad": -1.6164
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.905,
+    "key_elevation_deg": 77.0,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.6
+   }
+  },
+  {
+   "seed": 35,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.067,
+    "max_hand_table_force_n": 30.3,
+    "max_dwell_steps": 5,
+    "first_contact_step": 34,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0318,
+    "shift_before_grasp_m": 0.013,
+    "start_x_m": -0.073,
+    "start_y_m": -0.005,
+    "start_yaw_rad": 2.7332
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.462,
+    "key_elevation_deg": 83.8,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 26.7
+   }
+  },
+  {
+   "seed": 36,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.076,
+    "max_hand_table_force_n": 28.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0089,
+    "shift_before_grasp_m": 0.0017,
+    "start_x_m": -0.0855,
+    "start_y_m": -0.0122,
+    "start_yaw_rad": 2.4745
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.575,
+    "key_elevation_deg": 81.9,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 63.9
+   }
+  },
+  {
+   "seed": 37,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 19.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0211,
+    "shift_before_grasp_m": 0.0098,
+    "start_x_m": -0.0437,
+    "start_y_m": 0.0194,
+    "start_yaw_rad": -2.7081
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.515,
+    "key_elevation_deg": 83.6,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 44.5
+   }
+  },
+  {
+   "seed": 38,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 10.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0257,
+    "shift_before_grasp_m": 0.0041,
+    "start_x_m": -0.0611,
+    "start_y_m": -0.03,
+    "start_yaw_rad": 1.3847
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.992,
+    "key_elevation_deg": 71.8,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 100.8
+   }
+  },
+  {
+   "seed": 39,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.017,
+    "max_hand_table_force_n": 16.8,
+    "max_dwell_steps": 0,
+    "first_contact_step": 26,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.019,
+    "shift_before_grasp_m": 0.0247,
+    "start_x_m": -0.0599,
+    "start_y_m": 0.0047,
+    "start_yaw_rad": -2.2879
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.535,
+    "key_elevation_deg": 78.8,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 12,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 55.2
+   }
+  },
+  {
+   "seed": 40,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 15.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0407,
+    "shift_before_grasp_m": 0.007,
+    "start_x_m": -0.0416,
+    "start_y_m": 0.0232,
+    "start_yaw_rad": 2.7767
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.661,
+    "key_elevation_deg": 80.4,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 62.8
+   }
+  },
+  {
+   "seed": 41,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 21.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0071,
+    "shift_before_grasp_m": 0.005,
+    "start_x_m": -0.0237,
+    "start_y_m": 0.0322,
+    "start_yaw_rad": -2.3501
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.659,
+    "key_elevation_deg": 83.2,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 28.1
+   }
+  },
+  {
+   "seed": 42,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0296,
+    "shift_before_grasp_m": 0.0178,
+    "start_x_m": -0.0381,
+    "start_y_m": -0.0073,
+    "start_yaw_rad": 2.2531
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.593,
+    "key_elevation_deg": 82.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 90.7
+   }
+  },
+  {
+   "seed": 43,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0156,
+    "max_hand_table_force_n": 14.3,
+    "max_dwell_steps": 0,
+    "first_contact_step": 38,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.016,
+    "shift_before_grasp_m": 0.0268,
+    "start_x_m": -0.0478,
+    "start_y_m": -0.0547,
+    "start_yaw_rad": -3.0157
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.7,
+    "key_elevation_deg": 74.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 51.4
+   }
+  },
+  {
+   "seed": 44,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 14.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 39,
+    "min_grasp_xy_m": 0.0306,
+    "shift_before_grasp_m": 0.0007,
+    "start_x_m": -0.0902,
+    "start_y_m": -0.029,
+    "start_yaw_rad": -0.5921
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.957,
+    "key_elevation_deg": 80.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.3
+   }
+  },
+  {
+   "seed": 45,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0742,
+    "max_hand_table_force_n": 19.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0334,
+    "shift_before_grasp_m": 0.0021,
+    "start_x_m": -0.0541,
+    "start_y_m": 0.0034,
+    "start_yaw_rad": 1.6566
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.56,
+    "key_elevation_deg": 65.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 65.8
+   }
+  },
+  {
+   "seed": 46,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 14.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.0112,
+    "shift_before_grasp_m": 0.0113,
+    "start_x_m": -0.0276,
+    "start_y_m": -0.0507,
+    "start_yaw_rad": -1.429
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.719,
+    "key_elevation_deg": 68.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 103.9
+   }
+  },
+  {
+   "seed": 47,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0788,
+    "max_hand_table_force_n": 20.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0301,
+    "shift_before_grasp_m": 0.0038,
+    "start_x_m": -0.0407,
+    "start_y_m": 0.0304,
+    "start_yaw_rad": -0.2188
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.446,
+    "key_elevation_deg": 84.2,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 71.9
+   }
+  },
+  {
+   "seed": 48,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0769,
+    "max_hand_table_force_n": 27.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0021,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.069,
+    "start_y_m": 0.0115,
+    "start_yaw_rad": 0.0867
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.82,
+    "key_elevation_deg": 73.6,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 30.4
+   }
+  },
+  {
+   "seed": 49,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 27.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0162,
+    "shift_before_grasp_m": 0.0077,
+    "start_x_m": -0.071,
+    "start_y_m": 0.0112,
+    "start_yaw_rad": -0.6789
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.678,
+    "key_elevation_deg": 66.2,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 58.5
+   }
+  },
+  {
+   "seed": 50,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 16.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0298,
+    "shift_before_grasp_m": 0.002,
+    "start_x_m": -0.037,
+    "start_y_m": 0.04,
+    "start_yaw_rad": 0.301
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.839,
+    "key_elevation_deg": 84.5,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 98.0
+   }
+  },
+  {
+   "seed": 51,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 24.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0188,
+    "shift_before_grasp_m": 0.0062,
+    "start_x_m": -0.0246,
+    "start_y_m": -0.0231,
+    "start_yaw_rad": -1.54
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.851,
+    "key_elevation_deg": 79.9,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 70.4
+   }
+  },
+  {
+   "seed": 52,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 18.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.018,
+    "shift_before_grasp_m": 0.0075,
+    "start_x_m": -0.0507,
+    "start_y_m": 0.0089,
+    "start_yaw_rad": 0.1228
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.886,
+    "key_elevation_deg": 63.0,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 86.9
+   }
+  },
+  {
+   "seed": 53,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0769,
+    "max_hand_table_force_n": 14.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 22,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0392,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.0991,
+    "start_y_m": 0.0263,
+    "start_yaw_rad": -1.0611
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.432,
+    "key_elevation_deg": 72.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 43.8
+   }
+  },
+  {
+   "seed": 54,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 28.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0208,
+    "shift_before_grasp_m": 0.0038,
+    "start_x_m": -0.0822,
+    "start_y_m": 0.0022,
+    "start_yaw_rad": -2.6411
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.72,
+    "key_elevation_deg": 60.7,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 18.4
+   }
+  },
+  {
+   "seed": 55,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 32.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0021,
+    "shift_before_grasp_m": 0.0029,
+    "start_x_m": -0.0334,
+    "start_y_m": 0.0445,
+    "start_yaw_rad": -1.7696
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.999,
+    "key_elevation_deg": 78.4,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 81.0
+   }
+  },
+  {
+   "seed": 56,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0764,
+    "max_hand_table_force_n": 31.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0175,
+    "shift_before_grasp_m": 0.0041,
+    "start_x_m": -0.0419,
+    "start_y_m": -0.058,
+    "start_yaw_rad": 3.021
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.627,
+    "key_elevation_deg": 62.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.9
+   }
+  },
+  {
+   "seed": 57,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 30.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.018,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0453,
+    "start_y_m": -0.0038,
+    "start_yaw_rad": 2.144
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.655,
+    "key_elevation_deg": 48.5,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 35.5
+   }
+  },
+  {
+   "seed": 58,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 16.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 38,
+    "min_grasp_xy_m": 0.0308,
+    "shift_before_grasp_m": 0.0067,
+    "start_x_m": -0.0753,
+    "start_y_m": 0.0456,
+    "start_yaw_rad": -1.6142
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.561,
+    "key_elevation_deg": 56.5,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 30.6
+   }
+  },
+  {
+   "seed": 59,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0736,
+    "max_hand_table_force_n": 15.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0187,
+    "shift_before_grasp_m": 0.0047,
+    "start_x_m": -0.053,
+    "start_y_m": 0.0391,
+    "start_yaw_rad": -2.4068
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.773,
+    "key_elevation_deg": 60.6,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 56.6
+   }
+  },
+  {
+   "seed": 60,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 14.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0238,
+    "shift_before_grasp_m": 0.0035,
+    "start_x_m": -0.0741,
+    "start_y_m": -0.0567,
+    "start_yaw_rad": -2.7978
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.84,
+    "key_elevation_deg": 46.8,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.9
+   }
+  },
+  {
+   "seed": 61,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 29.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0277,
+    "shift_before_grasp_m": 0.0043,
+    "start_x_m": -0.0701,
+    "start_y_m": 0.0326,
+    "start_yaw_rad": 1.0753
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.499,
+    "key_elevation_deg": 81.1,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 89.6
+   }
+  },
+  {
+   "seed": 62,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 140,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 33.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 103,
+    "min_grasp_xy_m": 0.0038,
+    "shift_before_grasp_m": 0.0224,
+    "start_x_m": -0.0513,
+    "start_y_m": 0.0297,
+    "start_yaw_rad": 1.7637
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.936,
+    "key_elevation_deg": 46.8,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 18.9
+   }
+  },
+  {
+   "seed": 63,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0731,
+    "max_hand_table_force_n": 29.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0165,
+    "shift_before_grasp_m": 0.0146,
+    "start_x_m": -0.0552,
+    "start_y_m": 0.0591,
+    "start_yaw_rad": -1.9058
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.429,
+    "key_elevation_deg": 58.6,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.8
+   }
+  },
+  {
+   "seed": 64,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 14.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0188,
+    "shift_before_grasp_m": 0.0114,
+    "start_x_m": -0.0245,
+    "start_y_m": 0.0028,
+    "start_yaw_rad": -2.7287
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.805,
+    "key_elevation_deg": 42.6,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 37.1
+   }
+  },
+  {
+   "seed": 65,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 70,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 15.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 35,
+    "min_grasp_xy_m": 0.0265,
+    "shift_before_grasp_m": 0.0009,
+    "start_x_m": -0.0962,
+    "start_y_m": 0.0022,
+    "start_yaw_rad": -0.7863
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.592,
+    "key_elevation_deg": 67.6,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 37.8
+   }
+  },
+  {
+   "seed": 66,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0081,
+    "max_hand_table_force_n": 21.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 52,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.0291,
+    "shift_before_grasp_m": 0.0155,
+    "start_x_m": -0.0261,
+    "start_y_m": 0.0231,
+    "start_yaw_rad": -2.6833
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.842,
+    "key_elevation_deg": 48.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 55.2
+   }
+  },
+  {
+   "seed": 67,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.073,
+    "max_hand_table_force_n": 20.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0306,
+    "shift_before_grasp_m": 0.0073,
+    "start_x_m": -0.0669,
+    "start_y_m": -0.0448,
+    "start_yaw_rad": 0.0879
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.547,
+    "key_elevation_deg": 78.3,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 70.5
+   }
+  },
+  {
+   "seed": 68,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0766,
+    "max_hand_table_force_n": 30.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.013,
+    "shift_before_grasp_m": 0.0086,
+    "start_x_m": -0.0613,
+    "start_y_m": 0.0418,
+    "start_yaw_rad": 1.0903
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.901,
+    "key_elevation_deg": 45.3,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.4
+   }
+  },
+  {
+   "seed": 69,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 107,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "max_lift_m": 0.0048,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 33,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0133,
+    "shift_before_grasp_m": 0.2182,
+    "start_x_m": -0.0536,
+    "start_y_m": 0.0032,
+    "start_yaw_rad": 2.2931
+   },
+   "phase": "fell_off_table",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.584,
+    "key_elevation_deg": 80.2,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 76.8
+   }
+  },
+  {
+   "seed": 70,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 27.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0167,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0695,
+    "start_y_m": 0.0269,
+    "start_yaw_rad": -1.1172
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.765,
+    "key_elevation_deg": 40.6,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 24.9
+   }
+  },
+  {
+   "seed": 71,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0069,
+    "max_hand_table_force_n": 19.1,
+    "max_dwell_steps": 0,
+    "first_contact_step": 28,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0057,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0797,
+    "start_y_m": 0.0033,
+    "start_yaw_rad": 1.6398
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.466,
+    "key_elevation_deg": 45.9,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 82.2
+   }
+  },
+  {
+   "seed": 72,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 25.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0241,
+    "shift_before_grasp_m": 0.0143,
+    "start_x_m": -0.033,
+    "start_y_m": -0.0592,
+    "start_yaw_rad": -1.6874
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.497,
+    "key_elevation_deg": 54.8,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 11.0
+   }
+  },
+  {
+   "seed": 73,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0769,
+    "max_hand_table_force_n": 34.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0298,
+    "shift_before_grasp_m": 0.0063,
+    "start_x_m": -0.0606,
+    "start_y_m": -0.0236,
+    "start_yaw_rad": -1.4541
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.451,
+    "key_elevation_deg": 50.4,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 57.0
+   }
+  },
+  {
+   "seed": 74,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 31.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0056,
+    "shift_before_grasp_m": 0.005,
+    "start_x_m": -0.0284,
+    "start_y_m": 0.0025,
+    "start_yaw_rad": 1.1084
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.501,
+    "key_elevation_deg": 64.0,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.7
+   }
+  },
+  {
+   "seed": 75,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 12.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0306,
+    "shift_before_grasp_m": 0.0099,
+    "start_x_m": -0.0829,
+    "start_y_m": -0.0416,
+    "start_yaw_rad": 1.032
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.687,
+    "key_elevation_deg": 84.8,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 48.9
+   }
+  },
+  {
+   "seed": 76,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 26.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0188,
+    "shift_before_grasp_m": 0.016,
+    "start_x_m": -0.0355,
+    "start_y_m": 0.0583,
+    "start_yaw_rad": 1.1461
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.546,
+    "key_elevation_deg": 46.3,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 53.1
+   }
+  },
+  {
+   "seed": 77,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 25.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.008,
+    "shift_before_grasp_m": 0.0113,
+    "start_x_m": -0.0371,
+    "start_y_m": 0.0061,
+    "start_yaw_rad": -1.6092
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.61,
+    "key_elevation_deg": 52.2,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.8
+   }
+  },
+  {
+   "seed": 78,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 23.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0211,
+    "shift_before_grasp_m": 0.0069,
+    "start_x_m": -0.0665,
+    "start_y_m": 0.0498,
+    "start_yaw_rad": 0.1138
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.85,
+    "key_elevation_deg": 64.8,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 29.7
+   }
+  },
+  {
+   "seed": 79,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 90,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 25.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 52,
+    "first_grasp_step": 61,
+    "min_grasp_xy_m": 0.0085,
+    "shift_before_grasp_m": 0.0013,
+    "start_x_m": -0.0264,
+    "start_y_m": -0.0514,
+    "start_yaw_rad": 2.6583
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.585,
+    "key_elevation_deg": 44.4,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.8
+   }
+  },
+  {
+   "seed": 80,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 33.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 58,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0032,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0411,
+    "start_y_m": -0.0578,
+    "start_yaw_rad": -2.9114
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.569,
+    "key_elevation_deg": 70.1,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 73.7
+   }
+  },
+  {
+   "seed": 81,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0771,
+    "max_hand_table_force_n": 33.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0147,
+    "shift_before_grasp_m": 0.0134,
+    "start_x_m": -0.0653,
+    "start_y_m": -0.0346,
+    "start_yaw_rad": 2.5889
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.563,
+    "key_elevation_deg": 50.1,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 12,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 52.6
+   }
+  },
+  {
+   "seed": 82,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 17.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0367,
+    "shift_before_grasp_m": 0.0077,
+    "start_x_m": -0.0202,
+    "start_y_m": 0.0426,
+    "start_yaw_rad": -1.7738
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.892,
+    "key_elevation_deg": 54.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.0
+   }
+  },
+  {
+   "seed": 83,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0614,
+    "max_hand_table_force_n": 29.7,
+    "max_dwell_steps": 4,
+    "first_contact_step": 34,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0158,
+    "shift_before_grasp_m": 0.0162,
+    "start_x_m": -0.0747,
+    "start_y_m": -0.0546,
+    "start_yaw_rad": 0.8111
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.944,
+    "key_elevation_deg": 41.2,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.0
+   }
+  },
+  {
+   "seed": 84,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.077,
+    "max_hand_table_force_n": 29.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 50,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0209,
+    "shift_before_grasp_m": 0.0012,
+    "start_x_m": -0.0414,
+    "start_y_m": 0.048,
+    "start_yaw_rad": 1.5663
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.798,
+    "key_elevation_deg": 69.1,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.1
+   }
+  },
+  {
+   "seed": 85,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 33.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.019,
+    "shift_before_grasp_m": 0.002,
+    "start_x_m": -0.0965,
+    "start_y_m": -0.0034,
+    "start_yaw_rad": -0.2331
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.668,
+    "key_elevation_deg": 49.9,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 68.7
+   }
+  },
+  {
+   "seed": 86,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0729,
+    "max_hand_table_force_n": 15.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0131,
+    "shift_before_grasp_m": 0.0018,
+    "start_x_m": -0.0508,
+    "start_y_m": -0.039,
+    "start_yaw_rad": 0.7262
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.527,
+    "key_elevation_deg": 74.6,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 80.2
+   }
+  },
+  {
+   "seed": 87,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0744,
+    "max_hand_table_force_n": 19.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0318,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0543,
+    "start_y_m": 0.034,
+    "start_yaw_rad": -2.0584
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.61,
+    "key_elevation_deg": 84.0,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 107.2
+   }
+  },
+  {
+   "seed": 88,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0739,
+    "max_hand_table_force_n": 13.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0226,
+    "shift_before_grasp_m": 0.0084,
+    "start_x_m": -0.0835,
+    "start_y_m": 0.0244,
+    "start_yaw_rad": 1.1844
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.586,
+    "key_elevation_deg": 71.5,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 65.8
+   }
+  },
+  {
+   "seed": 89,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 16.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 30,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0235,
+    "shift_before_grasp_m": 0.0024,
+    "start_x_m": -0.0539,
+    "start_y_m": 0.0324,
+    "start_yaw_rad": 1.4522
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.795,
+    "key_elevation_deg": 80.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 12.3
+   }
+  },
+  {
+   "seed": 90,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 18.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 25,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.0252,
+    "shift_before_grasp_m": 0.0038,
+    "start_x_m": -0.0702,
+    "start_y_m": 0.0218,
+    "start_yaw_rad": 0.1164
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.97,
+    "key_elevation_deg": 47.3,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 86.2
+   }
+  },
+  {
+   "seed": 91,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0019,
+    "max_hand_table_force_n": 28.7,
+    "max_dwell_steps": 0,
+    "first_contact_step": 36,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.042,
+    "shift_before_grasp_m": 0.0094,
+    "start_x_m": -0.0774,
+    "start_y_m": 0.0492,
+    "start_yaw_rad": 2.0063
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.966,
+    "key_elevation_deg": 63.7,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.7
+   }
+  },
+  {
+   "seed": 92,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 19.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 53,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0269,
+    "shift_before_grasp_m": 0.0004,
+    "start_x_m": -0.0519,
+    "start_y_m": -0.0509,
+    "start_yaw_rad": -0.9405
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.99,
+    "key_elevation_deg": 68.4,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 60.7
+   }
+  },
+  {
+   "seed": 93,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0767,
+    "max_hand_table_force_n": 31.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0042,
+    "shift_before_grasp_m": 0.0082,
+    "start_x_m": -0.0212,
+    "start_y_m": 0.0052,
+    "start_yaw_rad": -0.2554
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.892,
+    "key_elevation_deg": 40.2,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 27.3
+   }
+  },
+  {
+   "seed": 94,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0137,
+    "max_hand_table_force_n": 18.1,
+    "max_dwell_steps": 0,
+    "first_contact_step": 34,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.019,
+    "shift_before_grasp_m": 0.0104,
+    "start_x_m": -0.0808,
+    "start_y_m": 0.0346,
+    "start_yaw_rad": 1.3951
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.831,
+    "key_elevation_deg": 45.8,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 35.7
+   }
+  },
+  {
+   "seed": 95,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0729,
+    "max_hand_table_force_n": 20.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0355,
+    "shift_before_grasp_m": 0.0058,
+    "start_x_m": -0.0567,
+    "start_y_m": 0.0496,
+    "start_yaw_rad": -1.7206
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.891,
+    "key_elevation_deg": 66.1,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 72.3
+   }
+  },
+  {
+   "seed": 96,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 24.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0148,
+    "shift_before_grasp_m": 0.0053,
+    "start_x_m": -0.0417,
+    "start_y_m": 0.0281,
+    "start_yaw_rad": 0.3035
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.468,
+    "key_elevation_deg": 52.0,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 68.3
+   }
+  },
+  {
+   "seed": 97,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 27.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.0064,
+    "shift_before_grasp_m": 0.0053,
+    "start_x_m": -0.0461,
+    "start_y_m": -0.0081,
+    "start_yaw_rad": 0.1224
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.519,
+    "key_elevation_deg": 77.9,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 51.9
+   }
+  },
+  {
+   "seed": 98,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0001,
+    "max_hand_table_force_n": 15.3,
+    "max_dwell_steps": 0,
+    "first_contact_step": 34,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.03,
+    "shift_before_grasp_m": 0.0173,
+    "start_x_m": -0.0245,
+    "start_y_m": 0.0422,
+    "start_yaw_rad": -2.6879
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.631,
+    "key_elevation_deg": 67.6,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.9
+   }
+  },
+  {
+   "seed": 99,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 20.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0307,
+    "shift_before_grasp_m": 0.001,
+    "start_x_m": -0.0595,
+    "start_y_m": 0.0078,
+    "start_yaw_rad": 0.0749
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.946,
+    "key_elevation_deg": 45.7,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.0
+   }
+  },
+  {
+   "seed": 100,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 29.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0215,
+    "shift_before_grasp_m": 0.0044,
+    "start_x_m": -0.0332,
+    "start_y_m": 0.0116,
+    "start_yaw_rad": -1.3266
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.931,
+    "key_elevation_deg": 60.2,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.5
+   }
+  },
+  {
+   "seed": 101,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0058,
+    "max_hand_table_force_n": 32.7,
+    "max_dwell_steps": 0,
+    "first_contact_step": 58,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0004,
+    "shift_before_grasp_m": 0.0149,
+    "start_x_m": -0.0245,
+    "start_y_m": -0.0169,
+    "start_yaw_rad": 1.7895
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.926,
+    "key_elevation_deg": 66.3,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 60.5
+   }
+  },
+  {
+   "seed": 102,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 68,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 21.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 27,
+    "first_grasp_step": 38,
+    "min_grasp_xy_m": 0.0303,
+    "shift_before_grasp_m": 0.0054,
+    "start_x_m": -0.0872,
+    "start_y_m": 0.0103,
+    "start_yaw_rad": 2.0347
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.516,
+    "key_elevation_deg": 70.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 38.6
+   }
+  },
+  {
+   "seed": 103,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 30.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 31,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0127,
+    "shift_before_grasp_m": 0.0121,
+    "start_x_m": -0.075,
+    "start_y_m": -0.0331,
+    "start_yaw_rad": -1.998
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.983,
+    "key_elevation_deg": 69.8,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 64.6
+   }
+  },
+  {
+   "seed": 104,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0742,
+    "max_hand_table_force_n": 27.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.002,
+    "shift_before_grasp_m": 0.003,
+    "start_x_m": -0.0329,
+    "start_y_m": 0.0231,
+    "start_yaw_rad": -1.7839
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.572,
+    "key_elevation_deg": 43.6,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 35.1
+   }
+  },
+  {
+   "seed": 105,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0739,
+    "max_hand_table_force_n": 5.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0241,
+    "shift_before_grasp_m": 0.03,
+    "start_x_m": -0.0489,
+    "start_y_m": 0.059,
+    "start_yaw_rad": -2.5338
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.978,
+    "key_elevation_deg": 56.9,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 73.4
+   }
+  },
+  {
+   "seed": 106,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.059,
+    "max_hand_table_force_n": 28.1,
+    "max_dwell_steps": 4,
+    "first_contact_step": 48,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0058,
+    "shift_before_grasp_m": 0.0212,
+    "start_x_m": -0.0214,
+    "start_y_m": -0.0552,
+    "start_yaw_rad": -2.3701
+   },
+   "phase": "lifted_not_held",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.98,
+    "key_elevation_deg": 58.9,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.5
+   }
+  },
+  {
+   "seed": 107,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 18.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0169,
+    "shift_before_grasp_m": 0.0029,
+    "start_x_m": -0.0481,
+    "start_y_m": -0.0027,
+    "start_yaw_rad": 0.0172
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.891,
+    "key_elevation_deg": 62.7,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 60.3
+   }
+  },
+  {
+   "seed": 108,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 29.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.032,
+    "shift_before_grasp_m": 0.0116,
+    "start_x_m": -0.0315,
+    "start_y_m": 0.0159,
+    "start_yaw_rad": -2.4008
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.438,
+    "key_elevation_deg": 42.3,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 28.8
+   }
+  },
+  {
+   "seed": 109,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 32.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0155,
+    "shift_before_grasp_m": 0.0042,
+    "start_x_m": -0.0565,
+    "start_y_m": 0.041,
+    "start_yaw_rad": 1.5713
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.724,
+    "key_elevation_deg": 62.2,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 50.8
+   }
+  },
+  {
+   "seed": 110,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.0154,
+    "shift_before_grasp_m": 0.028,
+    "start_x_m": -0.0256,
+    "start_y_m": 0.0015,
+    "start_yaw_rad": 1.3353
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.401,
+    "key_elevation_deg": 42.7,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 53.3
+   }
+  },
+  {
+   "seed": 111,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 51,
+   "failure": "object_fell_off_table",
+   "metrics": {
+    "max_lift_m": 0.005,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 29,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0078,
+    "shift_before_grasp_m": 0.1401,
+    "start_x_m": -0.0877,
+    "start_y_m": -0.0397,
+    "start_yaw_rad": 0.0375
+   },
+   "phase": "fell_off_table",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.662,
+    "key_elevation_deg": 41.9,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 32.3
+   }
+  },
+  {
+   "seed": 112,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 32.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 28,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0123,
+    "shift_before_grasp_m": 0.0002,
+    "start_x_m": -0.0907,
+    "start_y_m": 0.0413,
+    "start_yaw_rad": 1.8766
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.897,
+    "key_elevation_deg": 69.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 74.2
+   }
+  },
+  {
+   "seed": 113,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0774,
+    "max_hand_table_force_n": 18.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 31,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0223,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0944,
+    "start_y_m": -0.0419,
+    "start_yaw_rad": -2.232
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.462,
+    "key_elevation_deg": 79.7,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 48.4
+   }
+  },
+  {
+   "seed": 114,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0739,
+    "max_hand_table_force_n": 32.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0132,
+    "shift_before_grasp_m": 0.011,
+    "start_x_m": -0.0418,
+    "start_y_m": -0.0429,
+    "start_yaw_rad": -0.4186
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.803,
+    "key_elevation_deg": 42.6,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 129.2
+   }
+  },
+  {
+   "seed": 115,
+   "target_object": "block_small",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.007,
+    "max_hand_table_force_n": 29.4,
+    "max_dwell_steps": 0,
+    "first_contact_step": 30,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0023,
+    "shift_before_grasp_m": 0.0393,
+    "start_x_m": -0.0438,
+    "start_y_m": 0.0124,
+    "start_yaw_rad": 0.2775
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.932,
+    "key_elevation_deg": 58.2,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 5.7
+   }
+  },
+  {
+   "seed": 116,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0,
+    "max_hand_table_force_n": 31.3,
+    "max_dwell_steps": 0,
+    "first_contact_step": -1,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0409,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0862,
+    "start_y_m": 0.0452,
+    "start_yaw_rad": 2.8725
+   },
+   "phase": "no_contact",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.769,
+    "key_elevation_deg": 55.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 38.8
+   }
+  },
+  {
+   "seed": 117,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 30.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 50,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0157,
+    "shift_before_grasp_m": 0.0055,
+    "start_x_m": -0.03,
+    "start_y_m": -0.0411,
+    "start_yaw_rad": 0.6538
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.454,
+    "key_elevation_deg": 81.9,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 101.6
+   }
+  },
+  {
+   "seed": 118,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 25.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0163,
+    "shift_before_grasp_m": 0.008,
+    "start_x_m": -0.0255,
+    "start_y_m": 0.0525,
+    "start_yaw_rad": -1.3977
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.888,
+    "key_elevation_deg": 42.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 24.8
+   }
+  },
+  {
+   "seed": 119,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0154,
+    "shift_before_grasp_m": 0.0237,
+    "start_x_m": -0.0235,
+    "start_y_m": 0.0279,
+    "start_yaw_rad": 2.0044
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.672,
+    "key_elevation_deg": 64.0,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 51.2
+   }
+  },
+  {
+   "seed": 120,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "max_hand_table_force_n": 31.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 60,
+    "min_grasp_xy_m": 0.0122,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0317,
+    "start_y_m": -0.0532,
+    "start_yaw_rad": -1.564
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.918,
+    "key_elevation_deg": 74.9,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 12,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 77.9
+   }
+  },
+  {
+   "seed": 121,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 3.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0213,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0494,
+    "start_y_m": -0.0243,
+    "start_yaw_rad": 2.0374
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.759,
+    "key_elevation_deg": 76.3,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 32.1
+   }
+  },
+  {
+   "seed": 122,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 22.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0179,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.034,
+    "start_y_m": -0.0389,
+    "start_yaw_rad": -0.7692
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.702,
+    "key_elevation_deg": 59.7,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 57.1
+   }
+  },
+  {
+   "seed": 123,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 15.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0175,
+    "shift_before_grasp_m": 0.015,
+    "start_x_m": -0.0454,
+    "start_y_m": -0.0535,
+    "start_yaw_rad": -1.757
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.774,
+    "key_elevation_deg": 82.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 57.4
+   }
+  },
+  {
+   "seed": 124,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0161,
+    "max_hand_table_force_n": 14.9,
+    "max_dwell_steps": 0,
+    "first_contact_step": 33,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0193,
+    "shift_before_grasp_m": 0.0189,
+    "start_x_m": -0.0372,
+    "start_y_m": 0.0343,
+    "start_yaw_rad": 2.9477
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.56,
+    "key_elevation_deg": 45.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 101.5
+   }
+  },
+  {
+   "seed": 125,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0221,
+    "shift_before_grasp_m": 0.0176,
+    "start_x_m": -0.0319,
+    "start_y_m": -0.0008,
+    "start_yaw_rad": -0.6901
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.623,
+    "key_elevation_deg": 64.8,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.2
+   }
+  },
+  {
+   "seed": 126,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0758,
+    "max_hand_table_force_n": 27.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0095,
+    "shift_before_grasp_m": 0.0115,
+    "start_x_m": -0.0995,
+    "start_y_m": 0.053,
+    "start_yaw_rad": -2.7261
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.614,
+    "key_elevation_deg": 60.0,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.6
+   }
+  },
+  {
+   "seed": 127,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0026,
+    "max_hand_table_force_n": 27.4,
+    "max_dwell_steps": 0,
+    "first_contact_step": 39,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0329,
+    "shift_before_grasp_m": 0.0142,
+    "start_x_m": -0.095,
+    "start_y_m": -0.0348,
+    "start_yaw_rad": -1.2608
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.701,
+    "key_elevation_deg": 62.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 69.4
+   }
+  },
+  {
+   "seed": 128,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 32.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0184,
+    "shift_before_grasp_m": 0.0162,
+    "start_x_m": -0.0473,
+    "start_y_m": -0.0033,
+    "start_yaw_rad": -0.4174
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.573,
+    "key_elevation_deg": 67.7,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 59.4
+   }
+  },
+  {
+   "seed": 129,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 16.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 28,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0198,
+    "shift_before_grasp_m": 0.0067,
+    "start_x_m": -0.0693,
+    "start_y_m": -0.0319,
+    "start_yaw_rad": 2.5015
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.628,
+    "key_elevation_deg": 84.4,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 72.1
+   }
+  },
+  {
+   "seed": 130,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0087,
+    "max_hand_table_force_n": 19.8,
+    "max_dwell_steps": 0,
+    "first_contact_step": 51,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0318,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.0637,
+    "start_y_m": -0.0506,
+    "start_yaw_rad": -1.2193
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.817,
+    "key_elevation_deg": 72.9,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 46.9
+   }
+  },
+  {
+   "seed": 131,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 30.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 56,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0088,
+    "shift_before_grasp_m": 0.0001,
+    "start_x_m": -0.0483,
+    "start_y_m": 0.0121,
+    "start_yaw_rad": 0.2032
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.764,
+    "key_elevation_deg": 67.2,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 81.4
+   }
+  },
+  {
+   "seed": 132,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 68,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0777,
+    "max_hand_table_force_n": 13.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 32,
+    "first_grasp_step": 39,
+    "min_grasp_xy_m": 0.0455,
+    "shift_before_grasp_m": 0.0016,
+    "start_x_m": -0.0886,
+    "start_y_m": 0.0366,
+    "start_yaw_rad": 1.5405
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.746,
+    "key_elevation_deg": 40.1,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 38.4
+   }
+  },
+  {
+   "seed": 133,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 30.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.0243,
+    "shift_before_grasp_m": 0.0035,
+    "start_x_m": -0.022,
+    "start_y_m": 0.0015,
+    "start_yaw_rad": -0.8743
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.877,
+    "key_elevation_deg": 73.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.6
+   }
+  },
+  {
+   "seed": 134,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0435,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 43,
+    "first_grasp_step": 61,
+    "min_grasp_xy_m": 0.0247,
+    "shift_before_grasp_m": 0.0184,
+    "start_x_m": -0.0225,
+    "start_y_m": 0.0005,
+    "start_yaw_rad": 0.2776
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.912,
+    "key_elevation_deg": 55.2,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 30.4
+   }
+  },
+  {
+   "seed": 135,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 25.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0129,
+    "shift_before_grasp_m": 0.0127,
+    "start_x_m": -0.0561,
+    "start_y_m": -0.0263,
+    "start_yaw_rad": 2.518
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.565,
+    "key_elevation_deg": 71.3,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 69.7
+   }
+  },
+  {
+   "seed": 136,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 151,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0734,
+    "max_hand_table_force_n": 16.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.012,
+    "shift_before_grasp_m": 0.0023,
+    "start_x_m": -0.0898,
+    "start_y_m": -0.0516,
+    "start_yaw_rad": -2.4097
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.828,
+    "key_elevation_deg": 76.4,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 108.0
+   }
+  },
+  {
+   "seed": 137,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 17.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 50,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0167,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0313,
+    "start_y_m": -0.027,
+    "start_yaw_rad": -0.459
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.908,
+    "key_elevation_deg": 79.2,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 37.8
+   }
+  },
+  {
+   "seed": 138,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0771,
+    "max_hand_table_force_n": 25.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.024,
+    "shift_before_grasp_m": 0.0113,
+    "start_x_m": -0.0542,
+    "start_y_m": 0.0343,
+    "start_yaw_rad": 0.38
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.482,
+    "key_elevation_deg": 52.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 20.0
+   }
+  },
+  {
+   "seed": 139,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0761,
+    "max_hand_table_force_n": 18.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 38,
+    "min_grasp_xy_m": 0.0238,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0667,
+    "start_y_m": 0.0094,
+    "start_yaw_rad": -2.2504
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.409,
+    "key_elevation_deg": 77.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 42.8
+   }
+  },
+  {
+   "seed": 140,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 10.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 32,
+    "first_grasp_step": 35,
+    "min_grasp_xy_m": 0.0226,
+    "shift_before_grasp_m": 0.004,
+    "start_x_m": -0.0466,
+    "start_y_m": 0.0146,
+    "start_yaw_rad": 1.3011
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.508,
+    "key_elevation_deg": 48.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 30.3
+   }
+  },
+  {
+   "seed": 141,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0758,
+    "max_hand_table_force_n": 20.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.021,
+    "shift_before_grasp_m": 0.0064,
+    "start_x_m": -0.0411,
+    "start_y_m": 0.0597,
+    "start_yaw_rad": -3.13
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.784,
+    "key_elevation_deg": 71.2,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 76.9
+   }
+  },
+  {
+   "seed": 142,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 24.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0154,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0982,
+    "start_y_m": -0.0471,
+    "start_yaw_rad": 0.9289
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.85,
+    "key_elevation_deg": 74.7,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 49.1
+   }
+  },
+  {
+   "seed": 143,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 96,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 28.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 67,
+    "first_grasp_step": 68,
+    "min_grasp_xy_m": 0.0202,
+    "shift_before_grasp_m": 0.0002,
+    "start_x_m": -0.0669,
+    "start_y_m": 0.0572,
+    "start_yaw_rad": 0.0355
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.654,
+    "key_elevation_deg": 80.4,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 35.2
+   }
+  },
+  {
+   "seed": 144,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.077,
+    "max_hand_table_force_n": 24.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0186,
+    "shift_before_grasp_m": 0.009,
+    "start_x_m": -0.0366,
+    "start_y_m": -0.0528,
+    "start_yaw_rad": -1.2587
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.847,
+    "key_elevation_deg": 54.8,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 81.7
+   }
+  },
+  {
+   "seed": 145,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 25.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.017,
+    "shift_before_grasp_m": 0.0088,
+    "start_x_m": -0.0519,
+    "start_y_m": -0.0278,
+    "start_yaw_rad": 2.3271
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.94,
+    "key_elevation_deg": 42.7,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 12,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 45.6
+   }
+  },
+  {
+   "seed": 146,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 11.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0165,
+    "shift_before_grasp_m": 0.0052,
+    "start_x_m": -0.036,
+    "start_y_m": -0.0145,
+    "start_yaw_rad": -0.4716
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.454,
+    "key_elevation_deg": 63.6,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 32.1
+   }
+  },
+  {
+   "seed": 147,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 28.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0298,
+    "shift_before_grasp_m": 0.0033,
+    "start_x_m": -0.0208,
+    "start_y_m": 0.0339,
+    "start_yaw_rad": 0.8358
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.682,
+    "key_elevation_deg": 44.0,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 108.5
+   }
+  },
+  {
+   "seed": 148,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 31.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0213,
+    "shift_before_grasp_m": 0.0075,
+    "start_x_m": -0.049,
+    "start_y_m": 0.006,
+    "start_yaw_rad": 1.4995
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.645,
+    "key_elevation_deg": 42.2,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 55.3
+   }
+  },
+  {
+   "seed": 149,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0003,
+    "max_hand_table_force_n": 21.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 45,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0396,
+    "shift_before_grasp_m": 0.0109,
+    "start_x_m": -0.0934,
+    "start_y_m": -0.0287,
+    "start_yaw_rad": -1.7494
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.915,
+    "key_elevation_deg": 76.1,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 5.4
+   }
+  },
+  {
+   "seed": 150,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0166,
+    "max_hand_table_force_n": 16.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 24,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0159,
+    "shift_before_grasp_m": 0.0212,
+    "start_x_m": -0.0996,
+    "start_y_m": 0.0517,
+    "start_yaw_rad": 1.7881
+   },
+   "phase": "contact_no_grasp",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.862,
+    "key_elevation_deg": 55.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.6
+   }
+  },
+  {
+   "seed": 151,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0765,
+    "max_hand_table_force_n": 28.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0179,
+    "shift_before_grasp_m": 0.0135,
+    "start_x_m": -0.0607,
+    "start_y_m": -0.0168,
+    "start_yaw_rad": 1.3158
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.586,
+    "key_elevation_deg": 59.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 37.1
+   }
+  },
+  {
+   "seed": 152,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 32.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0293,
+    "shift_before_grasp_m": 0.008,
+    "start_x_m": -0.0825,
+    "start_y_m": -0.0287,
+    "start_yaw_rad": -2.8309
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.613,
+    "key_elevation_deg": 43.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 57.0
+   }
+  },
+  {
+   "seed": 153,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 9.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0123,
+    "shift_before_grasp_m": 0.003,
+    "start_x_m": -0.0252,
+    "start_y_m": 0.0053,
+    "start_yaw_rad": -2.4443
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.504,
+    "key_elevation_deg": 74.3,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 31.7
+   }
+  },
+  {
+   "seed": 154,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 14.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0069,
+    "shift_before_grasp_m": 0.0318,
+    "start_x_m": -0.0533,
+    "start_y_m": 0.0191,
+    "start_yaw_rad": -1.8575
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.753,
+    "key_elevation_deg": 61.5,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 70.4
+   }
+  },
+  {
+   "seed": 155,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 30.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0212,
+    "shift_before_grasp_m": 0.0033,
+    "start_x_m": -0.0751,
+    "start_y_m": 0.0397,
+    "start_yaw_rad": -0.8677
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.943,
+    "key_elevation_deg": 41.6,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 66.1
+   }
+  },
+  {
+   "seed": 156,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 27.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0178,
+    "shift_before_grasp_m": 0.0087,
+    "start_x_m": -0.0889,
+    "start_y_m": -0.0595,
+    "start_yaw_rad": -2.5303
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.48,
+    "key_elevation_deg": 68.2,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 47.3
+   }
+  },
+  {
+   "seed": 157,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 72,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 27.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 31,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0175,
+    "shift_before_grasp_m": 0.004,
+    "start_x_m": -0.079,
+    "start_y_m": 0.0434,
+    "start_yaw_rad": -0.6664
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.701,
+    "key_elevation_deg": 52.6,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 42.8
+   }
+  },
+  {
+   "seed": 158,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 29.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.02,
+    "shift_before_grasp_m": 0.0245,
+    "start_x_m": -0.0225,
+    "start_y_m": 0.0335,
+    "start_yaw_rad": 0.5971
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.674,
+    "key_elevation_deg": 80.7,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 41.5
+   }
+  },
+  {
+   "seed": 159,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 25.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0212,
+    "shift_before_grasp_m": 0.0197,
+    "start_x_m": -0.0352,
+    "start_y_m": 0.0092,
+    "start_yaw_rad": -0.8736
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.558,
+    "key_elevation_deg": 81.6,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 99.2
+   }
+  },
+  {
+   "seed": 160,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 29.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0207,
+    "shift_before_grasp_m": 0.027,
+    "start_x_m": -0.0556,
+    "start_y_m": 0.0108,
+    "start_yaw_rad": -0.9034
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.554,
+    "key_elevation_deg": 81.0,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 85.9
+   }
+  },
+  {
+   "seed": 161,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 27.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0186,
+    "shift_before_grasp_m": 0.0061,
+    "start_x_m": -0.0625,
+    "start_y_m": 0.0268,
+    "start_yaw_rad": -1.6475
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.706,
+    "key_elevation_deg": 63.6,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 64.2
+   }
+  },
+  {
+   "seed": 162,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 27,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.0193,
+    "shift_before_grasp_m": 0.0273,
+    "start_x_m": -0.0943,
+    "start_y_m": -0.032,
+    "start_yaw_rad": 0.9101
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.456,
+    "key_elevation_deg": 45.5,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 39.4
+   }
+  },
+  {
+   "seed": 163,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 30.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 61,
+    "min_grasp_xy_m": 0.0145,
+    "shift_before_grasp_m": 0.0127,
+    "start_x_m": -0.0355,
+    "start_y_m": -0.0567,
+    "start_yaw_rad": 0.4269
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.524,
+    "key_elevation_deg": 63.9,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 75.9
+   }
+  },
+  {
+   "seed": 164,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 32.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0135,
+    "shift_before_grasp_m": 0.0114,
+    "start_x_m": -0.0942,
+    "start_y_m": -0.0173,
+    "start_yaw_rad": -0.8386
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.808,
+    "key_elevation_deg": 58.0,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.1
+   }
+  },
+  {
+   "seed": 165,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 27.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0134,
+    "shift_before_grasp_m": 0.0002,
+    "start_x_m": -0.063,
+    "start_y_m": 0.0093,
+    "start_yaw_rad": 1.702
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.718,
+    "key_elevation_deg": 73.9,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.7
+   }
+  },
+  {
+   "seed": 166,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 27.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0164,
+    "shift_before_grasp_m": 0.0215,
+    "start_x_m": -0.0427,
+    "start_y_m": -0.0397,
+    "start_yaw_rad": 1.2898
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.7,
+    "key_elevation_deg": 62.4,
+    "table_texture": 10,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 33.6
+   }
+  },
+  {
+   "seed": 167,
+   "target_object": "block_large",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.005,
+    "max_hand_table_force_n": 31.7,
+    "max_dwell_steps": 0,
+    "first_contact_step": 42,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0035,
+    "shift_before_grasp_m": 0.0059,
+    "start_x_m": -0.0907,
+    "start_y_m": 0.0179,
+    "start_yaw_rad": 0.4655
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.917,
+    "key_elevation_deg": 48.3,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 2,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 59.7
+   }
+  },
+  {
+   "seed": 168,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 27.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0132,
+    "shift_before_grasp_m": 0.0075,
+    "start_x_m": -0.0784,
+    "start_y_m": -0.0553,
+    "start_yaw_rad": 1.993
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.655,
+    "key_elevation_deg": 58.4,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 48.5
+   }
+  },
+  {
+   "seed": 169,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 148,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 24.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 117,
+    "min_grasp_xy_m": 0.0031,
+    "shift_before_grasp_m": 0.0345,
+    "start_x_m": -0.0619,
+    "start_y_m": 0.0315,
+    "start_yaw_rad": -0.2488
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.911,
+    "key_elevation_deg": 53.9,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": 12,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 38.6
+   }
+  },
+  {
+   "seed": 170,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 6.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0145,
+    "shift_before_grasp_m": 0.0204,
+    "start_x_m": -0.037,
+    "start_y_m": 0.055,
+    "start_yaw_rad": 2.2566
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.598,
+    "key_elevation_deg": 49.2,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 61.5
+   }
+  },
+  {
+   "seed": 171,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0761,
+    "max_hand_table_force_n": 27.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 32,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.017,
+    "shift_before_grasp_m": 0.0112,
+    "start_x_m": -0.0918,
+    "start_y_m": 0.0311,
+    "start_yaw_rad": 0.2664
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.867,
+    "key_elevation_deg": 47.7,
+    "table_texture": 12,
+    "table_texture_held_out": false,
+    "object_texture": 4,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 25.5
+   }
+  },
+  {
+   "seed": 172,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 31.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0128,
+    "shift_before_grasp_m": 0.0093,
+    "start_x_m": -0.0864,
+    "start_y_m": 0.0508,
+    "start_yaw_rad": 0.5512
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.638,
+    "key_elevation_deg": 57.2,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 51.1
+   }
+  },
+  {
+   "seed": 173,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0215,
+    "max_hand_table_force_n": 32.6,
+    "max_dwell_steps": 0,
+    "first_contact_step": 28,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0234,
+    "shift_before_grasp_m": 0.0088,
+    "start_x_m": -0.0945,
+    "start_y_m": 0.0007,
+    "start_yaw_rad": -1.3818
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.495,
+    "key_elevation_deg": 62.7,
+    "table_texture": 14,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 46.7
+   }
+  },
+  {
+   "seed": 174,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 18.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.025,
+    "shift_before_grasp_m": 0.0043,
+    "start_x_m": -0.0263,
+    "start_y_m": 0.0399,
+    "start_yaw_rad": 2.6555
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.518,
+    "key_elevation_deg": 71.7,
+    "table_texture": 2,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.6
+   }
+  },
+  {
+   "seed": 175,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 19.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0395,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0549,
+    "start_y_m": 0.0032,
+    "start_yaw_rad": -2.6742
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.913,
+    "key_elevation_deg": 73.9,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 35.9
+   }
+  },
+  {
+   "seed": 176,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 18.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 51,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.0318,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0273,
+    "start_y_m": -0.0422,
+    "start_yaw_rad": 2.712
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.922,
+    "key_elevation_deg": 71.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 29.6
+   }
+  },
+  {
+   "seed": 177,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 27.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.023,
+    "shift_before_grasp_m": 0.0138,
+    "start_x_m": -0.0611,
+    "start_y_m": -0.0224,
+    "start_yaw_rad": 0.5834
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.708,
+    "key_elevation_deg": 46.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 119.3
+   }
+  },
+  {
+   "seed": 178,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 92,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 30.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 54,
+    "first_grasp_step": 64,
+    "min_grasp_xy_m": 0.0226,
+    "shift_before_grasp_m": 0.0055,
+    "start_x_m": -0.0391,
+    "start_y_m": -0.0544,
+    "start_yaw_rad": -3.121
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.481,
+    "key_elevation_deg": 54.4,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 45.5
+   }
+  },
+  {
+   "seed": 179,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0778,
+    "max_hand_table_force_n": 18.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0292,
+    "shift_before_grasp_m": 0.0024,
+    "start_x_m": -0.0266,
+    "start_y_m": 0.0528,
+    "start_yaw_rad": 2.8975
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.587,
+    "key_elevation_deg": 73.8,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 36.3
+   }
+  },
+  {
+   "seed": 180,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0757,
+    "max_hand_table_force_n": 29.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0159,
+    "shift_before_grasp_m": 0.0128,
+    "start_x_m": -0.0539,
+    "start_y_m": 0.0202,
+    "start_yaw_rad": 0.3347
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.716,
+    "key_elevation_deg": 63.3,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 50.4
+   }
+  },
+  {
+   "seed": 181,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 29.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0199,
+    "shift_before_grasp_m": 0.0037,
+    "start_x_m": -0.0371,
+    "start_y_m": 0.0107,
+    "start_yaw_rad": -0.3189
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.515,
+    "key_elevation_deg": 73.6,
+    "table_texture": 1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 76.1
+   }
+  },
+  {
+   "seed": 182,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0744,
+    "max_hand_table_force_n": 27.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0155,
+    "shift_before_grasp_m": 0.012,
+    "start_x_m": -0.0867,
+    "start_y_m": -0.0218,
+    "start_yaw_rad": -0.1566
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.512,
+    "key_elevation_deg": 53.2,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 38.8
+   }
+  },
+  {
+   "seed": 183,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0775,
+    "max_hand_table_force_n": 19.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0173,
+    "shift_before_grasp_m": 0.0027,
+    "start_x_m": -0.0239,
+    "start_y_m": 0.0483,
+    "start_yaw_rad": 1.1857
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.875,
+    "key_elevation_deg": 77.3,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 55.5
+   }
+  },
+  {
+   "seed": 184,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 26.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0181,
+    "shift_before_grasp_m": 0.0125,
+    "start_x_m": -0.0986,
+    "start_y_m": 0.01,
+    "start_yaw_rad": 2.3877
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.86,
+    "key_elevation_deg": 68.1,
+    "table_texture": 13,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 59.4
+   }
+  },
+  {
+   "seed": 185,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.074,
+    "max_hand_table_force_n": 25.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0192,
+    "shift_before_grasp_m": 0.0148,
+    "start_x_m": -0.0824,
+    "start_y_m": 0.0044,
+    "start_yaw_rad": -0.874
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.499,
+    "key_elevation_deg": 84.8,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 25.8
+   }
+  },
+  {
+   "seed": 186,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0761,
+    "max_hand_table_force_n": 36.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0103,
+    "shift_before_grasp_m": 0.0239,
+    "start_x_m": -0.0562,
+    "start_y_m": 0.0162,
+    "start_yaw_rad": 2.3392
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.735,
+    "key_elevation_deg": 51.6,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 13,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 77.3
+   }
+  },
+  {
+   "seed": 187,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 27.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0117,
+    "shift_before_grasp_m": 0.0104,
+    "start_x_m": -0.0797,
+    "start_y_m": -0.018,
+    "start_yaw_rad": 0.0312
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.528,
+    "key_elevation_deg": 47.9,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 0,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 25.7
+   }
+  },
+  {
+   "seed": 188,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0781,
+    "max_hand_table_force_n": 17.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 24,
+    "first_grasp_step": 41,
+    "min_grasp_xy_m": 0.0188,
+    "shift_before_grasp_m": 0.0025,
+    "start_x_m": -0.0923,
+    "start_y_m": 0.0263,
+    "start_yaw_rad": 2.1203
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.933,
+    "key_elevation_deg": 71.1,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 14.9
+   }
+  },
+  {
+   "seed": 189,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0744,
+    "max_hand_table_force_n": 15.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.044,
+    "shift_before_grasp_m": 0.019,
+    "start_x_m": -0.0611,
+    "start_y_m": -0.0431,
+    "start_yaw_rad": -0.2485
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.62,
+    "key_elevation_deg": 46.6,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 29.5
+   }
+  },
+  {
+   "seed": 190,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0744,
+    "max_hand_table_force_n": 13.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 31,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0212,
+    "shift_before_grasp_m": 0.0069,
+    "start_x_m": -0.0575,
+    "start_y_m": -0.05,
+    "start_yaw_rad": 3.081
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.813,
+    "key_elevation_deg": 51.9,
+    "table_texture": 6,
+    "table_texture_held_out": false,
+    "object_texture": 14,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 101.1
+   }
+  },
+  {
+   "seed": 191,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 25.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 58,
+    "min_grasp_xy_m": 0.0223,
+    "shift_before_grasp_m": 0.0071,
+    "start_x_m": -0.0222,
+    "start_y_m": 0.0352,
+    "start_yaw_rad": -2.507
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.426,
+    "key_elevation_deg": 61.5,
+    "table_texture": 5,
+    "table_texture_held_out": false,
+    "object_texture": 6,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 40.1
+   }
+  },
+  {
+   "seed": 192,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 25.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0211,
+    "shift_before_grasp_m": 0.0132,
+    "start_x_m": -0.0473,
+    "start_y_m": 0.0127,
+    "start_yaw_rad": -3.0835
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.727,
+    "key_elevation_deg": 79.5,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 55.9
+   }
+  },
+  {
+   "seed": 193,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 31.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0201,
+    "shift_before_grasp_m": 0.0033,
+    "start_x_m": -0.0595,
+    "start_y_m": -0.0298,
+    "start_yaw_rad": 1.2804
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.981,
+    "key_elevation_deg": 78.1,
+    "table_texture": 8,
+    "table_texture_held_out": false,
+    "object_texture": 10,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 54.9
+   }
+  },
+  {
+   "seed": 194,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 79,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 19.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0378,
+    "shift_before_grasp_m": 0.0016,
+    "start_x_m": -0.0308,
+    "start_y_m": 0.0439,
+    "start_yaw_rad": -1.4901
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.661,
+    "key_elevation_deg": 56.9,
+    "table_texture": 0,
+    "table_texture_held_out": false,
+    "object_texture": 8,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 42.6
+   }
+  },
+  {
+   "seed": 195,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "max_hand_table_force_n": 28.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0143,
+    "shift_before_grasp_m": 0.004,
+    "start_x_m": -0.0973,
+    "start_y_m": -0.0499,
+    "start_yaw_rad": 1.7825
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.65,
+    "key_elevation_deg": 73.2,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 81.8
+   }
+  },
+  {
+   "seed": 196,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 90,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 27.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 49,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0112,
+    "shift_before_grasp_m": 0.0037,
+    "start_x_m": -0.0294,
+    "start_y_m": -0.01,
+    "start_yaw_rad": 1.4274
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.881,
+    "key_elevation_deg": 65.2,
+    "table_texture": -1,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 64.5
+   }
+  },
+  {
+   "seed": 197,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 91,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 29.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 51,
+    "first_grasp_step": 62,
+    "min_grasp_xy_m": 0.0133,
+    "shift_before_grasp_m": 0.0006,
+    "start_x_m": -0.0252,
+    "start_y_m": 0.0343,
+    "start_yaw_rad": 1.8822
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.646,
+    "key_elevation_deg": 64.2,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": -1,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 78.0
+   }
+  },
+  {
+   "seed": 198,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 18.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0245,
+    "shift_before_grasp_m": 0.0015,
+    "start_x_m": -0.0361,
+    "start_y_m": 0.0386,
+    "start_yaw_rad": -2.5928
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.467,
+    "key_elevation_deg": 74.1,
+    "table_texture": 4,
+    "table_texture_held_out": false,
+    "object_texture": 9,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 76.4
+   }
+  },
+  {
+   "seed": 199,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0774,
+    "max_hand_table_force_n": 15.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.039,
+    "shift_before_grasp_m": 0.0082,
+    "start_x_m": -0.0461,
+    "start_y_m": 0.0128,
+    "start_yaw_rad": -2.6667
+   },
+   "phase": "success",
+   "appearance": {
+    "factors": [
+     "lighting",
+     "surfaces",
+     "objects"
+    ],
+    "key_brightness": 0.412,
+    "key_elevation_deg": 66.8,
+    "table_texture": 9,
+    "table_texture_held_out": false,
+    "object_texture": 5,
+    "object_texture_held_out": false,
+    "object_table_delta_e": 49.9
+   }
+  }
+ ],
+ "code": {
+  "commit": "c270796afa07235d6a38f40fc228143c0efe12ae",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {
+  "checkpoint": "runs/pick_vision_varied/mlp_seed0/step_050000.pt",
+  "checkpoint_sha256": "7a17c8f9e40620f4762222ded9c295f09dc37ba340bdafb218747068c9e31a0a",
+  "method": "mlp",
+  "step": 50000,
+  "training": {
+   "skill": "pick",
+   "task": "pick_vision_varied",
+   "dataset": "datasets/pick/pick_vision_varied",
+   "dataset_files_sha256": "db499624ae4ec76cf2d73c48d8c7813b7a689f7b78ec3f26e24eb12b58b84a0e",
+   "dataset_code": {
+    "commit": "69b3798dde5a9a5020ea1e78254a5404ca01bd04",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "steps_override": null,
+   "code": {
+    "commit": "90c89e85419bbfe3656ed22f22033c0e8a42c1df",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "seed": 0,
+   "episodes": 982,
+   "windows": 83467
+  }
+ },
+ "appearance": [
+  "lighting",
+  "surfaces",
+  "objects"
+ ]
+}
