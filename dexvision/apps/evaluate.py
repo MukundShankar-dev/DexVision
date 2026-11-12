@@ -16,6 +16,10 @@ measure how much a vision policy relies on each camera. Val split only.
 --appearance FACTOR [FACTOR ...] renders the cameras with those appearance factors varied
 (configs/appearance.yaml) instead of the spec's own, to measure how robust a vision policy is to
 scenes it was not trained on. Val split only.
+
+--split train runs the first train seeds: the scenes (and looks) the demonstrations were recorded
+in. Success there against success on val shows whether a policy learned its training scenes
+without generalising. A diagnostic, never a result.
 """
 
 from __future__ import annotations
@@ -67,7 +71,8 @@ def main() -> None:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--policy", choices=sorted(POLICIES))
     source.add_argument("--checkpoint", type=Path, help="a trained model from apps.train")
-    parser.add_argument("--split", choices=("val", "test"), default="val")
+    parser.add_argument("--split", choices=("train", "val", "test"), default="val",
+                        help="train: the demonstration scenes, a memorisation check")
     parser.add_argument("--episodes", type=int, default=100)
     parser.add_argument("--videos", type=int, default=0, help="record the first N episodes")
     parser.add_argument("--video-dir", type=Path, default=REPO_ROOT / "runs" / "videos")

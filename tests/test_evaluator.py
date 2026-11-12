@@ -64,6 +64,15 @@ def test_parallel_evaluation_matches_serial(workcell, tmp_path):
     assert calls == list(range(1, 13))
 
 
+def test_train_seeds_can_be_evaluated_and_are_never_ledgered(workcell, tmp_path):
+    ledger = tmp_path / "ledger.jsonl"
+    task, policy = short_task(), make_policy("zero", workcell.action_space, "pick")
+    report = evaluate(workcell, task, policy, "train", 2, ledger_path=ledger)
+    start = task.spec.splits["train"][0]
+    assert report.split == "train" and [e.seed for e in report.episodes] == [start, start + 1]
+    assert not ledger.exists()
+
+
 def test_test_runs_are_ledgered_and_budgeted(workcell, tmp_path):
     ledger = tmp_path / "ledger.jsonl"
     task, policy = short_task(), make_policy("zero", workcell.action_space, "pick")
