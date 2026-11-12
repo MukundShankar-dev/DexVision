@@ -25,6 +25,11 @@ def observation_vector(fields: Sequence[str], arrays: dict[str, np.ndarray]) -> 
     return np.concatenate([np.asarray(arrays[f], dtype=np.float64) for f in fields], axis=-1)
 
 
+def _episode_seed(path: Path) -> int:
+    with np.load(path, allow_pickle=False) as data:
+        return int(data["seed"])
+
+
 class DemoWindows:
     """All windows of a set of episodes, held in memory.
 
@@ -79,8 +84,12 @@ class DemoWindows:
 
     @classmethod
     def from_directory(cls, directory: Path, fields: Sequence[str], obs_horizon: int,
-                       pred_horizon: int, cameras: Sequence[str] = ()) -> DemoWindows:
+                       pred_horizon: int, cameras: Sequence[str] = (),
+                       seeds: range | None = None) -> DemoWindows:
+        """Every episode in ``directory``, or only those recorded from ``seeds``."""
         paths = sorted(Path(directory).glob("episode_*.npz"))
+        if seeds is not None:
+            paths = [p for p in paths if _episode_seed(p) in seeds]
         windows = cls([load_episode(p, images=False) for p in paths], fields, obs_horizon,
                       pred_horizon)
         # the frames are gigabytes: fill preallocated arrays one episode at a time, so memory

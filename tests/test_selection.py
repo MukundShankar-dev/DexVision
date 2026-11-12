@@ -42,6 +42,16 @@ def checkpoints(tmp_path_factory):
     return root, task
 
 
+def test_demo_windows_can_be_limited_to_some_seeds(checkpoints):
+    root, task = checkpoints
+    h = load_method_config()["horizons"]
+    args = (root / "data", task.spec.observation, h["observation"], h["prediction"])
+    both = DemoWindows.from_directory(*args)
+    first = DemoWindows.from_directory(*args, seeds=task.spec.seeds("train", 1))
+    assert (both.n_episodes, first.n_episodes) == (2, 1)
+    assert np.array_equal(first.actions, both.actions[: len(first.actions)])
+
+
 def test_checkpoint_must_match_the_task(checkpoints, tmp_path):
     root, task = checkpoints
     policy, info = load_learned_policy(root / "step_000006.pt", task.spec)

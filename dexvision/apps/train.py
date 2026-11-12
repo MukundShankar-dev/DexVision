@@ -6,6 +6,10 @@
 
 Checkpoints (EMA weights) go to runs/<task>/<method>_seed<seed>/step_<N>.pt every
 ``checkpoint_every`` steps, with the loss log in train_log.csv. The directory must not exist.
+
+--episodes N trains on the demonstrations of the first N train seeds only, to check that the
+method can fit a few scenes before asking it to generalise. Evaluate such a run on the same
+scenes with ``apps.evaluate --split train --episodes N``. A diagnostic: give it its own --out.
 """
 
 from __future__ import annotations
@@ -31,6 +35,9 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--steps", type=int, default=None,
                         help="override the method's step count (smoke runs only)")
+    parser.add_argument("--episodes", type=int, default=None, metavar="N",
+                        help="train only on the demonstrations of the first N train seeds "
+                             "(overfit checks: can the method fit a few scenes at all?)")
     parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args()
 
@@ -41,9 +48,10 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=False)
     manifest = json.loads((data / "manifest.json").read_text(encoding="utf-8"))
     horizons = config["horizons"]
+    seeds = spec.seeds("train", args.episodes) if args.episodes else None
     windows = DemoWindows.from_directory(data, spec.observation, horizons["observation"],
-                                         horizons["prediction"], spec.cameras)
-    if windows.n_episodes != len(manifest["files"]):
+                                         horizons["prediction"], spec.cameras, seeds)
+    if seeds is None and windows.n_episodes != len(manifest["files"]):
         raise RuntimeError(f"{data} holds {windows.n_episodes} episodes; the manifest lists "
                            f"{len(manifest['files'])}")
     print(f"{args.method} on {args.task}: {windows.n_episodes} episodes, {len(windows)} windows, "
@@ -53,7 +61,8 @@ def main() -> None:
               "dataset": str(data.resolve().relative_to(REPO_ROOT))
               if data.resolve().is_relative_to(REPO_ROOT) else str(data),
               "dataset_files_sha256": manifest["files_sha256"],
-              "dataset_code": manifest["code"], "steps_override": args.steps}
+              "dataset_code": manifest["code"], "steps_override": args.steps,
+              "first_train_seeds": args.episodes}
     log = (out / "train_log.csv").open("w", encoding="utf-8")
     log.write("step,loss,seconds\n")
     started = time.perf_counter()
