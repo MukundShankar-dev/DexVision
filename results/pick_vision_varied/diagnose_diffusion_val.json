@@ -1,0 +1,170 @@
+{
+ "report": "results/pick_vision_varied/diffusion_val.json",
+ "phases": {
+  "contact_no_grasp": 86,
+  "success": 54,
+  "no_contact": 43,
+  "grasped_not_lifted": 13,
+  "fell_off_table": 2,
+  "lifted_not_held": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 7,
+    "n": 18
+   },
+   {
+    "successes": 6,
+    "n": 24
+   },
+   {
+    "successes": 3,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 9,
+    "n": 24
+   },
+   {
+    "successes": 9,
+    "n": 22
+   },
+   {
+    "successes": 4,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 6,
+    "n": 26
+   },
+   {
+    "successes": 4,
+    "n": 14
+   },
+   {
+    "successes": 6,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.075,
+   "failure": 0.0003
+  },
+  "max_hand_table_force_n": {
+   "success": 26.0,
+   "failure": 22.35
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 35.0,
+   "failure": 34.0
+  },
+  "first_grasp_step": {
+   "success": 54.0,
+   "failure": 57.0
+  },
+  "min_grasp_xy_m": {
+   "success": 0.018349999999999998,
+   "failure": 0.03725
+  },
+  "shift_before_grasp_m": {
+   "success": 0.0233,
+   "failure": 0.01555
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 20,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 15,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 19,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   "< 20": {
+    "successes": 2,
+    "n": 11
+   },
+   "20-50": {
+    "successes": 30,
+    "n": 97
+   },
+   ">= 50": {
+    "successes": 22,
+    "n": 92
+   }
+  },
+  "table": {
+   "plain": {
+    "successes": 20,
+    "n": 65
+   },
+   "training texture": {
+    "successes": 24,
+    "n": 105
+   },
+   "held-out texture": {
+    "successes": 10,
+    "n": 30
+   }
+  },
+  "object": {
+   "plain": {
+    "successes": 25,
+    "n": 98
+   },
+   "training texture": {
+    "successes": 19,
+    "n": 71
+   },
+   "held-out texture": {
+    "successes": 10,
+    "n": 31
+   }
+  }
+ },
+ "paired": {
+  "against": "results/pick_vision/diffusion_appearance-lighting-surfaces-objects_val.json",
+  "both": 8,
+  "only_this": 46,
+  "only_reference": 12,
+  "neither": 134,
+  "p_value": 8.219663963332513e-06,
+  "reference_only_seeds": [
+   100002,
+   100031,
+   100044,
+   100045,
+   100048,
+   100068,
+   100100,
+   100123,
+   100130,
+   100139,
+   100146,
+   100158
+  ],
+  "reference_only_phases": {
+   "no_contact": 7,
+   "contact_no_grasp": 4,
+   "lifted_not_held": 1
+  }
+ }
+}

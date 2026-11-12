@@ -1,9 +1,9 @@
 # Status
 
 **Active checkpoint:** A3, pick — train on varied appearance
-(`docs/PLAN.md`, A). **State:** gate approved 2026-11-11; spec
-`pick_vision_varied` and `runs/a3_pick.sh` are ready; nothing trained yet
-(the desktop is busy; the script also runs the baselines before training).
+(`docs/PLAN.md`, A). **State:** trained and evaluated on val 2026-11-11;
+**the gate is not met.** The test run was held, not spent (owner's call);
+awaiting owner review of the result below and of what to try next.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03); A1, appearance variation (approved 2026-11-10); A2, robustness of the V3–V6 policies (approved 2026-11-11). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -47,9 +47,8 @@ episode seed in the rendered scene only; physics is bit-identical (tests).
 Ranges: `configs/appearance.yaml`. Object colour is fully random; 4 of 16
 textures are held out of train seeds; no camera jitter.
 
-A2 (val, 200 paired seeds, no training; `runs/a2_eval.sh`, desktop). Checks:
-appearance tests pass on x86-64; the unvaried pick re-run matches the
-committed result on 200/200 episodes. Successes out of 200:
+A2 (val, 200 paired seeds, no training; `runs/a2_eval.sh`, desktop).
+Successes out of 200:
 
 | Skill | Unvaried | Lighting | Surfaces | Objects | All (Diffusion) | All (MLP-BC) |
 |---|---|---|---|---|---|---|
@@ -73,6 +72,32 @@ unchanged. Pass: Diffusion test Wilson lower bound ≥ 80% (≥ 172/200) on
 varied scenes, and both cameras blanked significantly worse on varied val
 (McNemar p < 0.01). Reported, not gated: MLP-BC; val on unvaried scenes vs
 the V3 policy; success by object and by held-out texture; the A2 probes.
+
+**A3 pick result (val only; desktop, commit `90c89e8`; no test run):**
+baselines on varied val are zero 0/200 and random 0/200 (the expert needs
+the object pose, so it cannot act on an image-only spec; state ceiling 200).
+Selected checkpoints, successes out of 200 paired val seeds:
+
+| | Diffusion (step 60k) | MLP-BC (step 50k) |
+|---|---|---|
+| Varied scenes | 54, CI [21%, 34%] | 72, CI [30%, 43%] |
+| Varied, both cameras blanked | 35 (p = 0.015) | 64 (p = 0.38) |
+| V3 policy on the same varied scenes | 20 (p = 8e-6) | 18 (p = 4e-11) |
+| Unvaried scenes (V3 policy) | 70 (191) | 120 (200) |
+
+- **Both gate parts fail.** Varied val is far below 172/200, and blanking
+  the cameras costs Diffusion little and MLP-BC nothing: the policies
+  barely use the images.
+- New encoders on varied val frames (frozen probe): position error 5.2 and
+  4.7 cm, the mean guess is 4.9; object identity 21% and 18%, chance is
+  17%. No better than the V3 encoders (4.2 and 4.8 cm). The scratch probe
+  on the same frames reaches 0.8 cm, so the frames suffice for locating.
+- Diffusion failures: contact without grasp 86 of 146, no contact 43.
+  Held-out object textures are no worse (10/31 against 44/169). Light puck
+  1/36, heavy puck 5/34.
+- Untested explanation: each demo has one unique look, so the network can
+  tell demos apart by look and fit their actions without locating the
+  object.
 
 ## Caveats
 

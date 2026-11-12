@@ -1,0 +1,194 @@
+{
+ "report": "results/pick_vision_varied/mlp_blank_val.json",
+ "phases": {
+  "contact_no_grasp": 96,
+  "success": 64,
+  "no_contact": 23,
+  "grasped_not_lifted": 15,
+  "fell_off_table": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 4,
+    "n": 18
+   },
+   {
+    "successes": 5,
+    "n": 24
+   },
+   {
+    "successes": 0,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 18,
+    "n": 24
+   },
+   {
+    "successes": 11,
+    "n": 22
+   },
+   {
+    "successes": 1,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 14,
+    "n": 26
+   },
+   {
+    "successes": 8,
+    "n": 14
+   },
+   {
+    "successes": 3,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.0753,
+   "failure": 0.00065
+  },
+  "max_hand_table_force_n": {
+   "success": 27.7,
+   "failure": 27.75
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 40.0,
+   "failure": 37.0
+  },
+  "first_grasp_step": {
+   "success": 83.0,
+   "failure": 56.0
+  },
+  "min_grasp_xy_m": {
+   "success": 0.0051,
+   "failure": 0.0369
+  },
+  "shift_before_grasp_m": {
+   "success": 0.012,
+   "failure": 0.010700000000000001
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 24,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 17,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 23,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   "< 20": {
+    "successes": 6,
+    "n": 11
+   },
+   "20-50": {
+    "successes": 32,
+    "n": 97
+   },
+   ">= 50": {
+    "successes": 26,
+    "n": 92
+   }
+  },
+  "table": {
+   "plain": {
+    "successes": 22,
+    "n": 65
+   },
+   "training texture": {
+    "successes": 29,
+    "n": 105
+   },
+   "held-out texture": {
+    "successes": 13,
+    "n": 30
+   }
+  },
+  "object": {
+   "plain": {
+    "successes": 30,
+    "n": 98
+   },
+   "training texture": {
+    "successes": 28,
+    "n": 71
+   },
+   "held-out texture": {
+    "successes": 6,
+    "n": 31
+   }
+  }
+ },
+ "paired": {
+  "against": "results/pick_vision_varied/mlp_val.json",
+  "both": 36,
+  "only_this": 28,
+  "only_reference": 36,
+  "neither": 100,
+  "p_value": 0.38173279479333766,
+  "reference_only_seeds": [
+   100005,
+   100008,
+   100012,
+   100014,
+   100028,
+   100030,
+   100036,
+   100042,
+   100054,
+   100059,
+   100066,
+   100069,
+   100072,
+   100073,
+   100084,
+   100087,
+   100090,
+   100091,
+   100093,
+   100094,
+   100095,
+   100097,
+   100105,
+   100120,
+   100124,
+   100127,
+   100129,
+   100131,
+   100133,
+   100134,
+   100145,
+   100146,
+   100169,
+   100173,
+   100185,
+   100186
+  ],
+  "reference_only_phases": {
+   "contact_no_grasp": 23,
+   "grasped_not_lifted": 8,
+   "no_contact": 4,
+   "fell_off_table": 1
+  }
+ }
+}

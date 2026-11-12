@@ -1,0 +1,167 @@
+{
+ "report": "results/pick_vision_varied/mlp_val.json",
+ "phases": {
+  "contact_no_grasp": 82,
+  "success": 72,
+  "no_contact": 24,
+  "grasped_not_lifted": 16,
+  "fell_off_table": 4,
+  "lifted_not_held": 2
+ },
+ "position_grid": [
+  [
+   {
+    "successes": 8,
+    "n": 18
+   },
+   {
+    "successes": 3,
+    "n": 24
+   },
+   {
+    "successes": 2,
+    "n": 20
+   }
+  ],
+  [
+   {
+    "successes": 13,
+    "n": 24
+   },
+   {
+    "successes": 10,
+    "n": 22
+   },
+   {
+    "successes": 9,
+    "n": 25
+   }
+  ],
+  [
+   {
+    "successes": 13,
+    "n": 26
+   },
+   {
+    "successes": 5,
+    "n": 14
+   },
+   {
+    "successes": 9,
+    "n": 27
+   }
+  ]
+ ],
+ "metric_medians": {
+  "max_lift_m": {
+   "success": 0.0748,
+   "failure": 0.0015
+  },
+  "max_hand_table_force_n": {
+   "success": 27.5,
+   "failure": 27.45
+  },
+  "max_dwell_steps": {
+   "success": 10.0,
+   "failure": 0.0
+  },
+  "first_contact_step": {
+   "success": 37.5,
+   "failure": 36.0
+  },
+  "first_grasp_step": {
+   "success": 54.0,
+   "failure": 83.0
+  },
+  "min_grasp_xy_m": {
+   "success": 0.016300000000000002,
+   "failure": 0.02765
+  },
+  "shift_before_grasp_m": {
+   "success": 0.01105,
+   "failure": 0.01265
+  }
+ },
+ "appearance": {
+  "key light brightness": {
+   "< 0.6": {
+    "successes": 28,
+    "n": 63
+   },
+   "0.6-0.8": {
+    "successes": 21,
+    "n": 65
+   },
+   ">= 0.8": {
+    "successes": 23,
+    "n": 72
+   }
+  },
+  "object-table contrast (delta E)": {
+   "< 20": {
+    "successes": 1,
+    "n": 11
+   },
+   "20-50": {
+    "successes": 33,
+    "n": 97
+   },
+   ">= 50": {
+    "successes": 38,
+    "n": 92
+   }
+  },
+  "table": {
+   "plain": {
+    "successes": 24,
+    "n": 65
+   },
+   "training texture": {
+    "successes": 36,
+    "n": 105
+   },
+   "held-out texture": {
+    "successes": 12,
+    "n": 30
+   }
+  },
+  "object": {
+   "plain": {
+    "successes": 38,
+    "n": 98
+   },
+   "training texture": {
+    "successes": 24,
+    "n": 71
+   },
+   "held-out texture": {
+    "successes": 10,
+    "n": 31
+   }
+  }
+ },
+ "paired": {
+  "against": "results/pick_vision/mlp_appearance-lighting-surfaces-objects_val.json",
+  "both": 9,
+  "only_this": 63,
+  "only_reference": 9,
+  "neither": 119,
+  "p_value": 4.181227909275131e-11,
+  "reference_only_seeds": [
+   100007,
+   100016,
+   100023,
+   100024,
+   100085,
+   100115,
+   100121,
+   100170,
+   100180
+  ],
+  "reference_only_phases": {
+   "contact_no_grasp": 5,
+   "no_contact": 2,
+   "fell_off_table": 2
+  }
+ }
+}
