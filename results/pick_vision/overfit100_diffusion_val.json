@@ -1,0 +1,2205 @@
+{
+ "task": "pick_vision",
+ "skill": "pick",
+ "policy": "diffusion",
+ "split": "val",
+ "overall": {
+  "successes": 78,
+  "n": 100,
+  "ci95": [
+   0.6893,
+   0.85
+  ]
+ },
+ "by_object": {
+  "block_large": {
+   "successes": 14,
+   "n": 14,
+   "ci95": [
+    0.7847,
+    1.0
+   ]
+  },
+  "block_small": {
+   "successes": 16,
+   "n": 16,
+   "ci95": [
+    0.8064,
+    1.0
+   ]
+  },
+  "cylinder_short": {
+   "successes": 10,
+   "n": 12,
+   "ci95": [
+    0.552,
+    0.953
+   ]
+  },
+  "cylinder_tall": {
+   "successes": 6,
+   "n": 17,
+   "ci95": [
+    0.1731,
+    0.587
+   ]
+  },
+  "puck_heavy": {
+   "successes": 16,
+   "n": 19,
+   "ci95": [
+    0.6243,
+    0.9448
+   ]
+  },
+  "puck_light": {
+   "successes": 16,
+   "n": 22,
+   "ci95": [
+    0.5185,
+    0.8685
+   ]
+  }
+ },
+ "failures": {
+  "timeout": 22
+ },
+ "episodes": [
+  {
+   "seed": 100000,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0023,
+    "max_hand_table_force_n": 9.6,
+    "max_dwell_steps": 0,
+    "first_contact_step": 37,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0029,
+    "shift_before_grasp_m": 0.0484,
+    "start_x_m": -0.0899,
+    "start_y_m": -0.0038,
+    "start_yaw_rad": 3.1261
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100001,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0767,
+    "max_hand_table_force_n": 26.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0156,
+    "shift_before_grasp_m": 0.0206,
+    "start_x_m": -0.0319,
+    "start_y_m": 0.0453,
+    "start_yaw_rad": -2.883
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100002,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "max_hand_table_force_n": 30.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.0016,
+    "shift_before_grasp_m": 0.0139,
+    "start_x_m": -0.0245,
+    "start_y_m": 0.0207,
+    "start_yaw_rad": 0.811
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100003,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 10.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 21,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0209,
+    "shift_before_grasp_m": 0.0066,
+    "start_x_m": -0.0982,
+    "start_y_m": 0.0284,
+    "start_yaw_rad": 0.5924
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100004,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 70,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 11.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 31,
+    "first_grasp_step": 32,
+    "min_grasp_xy_m": 0.0256,
+    "shift_before_grasp_m": 0.0034,
+    "start_x_m": -0.0984,
+    "start_y_m": 0.0164,
+    "start_yaw_rad": -2.6099
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100005,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0041,
+    "max_hand_table_force_n": 14.4,
+    "max_dwell_steps": 0,
+    "first_contact_step": 38,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0361,
+    "shift_before_grasp_m": 0.0163,
+    "start_x_m": -0.0598,
+    "start_y_m": 0.0382,
+    "start_yaw_rad": -2.9423
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100006,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0743,
+    "max_hand_table_force_n": 18.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 27,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0225,
+    "shift_before_grasp_m": 0.0003,
+    "start_x_m": -0.0495,
+    "start_y_m": 0.0114,
+    "start_yaw_rad": -1.8483
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100007,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0753,
+    "max_hand_table_force_n": 27.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 40,
+    "min_grasp_xy_m": 0.0243,
+    "shift_before_grasp_m": 0.0075,
+    "start_x_m": -0.0811,
+    "start_y_m": 0.0516,
+    "start_yaw_rad": -2.7684
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100008,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.077,
+    "max_hand_table_force_n": 21.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 52,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0333,
+    "shift_before_grasp_m": 0.0077,
+    "start_x_m": -0.022,
+    "start_y_m": 0.0,
+    "start_yaw_rad": -0.8648
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100009,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0771,
+    "max_hand_table_force_n": 16.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0297,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0614,
+    "start_y_m": 0.009,
+    "start_yaw_rad": -2.0047
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100010,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 27.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 56,
+    "min_grasp_xy_m": 0.0159,
+    "shift_before_grasp_m": 0.0019,
+    "start_x_m": -0.022,
+    "start_y_m": -0.0343,
+    "start_yaw_rad": 2.1418
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100011,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 15.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0344,
+    "shift_before_grasp_m": 0.0073,
+    "start_x_m": -0.0917,
+    "start_y_m": 0.0024,
+    "start_yaw_rad": -2.6314
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100012,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.055,
+    "max_hand_table_force_n": 9.5,
+    "max_dwell_steps": 3,
+    "first_contact_step": 46,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0224,
+    "shift_before_grasp_m": 0.0091,
+    "start_x_m": -0.0799,
+    "start_y_m": -0.0596,
+    "start_yaw_rad": 0.8422
+   },
+   "phase": "lifted_not_held",
+   "appearance": null
+  },
+  {
+   "seed": 100013,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0761,
+    "max_hand_table_force_n": 28.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0108,
+    "shift_before_grasp_m": 0.0223,
+    "start_x_m": -0.0242,
+    "start_y_m": -0.0276,
+    "start_yaw_rad": -0.2775
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100014,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 30.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0113,
+    "shift_before_grasp_m": 0.0049,
+    "start_x_m": -0.0601,
+    "start_y_m": 0.0145,
+    "start_yaw_rad": 2.3662
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100015,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 72,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 29.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.0126,
+    "shift_before_grasp_m": 0.0055,
+    "start_x_m": -0.0706,
+    "start_y_m": 0.0405,
+    "start_yaw_rad": -1.7309
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100016,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0774,
+    "max_hand_table_force_n": 26.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0093,
+    "shift_before_grasp_m": 0.01,
+    "start_x_m": -0.0556,
+    "start_y_m": 0.0386,
+    "start_yaw_rad": -2.8028
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100017,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 13.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.022,
+    "shift_before_grasp_m": 0.0028,
+    "start_x_m": -0.052,
+    "start_y_m": -0.0024,
+    "start_yaw_rad": 2.4322
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100018,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 25.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.014,
+    "shift_before_grasp_m": 0.0026,
+    "start_x_m": -0.0856,
+    "start_y_m": 0.0223,
+    "start_yaw_rad": 1.1387
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100019,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 80,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0208,
+    "shift_before_grasp_m": 0.02,
+    "start_x_m": -0.0756,
+    "start_y_m": -0.0227,
+    "start_yaw_rad": 1.235
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100020,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0727,
+    "max_hand_table_force_n": 12.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0352,
+    "shift_before_grasp_m": 0.0168,
+    "start_x_m": -0.066,
+    "start_y_m": -0.0212,
+    "start_yaw_rad": -0.899
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100021,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0742,
+    "max_hand_table_force_n": 7.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0275,
+    "shift_before_grasp_m": 0.0098,
+    "start_x_m": -0.0397,
+    "start_y_m": -0.0049,
+    "start_yaw_rad": -1.7128
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100022,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.076,
+    "max_hand_table_force_n": 33.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 30,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.008,
+    "shift_before_grasp_m": 0.0189,
+    "start_x_m": -0.0715,
+    "start_y_m": 0.0002,
+    "start_yaw_rad": 2.5568
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100023,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 70,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0754,
+    "max_hand_table_force_n": 23.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 32,
+    "first_grasp_step": 40,
+    "min_grasp_xy_m": 0.0334,
+    "shift_before_grasp_m": 0.0068,
+    "start_x_m": -0.0923,
+    "start_y_m": -0.0031,
+    "start_yaw_rad": -0.1277
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100024,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0765,
+    "max_hand_table_force_n": 30.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0215,
+    "shift_before_grasp_m": 0.0127,
+    "start_x_m": -0.0734,
+    "start_y_m": 0.0202,
+    "start_yaw_rad": -1.6442
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100025,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0741,
+    "max_hand_table_force_n": 38.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0016,
+    "shift_before_grasp_m": 0.0218,
+    "start_x_m": -0.0844,
+    "start_y_m": -0.05,
+    "start_yaw_rad": -2.4093
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100026,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 85,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0772,
+    "max_hand_table_force_n": 20.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0346,
+    "shift_before_grasp_m": 0.0127,
+    "start_x_m": -0.069,
+    "start_y_m": -0.043,
+    "start_yaw_rad": 0.3796
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100027,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 29.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0023,
+    "shift_before_grasp_m": 0.032,
+    "start_x_m": -0.0703,
+    "start_y_m": -0.0293,
+    "start_yaw_rad": -1.9907
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100028,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0045,
+    "max_hand_table_force_n": 3.7,
+    "max_dwell_steps": 0,
+    "first_contact_step": 34,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.011,
+    "shift_before_grasp_m": 0.0159,
+    "start_x_m": -0.0661,
+    "start_y_m": -0.0241,
+    "start_yaw_rad": -1.905
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100029,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0006,
+    "max_hand_table_force_n": 31.5,
+    "max_dwell_steps": 0,
+    "first_contact_step": 34,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0571,
+    "shift_before_grasp_m": 0.0085,
+    "start_x_m": -0.0934,
+    "start_y_m": 0.0124,
+    "start_yaw_rad": -2.531
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100030,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 72,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.079,
+    "max_hand_table_force_n": 15.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 40,
+    "min_grasp_xy_m": 0.03,
+    "shift_before_grasp_m": 0.0132,
+    "start_x_m": -0.0944,
+    "start_y_m": 0.0138,
+    "start_yaw_rad": 3.081
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100031,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0775,
+    "max_hand_table_force_n": 25.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.0139,
+    "shift_before_grasp_m": 0.0159,
+    "start_x_m": -0.0363,
+    "start_y_m": -0.0371,
+    "start_yaw_rad": -1.1072
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100032,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0766,
+    "max_hand_table_force_n": 18.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0311,
+    "shift_before_grasp_m": 0.0037,
+    "start_x_m": -0.0851,
+    "start_y_m": 0.0178,
+    "start_yaw_rad": 1.9101
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100033,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0039,
+    "max_hand_table_force_n": 15.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 35,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0082,
+    "shift_before_grasp_m": 0.0434,
+    "start_x_m": -0.088,
+    "start_y_m": 0.0009,
+    "start_yaw_rad": 1.599
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100034,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 12.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0261,
+    "shift_before_grasp_m": 0.0004,
+    "start_x_m": -0.035,
+    "start_y_m": 0.006,
+    "start_yaw_rad": 1.4453
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100035,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 26.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0166,
+    "shift_before_grasp_m": 0.0093,
+    "start_x_m": -0.0972,
+    "start_y_m": 0.014,
+    "start_yaw_rad": 3.0216
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100036,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 3.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0075,
+    "shift_before_grasp_m": 0.0192,
+    "start_x_m": -0.0403,
+    "start_y_m": -0.0558,
+    "start_yaw_rad": 0.6953
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100037,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0759,
+    "max_hand_table_force_n": 28.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0114,
+    "shift_before_grasp_m": 0.019,
+    "start_x_m": -0.0641,
+    "start_y_m": -0.0454,
+    "start_yaw_rad": 1.8574
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100038,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0781,
+    "max_hand_table_force_n": 17.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 26,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.0229,
+    "shift_before_grasp_m": 0.0011,
+    "start_x_m": -0.0956,
+    "start_y_m": 0.0488,
+    "start_yaw_rad": -1.0903
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100039,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 13.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 40,
+    "min_grasp_xy_m": 0.0239,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0887,
+    "start_y_m": -0.0098,
+    "start_yaw_rad": -0.1505
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100040,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 16.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 23,
+    "first_grasp_step": 41,
+    "min_grasp_xy_m": 0.0257,
+    "shift_before_grasp_m": 0.002,
+    "start_x_m": -0.092,
+    "start_y_m": 0.0528,
+    "start_yaw_rad": 1.6753
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100041,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0028,
+    "max_hand_table_force_n": 22.5,
+    "max_dwell_steps": 0,
+    "first_contact_step": 54,
+    "first_grasp_step": 60,
+    "min_grasp_xy_m": 0.0071,
+    "shift_before_grasp_m": 0.0359,
+    "start_x_m": -0.0339,
+    "start_y_m": -0.0353,
+    "start_yaw_rad": 0.8856
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100042,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0049,
+    "max_hand_table_force_n": 15.5,
+    "max_dwell_steps": 0,
+    "first_contact_step": 38,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0063,
+    "shift_before_grasp_m": 0.0081,
+    "start_x_m": -0.0687,
+    "start_y_m": -0.0153,
+    "start_yaw_rad": 2.6962
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100043,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0733,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0258,
+    "shift_before_grasp_m": 0.0112,
+    "start_x_m": -0.021,
+    "start_y_m": -0.0344,
+    "start_yaw_rad": -1.7354
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100044,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0736,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0055,
+    "shift_before_grasp_m": 0.0179,
+    "start_x_m": -0.06,
+    "start_y_m": -0.0539,
+    "start_yaw_rad": -1.7299
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100045,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 31.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 44,
+    "first_grasp_step": 54,
+    "min_grasp_xy_m": 0.015,
+    "shift_before_grasp_m": 0.018,
+    "start_x_m": -0.0498,
+    "start_y_m": -0.0523,
+    "start_yaw_rad": -1.7797
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100046,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 87,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0719,
+    "max_hand_table_force_n": 19.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0239,
+    "shift_before_grasp_m": 0.0005,
+    "start_x_m": -0.0211,
+    "start_y_m": 0.0403,
+    "start_yaw_rad": -1.3061
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100047,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0767,
+    "max_hand_table_force_n": 19.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0245,
+    "shift_before_grasp_m": 0.0032,
+    "start_x_m": -0.094,
+    "start_y_m": 0.0203,
+    "start_yaw_rad": 0.1817
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100048,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0789,
+    "max_hand_table_force_n": 21.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0332,
+    "shift_before_grasp_m": 0.0168,
+    "start_x_m": -0.0873,
+    "start_y_m": -0.0234,
+    "start_yaw_rad": -2.1664
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100049,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 30.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0098,
+    "shift_before_grasp_m": 0.0085,
+    "start_x_m": -0.0366,
+    "start_y_m": -0.0057,
+    "start_yaw_rad": -1.0688
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100050,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 26.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0159,
+    "shift_before_grasp_m": 0.0079,
+    "start_x_m": -0.0384,
+    "start_y_m": 0.0253,
+    "start_yaw_rad": 2.7601
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100051,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 69,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0746,
+    "max_hand_table_force_n": 2.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 30,
+    "first_grasp_step": 40,
+    "min_grasp_xy_m": 0.014,
+    "shift_before_grasp_m": 0.0235,
+    "start_x_m": -0.0944,
+    "start_y_m": 0.0394,
+    "start_yaw_rad": 2.8292
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100052,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 76,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 30.1,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0063,
+    "shift_before_grasp_m": 0.0056,
+    "start_x_m": -0.0576,
+    "start_y_m": 0.019,
+    "start_yaw_rad": -1.0397
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100053,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0102,
+    "max_hand_table_force_n": 16.3,
+    "max_dwell_steps": 0,
+    "first_contact_step": 45,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.014,
+    "shift_before_grasp_m": 0.0289,
+    "start_x_m": -0.0672,
+    "start_y_m": -0.0265,
+    "start_yaw_rad": 1.8306
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100054,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0758,
+    "max_hand_table_force_n": 18.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0274,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0604,
+    "start_y_m": 0.0514,
+    "start_yaw_rad": 2.0423
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100055,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0769,
+    "max_hand_table_force_n": 19.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 43,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0316,
+    "shift_before_grasp_m": 0.0091,
+    "start_x_m": -0.073,
+    "start_y_m": 0.0573,
+    "start_yaw_rad": -1.3076
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100056,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0788,
+    "max_hand_table_force_n": 15.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0334,
+    "shift_before_grasp_m": 0.0283,
+    "start_x_m": -0.0855,
+    "start_y_m": -0.0002,
+    "start_yaw_rad": -1.3669
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100057,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0729,
+    "max_hand_table_force_n": 27.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0102,
+    "shift_before_grasp_m": 0.0036,
+    "start_x_m": -0.0327,
+    "start_y_m": 0.05,
+    "start_yaw_rad": 1.7192
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100058,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 26.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0084,
+    "shift_before_grasp_m": 0.0094,
+    "start_x_m": -0.0364,
+    "start_y_m": -0.0133,
+    "start_yaw_rad": -1.6647
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100059,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 32.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 55,
+    "min_grasp_xy_m": 0.0089,
+    "shift_before_grasp_m": 0.0171,
+    "start_x_m": -0.0277,
+    "start_y_m": 0.0419,
+    "start_yaw_rad": 1.2351
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100060,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 35,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0166,
+    "shift_before_grasp_m": 0.0298,
+    "start_x_m": -0.0366,
+    "start_y_m": 0.0592,
+    "start_yaw_rad": 2.0158
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100061,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0783,
+    "max_hand_table_force_n": 6.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0305,
+    "shift_before_grasp_m": 0.0091,
+    "start_x_m": -0.0639,
+    "start_y_m": 0.0523,
+    "start_yaw_rad": -0.0186
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100062,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 18.2,
+    "max_dwell_steps": 10,
+    "first_contact_step": 50,
+    "first_grasp_step": 57,
+    "min_grasp_xy_m": 0.0366,
+    "shift_before_grasp_m": 0.0118,
+    "start_x_m": -0.0472,
+    "start_y_m": -0.0241,
+    "start_yaw_rad": 0.2393
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100063,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0723,
+    "max_hand_table_force_n": 15.4,
+    "max_dwell_steps": 10,
+    "first_contact_step": 48,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0273,
+    "shift_before_grasp_m": 0.0025,
+    "start_x_m": -0.0238,
+    "start_y_m": 0.0535,
+    "start_yaw_rad": -2.1009
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100064,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 2.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 50,
+    "min_grasp_xy_m": 0.0219,
+    "shift_before_grasp_m": 0.0152,
+    "start_x_m": -0.0379,
+    "start_y_m": 0.0483,
+    "start_yaw_rad": -1.7729
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100065,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0752,
+    "max_hand_table_force_n": 33.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 47,
+    "min_grasp_xy_m": 0.0149,
+    "shift_before_grasp_m": 0.0051,
+    "start_x_m": -0.0417,
+    "start_y_m": 0.0081,
+    "start_yaw_rad": -0.183
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100066,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0065,
+    "max_hand_table_force_n": 13.3,
+    "max_dwell_steps": 0,
+    "first_contact_step": 37,
+    "first_grasp_step": 38,
+    "min_grasp_xy_m": 0.0127,
+    "shift_before_grasp_m": 0.0112,
+    "start_x_m": -0.082,
+    "start_y_m": 0.0334,
+    "start_yaw_rad": -1.6249
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100067,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0005,
+    "max_hand_table_force_n": 26.2,
+    "max_dwell_steps": 0,
+    "first_contact_step": 35,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0484,
+    "shift_before_grasp_m": 0.0222,
+    "start_x_m": -0.0556,
+    "start_y_m": -0.0176,
+    "start_yaw_rad": 1.4487
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100068,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 98,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 52,
+    "first_grasp_step": 66,
+    "min_grasp_xy_m": 0.0231,
+    "shift_before_grasp_m": 0.0147,
+    "start_x_m": -0.0347,
+    "start_y_m": -0.0581,
+    "start_yaw_rad": -0.9779
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100069,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0739,
+    "max_hand_table_force_n": 29.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0164,
+    "shift_before_grasp_m": 0.0124,
+    "start_x_m": -0.0311,
+    "start_y_m": 0.03,
+    "start_yaw_rad": -0.7202
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100070,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0031,
+    "max_hand_table_force_n": 25.1,
+    "max_dwell_steps": 0,
+    "first_contact_step": 37,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0342,
+    "shift_before_grasp_m": 0.0564,
+    "start_x_m": -0.0497,
+    "start_y_m": 0.0267,
+    "start_yaw_rad": 0.1446
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100071,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0738,
+    "max_hand_table_force_n": 17.9,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.027,
+    "shift_before_grasp_m": 0.0012,
+    "start_x_m": -0.0642,
+    "start_y_m": 0.0033,
+    "start_yaw_rad": -0.9354
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100072,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0751,
+    "max_hand_table_force_n": 19.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 46,
+    "first_grasp_step": 49,
+    "min_grasp_xy_m": 0.0342,
+    "shift_before_grasp_m": 0.0047,
+    "start_x_m": -0.0642,
+    "start_y_m": 0.0403,
+    "start_yaw_rad": 0.9999
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100073,
+   "target_object": "cylinder_short",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0099,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 28,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0008,
+    "shift_before_grasp_m": 0.0369,
+    "start_x_m": -0.0722,
+    "start_y_m": 0.0576,
+    "start_yaw_rad": 0.6129
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100074,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 72,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0747,
+    "max_hand_table_force_n": 25.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 43,
+    "min_grasp_xy_m": 0.0131,
+    "shift_before_grasp_m": 0.018,
+    "start_x_m": -0.0674,
+    "start_y_m": 0.054,
+    "start_yaw_rad": -0.5072
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100075,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0763,
+    "max_hand_table_force_n": 26.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 36,
+    "first_grasp_step": 46,
+    "min_grasp_xy_m": 0.0081,
+    "shift_before_grasp_m": 0.0143,
+    "start_x_m": -0.06,
+    "start_y_m": -0.0327,
+    "start_yaw_rad": -2.6833
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100076,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0001,
+    "max_hand_table_force_n": 15.1,
+    "max_dwell_steps": 0,
+    "first_contact_step": 51,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0417,
+    "shift_before_grasp_m": 0.0246,
+    "start_x_m": -0.0244,
+    "start_y_m": -0.0537,
+    "start_yaw_rad": -1.3149
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100077,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 89,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 16.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 51,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.03,
+    "shift_before_grasp_m": 0.0,
+    "start_x_m": -0.0368,
+    "start_y_m": 0.0097,
+    "start_yaw_rad": 2.4982
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100078,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0008,
+    "max_hand_table_force_n": 10.9,
+    "max_dwell_steps": 0,
+    "first_contact_step": 47,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0054,
+    "shift_before_grasp_m": 0.0535,
+    "start_x_m": -0.0539,
+    "start_y_m": -0.0459,
+    "start_yaw_rad": -1.6453
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100079,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 83,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0731,
+    "max_hand_table_force_n": 14.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0102,
+    "shift_before_grasp_m": 0.0103,
+    "start_x_m": -0.0572,
+    "start_y_m": -0.03,
+    "start_yaw_rad": 2.724
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100080,
+   "target_object": "puck_light",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0768,
+    "max_hand_table_force_n": 14.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 37,
+    "first_grasp_step": 42,
+    "min_grasp_xy_m": 0.0262,
+    "shift_before_grasp_m": 0.0086,
+    "start_x_m": -0.0889,
+    "start_y_m": -0.0074,
+    "start_yaw_rad": 1.5777
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100081,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0061,
+    "max_hand_table_force_n": 20.0,
+    "max_dwell_steps": 0,
+    "first_contact_step": 42,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0056,
+    "shift_before_grasp_m": 0.0208,
+    "start_x_m": -0.0666,
+    "start_y_m": 0.0462,
+    "start_yaw_rad": -2.0148
+   },
+   "phase": "grasped_not_lifted",
+   "appearance": null
+  },
+  {
+   "seed": 100082,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.002,
+    "max_hand_table_force_n": 21.6,
+    "max_dwell_steps": 0,
+    "first_contact_step": 34,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0076,
+    "shift_before_grasp_m": 0.059,
+    "start_x_m": -0.0931,
+    "start_y_m": -0.0423,
+    "start_yaw_rad": 1.0532
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100083,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 78,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0737,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 33,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.022,
+    "shift_before_grasp_m": 0.0187,
+    "start_x_m": -0.0705,
+    "start_y_m": -0.0487,
+    "start_yaw_rad": -2.4681
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100084,
+   "target_object": "cylinder_short",
+   "success": true,
+   "steps": 74,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 29,
+    "first_grasp_step": 45,
+    "min_grasp_xy_m": 0.0207,
+    "shift_before_grasp_m": 0.0231,
+    "start_x_m": -0.0479,
+    "start_y_m": 0.059,
+    "start_yaw_rad": -0.8497
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100085,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0012,
+    "max_hand_table_force_n": 14.2,
+    "max_dwell_steps": 0,
+    "first_contact_step": 28,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0075,
+    "shift_before_grasp_m": 0.0422,
+    "start_x_m": -0.0893,
+    "start_y_m": 0.0396,
+    "start_yaw_rad": 0.8666
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100086,
+   "target_object": "cylinder_tall",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.005,
+    "max_hand_table_force_n": 13.8,
+    "max_dwell_steps": 0,
+    "first_contact_step": 47,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0073,
+    "shift_before_grasp_m": 0.0936,
+    "start_x_m": -0.0507,
+    "start_y_m": -0.0022,
+    "start_yaw_rad": -1.2014
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100087,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 84,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0745,
+    "max_hand_table_force_n": 1.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0225,
+    "shift_before_grasp_m": 0.0179,
+    "start_x_m": -0.0433,
+    "start_y_m": 0.0529,
+    "start_yaw_rad": 1.6154
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100088,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 77,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 38.5,
+    "max_dwell_steps": 10,
+    "first_contact_step": 39,
+    "first_grasp_step": 51,
+    "min_grasp_xy_m": 0.0071,
+    "shift_before_grasp_m": 0.0127,
+    "start_x_m": -0.0718,
+    "start_y_m": -0.0417,
+    "start_yaw_rad": -0.4734
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100089,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 81,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 16.3,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0237,
+    "shift_before_grasp_m": 0.0187,
+    "start_x_m": -0.087,
+    "start_y_m": 0.0002,
+    "start_yaw_rad": 2.705
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100090,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 73,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0749,
+    "max_hand_table_force_n": 31.6,
+    "max_dwell_steps": 10,
+    "first_contact_step": 34,
+    "first_grasp_step": 44,
+    "min_grasp_xy_m": 0.0004,
+    "shift_before_grasp_m": 0.0132,
+    "start_x_m": -0.0913,
+    "start_y_m": 0.0026,
+    "start_yaw_rad": -2.6382
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100091,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0762,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 42,
+    "first_grasp_step": 59,
+    "min_grasp_xy_m": 0.013,
+    "shift_before_grasp_m": 0.0301,
+    "start_x_m": -0.0266,
+    "start_y_m": -0.0431,
+    "start_yaw_rad": 2.0904
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100092,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0755,
+    "max_hand_table_force_n": 30.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 40,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0202,
+    "shift_before_grasp_m": 0.0042,
+    "start_x_m": -0.0868,
+    "start_y_m": -0.0053,
+    "start_yaw_rad": -0.954
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100093,
+   "target_object": "block_small",
+   "success": true,
+   "steps": 75,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0748,
+    "max_hand_table_force_n": 30.8,
+    "max_dwell_steps": 10,
+    "first_contact_step": 38,
+    "first_grasp_step": 48,
+    "min_grasp_xy_m": 0.0159,
+    "shift_before_grasp_m": 0.0091,
+    "start_x_m": -0.0584,
+    "start_y_m": 0.0284,
+    "start_yaw_rad": 1.3432
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100094,
+   "target_object": "puck_heavy",
+   "success": true,
+   "steps": 88,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0756,
+    "max_hand_table_force_n": 18.7,
+    "max_dwell_steps": 10,
+    "first_contact_step": 47,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.027,
+    "shift_before_grasp_m": 0.01,
+    "start_x_m": -0.0431,
+    "start_y_m": -0.0225,
+    "start_yaw_rad": -1.8497
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100095,
+   "target_object": "cylinder_tall",
+   "success": true,
+   "steps": 86,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.075,
+    "max_hand_table_force_n": 0.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 45,
+    "first_grasp_step": 52,
+    "min_grasp_xy_m": 0.0203,
+    "shift_before_grasp_m": 0.0043,
+    "start_x_m": -0.0311,
+    "start_y_m": -0.0557,
+    "start_yaw_rad": -1.3737
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100096,
+   "target_object": "block_large",
+   "success": true,
+   "steps": 82,
+   "failure": null,
+   "metrics": {
+    "max_lift_m": 0.0737,
+    "max_hand_table_force_n": 29.0,
+    "max_dwell_steps": 10,
+    "first_contact_step": 41,
+    "first_grasp_step": 53,
+    "min_grasp_xy_m": 0.0143,
+    "shift_before_grasp_m": 0.0099,
+    "start_x_m": -0.034,
+    "start_y_m": 0.0208,
+    "start_yaw_rad": 2.8473
+   },
+   "phase": "success",
+   "appearance": null
+  },
+  {
+   "seed": 100097,
+   "target_object": "puck_heavy",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0029,
+    "max_hand_table_force_n": 12.1,
+    "max_dwell_steps": 0,
+    "first_contact_step": 30,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.034,
+    "shift_before_grasp_m": 0.0306,
+    "start_x_m": -0.0649,
+    "start_y_m": 0.0434,
+    "start_yaw_rad": -1.239
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100098,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.0015,
+    "max_hand_table_force_n": 21.9,
+    "max_dwell_steps": 0,
+    "first_contact_step": 38,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0397,
+    "shift_before_grasp_m": 0.0465,
+    "start_x_m": -0.0295,
+    "start_y_m": 0.0262,
+    "start_yaw_rad": -0.3287
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  },
+  {
+   "seed": 100099,
+   "target_object": "puck_light",
+   "success": false,
+   "steps": 160,
+   "failure": "timeout",
+   "metrics": {
+    "max_lift_m": 0.025,
+    "max_hand_table_force_n": 28.5,
+    "max_dwell_steps": 0,
+    "first_contact_step": 36,
+    "first_grasp_step": -1,
+    "min_grasp_xy_m": 0.0382,
+    "shift_before_grasp_m": 0.0383,
+    "start_x_m": -0.0695,
+    "start_y_m": 0.0378,
+    "start_yaw_rad": 3.0751
+   },
+   "phase": "contact_no_grasp",
+   "appearance": null
+  }
+ ],
+ "code": {
+  "commit": "caf8fed27ec0d709188b9ade989709b80ad37e71",
+  "dirty": false,
+  "platform": "Linux-x86_64",
+  "mujoco": "3.9.0"
+ },
+ "policy_info": {
+  "checkpoint": "runs/overfit/pick_vision_100/diffusion_seed0/step_030000.pt",
+  "checkpoint_sha256": "2c7124f63309b2df651e820d5926336ebd565f1123c68cb4900c3f90b5932639",
+  "method": "diffusion",
+  "step": 30000,
+  "training": {
+   "skill": "pick",
+   "task": "pick_vision",
+   "dataset": "datasets/pick/pick_vision",
+   "dataset_files_sha256": "c5fd1d5c86aaa0f7d3f7544396514916878f58ef23cf089ba09f9b43925617b2",
+   "dataset_code": {
+    "commit": "e8209dfaddbf2ca970c20cdf6bdc0258347523e5",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "steps_override": 30000,
+   "first_train_seeds": 100,
+   "code": {
+    "commit": "caf8fed27ec0d709188b9ade989709b80ad37e71",
+    "dirty": false,
+    "platform": "Linux-x86_64",
+    "mujoco": "3.9.0"
+   },
+   "seed": 0,
+   "episodes": 98,
+   "windows": 8455
+  }
+ },
+ "appearance": []
+}

@@ -3,7 +3,7 @@
 **Active checkpoint:** A3, pick — train on varied appearance
 (`docs/PLAN.md`, A). **State:** trained and evaluated on val 2026-11-11;
 **the gate is not met.** The test run was held, not spent (owner's call);
-awaiting owner review of the result below and of what to try next.
+diagnostics below; awaiting the owner's choice of what to try next.
 **Done:** pick, reach, push ±90°, press (button anywhere), place (owner
 approved 2026-10-28); V1–V3, pick from images (approved 2026-10-29); V4, press from images
 (approved 2026-10-30); V5, push from images (approved 2026-11-02); V6, place from images (approved 2026-11-03); A1, appearance variation (approved 2026-11-10); A2, robustness of the V3–V6 policies (approved 2026-11-11). Tags: `legacy-v1`, `push-45`, `press-depth-limit`,
@@ -92,9 +92,20 @@ Selected checkpoints, successes out of 200 paired val seeds:
   Held-out object textures are no worse (10/31 against 44/169). Light puck
   1/36, heavy puck 5/34.
 - **Training scenes** (first 200 train seeds, `--split train`): Diffusion
-  114/200, CI [50%, 64%]; MLP-BC 171/200, CI [80%, 90%]. Both are far above
-  their val scores, so the policies learned their training looks without
-  generalising; Diffusion also does not fully fit them in 60k steps.
+  114/200, MLP-BC 171/200, both far above their val scores.
+- **Overfit check** (demos of the first 100 train seeds, 30k steps;
+  successes of 100; the control is the same seeds with one fixed look):
+
+  | | Training scenes | Val |
+  |---|---|---|
+  | Diffusion, unvaried (control) | 80 | 78 |
+  | Diffusion, varied | 70 | 28 |
+  | MLP-BC, varied | 83 | 10 |
+
+  With one look, what 98 demos teach transfers to new scenes; with varied
+  looks it does not, and ten times the demos does not close the gap. Fitting
+  the training scenes is only slightly worse with varied looks (70 against
+  80, paired p = 0.04).
 - **Steering** (scratch script, 40–60 val episodes; slope of palm xy at
   step 25, before contact, against object xy): V3 policy on unvaried
   scenes 0.96 and 0.75; new Diffusion −0.03 and 0.18; new MLP-BC −0.02 and
